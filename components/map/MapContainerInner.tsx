@@ -167,8 +167,8 @@ export default function MapContainerInner({
       marker.setPopup(popup);
 
       const markerEl = marker.getElement();
-      markerEl.addEventListener('mouseenter', () => { try { marker.openPopup(); } catch {} });
-      markerEl.addEventListener('mouseleave', () => { try { marker.closePopup(); } catch {} });
+      markerEl.addEventListener('mouseenter', () => { try { (marker as any).openPopup(); } catch {} });
+      markerEl.addEventListener('mouseleave', () => { try { (marker as any).closePopup(); } catch {} });
       markerEl.style.cursor = 'pointer';
     }
   }, [effectiveUserLocation, targetLocation]);

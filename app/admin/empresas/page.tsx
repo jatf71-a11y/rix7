@@ -34,7 +34,15 @@ const EMPTY_FORM: Omit<Partner, 'id'> = {
   color: '#3B82F6',
 };
 
-export default function AdminEmpresasPage() {
+export default function AdminEmpresasPageWrapper() {
+  return (
+    <React.Suspense fallback={<div className="flex items-center justify-center h-64 text-slate-500">Cargando...</div>}>
+      <AdminEmpresasPage />
+    </React.Suspense>
+  );
+}
+
+function AdminEmpresasPage() {
   const searchParams = useSearchParams();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
