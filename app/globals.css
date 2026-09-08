@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-blue-500 selection:text-white;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TOOLTIP LIGERO PARA MAPA MAPLIBRE
+   ═══════════════════════════════════════════════════════════════════ */
+.rix7-tooltip,
+.rix7-tooltip-selected {
+  background: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 3px 8px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+}
+
+.rix7-tooltip-selected {
+  background: #0f172a !important;
+  color: white !important;
+}
+
+.rix7-tooltip::before,
+.rix7-tooltip-selected::before {
+  border-top-color: white !important;
+}
+
+.rix7-tooltip-selected::before {
+  border-top-color: #0f172a !important;
+}
+
+
+.ping-ring {
+  position: absolute;
+  left: var(--ring-x, 50%);
+  top: var(--ring-y, 50%);
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  border: 3px solid rgba(239, 68, 68, 0.8);
+  transform: translate(-50%, -50%);
+  animation: pingExpand 4s ease-out infinite;
+  pointer-events: none;
+}
+.ping-ring-0 { animation-delay: 0s; }
+.ping-ring-1 { animation-delay: 1s; }
+.ping-ring-2 { animation-delay: 2s; }
+.ping-ring-3 { animation-delay: 3s; }
+
+.ping-glow {
+  position: absolute;
+  left: var(--ring-x, 50%);
+  top: var(--ring-y, 50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239,68,68,0.6) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  animation: pingPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pingExpand {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.9;
+    border-width: 3px;
+  }
+  70% { opacity: 0.4; }
+  100% {
+    width: var(--ring-max-size, 500px);
+    height: var(--ring-max-size, 500px);
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+@keyframes pingPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+  50% { transform: translate(-50%, -50%) scale(1.8); opacity: 1; }
+}
