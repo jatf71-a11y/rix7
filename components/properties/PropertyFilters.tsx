@@ -519,13 +519,13 @@ export function PropertyFilters({
               className={`relative flex items-center justify-center w-8 h-8 rounded-lg text-xs font-bold transition-all border ${
                 nearbyActive
                   ? 'bg-red-600 text-white border-red-600 shadow-sm shadow-red-500/20'
-                  : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-900'
+                  : 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-900'
               }`}
               title={nearbyActive ? 'Todas' : 'Mi Ubicación'}
             >
               <Radio className={`w-4 h-4 ${nearbyActive ? 'animate-pulse' : ''}`} />
               {nearbyActive && nearbyCount !== undefined && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center text-[9px] font-extrabold bg-red-500 text-white rounded-full border border-white">
+                <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center text-[9px] font-extrabold bg-blue-500 text-white rounded-full border border-white">
                   {nearbyCount}
                 </span>
               )}
