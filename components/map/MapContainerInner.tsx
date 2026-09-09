@@ -396,6 +396,17 @@ export default function MapContainerInner({
         <div className="ping-glow" />
       </div>
 
+      {/* ═══ Panel compacto de propiedades cercanas ═══ */}
+      {nearbyActive && effectiveUserLocation && properties.length > 0 && (
+        <div className="absolute bottom-14 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg shadow-black/10 border border-slate-200/80 pointer-events-none">
+          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+          <span className="text-sm font-semibold text-slate-800">
+            {properties.length} propiedades
+          </span>
+          <span className="text-xs text-slate-500">en 5 km</span>
+        </div>
+      )}
+
       {/* Botón volver a mi ubicación */}
       {effectiveUserLocation && (
         <button
