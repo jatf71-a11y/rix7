@@ -153,6 +153,76 @@ END;
 $$;
 
 -- ==============================================================================
+-- 4.b FUNCIÓN ALMACENADA RPC: get_property_by_id
+-- Detalle de una propiedad individual por ID (usada por /api/properties/[id])
+-- ==============================================================================
+CREATE OR REPLACE FUNCTION public.get_property_by_id(
+    property_id TEXT
+)
+RETURNS TABLE (
+    id UUID,
+    title TEXT,
+    description TEXT,
+    price NUMERIC,
+    property_type TEXT,
+    status TEXT,
+    bedrooms INTEGER,
+    bathrooms NUMERIC,
+    area_sqm NUMERIC,
+    parking_spots INTEGER,
+    year_built INTEGER,
+    address TEXT,
+    city TEXT,
+    state TEXT,
+    zip_code TEXT,
+    images TEXT[],
+    features TEXT[],
+    lat DOUBLE PRECISION,
+    lng DOUBLE PRECISION,
+    agent_name TEXT,
+    agent_email TEXT,
+    agent_phone TEXT,
+    agent_avatar TEXT,
+    created_at TIMESTAMPTZ
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, extensions
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        p.id,
+        p.title,
+        p.description,
+        p.price,
+        p.property_type,
+        p.status,
+        p.bedrooms,
+        p.bathrooms,
+        p.area_sqm,
+        p.parking_spots,
+        p.year_built,
+        p.address,
+        p.city,
+        p.state,
+        p.zip_code,
+        p.images,
+        p.features,
+        ST_Y(p.location::geometry) AS lat,
+        ST_X(p.location::geometry) AS lng,
+        p.agent_name,
+        p.agent_email,
+        p.agent_phone,
+        p.agent_avatar,
+        p.created_at
+    FROM public.properties p
+    WHERE p.id::TEXT = property_id
+    LIMIT 1;
+END;
+$$;
+
+-- ==============================================================================
 -- 5. SEGURIDAD A NIVEL DE FILAS (ROW LEVEL SECURITY - RLS)
 -- ==============================================================================
 ALTER TABLE public.properties ENABLE ROW LEVEL SECURITY;
