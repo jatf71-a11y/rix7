@@ -19,8 +19,12 @@ function NavbarContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo Rix7 */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/30 group-hover:scale-105 transition-transform">
-            <Building2 className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-white border border-slate-200/90 p-1 flex items-center justify-center shadow-md shadow-blue-500/10 group-hover:scale-105 transition-transform">
+            <img
+              src="/brand-logo.png"
+              alt="Logo Rix7"
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <span className="text-2xl font-black tracking-tight text-slate-900">

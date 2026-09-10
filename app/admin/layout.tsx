@@ -33,8 +33,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-slate-200 p-4 sticky top-16 h-[calc(100vh-64px)]">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-md">
-            <Building2 className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-white border border-slate-200/90 p-1 flex items-center justify-center shadow-md">
+            <img src="/brand-logo.png" alt="Logo Rix7" className="w-full h-full object-contain" />
           </div>
           <div>
             <h2 className="text-sm font-bold text-slate-900">Panel Admin</h2>
