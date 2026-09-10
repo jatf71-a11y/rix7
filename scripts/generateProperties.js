@@ -532,6 +532,63 @@ function genLand(region, commune, idx, status) {
   };
 }
 
+// ═══ PARKING (ESTACIONAMIENTOS) ═══
+function genParking(region, commune, idx, status) {
+  const area = 12 + (idx * 2) % 15;
+  const year = 2012 + (idx * 3) % 12;
+  const base = isUrban(region.code) ? (status === 'for_rent' ? 95000 : 18000000) : (status === 'for_rent' ? 45000 : 8000000);
+  const price = Math.round((base + (idx * (status === 'for_rent' ? 12000 : 2500000)) % (base * 0.8)) / (status === 'for_rent' ? 5000 : 500000)) * (status === 'for_rent' ? 5000 : 500000);
+  const styles = [
+    'Estacionamiento Subterráneo Nivel -1',
+    'Estacionamiento Techado con Control Remoto',
+    'Estacionamiento con Acceso TAG y Seguridad 24/7',
+    'Estacionamiento Amplio para Camioneta / SUV',
+    'Estacionamiento en Edificio Residencial Moderno',
+    'Estacionamiento en Sector Financiero y Comercial',
+    'Estacionamiento Subterráneo con Portón Automático',
+    'Estacionamiento con Circuito Cerrado TV',
+    'Estacionamiento Cerca de Metro y Avenidas Principales',
+  ];
+  const feats = [
+    ['Subterráneo nivel -1', 'Acceso con TAG / Tarjeta', 'Seguridad 24/7', 'Portón automático'],
+    ['Cámaras CCTV', 'Conserjería 24 hrs', 'Control remoto', 'Techado'],
+    ['Excelente maniobrabilidad', 'Gasto común bajo', 'Iluminación LED', 'Acceso a ascensores'],
+    ['Para SUV / Camioneta grande', 'Portón eléctrico', 'Control de acceso', 'Cerca de salida'],
+    ['Guardias permanentes', 'Acceso peatonal con tarjeta', 'Red seca y extintores', 'Nivel -2'],
+  ];
+  const titleSuffix = status === 'for_rent' ? ' en Arriendo' : ' en Venta';
+  const communeData = communeAddresses[commune.name];
+  const neighborhood = communeData?.neighborhoods ? communeData.neighborhoods[idx % communeData.neighborhoods.length] : commune.name;
+
+  return {
+    id: generateId(region.code, commune.name, 'estacionamiento', status),
+    title: `${styles[idx % styles.length]}${titleSuffix} en ${commune.name}`,
+    description: `Estacionamiento de ${area} m² en sector ${neighborhood}, ${commune.name}. Acceso controlado, seguridad 24 horas y excelente conectividad.`,
+    price,
+    property_type: 'parking',
+    status,
+    bedrooms: 0,
+    bathrooms: 0,
+    area_sqm: area,
+    parking_spots: 1,
+    year_built: year,
+    address: getRealAddress(commune.name, 'parking', idx),
+    city: commune.name,
+    state: region.name,
+    zip_code: `${6000000 + (idx * 3119) % 4000000}`,
+    images: [
+      'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80',
+    ],
+    features: feats[idx % feats.length],
+    lat: Math.round((commune.lat + ((idx * 0.0035) % 0.01) - 0.005) * 10000) / 10000,
+    lng: Math.round((commune.lng + ((idx * 0.0035) % 0.01) - 0.005) * 10000) / 10000,
+    agent_name: 'Agente Rix7',
+    agent_email: 'estacionamientos@rix7.cl',
+    agent_phone: '+56 9 0000 0001',
+  };
+}
+
 // ═══ GENERATE ALL ═══
 const properties = [];
 let idx = 0;
@@ -545,6 +602,7 @@ for (const region of regions) {
     properties.push(genParcel(region, commune, idx, 'for_sale'));
     properties.push(genOffice(region, commune, idx, 'for_sale'));
     properties.push(genLand(region, commune, idx, 'for_sale'));
+    properties.push(genParking(region, commune, idx, 'for_sale'));
 
     // RENT: all types (except premium)
     properties.push(genHouse(region, commune, idx, 'for_rent'));
@@ -552,6 +610,7 @@ for (const region of regions) {
     properties.push(genParcel(region, commune, idx, 'for_rent'));
     properties.push(genOffice(region, commune, idx, 'for_rent'));
     properties.push(genLand(region, commune, idx, 'for_rent'));
+    properties.push(genParking(region, commune, idx, 'for_rent'));
 
     idx++;
   }

@@ -156,6 +156,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xv-estacionamiento-arica-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Arica",
+    "description": "Estacionamiento de 12 m² en sector Centro, Arica. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. 18 de Septiembre 100",
+    "city": "Arica",
+    "state": "Arica y Parinacota",
+    "zip_code": "6000000",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -18.4833,
+    "lng": -70.3176,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xv-casa-arica-arriendo",
     "title": "Casa con Jardín y Quincho en Arriendo en Arica",
     "description": "Casa familiar ubicada en el sector Centro de Arica. 2 dormitorios, 1 baños, 80 m². Excelente ubicación y conectividad.",
@@ -303,6 +335,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.3176,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xv-estacionamiento-arica-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Arica",
+    "description": "Estacionamiento de 12 m² en sector Centro, Arica. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. 18 de Septiembre 100",
+    "city": "Arica",
+    "state": "Arica y Parinacota",
+    "zip_code": "6000000",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -18.4833,
+    "lng": -70.3176,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -456,6 +520,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xv-estacionamiento-camarones-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Camarones",
+    "description": "Estacionamiento de 14 m² en sector Sector Alto, Camarones. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Camino al Mar 137",
+    "city": "Camarones",
+    "state": "Arica y Parinacota",
+    "zip_code": "6003119",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -19.0157,
+    "lng": -69.8662,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xv-casa-camarones-arriendo",
     "title": "Casa Familiar de 3 Dormitorios en Arriendo en Camarones",
     "description": "Casa familiar ubicada en el sector Sector Alto de Camarones. 3 dormitorios, 2 baños, 93 m². Excelente ubicación y conectividad.",
@@ -603,6 +699,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -69.8637,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xv-estacionamiento-camarones-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Camarones",
+    "description": "Estacionamiento de 14 m² en sector Sector Alto, Camarones. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Camino al Mar 137",
+    "city": "Camarones",
+    "state": "Arica y Parinacota",
+    "zip_code": "6003119",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -19.0157,
+    "lng": -69.8662,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -756,6 +884,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xv-estacionamiento-general-lagos-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en General Lagos",
+    "description": "Estacionamiento de 16 m² en sector Visviri, General Lagos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Principal 174",
+    "city": "General Lagos",
+    "state": "Arica y Parinacota",
+    "zip_code": "6006238",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -17.6991,
+    "lng": -69.6036,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xv-casa-general-lagos-arriendo",
     "title": "Casa con Vista Panorámica en Arriendo en General Lagos",
     "description": "Casa familiar ubicada en el sector Visviri de General Lagos. 4 dormitorios, 3 baños, 106 m². Excelente ubicación y conectividad.",
@@ -903,6 +1063,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -69.6086,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xv-estacionamiento-general-lagos-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en General Lagos",
+    "description": "Estacionamiento de 16 m² en sector Visviri, General Lagos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Principal 174",
+    "city": "General Lagos",
+    "state": "Arica y Parinacota",
+    "zip_code": "6006238",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -17.6991,
+    "lng": -69.6036,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -1056,6 +1248,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xv-estacionamiento-putre-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Putre",
+    "description": "Estacionamiento de 18 m² en sector Alto Putre, Putre. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle San Miguel 211",
+    "city": "Putre",
+    "state": "Arica y Parinacota",
+    "zip_code": "6009357",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -18.201,
+    "lng": -69.5639,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xv-casa-putre-arriendo",
     "title": "Casa Rústica de Campo en Arriendo en Putre",
     "description": "Casa familiar ubicada en el sector Alto Putre de Putre. 2 dormitorios, 1 baños, 119 m². Excelente ubicación y conectividad.",
@@ -1203,6 +1427,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -69.5564,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xv-estacionamiento-putre-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Putre",
+    "description": "Estacionamiento de 18 m² en sector Alto Putre, Putre. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle San Miguel 211",
+    "city": "Putre",
+    "state": "Arica y Parinacota",
+    "zip_code": "6009357",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -18.201,
+    "lng": -69.5639,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -1356,6 +1612,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "i-estacionamiento-alto-hospicio-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Alto Hospicio",
+    "description": "Estacionamiento de 20 m² en sector Centro, Alto Hospicio. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. San Martín 248",
+    "city": "Alto Hospicio",
+    "state": "Tarapacá",
+    "zip_code": "6012476",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -20.2688,
+    "lng": -70.1099,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "i-casa-alto-hospicio-arriendo",
     "title": "Casa Moderna de 2 Plantas en Arriendo en Alto Hospicio",
     "description": "Casa familiar ubicada en el sector Centro de Alto Hospicio. 3 dormitorios, 2 baños, 132 m². Excelente ubicación y conectividad.",
@@ -1503,6 +1791,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.1099,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "i-estacionamiento-alto-hospicio-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Alto Hospicio",
+    "description": "Estacionamiento de 20 m² en sector Centro, Alto Hospicio. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. San Martín 248",
+    "city": "Alto Hospicio",
+    "state": "Tarapacá",
+    "zip_code": "6012476",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -20.2688,
+    "lng": -70.1099,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -1656,6 +1976,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "i-estacionamiento-camina-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Camiña",
+    "description": "Estacionamiento de 22 m² en sector Camiña, Camiña. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 285",
+    "city": "Camiña",
+    "state": "Tarapacá",
+    "zip_code": "6015595",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -19.3117,
+    "lng": -69.4236,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "i-casa-camina-arriendo",
     "title": "Casa Campestre con Terreno en Arriendo en Camiña",
     "description": "Casa familiar ubicada en el sector Camiña de Camiña. 4 dormitorios, 3 baños, 145 m². Excelente ubicación y conectividad.",
@@ -1803,6 +2155,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -69.4211,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "i-estacionamiento-camina-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Camiña",
+    "description": "Estacionamiento de 22 m² en sector Camiña, Camiña. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 285",
+    "city": "Camiña",
+    "state": "Tarapacá",
+    "zip_code": "6015595",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -19.3117,
+    "lng": -69.4236,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -1956,6 +2340,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "i-estacionamiento-colchane-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Colchane",
+    "description": "Estacionamiento de 24 m² en sector Colchane, Colchane. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 322",
+    "city": "Colchane",
+    "state": "Tarapacá",
+    "zip_code": "6018714",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -19.2818,
+    "lng": -68.6429,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "i-casa-colchane-arriendo",
     "title": "Casa con Patio Trasero en Arriendo en Colchane",
     "description": "Casa familiar ubicada en el sector Colchane de Colchane. 2 dormitorios, 1 baños, 158 m². Excelente ubicación y conectividad.",
@@ -2103,6 +2519,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -68.6379,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "i-estacionamiento-colchane-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Colchane",
+    "description": "Estacionamiento de 24 m² en sector Colchane, Colchane. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 322",
+    "city": "Colchane",
+    "state": "Tarapacá",
+    "zip_code": "6018714",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -19.2818,
+    "lng": -68.6429,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -2256,6 +2704,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "i-estacionamiento-huara-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Huara",
+    "description": "Estacionamiento de 26 m² en sector Centro, Huara. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Ruta 16 359",
+    "city": "Huara",
+    "state": "Tarapacá",
+    "zip_code": "6021833",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -19.9966,
+    "lng": -69.7716,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "i-casa-huara-arriendo",
     "title": "Casa Típica del Pueblo en Arriendo en Huara",
     "description": "Casa familiar ubicada en el sector Centro de Huara. 3 dormitorios, 2 baños, 171 m². Excelente ubicación y conectividad.",
@@ -2403,6 +2883,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -69.7741,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "i-estacionamiento-huara-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Huara",
+    "description": "Estacionamiento de 26 m² en sector Centro, Huara. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Ruta 16 359",
+    "city": "Huara",
+    "state": "Tarapacá",
+    "zip_code": "6021833",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -19.9966,
+    "lng": -69.7716,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -2556,6 +3068,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "i-estacionamiento-iquique-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Iquique",
+    "description": "Estacionamiento de 13 m² en sector Los Altos de Cantarrana, Iquique. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Baquedano 396",
+    "city": "Iquique",
+    "state": "Tarapacá",
+    "zip_code": "6024952",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -20.2137,
+    "lng": -70.147,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "i-casa-iquique-arriendo",
     "title": "Casa de Chalet en Arriendo en Iquique",
     "description": "Casa familiar ubicada en el sector Los Altos de Cantarrana de Iquique. 4 dormitorios, 3 baños, 184 m². Excelente ubicación y conectividad.",
@@ -2703,6 +3247,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.147,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "i-estacionamiento-iquique-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Iquique",
+    "description": "Estacionamiento de 13 m² en sector Los Altos de Cantarrana, Iquique. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Baquedano 396",
+    "city": "Iquique",
+    "state": "Tarapacá",
+    "zip_code": "6024952",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -20.2137,
+    "lng": -70.147,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -2856,6 +3432,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "i-estacionamiento-pica-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Pica",
+    "description": "Estacionamiento de 15 m² en sector Pica, Pica. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 433",
+    "city": "Pica",
+    "state": "Tarapacá",
+    "zip_code": "6028071",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -20.4932,
+    "lng": -69.3332,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "i-casa-pica-arriendo",
     "title": "Casa con Piscina en Arriendo en Pica",
     "description": "Casa familiar ubicada en el sector Pica de Pica. 2 dormitorios, 1 baños, 197 m². Excelente ubicación y conectividad.",
@@ -3003,6 +3611,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -69.3307,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "i-estacionamiento-pica-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Pica",
+    "description": "Estacionamiento de 15 m² en sector Pica, Pica. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 433",
+    "city": "Pica",
+    "state": "Tarapacá",
+    "zip_code": "6028071",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -20.4932,
+    "lng": -69.3332,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -3156,6 +3796,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "i-estacionamiento-pozo-almonte-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Pozo Almonte",
+    "description": "Estacionamiento de 17 m² en sector Centro, Pozo Almonte. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Pedro de Valdivia 470",
+    "city": "Pozo Almonte",
+    "state": "Tarapacá",
+    "zip_code": "6031190",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -20.2597,
+    "lng": -69.7861,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "i-casa-pozo-almonte-arriendo",
     "title": "Casa con Jardín y Quincho en Arriendo en Pozo Almonte",
     "description": "Casa familiar ubicada en el sector Centro de Pozo Almonte. 3 dormitorios, 2 baños, 210 m². Excelente ubicación y conectividad.",
@@ -3303,6 +3975,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -69.7811,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "i-estacionamiento-pozo-almonte-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Pozo Almonte",
+    "description": "Estacionamiento de 17 m² en sector Centro, Pozo Almonte. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Pedro de Valdivia 470",
+    "city": "Pozo Almonte",
+    "state": "Tarapacá",
+    "zip_code": "6031190",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -20.2597,
+    "lng": -69.7861,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -3456,6 +4160,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ii-estacionamiento-antofagasta-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Antofagasta",
+    "description": "Estacionamiento de 19 m² en sector López de Gere, Antofagasta. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Coloso 507",
+    "city": "Antofagasta",
+    "state": "Antofagasta",
+    "zip_code": "6034309",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -23.6465,
+    "lng": -70.3965,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ii-casa-antofagasta-arriendo",
     "title": "Casa Familiar de 3 Dormitorios en Arriendo en Antofagasta",
     "description": "Casa familiar ubicada en el sector López de Gere de Antofagasta. 4 dormitorios, 3 baños, 223 m². Excelente ubicación y conectividad.",
@@ -3603,6 +4339,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.399,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ii-estacionamiento-antofagasta-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Antofagasta",
+    "description": "Estacionamiento de 19 m² en sector López de Gere, Antofagasta. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Coloso 507",
+    "city": "Antofagasta",
+    "state": "Antofagasta",
+    "zip_code": "6034309",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -23.6465,
+    "lng": -70.3965,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -3756,6 +4524,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ii-estacionamiento-calama-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Calama",
+    "description": "Estacionamiento de 21 m² en sector Campamento 21, Calama. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Baquedano 544",
+    "city": "Calama",
+    "state": "Antofagasta",
+    "zip_code": "6037428",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -22.4697,
+    "lng": -68.9363,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ii-casa-calama-arriendo",
     "title": "Casa con Vista Panorámica en Arriendo en Calama",
     "description": "Casa familiar ubicada en el sector Campamento 21 de Calama. 2 dormitorios, 1 baños, 236 m². Excelente ubicación y conectividad.",
@@ -3903,6 +4703,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -68.9363,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ii-estacionamiento-calama-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Calama",
+    "description": "Estacionamiento de 21 m² en sector Campamento 21, Calama. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Baquedano 544",
+    "city": "Calama",
+    "state": "Antofagasta",
+    "zip_code": "6037428",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -22.4697,
+    "lng": -68.9363,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -4056,6 +4888,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ii-estacionamiento-maria-elena-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en María Elena",
+    "description": "Estacionamiento de 23 m² en sector Pedro de Valdivia, María Elena. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 581",
+    "city": "María Elena",
+    "state": "Antofagasta",
+    "zip_code": "6040547",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -22.3451,
+    "lng": -69.6639,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ii-casa-maria-elena-arriendo",
     "title": "Casa Rústica de Campo en Arriendo en María Elena",
     "description": "Casa familiar ubicada en el sector Pedro de Valdivia de María Elena. 3 dormitorios, 2 baños, 249 m². Excelente ubicación y conectividad.",
@@ -4203,6 +5067,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -69.6614,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ii-estacionamiento-maria-elena-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en María Elena",
+    "description": "Estacionamiento de 23 m² en sector Pedro de Valdivia, María Elena. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 581",
+    "city": "María Elena",
+    "state": "Antofagasta",
+    "zip_code": "6040547",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -22.3451,
+    "lng": -69.6639,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -4356,6 +5252,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ii-estacionamiento-mejillones-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Mejillones",
+    "description": "Estacionamiento de 25 m² en sector Mejillones, Mejillones. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 618",
+    "city": "Mejillones",
+    "state": "Antofagasta",
+    "zip_code": "6043666",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -23.096,
+    "lng": -70.446,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ii-casa-mejillones-arriendo",
     "title": "Casa Moderna de 2 Plantas en Arriendo en Mejillones",
     "description": "Casa familiar ubicada en el sector Mejillones de Mejillones. 4 dormitorios, 3 baños, 262 m². Excelente ubicación y conectividad.",
@@ -4503,6 +5431,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.451,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ii-estacionamiento-mejillones-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Mejillones",
+    "description": "Estacionamiento de 25 m² en sector Mejillones, Mejillones. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 618",
+    "city": "Mejillones",
+    "state": "Antofagasta",
+    "zip_code": "6043666",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -23.096,
+    "lng": -70.446,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -4656,6 +5616,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ii-estacionamiento-ollague-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Ollagüe",
+    "description": "Estacionamiento de 12 m² en sector Centro, Ollagüe. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Ruta 21 655",
+    "city": "Ollagüe",
+    "state": "Antofagasta",
+    "zip_code": "6046785",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -21.2247,
+    "lng": -68.2553,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ii-casa-ollague-arriendo",
     "title": "Casa Campestre con Terreno en Arriendo en Ollagüe",
     "description": "Casa familiar ubicada en el sector Centro de Ollagüe. 2 dormitorios, 1 baños, 275 m². Excelente ubicación y conectividad.",
@@ -4803,6 +5795,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -68.2478,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ii-estacionamiento-ollague-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Ollagüe",
+    "description": "Estacionamiento de 12 m² en sector Centro, Ollagüe. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Ruta 21 655",
+    "city": "Ollagüe",
+    "state": "Antofagasta",
+    "zip_code": "6046785",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -21.2247,
+    "lng": -68.2553,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -4956,6 +5980,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ii-estacionamiento-san-pedro-de-atacama-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en San Pedro de Atacama",
+    "description": "Estacionamiento de 14 m² en sector San Pedro de Atacama, San Pedro de Atacama. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 692",
+    "city": "San Pedro de Atacama",
+    "state": "Antofagasta",
+    "zip_code": "6049904",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -22.9157,
+    "lng": -68.199,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ii-casa-san-pedro-de-atacama-arriendo",
     "title": "Casa con Patio Trasero en Arriendo en San Pedro de Atacama",
     "description": "Casa familiar ubicada en el sector San Pedro de Atacama de San Pedro de Atacama. 3 dormitorios, 2 baños, 88 m². Excelente ubicación y conectividad.",
@@ -5103,6 +6159,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -68.199,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ii-estacionamiento-san-pedro-de-atacama-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en San Pedro de Atacama",
+    "description": "Estacionamiento de 14 m² en sector San Pedro de Atacama, San Pedro de Atacama. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 692",
+    "city": "San Pedro de Atacama",
+    "state": "Antofagasta",
+    "zip_code": "6049904",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -22.9157,
+    "lng": -68.199,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -5256,6 +6344,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ii-estacionamiento-sierra-gorda-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Sierra Gorda",
+    "description": "Estacionamiento de 16 m² en sector Sierra Gorda, Sierra Gorda. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 729",
+    "city": "Sierra Gorda",
+    "state": "Antofagasta",
+    "zip_code": "6053023",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -22.8788,
+    "lng": -69.3122,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ii-casa-sierra-gorda-arriendo",
     "title": "Casa Típica del Pueblo en Arriendo en Sierra Gorda",
     "description": "Casa familiar ubicada en el sector Sierra Gorda de Sierra Gorda. 4 dormitorios, 3 baños, 101 m². Excelente ubicación y conectividad.",
@@ -5403,6 +6523,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -69.3197,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ii-estacionamiento-sierra-gorda-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Sierra Gorda",
+    "description": "Estacionamiento de 16 m² en sector Sierra Gorda, Sierra Gorda. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 729",
+    "city": "Sierra Gorda",
+    "state": "Antofagasta",
+    "zip_code": "6053023",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -22.8788,
+    "lng": -69.3122,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -5556,6 +6708,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ii-estacionamiento-taltal-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Taltal",
+    "description": "Estacionamiento de 18 m² en sector Centro, Taltal. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Bolognesi 766",
+    "city": "Taltal",
+    "state": "Antofagasta",
+    "zip_code": "6056142",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -25.402,
+    "lng": -70.4853,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ii-casa-taltal-arriendo",
     "title": "Casa de Chalet en Arriendo en Taltal",
     "description": "Casa familiar ubicada en el sector Centro de Taltal. 2 dormitorios, 1 baños, 114 m². Excelente ubicación y conectividad.",
@@ -5703,6 +6887,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.4803,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ii-estacionamiento-taltal-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Taltal",
+    "description": "Estacionamiento de 18 m² en sector Centro, Taltal. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Bolognesi 766",
+    "city": "Taltal",
+    "state": "Antofagasta",
+    "zip_code": "6056142",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -25.402,
+    "lng": -70.4853,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -5856,6 +7072,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ii-estacionamiento-tocopilla-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Tocopilla",
+    "description": "Estacionamiento de 20 m² en sector Coya Norte, Tocopilla. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Calvo 803",
+    "city": "Tocopilla",
+    "state": "Antofagasta",
+    "zip_code": "6059261",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -22.0818,
+    "lng": -70.1985,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ii-casa-tocopilla-arriendo",
     "title": "Casa con Piscina en Arriendo en Tocopilla",
     "description": "Casa familiar ubicada en el sector Coya Norte de Tocopilla. 3 dormitorios, 2 baños, 127 m². Excelente ubicación y conectividad.",
@@ -6003,6 +7251,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.201,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ii-estacionamiento-tocopilla-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Tocopilla",
+    "description": "Estacionamiento de 20 m² en sector Coya Norte, Tocopilla. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Calvo 803",
+    "city": "Tocopilla",
+    "state": "Antofagasta",
+    "zip_code": "6059261",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -22.0818,
+    "lng": -70.1985,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -6156,6 +7436,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iii-estacionamiento-alto-del-carmen-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Alto del Carmen",
+    "description": "Estacionamiento de 22 m² en sector Alto del Carmen, Alto del Carmen. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 840",
+    "city": "Alto del Carmen",
+    "state": "Atacama",
+    "zip_code": "6062380",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -28.7633,
+    "lng": -70.4911,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iii-casa-alto-del-carmen-arriendo",
     "title": "Casa con Jardín y Quincho en Arriendo en Alto del Carmen",
     "description": "Casa familiar ubicada en el sector Alto del Carmen de Alto del Carmen. 4 dormitorios, 3 baños, 140 m². Excelente ubicación y conectividad.",
@@ -6303,6 +7615,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.4811,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iii-estacionamiento-alto-del-carmen-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Alto del Carmen",
+    "description": "Estacionamiento de 22 m² en sector Alto del Carmen, Alto del Carmen. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 840",
+    "city": "Alto del Carmen",
+    "state": "Atacama",
+    "zip_code": "6062380",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -28.7633,
+    "lng": -70.4911,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -6456,6 +7800,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iii-estacionamiento-caldera-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Caldera",
+    "description": "Estacionamiento de 24 m² en sector Centro, Caldera. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Arturo Prat 877",
+    "city": "Caldera",
+    "state": "Atacama",
+    "zip_code": "6065499",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -27.0682,
+    "lng": -70.8182,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iii-casa-caldera-arriendo",
     "title": "Casa Familiar de 3 Dormitorios en Arriendo en Caldera",
     "description": "Casa familiar ubicada en el sector Centro de Caldera. 2 dormitorios, 1 baños, 153 m². Excelente ubicación y conectividad.",
@@ -6603,6 +7979,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.8157,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iii-estacionamiento-caldera-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Caldera",
+    "description": "Estacionamiento de 24 m² en sector Centro, Caldera. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Arturo Prat 877",
+    "city": "Caldera",
+    "state": "Atacama",
+    "zip_code": "6065499",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -27.0682,
+    "lng": -70.8182,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -6756,6 +8164,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iii-estacionamiento-chanaral-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Chañaral",
+    "description": "Estacionamiento de 26 m² en sector Centro, Chañaral. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 914",
+    "city": "Chañaral",
+    "state": "Atacama",
+    "zip_code": "6068618",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -26.348,
+    "lng": -70.6147,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iii-casa-chanaral-arriendo",
     "title": "Casa con Vista Panorámica en Arriendo en Chañaral",
     "description": "Casa familiar ubicada en el sector Centro de Chañaral. 3 dormitorios, 2 baños, 166 m². Excelente ubicación y conectividad.",
@@ -6903,6 +8343,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6197,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iii-estacionamiento-chanaral-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Chañaral",
+    "description": "Estacionamiento de 26 m² en sector Centro, Chañaral. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 914",
+    "city": "Chañaral",
+    "state": "Atacama",
+    "zip_code": "6068618",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -26.348,
+    "lng": -70.6147,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -7056,6 +8528,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iii-estacionamiento-copiapo-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Copiapó",
+    "description": "Estacionamiento de 13 m² en sector Alto del Pino, Copiapó. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Pizarro 951",
+    "city": "Copiapó",
+    "state": "Atacama",
+    "zip_code": "6071737",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -27.3712,
+    "lng": -70.3378,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iii-casa-copiapo-arriendo",
     "title": "Casa Rústica de Campo en Arriendo en Copiapó",
     "description": "Casa familiar ubicada en el sector Alto del Pino de Copiapó. 4 dormitorios, 3 baños, 179 m². Excelente ubicación y conectividad.",
@@ -7203,6 +8707,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.3303,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iii-estacionamiento-copiapo-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Copiapó",
+    "description": "Estacionamiento de 13 m² en sector Alto del Pino, Copiapó. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Pizarro 951",
+    "city": "Copiapó",
+    "state": "Atacama",
+    "zip_code": "6071737",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -27.3712,
+    "lng": -70.3378,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -7356,6 +8892,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iii-estacionamiento-diego-de-almagro-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Diego de Almagro",
+    "description": "Estacionamiento de 15 m² en sector Centro, Diego de Almagro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Carlos Condell 988",
+    "city": "Diego de Almagro",
+    "state": "Atacama",
+    "zip_code": "6074856",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -26.3927,
+    "lng": -70.0482,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iii-casa-diego-de-almagro-arriendo",
     "title": "Casa Moderna de 2 Plantas en Arriendo en Diego de Almagro",
     "description": "Casa familiar ubicada en el sector Centro de Diego de Almagro. 2 dormitorios, 1 baños, 192 m². Excelente ubicación y conectividad.",
@@ -7503,6 +9071,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.0482,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iii-estacionamiento-diego-de-almagro-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Diego de Almagro",
+    "description": "Estacionamiento de 15 m² en sector Centro, Diego de Almagro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Carlos Condell 988",
+    "city": "Diego de Almagro",
+    "state": "Atacama",
+    "zip_code": "6074856",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -26.3927,
+    "lng": -70.0482,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -7656,6 +9256,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iii-estacionamiento-freirina-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Freirina",
+    "description": "Estacionamiento de 17 m² en sector Gualliguatica, Freirina. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 1025",
+    "city": "Freirina",
+    "state": "Atacama",
+    "zip_code": "6077975",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -28.5058,
+    "lng": -71.0753,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iii-casa-freirina-arriendo",
     "title": "Casa Campestre con Terreno en Arriendo en Freirina",
     "description": "Casa familiar ubicada en el sector Gualliguatica de Freirina. 3 dormitorios, 2 baños, 205 m². Excelente ubicación y conectividad.",
@@ -7803,6 +9435,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.0728,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iii-estacionamiento-freirina-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Freirina",
+    "description": "Estacionamiento de 17 m² en sector Gualliguatica, Freirina. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 1025",
+    "city": "Freirina",
+    "state": "Atacama",
+    "zip_code": "6077975",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -28.5058,
+    "lng": -71.0753,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -7956,6 +9620,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iii-estacionamiento-huasco-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Huasco",
+    "description": "Estacionamiento de 19 m² en sector Los Ríos, Huasco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Costanera 1062",
+    "city": "Huasco",
+    "state": "Atacama",
+    "zip_code": "6081094",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -28.4707,
+    "lng": -71.2207,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iii-casa-huasco-arriendo",
     "title": "Casa con Patio Trasero en Arriendo en Huasco",
     "description": "Casa familiar ubicada en el sector Los Ríos de Huasco. 4 dormitorios, 3 baños, 218 m². Excelente ubicación y conectividad.",
@@ -8103,6 +9799,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.2157,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iii-estacionamiento-huasco-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Huasco",
+    "description": "Estacionamiento de 19 m² en sector Los Ríos, Huasco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Costanera 1062",
+    "city": "Huasco",
+    "state": "Atacama",
+    "zip_code": "6081094",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -28.4707,
+    "lng": -71.2207,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -8256,6 +9984,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iii-estacionamiento-tierra-amarilla-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Tierra Amarilla",
+    "description": "Estacionamiento de 21 m² en sector Tierra Amarilla, Tierra Amarilla. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1099",
+    "city": "Tierra Amarilla",
+    "state": "Atacama",
+    "zip_code": "6084213",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -27.4838,
+    "lng": -70.2672,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iii-casa-tierra-amarilla-arriendo",
     "title": "Casa Típica del Pueblo en Arriendo en Tierra Amarilla",
     "description": "Casa familiar ubicada en el sector Tierra Amarilla de Tierra Amarilla. 2 dormitorios, 1 baños, 231 m². Excelente ubicación y conectividad.",
@@ -8403,6 +10163,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.2697,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iii-estacionamiento-tierra-amarilla-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Tierra Amarilla",
+    "description": "Estacionamiento de 21 m² en sector Tierra Amarilla, Tierra Amarilla. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1099",
+    "city": "Tierra Amarilla",
+    "state": "Atacama",
+    "zip_code": "6084213",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -27.4838,
+    "lng": -70.2672,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -8556,6 +10348,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iii-estacionamiento-vallenar-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Vallenar",
+    "description": "Estacionamiento de 23 m² en sector Alto Hospicio, Vallenar. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle 21 de Mayo 1136",
+    "city": "Vallenar",
+    "state": "Atacama",
+    "zip_code": "6087332",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -28.572,
+    "lng": -70.7553,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iii-casa-vallenar-arriendo",
     "title": "Casa de Chalet en Arriendo en Vallenar",
     "description": "Casa familiar ubicada en el sector Alto Hospicio de Vallenar. 3 dormitorios, 2 baños, 244 m². Excelente ubicación y conectividad.",
@@ -8703,6 +10527,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7553,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iii-estacionamiento-vallenar-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Vallenar",
+    "description": "Estacionamiento de 23 m² en sector Alto Hospicio, Vallenar. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle 21 de Mayo 1136",
+    "city": "Vallenar",
+    "state": "Atacama",
+    "zip_code": "6087332",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -28.572,
+    "lng": -70.7553,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -8856,6 +10712,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-andacollo-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Andacollo",
+    "description": "Estacionamiento de 25 m² en sector Andacollo, Andacollo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 18500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1173",
+    "city": "Andacollo",
+    "state": "Coquimbo",
+    "zip_code": "6090451",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -30.2354,
+    "lng": -71.0885,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-andacollo-arriendo",
     "title": "Casa con Piscina en Arriendo en Andacollo",
     "description": "Casa familiar ubicada en el sector Andacollo de Andacollo. 4 dormitorios, 3 baños, 257 m². Excelente ubicación y conectividad.",
@@ -9003,6 +10891,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.086,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-andacollo-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Andacollo",
+    "description": "Estacionamiento de 25 m² en sector Andacollo, Andacollo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 140000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1173",
+    "city": "Andacollo",
+    "state": "Coquimbo",
+    "zip_code": "6090451",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -30.2354,
+    "lng": -71.0885,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -9156,6 +11076,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-canela-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Canela",
+    "description": "Estacionamiento de 12 m² en sector Centro, Canela. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Barón 1210",
+    "city": "Canela",
+    "state": "Coquimbo",
+    "zip_code": "6093570",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -31.4,
+    "lng": -71.45,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-canela-arriendo",
     "title": "Casa con Jardín y Quincho en Arriendo en Canela",
     "description": "Casa familiar ubicada en el sector Centro de Canela. 2 dormitorios, 1 baños, 270 m². Excelente ubicación y conectividad.",
@@ -9303,6 +11255,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.445,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-canela-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Canela",
+    "description": "Estacionamiento de 12 m² en sector Centro, Canela. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 150000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Barón 1210",
+    "city": "Canela",
+    "state": "Coquimbo",
+    "zip_code": "6093570",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -31.4,
+    "lng": -71.45,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -9456,6 +11440,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-combarbala-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Combarbalá",
+    "description": "Estacionamiento de 14 m² en sector Centro, Combarbalá. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 23500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Andes 1247",
+    "city": "Combarbalá",
+    "state": "Coquimbo",
+    "zip_code": "6096689",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -31.1759,
+    "lng": -70.9998,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-combarbala-arriendo",
     "title": "Casa Familiar de 3 Dormitorios en Arriendo en Combarbalá",
     "description": "Casa familiar ubicada en el sector Centro de Combarbalá. 3 dormitorios, 2 baños, 83 m². Excelente ubicación y conectividad.",
@@ -9603,6 +11619,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.0023,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-combarbala-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Combarbalá",
+    "description": "Estacionamiento de 14 m² en sector Centro, Combarbalá. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Andes 1247",
+    "city": "Combarbalá",
+    "state": "Coquimbo",
+    "zip_code": "6096689",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -31.1759,
+    "lng": -70.9998,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -9756,6 +11804,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-coquimbo-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Coquimbo",
+    "description": "Estacionamiento de 16 m² en sector Las Rocas, Coquimbo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 26000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Pedro de Valdivia 1284",
+    "city": "Coquimbo",
+    "state": "Coquimbo",
+    "zip_code": "6099808",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -29.9563,
+    "lng": -71.3466,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-coquimbo-arriendo",
     "title": "Casa con Vista Panorámica en Arriendo en Coquimbo",
     "description": "Casa familiar ubicada en el sector Las Rocas de Coquimbo. 4 dormitorios, 3 baños, 96 m². Excelente ubicación y conectividad.",
@@ -9903,6 +11983,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.3466,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-coquimbo-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Coquimbo",
+    "description": "Estacionamiento de 16 m² en sector Las Rocas, Coquimbo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 100000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Pedro de Valdivia 1284",
+    "city": "Coquimbo",
+    "state": "Coquimbo",
+    "zip_code": "6099808",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -29.9563,
+    "lng": -71.3466,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -10056,6 +12168,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-illapel-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Illapel",
+    "description": "Estacionamiento de 18 m² en sector Centro, Illapel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 28500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle O'Higgins 1321",
+    "city": "Illapel",
+    "state": "Coquimbo",
+    "zip_code": "6102927",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -31.6303,
+    "lng": -71.1648,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-illapel-arriendo",
     "title": "Casa Rústica de Campo en Arriendo en Illapel",
     "description": "Casa familiar ubicada en el sector Centro de Illapel. 2 dormitorios, 1 baños, 109 m². Excelente ubicación y conectividad.",
@@ -10203,6 +12347,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.1623,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-illapel-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Illapel",
+    "description": "Estacionamiento de 18 m² en sector Centro, Illapel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 110000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle O'Higgins 1321",
+    "city": "Illapel",
+    "state": "Coquimbo",
+    "zip_code": "6102927",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -31.6303,
+    "lng": -71.1648,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -10356,6 +12532,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-la-higuera-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en La Higuera",
+    "description": "Estacionamiento de 20 m² en sector La Higuera, La Higuera. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 31000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1358",
+    "city": "La Higuera",
+    "state": "Coquimbo",
+    "zip_code": "6106046",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -29.506,
+    "lng": -71.196,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-la-higuera-arriendo",
     "title": "Casa Moderna de 2 Plantas en Arriendo en La Higuera",
     "description": "Casa familiar ubicada en el sector La Higuera de La Higuera. 3 dormitorios, 2 baños, 122 m². Excelente ubicación y conectividad.",
@@ -10503,6 +12711,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.201,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-la-higuera-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en La Higuera",
+    "description": "Estacionamiento de 20 m² en sector La Higuera, La Higuera. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1358",
+    "city": "La Higuera",
+    "state": "Coquimbo",
+    "zip_code": "6106046",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -29.506,
+    "lng": -71.196,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -10656,6 +12896,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-la-serena-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en La Serena",
+    "description": "Estacionamiento de 22 m² en sector San Carlos, La Serena. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Recreo 1395",
+    "city": "La Serena",
+    "state": "Coquimbo",
+    "zip_code": "6109165",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -29.9052,
+    "lng": -71.2544,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-la-serena-arriendo",
     "title": "Casa Campestre con Terreno en Arriendo en La Serena",
     "description": "Casa familiar ubicada en el sector San Carlos de La Serena. 4 dormitorios, 3 baños, 135 m². Excelente ubicación y conectividad.",
@@ -10803,6 +13075,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.2469,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-la-serena-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en La Serena",
+    "description": "Estacionamiento de 22 m² en sector San Carlos, La Serena. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 135000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Recreo 1395",
+    "city": "La Serena",
+    "state": "Coquimbo",
+    "zip_code": "6109165",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -29.9052,
+    "lng": -71.2544,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -10956,6 +13260,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-los-vilos-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Los Vilos",
+    "description": "Estacionamiento de 24 m² en sector Centro, Los Vilos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Costanera 1432",
+    "city": "Los Vilos",
+    "state": "Coquimbo",
+    "zip_code": "6112284",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -31.9123,
+    "lng": -71.5109,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-los-vilos-arriendo",
     "title": "Casa con Patio Trasero en Arriendo en Los Vilos",
     "description": "Casa familiar ubicada en el sector Centro de Los Vilos. 2 dormitorios, 1 baños, 148 m². Excelente ubicación y conectividad.",
@@ -11103,6 +13439,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.5109,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-los-vilos-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Los Vilos",
+    "description": "Estacionamiento de 24 m² en sector Centro, Los Vilos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Costanera 1432",
+    "city": "Los Vilos",
+    "state": "Coquimbo",
+    "zip_code": "6112284",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -31.9123,
+    "lng": -71.5109,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -11256,6 +13624,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-monte-patria-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Monte Patria",
+    "description": "Estacionamiento de 26 m² en sector Monte Patria, Monte Patria. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1469",
+    "city": "Monte Patria",
+    "state": "Coquimbo",
+    "zip_code": "6115403",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -30.6902,
+    "lng": -70.9527,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-monte-patria-arriendo",
     "title": "Casa Típica del Pueblo en Arriendo en Monte Patria",
     "description": "Casa familiar ubicada en el sector Monte Patria de Monte Patria. 3 dormitorios, 2 baños, 161 m². Excelente ubicación y conectividad.",
@@ -11403,6 +13803,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.9602,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-monte-patria-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Monte Patria",
+    "description": "Estacionamiento de 26 m² en sector Monte Patria, Monte Patria. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 160000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1469",
+    "city": "Monte Patria",
+    "state": "Coquimbo",
+    "zip_code": "6115403",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -30.6902,
+    "lng": -70.9527,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -11556,6 +13988,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-ovalle-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Ovalle",
+    "description": "Estacionamiento de 13 m² en sector Ovalle, Ovalle. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 26500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 1506",
+    "city": "Ovalle",
+    "state": "Coquimbo",
+    "zip_code": "6118522",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -30.6003,
+    "lng": -71.2023,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-ovalle-arriendo",
     "title": "Casa de Chalet en Arriendo en Ovalle",
     "description": "Casa familiar ubicada en el sector Ovalle de Ovalle. 4 dormitorios, 3 baños, 174 m². Excelente ubicación y conectividad.",
@@ -11703,6 +14167,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.1973,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-ovalle-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Ovalle",
+    "description": "Estacionamiento de 13 m² en sector Ovalle, Ovalle. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 95000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 1506",
+    "city": "Ovalle",
+    "state": "Coquimbo",
+    "zip_code": "6118522",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -30.6003,
+    "lng": -71.2023,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -11856,6 +14352,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-paiguano-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Paiguano",
+    "description": "Estacionamiento de 15 m² en sector Paiguano, Paiguano. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 29000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1543",
+    "city": "Paiguano",
+    "state": "Coquimbo",
+    "zip_code": "6121641",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -30.0254,
+    "lng": -70.5168,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-paiguano-arriendo",
     "title": "Casa con Piscina en Arriendo en Paiguano",
     "description": "Casa familiar ubicada en el sector Paiguano de Paiguano. 2 dormitorios, 1 baños, 187 m². Excelente ubicación y conectividad.",
@@ -12003,6 +14531,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5193,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-paiguano-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Paiguano",
+    "description": "Estacionamiento de 15 m² en sector Paiguano, Paiguano. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1543",
+    "city": "Paiguano",
+    "state": "Coquimbo",
+    "zip_code": "6121641",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -30.0254,
+    "lng": -70.5168,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -12156,6 +14716,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-punitaqui-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Punitaqui",
+    "description": "Estacionamiento de 17 m² en sector Punitaqui, Punitaqui. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 31500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1580",
+    "city": "Punitaqui",
+    "state": "Coquimbo",
+    "zip_code": "6124760",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -30.8336,
+    "lng": -71.2642,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-punitaqui-arriendo",
     "title": "Casa con Jardín y Quincho en Arriendo en Punitaqui",
     "description": "Casa familiar ubicada en el sector Punitaqui de Punitaqui. 3 dormitorios, 2 baños, 200 m². Excelente ubicación y conectividad.",
@@ -12303,6 +14895,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.2542,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-punitaqui-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Punitaqui",
+    "description": "Estacionamiento de 17 m² en sector Punitaqui, Punitaqui. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 120000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1580",
+    "city": "Punitaqui",
+    "state": "Coquimbo",
+    "zip_code": "6124760",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -30.8336,
+    "lng": -71.2642,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -12456,6 +15080,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-rio-hurtado-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Río Hurtado",
+    "description": "Estacionamiento de 19 m² en sector Centro, Río Hurtado. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Camino al Río 1617",
+    "city": "Río Hurtado",
+    "state": "Coquimbo",
+    "zip_code": "6127879",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -30.2804,
+    "lng": -70.6993,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-rio-hurtado-arriendo",
     "title": "Casa Familiar de 3 Dormitorios en Arriendo en Río Hurtado",
     "description": "Casa familiar ubicada en el sector Centro de Río Hurtado. 4 dormitorios, 3 baños, 213 m². Excelente ubicación y conectividad.",
@@ -12603,6 +15259,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6968,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-rio-hurtado-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Río Hurtado",
+    "description": "Estacionamiento de 19 m² en sector Centro, Río Hurtado. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 130000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Camino al Río 1617",
+    "city": "Río Hurtado",
+    "state": "Coquimbo",
+    "zip_code": "6127879",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -30.2804,
+    "lng": -70.6993,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -12756,6 +15444,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-salamanca-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Salamanca",
+    "description": "Estacionamiento de 21 m² en sector Centro, Salamanca. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 22000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Carrera 1654",
+    "city": "Salamanca",
+    "state": "Coquimbo",
+    "zip_code": "6130998",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -31.7769,
+    "lng": -70.9619,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-salamanca-arriendo",
     "title": "Casa con Vista Panorámica en Arriendo en Salamanca",
     "description": "Casa familiar ubicada en el sector Centro de Salamanca. 2 dormitorios, 1 baños, 226 m². Excelente ubicación y conectividad.",
@@ -12903,6 +15623,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.9669,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-salamanca-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Salamanca",
+    "description": "Estacionamiento de 21 m² en sector Centro, Salamanca. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Carrera 1654",
+    "city": "Salamanca",
+    "state": "Coquimbo",
+    "zip_code": "6130998",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -31.7769,
+    "lng": -70.9619,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -13056,6 +15808,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "iv-estacionamiento-vicuna-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Vicuña",
+    "description": "Estacionamiento de 23 m² en sector Vicuña, Vicuña. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1691",
+    "city": "Vicuña",
+    "state": "Coquimbo",
+    "zip_code": "6134117",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -30.0364,
+    "lng": -70.7126,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "iv-casa-vicuna-arriendo",
     "title": "Casa Rústica de Campo en Arriendo en Vicuña",
     "description": "Casa familiar ubicada en el sector Vicuña de Vicuña. 3 dormitorios, 2 baños, 239 m². Excelente ubicación y conectividad.",
@@ -13203,6 +15987,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7051,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "iv-estacionamiento-vicuna-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Vicuña",
+    "description": "Estacionamiento de 23 m² en sector Vicuña, Vicuña. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 155000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1691",
+    "city": "Vicuña",
+    "state": "Coquimbo",
+    "zip_code": "6134117",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -30.0364,
+    "lng": -70.7126,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -13356,6 +16172,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-algarrobo-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Algarrobo",
+    "description": "Estacionamiento de 25 m² en sector Algarrobo, Algarrobo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 27000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1728",
+    "city": "Algarrobo",
+    "state": "Valparaíso",
+    "zip_code": "6137236",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.3677,
+    "lng": -71.6677,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-algarrobo-arriendo",
     "title": "Casa Moderna de 2 Plantas en Arriendo en Algarrobo",
     "description": "Casa familiar ubicada en el sector Algarrobo de Algarrobo. 4 dormitorios, 3 baños, 252 m². Excelente ubicación y conectividad.",
@@ -13503,6 +16351,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.6677,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-algarrobo-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Algarrobo",
+    "description": "Estacionamiento de 25 m² en sector Algarrobo, Algarrobo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1728",
+    "city": "Algarrobo",
+    "state": "Valparaíso",
+    "zip_code": "6137236",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.3677,
+    "lng": -71.6677,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -13656,6 +16536,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-cabildo-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Cabildo",
+    "description": "Estacionamiento de 12 m² en sector Cabildo, Cabildo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 29500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1765",
+    "city": "Cabildo",
+    "state": "Valparaíso",
+    "zip_code": "6140355",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -32.4264,
+    "lng": -71.0642,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-cabildo-arriendo",
     "title": "Casa Campestre con Terreno en Arriendo en Cabildo",
     "description": "Casa familiar ubicada en el sector Cabildo de Cabildo. 2 dormitorios, 1 baños, 265 m². Excelente ubicación y conectividad.",
@@ -13803,6 +16715,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.0717,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-cabildo-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Cabildo",
+    "description": "Estacionamiento de 12 m² en sector Cabildo, Cabildo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1765",
+    "city": "Cabildo",
+    "state": "Valparaíso",
+    "zip_code": "6140355",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -32.4264,
+    "lng": -71.0642,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -13956,6 +16900,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-calle-larga-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Calle Larga",
+    "description": "Estacionamiento de 14 m² en sector Centro, Calle Larga. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 32000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Baquedano 1802",
+    "city": "Calle Larga",
+    "state": "Valparaíso",
+    "zip_code": "6143474",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.8632,
+    "lng": -70.6271,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-calle-larga-arriendo",
     "title": "Casa con Patio Trasero en Arriendo en Calle Larga",
     "description": "Casa familiar ubicada en el sector Centro de Calle Larga. 3 dormitorios, 2 baños, 278 m². Excelente ubicación y conectividad.",
@@ -14103,6 +17079,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6221,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-calle-larga-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Calle Larga",
+    "description": "Estacionamiento de 14 m² en sector Centro, Calle Larga. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 115000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Baquedano 1802",
+    "city": "Calle Larga",
+    "state": "Valparaíso",
+    "zip_code": "6143474",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.8632,
+    "lng": -70.6271,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -14256,6 +17264,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-cartagena-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Cartagena",
+    "description": "Estacionamiento de 16 m² en sector Cartagena, Cartagena. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 20500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1839",
+    "city": "Cartagena",
+    "state": "Valparaíso",
+    "zip_code": "6146593",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.5544,
+    "lng": -71.6086,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-cartagena-arriendo",
     "title": "Casa Típica del Pueblo en Arriendo en Cartagena",
     "description": "Casa familiar ubicada en el sector Cartagena de Cartagena. 4 dormitorios, 3 baños, 91 m². Excelente ubicación y conectividad.",
@@ -14403,6 +17443,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.6111,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-cartagena-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Cartagena",
+    "description": "Estacionamiento de 16 m² en sector Cartagena, Cartagena. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1839",
+    "city": "Cartagena",
+    "state": "Valparaíso",
+    "zip_code": "6146593",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.5544,
+    "lng": -71.6086,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -14556,6 +17628,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-casablanca-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Casablanca",
+    "description": "Estacionamiento de 18 m² en sector Casablanca, Casablanca. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 23000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1876",
+    "city": "Casablanca",
+    "state": "Valparaíso",
+    "zip_code": "6149712",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.3137,
+    "lng": -71.397,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-casablanca-arriendo",
     "title": "Casa de Chalet en Arriendo en Casablanca",
     "description": "Casa familiar ubicada en el sector Casablanca de Casablanca. 2 dormitorios, 1 baños, 104 m². Excelente ubicación y conectividad.",
@@ -14703,6 +17807,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.397,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-casablanca-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Casablanca",
+    "description": "Estacionamiento de 18 m² en sector Casablanca, Casablanca. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 140000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1876",
+    "city": "Casablanca",
+    "state": "Valparaíso",
+    "zip_code": "6149712",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.3137,
+    "lng": -71.397,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -14856,6 +17992,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-catemu-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Catemu",
+    "description": "Estacionamiento de 20 m² en sector Centro, Catemu. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 25500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Los Andes 1913",
+    "city": "Catemu",
+    "state": "Valparaíso",
+    "zip_code": "6152831",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -32.7816,
+    "lng": -70.9674,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-catemu-arriendo",
     "title": "Casa con Piscina en Arriendo en Catemu",
     "description": "Casa familiar ubicada en el sector Centro de Catemu. 3 dormitorios, 2 baños, 117 m². Excelente ubicación y conectividad.",
@@ -15003,6 +18171,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.9649,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-catemu-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Catemu",
+    "description": "Estacionamiento de 20 m² en sector Centro, Catemu. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 150000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Los Andes 1913",
+    "city": "Catemu",
+    "state": "Valparaíso",
+    "zip_code": "6152831",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -32.7816,
+    "lng": -70.9674,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -15156,6 +18356,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-concon-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Concón",
+    "description": "Estacionamiento de 22 m² en sector Concón, Concón. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 28000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1950",
+    "city": "Concón",
+    "state": "Valparaíso",
+    "zip_code": "6155950",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -32.9233,
+    "lng": -71.5175,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-concon-arriendo",
     "title": "Casa con Jardín y Quincho en Arriendo en Concón",
     "description": "Casa familiar ubicada en el sector Concón de Concón. 4 dormitorios, 3 baños, 130 m². Excelente ubicación y conectividad.",
@@ -15303,6 +18535,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.5125,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-concon-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Concón",
+    "description": "Estacionamiento de 22 m² en sector Concón, Concón. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1950",
+    "city": "Concón",
+    "state": "Valparaíso",
+    "zip_code": "6155950",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -32.9233,
+    "lng": -71.5175,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -15456,6 +18720,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-el-quisco-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en El Quisco",
+    "description": "Estacionamiento de 24 m² en sector El Quisco, El Quisco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 30500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1987",
+    "city": "El Quisco",
+    "state": "Valparaíso",
+    "zip_code": "6159069",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.3946,
+    "lng": -71.6932,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-el-quisco-arriendo",
     "title": "Casa Familiar de 3 Dormitorios en Arriendo en El Quisco",
     "description": "Casa familiar ubicada en el sector El Quisco de El Quisco. 2 dormitorios, 1 baños, 143 m². Excelente ubicación y conectividad.",
@@ -15603,6 +18899,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.6957,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-el-quisco-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en El Quisco",
+    "description": "Estacionamiento de 24 m² en sector El Quisco, El Quisco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 100000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1987",
+    "city": "El Quisco",
+    "state": "Valparaíso",
+    "zip_code": "6159069",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.3946,
+    "lng": -71.6932,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -15756,6 +19084,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-el-tabo-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en El Tabo",
+    "description": "Estacionamiento de 26 m² en sector El Tabo, El Tabo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 18500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 2024",
+    "city": "El Tabo",
+    "state": "Valparaíso",
+    "zip_code": "6162188",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.4572,
+    "lng": -71.6697,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-el-tabo-arriendo",
     "title": "Casa con Vista Panorámica en Arriendo en El Tabo",
     "description": "Casa familiar ubicada en el sector El Tabo de El Tabo. 3 dormitorios, 2 baños, 156 m². Excelente ubicación y conectividad.",
@@ -15903,6 +19263,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.6697,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-el-tabo-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en El Tabo",
+    "description": "Estacionamiento de 26 m² en sector El Tabo, El Tabo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 110000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 2024",
+    "city": "El Tabo",
+    "state": "Valparaíso",
+    "zip_code": "6162188",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.4572,
+    "lng": -71.6697,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -16056,6 +19448,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-hijuelas-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Hijuelas",
+    "description": "Estacionamiento de 13 m² en sector Centro, Hijuelas. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Carlos Condell 2061",
+    "city": "Hijuelas",
+    "state": "Valparaíso",
+    "zip_code": "6165307",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -32.7967,
+    "lng": -71.1439,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-hijuelas-arriendo",
     "title": "Casa Rústica de Campo en Arriendo en Hijuelas",
     "description": "Casa familiar ubicada en el sector Centro de Hijuelas. 4 dormitorios, 3 baños, 169 m². Excelente ubicación y conectividad.",
@@ -16203,6 +19627,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.1414,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-hijuelas-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Hijuelas",
+    "description": "Estacionamiento de 13 m² en sector Centro, Hijuelas. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Carlos Condell 2061",
+    "city": "Hijuelas",
+    "state": "Valparaíso",
+    "zip_code": "6165307",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -32.7967,
+    "lng": -71.1439,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -16356,6 +19812,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-isla-de-pascua-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Isla de Pascua",
+    "description": "Estacionamiento de 15 m² en sector Hanga Roa, Isla de Pascua. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 23500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Atamu Tekena 2098",
+    "city": "Isla de Pascua",
+    "state": "Valparaíso",
+    "zip_code": "6168426",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -27.1087,
+    "lng": -109.3457,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-isla-de-pascua-arriendo",
     "title": "Casa Moderna de 2 Plantas en Arriendo en Isla de Pascua",
     "description": "Casa familiar ubicada en el sector Hanga Roa de Isla de Pascua. 2 dormitorios, 1 baños, 182 m². Excelente ubicación y conectividad.",
@@ -16503,6 +19991,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -109.3507,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-isla-de-pascua-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Isla de Pascua",
+    "description": "Estacionamiento de 15 m² en sector Hanga Roa, Isla de Pascua. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 135000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Atamu Tekena 2098",
+    "city": "Isla de Pascua",
+    "state": "Valparaíso",
+    "zip_code": "6168426",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -27.1087,
+    "lng": -109.3457,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -16656,6 +20176,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-juan-fernandez-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Juan Fernández",
+    "description": "Estacionamiento de 17 m² en sector Juan Fernández, Juan Fernández. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 26000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 135",
+    "city": "Juan Fernández",
+    "state": "Valparaíso",
+    "zip_code": "6171545",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.6394,
+    "lng": -78.8344,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-juan-fernandez-arriendo",
     "title": "Casa Campestre con Terreno en Arriendo en Juan Fernández",
     "description": "Casa familiar ubicada en el sector Juan Fernández de Juan Fernández. 3 dormitorios, 2 baños, 195 m². Excelente ubicación y conectividad.",
@@ -16803,6 +20355,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -78.8369,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-juan-fernandez-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Juan Fernández",
+    "description": "Estacionamiento de 17 m² en sector Juan Fernández, Juan Fernández. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 135",
+    "city": "Juan Fernández",
+    "state": "Valparaíso",
+    "zip_code": "6171545",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.6394,
+    "lng": -78.8344,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -16956,6 +20540,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-la-calera-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en La Calera",
+    "description": "Estacionamiento de 19 m² en sector La Calera, La Calera. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 28500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 172",
+    "city": "La Calera",
+    "state": "Valparaíso",
+    "zip_code": "6174664",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.7868,
+    "lng": -71.1909,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-la-calera-arriendo",
     "title": "Casa con Patio Trasero en Arriendo en La Calera",
     "description": "Casa familiar ubicada en el sector La Calera de La Calera. 4 dormitorios, 3 baños, 208 m². Excelente ubicación y conectividad.",
@@ -17103,6 +20719,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.1909,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-la-calera-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en La Calera",
+    "description": "Estacionamiento de 19 m² en sector La Calera, La Calera. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 160000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 172",
+    "city": "La Calera",
+    "state": "Valparaíso",
+    "zip_code": "6174664",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.7868,
+    "lng": -71.1909,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -17256,6 +20904,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-la-cruz-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en La Cruz",
+    "description": "Estacionamiento de 21 m² en sector Centro, La Cruz. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 31000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Las Palmas 209",
+    "city": "La Cruz",
+    "state": "Valparaíso",
+    "zip_code": "6177783",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -32.8233,
+    "lng": -71.2244,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-la-cruz-arriendo",
     "title": "Casa Típica del Pueblo en Arriendo en La Cruz",
     "description": "Casa familiar ubicada en el sector Centro de La Cruz. 2 dormitorios, 1 baños, 221 m². Excelente ubicación y conectividad.",
@@ -17403,6 +21083,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.2319,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-la-cruz-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en La Cruz",
+    "description": "Estacionamiento de 21 m² en sector Centro, La Cruz. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 95000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Las Palmas 209",
+    "city": "La Cruz",
+    "state": "Valparaíso",
+    "zip_code": "6177783",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -32.8233,
+    "lng": -71.2244,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -17556,6 +21268,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-la-ligua-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en La Ligua",
+    "description": "Estacionamiento de 23 m² en sector Centro, La Ligua. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Balmaceda 246",
+    "city": "La Ligua",
+    "state": "Valparaíso",
+    "zip_code": "6180902",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -32.452,
+    "lng": -71.2353,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-la-ligua-arriendo",
     "title": "Casa de Chalet en Arriendo en La Ligua",
     "description": "Casa familiar ubicada en el sector Centro de La Ligua. 3 dormitorios, 2 baños, 234 m². Excelente ubicación y conectividad.",
@@ -17703,6 +21447,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.2303,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-la-ligua-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en La Ligua",
+    "description": "Estacionamiento de 23 m² en sector Centro, La Ligua. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Balmaceda 246",
+    "city": "La Ligua",
+    "state": "Valparaíso",
+    "zip_code": "6180902",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -32.452,
+    "lng": -71.2353,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -17856,6 +21632,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-limache-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Limache",
+    "description": "Estacionamiento de 25 m² en sector Olmué, Limache. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Matta 283",
+    "city": "Limache",
+    "state": "Valparaíso",
+    "zip_code": "6184021",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -32.9841,
+    "lng": -71.2663,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-limache-arriendo",
     "title": "Casa con Piscina en Arriendo en Limache",
     "description": "Casa familiar ubicada en el sector Olmué de Limache. 4 dormitorios, 3 baños, 247 m². Excelente ubicación y conectividad.",
@@ -18003,6 +21811,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.2688,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-limache-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Limache",
+    "description": "Estacionamiento de 25 m² en sector Olmué, Limache. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 120000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Matta 283",
+    "city": "Limache",
+    "state": "Valparaíso",
+    "zip_code": "6184021",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -32.9841,
+    "lng": -71.2663,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -18156,6 +21996,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-llaillay-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Llaillay",
+    "description": "Estacionamiento de 12 m² en sector Llaillay, Llaillay. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 320",
+    "city": "Llaillay",
+    "state": "Valparaíso",
+    "zip_code": "6187140",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -32.8394,
+    "lng": -70.9506,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-llaillay-arriendo",
     "title": "Casa con Jardín y Quincho en Arriendo en Llaillay",
     "description": "Casa familiar ubicada en el sector Llaillay de Llaillay. 2 dormitorios, 1 baños, 260 m². Excelente ubicación y conectividad.",
@@ -18303,6 +22175,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.9506,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-llaillay-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Llaillay",
+    "description": "Estacionamiento de 12 m² en sector Llaillay, Llaillay. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 130000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 320",
+    "city": "Llaillay",
+    "state": "Valparaíso",
+    "zip_code": "6187140",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -32.8394,
+    "lng": -70.9506,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -18456,6 +22360,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-los-andes-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Los Andes",
+    "description": "Estacionamiento de 14 m² en sector San Esteban, Los Andes. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 26500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 357",
+    "city": "Los Andes",
+    "state": "Valparaíso",
+    "zip_code": "6190259",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.8354,
+    "lng": -70.5998,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-los-andes-arriendo",
     "title": "Casa Familiar de 3 Dormitorios en Arriendo en Los Andes",
     "description": "Casa familiar ubicada en el sector San Esteban de Los Andes. 3 dormitorios, 2 baños, 273 m². Excelente ubicación y conectividad.",
@@ -18603,6 +22539,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5973,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-los-andes-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Los Andes",
+    "description": "Estacionamiento de 14 m² en sector San Esteban, Los Andes. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 357",
+    "city": "Los Andes",
+    "state": "Valparaíso",
+    "zip_code": "6190259",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.8354,
+    "lng": -70.5998,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -18756,6 +22724,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-nogales-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Nogales",
+    "description": "Estacionamiento de 16 m² en sector Centro, Nogales. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 29000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Andes 394",
+    "city": "Nogales",
+    "state": "Valparaíso",
+    "zip_code": "6193378",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -32.7369,
+    "lng": -71.198,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-nogales-arriendo",
     "title": "Casa con Vista Panorámica en Arriendo en Nogales",
     "description": "Casa familiar ubicada en el sector Centro de Nogales. 4 dormitorios, 3 baños, 86 m². Excelente ubicación y conectividad.",
@@ -18903,6 +22903,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.203,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-nogales-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Nogales",
+    "description": "Estacionamiento de 16 m² en sector Centro, Nogales. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 155000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Andes 394",
+    "city": "Nogales",
+    "state": "Valparaíso",
+    "zip_code": "6193378",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -32.7369,
+    "lng": -71.198,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -19056,6 +23088,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-olmue-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Olmué",
+    "description": "Estacionamiento de 18 m² en sector Centro, Olmué. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 31500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Carrera 431",
+    "city": "Olmué",
+    "state": "Valparaíso",
+    "zip_code": "6196497",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.0017,
+    "lng": -71.1906,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-olmue-arriendo",
     "title": "Casa Rústica de Campo en Arriendo en Olmué",
     "description": "Casa familiar ubicada en el sector Centro de Olmué. 2 dormitorios, 1 baños, 99 m². Excelente ubicación y conectividad.",
@@ -19203,6 +23267,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.1831,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-olmue-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Olmué",
+    "description": "Estacionamiento de 18 m² en sector Centro, Olmué. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Carrera 431",
+    "city": "Olmué",
+    "state": "Valparaíso",
+    "zip_code": "6196497",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.0017,
+    "lng": -71.1906,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -19356,6 +23452,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-panquehue-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Panquehue",
+    "description": "Estacionamiento de 20 m² en sector Centro, Panquehue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Camino al Panul 468",
+    "city": "Panquehue",
+    "state": "Valparaíso",
+    "zip_code": "6199616",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -32.7677,
+    "lng": -70.8343,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-panquehue-arriendo",
     "title": "Casa Moderna de 2 Plantas en Arriendo en Panquehue",
     "description": "Casa familiar ubicada en el sector Centro de Panquehue. 3 dormitorios, 2 baños, 112 m². Excelente ubicación y conectividad.",
@@ -19503,6 +23631,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.8343,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-panquehue-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Panquehue",
+    "description": "Estacionamiento de 20 m² en sector Centro, Panquehue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Camino al Panul 468",
+    "city": "Panquehue",
+    "state": "Valparaíso",
+    "zip_code": "6199616",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -32.7677,
+    "lng": -70.8343,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -19656,6 +23816,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-papudo-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Papudo",
+    "description": "Estacionamiento de 22 m² en sector Centro, Papudo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 22000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Costanera 505",
+    "city": "Papudo",
+    "state": "Valparaíso",
+    "zip_code": "6202735",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -32.5058,
+    "lng": -71.4475,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-papudo-arriendo",
     "title": "Casa Campestre con Terreno en Arriendo en Papudo",
     "description": "Casa familiar ubicada en el sector Centro de Papudo. 4 dormitorios, 3 baños, 125 m². Excelente ubicación y conectividad.",
@@ -19803,6 +23995,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.455,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-papudo-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Papudo",
+    "description": "Estacionamiento de 22 m² en sector Centro, Papudo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 115000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Costanera 505",
+    "city": "Papudo",
+    "state": "Valparaíso",
+    "zip_code": "6202735",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -32.5058,
+    "lng": -71.4475,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -19956,6 +24180,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-petorca-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Petorca",
+    "description": "Estacionamiento de 24 m² en sector Centro, Petorca. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Carrera 542",
+    "city": "Petorca",
+    "state": "Valparaíso",
+    "zip_code": "6205854",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.2573,
+    "lng": -70.9362,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-petorca-arriendo",
     "title": "Casa con Patio Trasero en Arriendo en Petorca",
     "description": "Casa familiar ubicada en el sector Centro de Petorca. 2 dormitorios, 1 baños, 138 m². Excelente ubicación y conectividad.",
@@ -20103,6 +24359,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.9312,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-petorca-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Petorca",
+    "description": "Estacionamiento de 24 m² en sector Centro, Petorca. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Carrera 542",
+    "city": "Petorca",
+    "state": "Valparaíso",
+    "zip_code": "6205854",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.2573,
+    "lng": -70.9362,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -20256,6 +24544,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-puchuncavi-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Puchuncaví",
+    "description": "Estacionamiento de 26 m² en sector Puchuncaví, Puchuncaví. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 27000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 579",
+    "city": "Puchuncaví",
+    "state": "Valparaíso",
+    "zip_code": "6208973",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -32.7219,
+    "lng": -71.4116,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-puchuncavi-arriendo",
     "title": "Casa Típica del Pueblo en Arriendo en Puchuncaví",
     "description": "Casa familiar ubicada en el sector Puchuncaví de Puchuncaví. 3 dormitorios, 2 baños, 151 m². Excelente ubicación y conectividad.",
@@ -20403,6 +24723,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.4141,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-puchuncavi-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Puchuncaví",
+    "description": "Estacionamiento de 26 m² en sector Puchuncaví, Puchuncaví. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 140000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 579",
+    "city": "Puchuncaví",
+    "state": "Valparaíso",
+    "zip_code": "6208973",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -32.7219,
+    "lng": -71.4116,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -20556,6 +24908,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-putaendo-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Putaendo",
+    "description": "Estacionamiento de 13 m² en sector Centro, Putaendo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 29500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Arturo Prat 616",
+    "city": "Putaendo",
+    "state": "Valparaíso",
+    "zip_code": "6212092",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -32.6245,
+    "lng": -70.7134,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-putaendo-arriendo",
     "title": "Casa de Chalet en Arriendo en Putaendo",
     "description": "Casa familiar ubicada en el sector Centro de Putaendo. 4 dormitorios, 3 baños, 164 m². Excelente ubicación y conectividad.",
@@ -20703,6 +25087,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7134,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-putaendo-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Putaendo",
+    "description": "Estacionamiento de 13 m² en sector Centro, Putaendo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 150000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Arturo Prat 616",
+    "city": "Putaendo",
+    "state": "Valparaíso",
+    "zip_code": "6212092",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -32.6245,
+    "lng": -70.7134,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -20856,6 +25272,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-quillota-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Quillota",
+    "description": "Estacionamiento de 15 m² en sector Centro, Quillota. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 32000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. San Martín 653",
+    "city": "Quillota",
+    "state": "Valparaíso",
+    "zip_code": "6215211",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -32.8835,
+    "lng": -71.2521,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-quillota-arriendo",
     "title": "Casa con Piscina en Arriendo en Quillota",
     "description": "Casa familiar ubicada en el sector Centro de Quillota. 2 dormitorios, 1 baños, 177 m². Excelente ubicación y conectividad.",
@@ -21003,6 +25451,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.2496,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-quillota-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Quillota",
+    "description": "Estacionamiento de 15 m² en sector Centro, Quillota. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. San Martín 653",
+    "city": "Quillota",
+    "state": "Valparaíso",
+    "zip_code": "6215211",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -32.8835,
+    "lng": -71.2521,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -21156,6 +25636,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-quilpue-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Quilpué",
+    "description": "Estacionamiento de 17 m² en sector Quilpué, Quilpué. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 20000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 690",
+    "city": "Quilpué",
+    "state": "Valparaíso",
+    "zip_code": "6218330",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.0494,
+    "lng": -71.4428,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-quilpue-arriendo",
     "title": "Casa con Jardín y Quincho en Arriendo en Quilpué",
     "description": "Casa familiar ubicada en el sector Quilpué de Quilpué. 3 dormitorios, 2 baños, 190 m². Excelente ubicación y conectividad.",
@@ -21303,6 +25815,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.4378,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-quilpue-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Quilpué",
+    "description": "Estacionamiento de 17 m² en sector Quilpué, Quilpué. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 100000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 690",
+    "city": "Quilpué",
+    "state": "Valparaíso",
+    "zip_code": "6218330",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.0494,
+    "lng": -71.4428,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -21456,6 +26000,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-quintero-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Quintero",
+    "description": "Estacionamiento de 19 m² en sector Quintero, Quintero. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 22500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 727",
+    "city": "Quintero",
+    "state": "Valparaíso",
+    "zip_code": "6221449",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.7746,
+    "lng": -71.5282,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-quintero-arriendo",
     "title": "Casa Familiar de 3 Dormitorios en Arriendo en Quintero",
     "description": "Casa familiar ubicada en el sector Quintero de Quintero. 4 dormitorios, 3 baños, 203 m². Excelente ubicación y conectividad.",
@@ -21603,6 +26179,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.5307,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-quintero-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Quintero",
+    "description": "Estacionamiento de 19 m² en sector Quintero, Quintero. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 110000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 727",
+    "city": "Quintero",
+    "state": "Valparaíso",
+    "zip_code": "6221449",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.7746,
+    "lng": -71.5282,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -21756,6 +26364,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-rinconada-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Rinconada",
+    "description": "Estacionamiento de 21 m² en sector Centro, Rinconada. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 25000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Principal 764",
+    "city": "Rinconada",
+    "state": "Valparaíso",
+    "zip_code": "6224568",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -32.8711,
+    "lng": -70.7052,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-rinconada-arriendo",
     "title": "Casa con Vista Panorámica en Arriendo en Rinconada",
     "description": "Casa familiar ubicada en el sector Centro de Rinconada. 2 dormitorios, 1 baños, 216 m². Excelente ubicación y conectividad.",
@@ -21903,6 +26543,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7052,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-rinconada-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Rinconada",
+    "description": "Estacionamiento de 21 m² en sector Centro, Rinconada. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Principal 764",
+    "city": "Rinconada",
+    "state": "Valparaíso",
+    "zip_code": "6224568",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -32.8711,
+    "lng": -70.7052,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -22056,6 +26728,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-san-antonio-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en San Antonio",
+    "description": "Estacionamiento de 23 m² en sector El Manzano, San Antonio. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 27500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 5 de Abril 801",
+    "city": "San Antonio",
+    "state": "Valparaíso",
+    "zip_code": "6227687",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.5931,
+    "lng": -71.6073,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-san-antonio-arriendo",
     "title": "Casa Rústica de Campo en Arriendo en San Antonio",
     "description": "Casa familiar ubicada en el sector El Manzano de San Antonio. 3 dormitorios, 2 baños, 229 m². Excelente ubicación y conectividad.",
@@ -22203,6 +26907,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.6048,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-san-antonio-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en San Antonio",
+    "description": "Estacionamiento de 23 m² en sector El Manzano, San Antonio. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 135000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 5 de Abril 801",
+    "city": "San Antonio",
+    "state": "Valparaíso",
+    "zip_code": "6227687",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.5931,
+    "lng": -71.6073,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -22356,6 +27092,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-san-esteban-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en San Esteban",
+    "description": "Estacionamiento de 25 m² en sector Centro, San Esteban. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 30000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Andes 838",
+    "city": "San Esteban",
+    "state": "Valparaíso",
+    "zip_code": "6230806",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -32.7929,
+    "lng": -70.5746,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-san-esteban-arriendo",
     "title": "Casa Moderna de 2 Plantas en Arriendo en San Esteban",
     "description": "Casa familiar ubicada en el sector Centro de San Esteban. 4 dormitorios, 3 baños, 242 m². Excelente ubicación y conectividad.",
@@ -22503,6 +27271,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5796,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-san-esteban-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en San Esteban",
+    "description": "Estacionamiento de 25 m² en sector Centro, San Esteban. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Andes 838",
+    "city": "San Esteban",
+    "state": "Valparaíso",
+    "zip_code": "6230806",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -32.7929,
+    "lng": -70.5746,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -22656,6 +27456,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-san-felipe-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en San Felipe",
+    "description": "Estacionamiento de 12 m² en sector San Felipe, San Felipe. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 18500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 875",
+    "city": "San Felipe",
+    "state": "Valparaíso",
+    "zip_code": "6233925",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -32.7531,
+    "lng": -70.7281,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-san-felipe-arriendo",
     "title": "Casa Campestre con Terreno en Arriendo en San Felipe",
     "description": "Casa familiar ubicada en el sector San Felipe de San Felipe. 2 dormitorios, 1 baños, 255 m². Excelente ubicación y conectividad.",
@@ -22803,6 +27635,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7306,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-san-felipe-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en San Felipe",
+    "description": "Estacionamiento de 12 m² en sector San Felipe, San Felipe. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 160000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 875",
+    "city": "San Felipe",
+    "state": "Valparaíso",
+    "zip_code": "6233925",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -32.7531,
+    "lng": -70.7281,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -22956,6 +27820,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-santa-maria-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Santa María",
+    "description": "Estacionamiento de 14 m² en sector Centro, Santa María. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. San Martín 912",
+    "city": "Santa María",
+    "state": "Valparaíso",
+    "zip_code": "6237044",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.7473,
+    "lng": -70.6582,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-santa-maria-arriendo",
     "title": "Casa con Patio Trasero en Arriendo en Santa María",
     "description": "Casa familiar ubicada en el sector Centro de Santa María. 3 dormitorios, 2 baños, 268 m². Excelente ubicación y conectividad.",
@@ -23103,6 +27999,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6582,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-santa-maria-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Santa María",
+    "description": "Estacionamiento de 14 m² en sector Centro, Santa María. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 95000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. San Martín 912",
+    "city": "Santa María",
+    "state": "Valparaíso",
+    "zip_code": "6237044",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.7473,
+    "lng": -70.6582,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -23256,6 +28184,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-santo-domingo-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Santo Domingo",
+    "description": "Estacionamiento de 16 m² en sector Santo Domingo, Santo Domingo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 23500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 949",
+    "city": "Santo Domingo",
+    "state": "Valparaíso",
+    "zip_code": "6240163",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.6316,
+    "lng": -71.6233,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-santo-domingo-arriendo",
     "title": "Casa Típica del Pueblo en Arriendo en Santo Domingo",
     "description": "Casa familiar ubicada en el sector Santo Domingo de Santo Domingo. 4 dormitorios, 3 baños, 81 m². Excelente ubicación y conectividad.",
@@ -23403,6 +28363,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.6308,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-santo-domingo-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Santo Domingo",
+    "description": "Estacionamiento de 16 m² en sector Santo Domingo, Santo Domingo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 949",
+    "city": "Santo Domingo",
+    "state": "Valparaíso",
+    "zip_code": "6240163",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.6316,
+    "lng": -71.6233,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -23556,6 +28548,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-valparaiso-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Valparaíso",
+    "description": "Estacionamiento de 18 m² en sector Cerro Alegre, Valparaíso. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 26000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Santo Domingo 986",
+    "city": "Valparaíso",
+    "state": "Valparaíso",
+    "zip_code": "6243282",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.0492,
+    "lng": -71.6147,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-valparaiso-arriendo",
     "title": "Casa de Chalet en Arriendo en Valparaíso",
     "description": "Casa familiar ubicada en el sector Cerro Alegre de Valparaíso. 2 dormitorios, 1 baños, 94 m². Excelente ubicación y conectividad.",
@@ -23703,6 +28727,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.6097,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-valparaiso-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Valparaíso",
+    "description": "Estacionamiento de 18 m² en sector Cerro Alegre, Valparaíso. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 120000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Santo Domingo 986",
+    "city": "Valparaíso",
+    "state": "Valparaíso",
+    "zip_code": "6243282",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.0492,
+    "lng": -71.6147,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -23856,6 +28912,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-villa-alemana-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Villa Alemana",
+    "description": "Estacionamiento de 20 m² en sector Villa Alemana, Villa Alemana. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 28500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1023",
+    "city": "Villa Alemana",
+    "state": "Valparaíso",
+    "zip_code": "6246401",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.0416,
+    "lng": -71.3721,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-villa-alemana-arriendo",
     "title": "Casa con Piscina en Arriendo en Villa Alemana",
     "description": "Casa familiar ubicada en el sector Villa Alemana de Villa Alemana. 3 dormitorios, 2 baños, 107 m². Excelente ubicación y conectividad.",
@@ -24003,6 +29091,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.3746,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-villa-alemana-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Villa Alemana",
+    "description": "Estacionamiento de 20 m² en sector Villa Alemana, Villa Alemana. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 130000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1023",
+    "city": "Villa Alemana",
+    "state": "Valparaíso",
+    "zip_code": "6246401",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.0416,
+    "lng": -71.3721,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -24156,6 +29276,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-vina-del-mar-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Viña del Mar",
+    "description": "Estacionamiento de 22 m² en sector Rodelillo, Viña del Mar. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 31000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Valparaíso 1060",
+    "city": "Viña del Mar",
+    "state": "Valparaíso",
+    "zip_code": "6249520",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.0295,
+    "lng": -71.5568,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-vina-del-mar-arriendo",
     "title": "Casa con Jardín y Quincho en Arriendo en Viña del Mar",
     "description": "Casa familiar ubicada en el sector Rodelillo de Viña del Mar. 4 dormitorios, 3 baños, 120 m². Excelente ubicación y conectividad.",
@@ -24303,6 +29455,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.5468,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-vina-del-mar-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Viña del Mar",
+    "description": "Estacionamiento de 22 m² en sector Rodelillo, Viña del Mar. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Valparaíso 1060",
+    "city": "Viña del Mar",
+    "state": "Valparaíso",
+    "zip_code": "6249520",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.0295,
+    "lng": -71.5568,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -24456,6 +29640,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "v-estacionamiento-zapallar-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Zapallar",
+    "description": "Estacionamiento de 24 m² en sector Papudo, Zapallar. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Los Palos Verdes 1097",
+    "city": "Zapallar",
+    "state": "Valparaíso",
+    "zip_code": "6252639",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.5554,
+    "lng": -71.4623,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "v-casa-zapallar-arriendo",
     "title": "Casa Familiar de 3 Dormitorios en Arriendo en Zapallar",
     "description": "Casa familiar ubicada en el sector Papudo de Zapallar. 2 dormitorios, 1 baños, 133 m². Excelente ubicación y conectividad.",
@@ -24603,6 +29819,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.4598,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "v-estacionamiento-zapallar-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Zapallar",
+    "description": "Estacionamiento de 24 m² en sector Papudo, Zapallar. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 155000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Los Palos Verdes 1097",
+    "city": "Zapallar",
+    "state": "Valparaíso",
+    "zip_code": "6252639",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -32.5554,
+    "lng": -71.4623,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -24756,6 +30004,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-alhue-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Alhué",
+    "description": "Estacionamiento de 26 m² en sector Alhué, Alhué. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1134",
+    "city": "Alhué",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6255758",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.0313,
+    "lng": -71.098,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-alhue-arriendo",
     "title": "Casa con Vista Panorámica en Arriendo en Alhué",
     "description": "Casa familiar ubicada en el sector Alhué de Alhué. 3 dormitorios, 2 baños, 146 m². Excelente ubicación y conectividad.",
@@ -24903,6 +30183,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.103,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-alhue-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Alhué",
+    "description": "Estacionamiento de 26 m² en sector Alhué, Alhué. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1134",
+    "city": "Alhué",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6255758",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.0313,
+    "lng": -71.098,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -25056,6 +30368,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-buin-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Buin",
+    "description": "Estacionamiento de 13 m² en sector Paine, Buin. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Arturo Prat 1171",
+    "city": "Buin",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6258877",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.7378,
+    "lng": -70.7378,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-buin-arriendo",
     "title": "Casa Rústica de Campo en Arriendo en Buin",
     "description": "Casa familiar ubicada en el sector Paine de Buin. 4 dormitorios, 3 baños, 159 m². Excelente ubicación y conectividad.",
@@ -25203,6 +30547,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7303,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-buin-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Buin",
+    "description": "Estacionamiento de 13 m² en sector Paine, Buin. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Arturo Prat 1171",
+    "city": "Buin",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6258877",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.7378,
+    "lng": -70.7378,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -25356,6 +30732,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-calera-de-tango-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Calera de Tango",
+    "description": "Estacionamiento de 15 m² en sector Centro, Calera de Tango. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 26500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Camino las Praderas 1208",
+    "city": "Calera de Tango",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6261996",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.6343,
+    "lng": -70.7843,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-calera-de-tango-arriendo",
     "title": "Casa Moderna de 2 Plantas en Arriendo en Calera de Tango",
     "description": "Casa familiar ubicada en el sector Centro de Calera de Tango. 2 dormitorios, 1 baños, 172 m². Excelente ubicación y conectividad.",
@@ -25503,6 +30911,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7843,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-calera-de-tango-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Calera de Tango",
+    "description": "Estacionamiento de 15 m² en sector Centro, Calera de Tango. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 115000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Camino las Praderas 1208",
+    "city": "Calera de Tango",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6261996",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.6343,
+    "lng": -70.7843,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -25656,6 +31096,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-cerrillos-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Cerrillos",
+    "description": "Estacionamiento de 17 m² en sector Centro, Cerrillos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 29000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Lo Martínez 1245",
+    "city": "Cerrillos",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6265115",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.4975,
+    "lng": -70.7142,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-cerrillos-arriendo",
     "title": "Casa Campestre con Terreno en Arriendo en Cerrillos",
     "description": "Casa familiar ubicada en el sector Centro de Cerrillos. 3 dormitorios, 2 baños, 185 m². Excelente ubicación y conectividad.",
@@ -25803,6 +31275,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7117,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-cerrillos-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Cerrillos",
+    "description": "Estacionamiento de 17 m² en sector Centro, Cerrillos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Lo Martínez 1245",
+    "city": "Cerrillos",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6265115",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.4975,
+    "lng": -70.7142,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -25956,6 +31460,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-cerro-navia-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Cerro Navia",
+    "description": "Estacionamiento de 19 m² en sector Centro, Cerro Navia. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 31500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. La Estrella 1282",
+    "city": "Cerro Navia",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6268234",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.4268,
+    "lng": -70.7421,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-cerro-navia-arriendo",
     "title": "Casa con Patio Trasero en Arriendo en Cerro Navia",
     "description": "Casa familiar ubicada en el sector Centro de Cerro Navia. 4 dormitorios, 3 baños, 198 m². Excelente ubicación y conectividad.",
@@ -26103,6 +31639,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7371,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-cerro-navia-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Cerro Navia",
+    "description": "Estacionamiento de 19 m² en sector Centro, Cerro Navia. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 140000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. La Estrella 1282",
+    "city": "Cerro Navia",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6268234",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.4268,
+    "lng": -70.7421,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -26256,6 +31824,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-colina-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Colina",
+    "description": "Estacionamiento de 21 m² en sector Centro, Colina. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Andes 1319",
+    "city": "Colina",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6271353",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.2005,
+    "lng": -70.6838,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-colina-arriendo",
     "title": "Casa Típica del Pueblo en Arriendo en Colina",
     "description": "Casa familiar ubicada en el sector Centro de Colina. 2 dormitorios, 1 baños, 211 m². Excelente ubicación y conectividad.",
@@ -26403,6 +32003,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6863,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-colina-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Colina",
+    "description": "Estacionamiento de 21 m² en sector Centro, Colina. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 150000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Andes 1319",
+    "city": "Colina",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6271353",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.2005,
+    "lng": -70.6838,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -26556,6 +32188,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-conchali-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Conchalí",
+    "description": "Estacionamiento de 23 m² en sector Centro, Conchalí. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 22000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Lo Marcoleta 1356",
+    "city": "Conchalí",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6274472",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.3809,
+    "lng": -70.6751,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-conchali-arriendo",
     "title": "Casa de Chalet en Arriendo en Conchalí",
     "description": "Casa familiar ubicada en el sector Centro de Conchalí. 3 dormitorios, 2 baños, 224 m². Excelente ubicación y conectividad.",
@@ -26703,6 +32367,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6751,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-conchali-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Conchalí",
+    "description": "Estacionamiento de 23 m² en sector Centro, Conchalí. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Lo Marcoleta 1356",
+    "city": "Conchalí",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6274472",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.3809,
+    "lng": -70.6751,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -26856,6 +32552,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-curacavi-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Curacaví",
+    "description": "Estacionamiento de 25 m² en sector Centro, Curacaví. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Arturo Prat 1393",
+    "city": "Curacaví",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6277591",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.4124,
+    "lng": -71.1402,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-curacavi-arriendo",
     "title": "Casa con Piscina en Arriendo en Curacaví",
     "description": "Casa familiar ubicada en el sector Centro de Curacaví. 4 dormitorios, 3 baños, 237 m². Excelente ubicación y conectividad.",
@@ -27003,6 +32731,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.1377,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-curacavi-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Curacaví",
+    "description": "Estacionamiento de 25 m² en sector Centro, Curacaví. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 100000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Arturo Prat 1393",
+    "city": "Curacaví",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6277591",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.4124,
+    "lng": -71.1402,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -27156,6 +32916,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-el-bosque-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en El Bosque",
+    "description": "Estacionamiento de 12 m² en sector Centro, El Bosque. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 27000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Santa Rosa 1430",
+    "city": "El Bosque",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6280710",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.5606,
+    "lng": -70.6739,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-el-bosque-arriendo",
     "title": "Casa con Jardín y Quincho en Arriendo en El Bosque",
     "description": "Casa familiar ubicada en el sector Centro de El Bosque. 2 dormitorios, 1 baños, 250 m². Excelente ubicación y conectividad.",
@@ -27303,6 +33095,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6789,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-el-bosque-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en El Bosque",
+    "description": "Estacionamiento de 12 m² en sector Centro, El Bosque. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 110000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Santa Rosa 1430",
+    "city": "El Bosque",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6280710",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.5606,
+    "lng": -70.6739,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -27456,6 +33280,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-el-monte-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en El Monte",
+    "description": "Estacionamiento de 14 m² en sector Centro, El Monte. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 29500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Aromos 1467",
+    "city": "El Monte",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6283829",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.6771,
+    "lng": -71.0154,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-el-monte-arriendo",
     "title": "Casa Familiar de 3 Dormitorios en Arriendo en El Monte",
     "description": "Casa familiar ubicada en el sector Centro de El Monte. 3 dormitorios, 2 baños, 263 m². Excelente ubicación y conectividad.",
@@ -27603,6 +33459,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.0179,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-el-monte-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en El Monte",
+    "description": "Estacionamiento de 14 m² en sector Centro, El Monte. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Aromos 1467",
+    "city": "El Monte",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6283829",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.6771,
+    "lng": -71.0154,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -27756,6 +33644,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-estacion-central-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Estación Central",
+    "description": "Estacionamiento de 16 m² en sector Centro, Estación Central. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 32000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Matta 1504",
+    "city": "Estación Central",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6286948",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.4649,
+    "lng": -70.7008,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-estacion-central-arriendo",
     "title": "Casa con Vista Panorámica en Arriendo en Estación Central",
     "description": "Casa familiar ubicada en el sector Centro de Estación Central. 4 dormitorios, 3 baños, 276 m². Excelente ubicación y conectividad.",
@@ -27903,6 +33823,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7008,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-estacion-central-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Estación Central",
+    "description": "Estacionamiento de 16 m² en sector Centro, Estación Central. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 135000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Matta 1504",
+    "city": "Estación Central",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6286948",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.4649,
+    "lng": -70.7008,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -28056,6 +34008,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-huechuraba-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Huechuraba",
+    "description": "Estacionamiento de 18 m² en sector Huechuraba, Huechuraba. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 20000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1541",
+    "city": "Huechuraba",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6290067",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.3737,
+    "lng": -70.6384,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-huechuraba-arriendo",
     "title": "Casa Rústica de Campo en Arriendo en Huechuraba",
     "description": "Casa familiar ubicada en el sector Huechuraba de Huechuraba. 2 dormitorios, 1 baños, 89 m². Excelente ubicación y conectividad.",
@@ -28203,6 +34187,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6359,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-huechuraba-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Huechuraba",
+    "description": "Estacionamiento de 18 m² en sector Huechuraba, Huechuraba. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1541",
+    "city": "Huechuraba",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6290067",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.3737,
+    "lng": -70.6384,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -28356,6 +34372,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-independencia-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Independencia",
+    "description": "Estacionamiento de 20 m² en sector Centro, Independencia. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 22500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Independencia 1578",
+    "city": "Independencia",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6293186",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.4127,
+    "lng": -70.6627,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-independencia-arriendo",
     "title": "Casa Moderna de 2 Plantas en Arriendo en Independencia",
     "description": "Casa familiar ubicada en el sector Centro de Independencia. 3 dormitorios, 2 baños, 102 m². Excelente ubicación y conectividad.",
@@ -28503,6 +34551,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6677,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-independencia-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Independencia",
+    "description": "Estacionamiento de 20 m² en sector Centro, Independencia. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 160000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Independencia 1578",
+    "city": "Independencia",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6293186",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.4127,
+    "lng": -70.6627,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -28656,6 +34736,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-isla-de-maipo-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Isla de Maipo",
+    "description": "Estacionamiento de 22 m² en sector Centro, Isla de Maipo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 25000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle 18 de Septiembre 1615",
+    "city": "Isla de Maipo",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6296305",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.7525,
+    "lng": -70.9025,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-isla-de-maipo-arriendo",
     "title": "Casa Campestre con Terreno en Arriendo en Isla de Maipo",
     "description": "Casa familiar ubicada en el sector Centro de Isla de Maipo. 4 dormitorios, 3 baños, 115 m². Excelente ubicación y conectividad.",
@@ -28803,6 +34915,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.905,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-isla-de-maipo-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Isla de Maipo",
+    "description": "Estacionamiento de 22 m² en sector Centro, Isla de Maipo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 95000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle 18 de Septiembre 1615",
+    "city": "Isla de Maipo",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6296305",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.7525,
+    "lng": -70.9025,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -28956,6 +35100,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-la-cisterna-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en La Cisterna",
+    "description": "Estacionamiento de 24 m² en sector Centro, La Cisterna. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 27500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Santa Rosa 1652",
+    "city": "La Cisterna",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6299424",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.5279,
+    "lng": -70.6621,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-la-cisterna-arriendo",
     "title": "Casa con Patio Trasero en Arriendo en La Cisterna",
     "description": "Casa familiar ubicada en el sector Centro de La Cisterna. 2 dormitorios, 1 baños, 128 m². Excelente ubicación y conectividad.",
@@ -29103,6 +35279,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6621,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-la-cisterna-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en La Cisterna",
+    "description": "Estacionamiento de 24 m² en sector Centro, La Cisterna. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Santa Rosa 1652",
+    "city": "La Cisterna",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6299424",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.5279,
+    "lng": -70.6621,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -29256,6 +35464,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-la-florida-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en La Florida",
+    "description": "Estacionamiento de 26 m² en sector Lo Hermida, La Florida. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 30000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Carlos 1689",
+    "city": "La Florida",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6302543",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.5183,
+    "lng": -70.5594,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-la-florida-arriendo",
     "title": "Casa Típica del Pueblo en Arriendo en La Florida",
     "description": "Casa familiar ubicada en el sector Lo Hermida de La Florida. 3 dormitorios, 2 baños, 141 m². Excelente ubicación y conectividad.",
@@ -29403,6 +35643,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5669,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-la-florida-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en La Florida",
+    "description": "Estacionamiento de 26 m² en sector Lo Hermida, La Florida. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 120000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Carlos 1689",
+    "city": "La Florida",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6302543",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.5183,
+    "lng": -70.5594,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -29556,6 +35828,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-la-granja-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en La Granja",
+    "description": "Estacionamiento de 13 m² en sector Centro, La Granja. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 18000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. San Martín 1726",
+    "city": "La Granja",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6305662",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.537,
+    "lng": -70.6251,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-la-granja-arriendo",
     "title": "Casa de Chalet en Arriendo en La Granja",
     "description": "Casa familiar ubicada en el sector Centro de La Granja. 4 dormitorios, 3 baños, 154 m². Excelente ubicación y conectividad.",
@@ -29703,6 +36007,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6201,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-la-granja-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en La Granja",
+    "description": "Estacionamiento de 13 m² en sector Centro, La Granja. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 130000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. San Martín 1726",
+    "city": "La Granja",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6305662",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.537,
+    "lng": -70.6251,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -29856,6 +36192,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-la-pintana-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en La Pintana",
+    "description": "Estacionamiento de 15 m² en sector La Pintana, La Pintana. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 20500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1763",
+    "city": "La Pintana",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6308781",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.5818,
+    "lng": -70.6318,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-la-pintana-arriendo",
     "title": "Casa con Piscina en Arriendo en La Pintana",
     "description": "Casa familiar ubicada en el sector La Pintana de La Pintana. 2 dormitorios, 1 baños, 167 m². Excelente ubicación y conectividad.",
@@ -30006,6 +36374,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-la-pintana-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en La Pintana",
+    "description": "Estacionamiento de 15 m² en sector La Pintana, La Pintana. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1763",
+    "city": "La Pintana",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6308781",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.5818,
+    "lng": -70.6318,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-depto-la-reina-venta",
     "title": "Departamento con Vista al Mar en La Reina",
     "description": "Departamento en Barrio Larraín, La Reina. 2 dormitorio(s), 1 baño(s), 145 m². Moderna infraestructura y seguridad.",
@@ -30123,6 +36523,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5319,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-la-reina-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en La Reina",
+    "description": "Estacionamiento de 17 m² en sector Barrio Larraín, La Reina. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 23000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Larraín 1800",
+    "city": "La Reina",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6311900",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.4469,
+    "lng": -70.5419,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -30276,6 +36708,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-la-reina-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en La Reina",
+    "description": "Estacionamiento de 17 m² en sector Barrio Larraín, La Reina. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 155000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Larraín 1800",
+    "city": "La Reina",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6311900",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.4469,
+    "lng": -70.5419,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-lampa-venta",
     "title": "Casa Familiar de 3 Dormitorios en Lampa",
     "description": "Casa familiar ubicada en el sector Centro de Lampa. 4 dormitorios, 3 baños, 193 m². Excelente ubicación y conectividad.",
@@ -30423,6 +36887,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.8657,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-lampa-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Lampa",
+    "description": "Estacionamiento de 19 m² en sector Centro, Lampa. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 25500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 1837",
+    "city": "Lampa",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6315019",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.2848,
+    "lng": -70.8682,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -30576,6 +37072,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-lampa-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Lampa",
+    "description": "Estacionamiento de 19 m² en sector Centro, Lampa. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 1837",
+    "city": "Lampa",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6315019",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.2848,
+    "lng": -70.8682,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-las-condes-venta",
     "title": "Casa con Vista Panorámica en Las Condes",
     "description": "Casa familiar ubicada en el sector Lo Curro de Las Condes. 2 dormitorios, 1 baños, 206 m². Excelente ubicación y conectividad.",
@@ -30723,6 +37251,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5708,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-las-condes-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Las Condes",
+    "description": "Estacionamiento de 21 m² en sector Lo Curro, Las Condes. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 28000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Alonso de Córdova 1874",
+    "city": "Las Condes",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6318138",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.4097,
+    "lng": -70.5658,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -30876,6 +37436,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-las-condes-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Las Condes",
+    "description": "Estacionamiento de 21 m² en sector Lo Curro, Las Condes. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Alonso de Córdova 1874",
+    "city": "Las Condes",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6318138",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.4097,
+    "lng": -70.5658,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-lo-barnechea-venta",
     "title": "Casa Rústica de Campo en Lo Barnechea",
     "description": "Casa familiar ubicada en el sector La Dehesa Norte de Lo Barnechea. 3 dormitorios, 2 baños, 219 m². Excelente ubicación y conectividad.",
@@ -31023,6 +37615,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5137,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-lo-barnechea-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Lo Barnechea",
+    "description": "Estacionamiento de 23 m² en sector La Dehesa Norte, Lo Barnechea. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 30500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Chicureo 1911",
+    "city": "Lo Barnechea",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6321257",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.3545,
+    "lng": -70.5212,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -31176,6 +37800,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-lo-barnechea-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Lo Barnechea",
+    "description": "Estacionamiento de 23 m² en sector La Dehesa Norte, Lo Barnechea. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 115000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Chicureo 1911",
+    "city": "Lo Barnechea",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6321257",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.3545,
+    "lng": -70.5212,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-lo-espejo-venta",
     "title": "Casa Moderna de 2 Plantas en Lo Espejo",
     "description": "Casa familiar ubicada en el sector Centro de Lo Espejo. 4 dormitorios, 3 baños, 232 m². Excelente ubicación y conectividad.",
@@ -31323,6 +37979,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6927,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-lo-espejo-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Lo Espejo",
+    "description": "Estacionamiento de 25 m² en sector Centro, Lo Espejo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Pedro Aguirre Cerda 1948",
+    "city": "Lo Espejo",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6324376",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.5232,
+    "lng": -70.6927,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -31476,6 +38164,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-lo-espejo-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Lo Espejo",
+    "description": "Estacionamiento de 25 m² en sector Centro, Lo Espejo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Pedro Aguirre Cerda 1948",
+    "city": "Lo Espejo",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6324376",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.5232,
+    "lng": -70.6927,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-lo-prado-venta",
     "title": "Casa Campestre con Terreno en Lo Prado",
     "description": "Casa familiar ubicada en el sector Centro de Lo Prado. 2 dormitorios, 1 baños, 245 m². Excelente ubicación y conectividad.",
@@ -31623,6 +38343,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.72,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-lo-prado-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Lo Prado",
+    "description": "Estacionamiento de 12 m² en sector Centro, Lo Prado. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Carlos 1985",
+    "city": "Lo Prado",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6327495",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.4419,
+    "lng": -70.7225,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -31776,6 +38528,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-lo-prado-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Lo Prado",
+    "description": "Estacionamiento de 12 m² en sector Centro, Lo Prado. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 140000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Carlos 1985",
+    "city": "Lo Prado",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6327495",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.4419,
+    "lng": -70.7225,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-macul-venta",
     "title": "Casa con Patio Trasero en Macul",
     "description": "Casa familiar ubicada en el sector Centro de Macul. 3 dormitorios, 2 baños, 258 m². Excelente ubicación y conectividad.",
@@ -31923,6 +38707,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5979,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-macul-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Macul",
+    "description": "Estacionamiento de 14 m² en sector Centro, Macul. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Quilín 2022",
+    "city": "Macul",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6330614",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.4929,
+    "lng": -70.6029,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -32076,6 +38892,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-macul-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Macul",
+    "description": "Estacionamiento de 14 m² en sector Centro, Macul. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 150000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Quilín 2022",
+    "city": "Macul",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6330614",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.4929,
+    "lng": -70.6029,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-maipu-venta",
     "title": "Casa Típica del Pueblo en Maipú",
     "description": "Casa familiar ubicada en el sector Ciudad Satélite de Maipú. 4 dormitorios, 3 baños, 271 m². Excelente ubicación y conectividad.",
@@ -32223,6 +39071,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7602,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-maipu-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Maipú",
+    "description": "Estacionamiento de 16 m² en sector Ciudad Satélite, Maipú. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 26500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle San Carlos 2059",
+    "city": "Maipú",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6333733",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.5113,
+    "lng": -70.7577,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -32376,6 +39256,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-maipu-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Maipú",
+    "description": "Estacionamiento de 16 m² en sector Ciudad Satélite, Maipú. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle San Carlos 2059",
+    "city": "Maipú",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6333733",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.5113,
+    "lng": -70.7577,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-maria-pinto-venta",
     "title": "Casa de Chalet en María Pinto",
     "description": "Casa familiar ubicada en el sector Centro de María Pinto. 2 dormitorios, 1 baños, 84 m². Excelente ubicación y conectividad.",
@@ -32523,6 +39435,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.1137,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-maria-pinto-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en María Pinto",
+    "description": "Estacionamiento de 18 m² en sector Centro, María Pinto. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 29000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle San Martín 2096",
+    "city": "María Pinto",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6336852",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.5137,
+    "lng": -71.1137,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -32676,6 +39620,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-maria-pinto-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en María Pinto",
+    "description": "Estacionamiento de 18 m² en sector Centro, María Pinto. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 100000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle San Martín 2096",
+    "city": "María Pinto",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6336852",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.5137,
+    "lng": -71.1137,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-melipilla-venta",
     "title": "Casa con Piscina en Melipilla",
     "description": "Casa familiar ubicada en el sector Las Acacias de Melipilla. 3 dormitorios, 2 baños, 97 m². Excelente ubicación y conectividad.",
@@ -32823,6 +39799,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.2166,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-melipilla-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Melipilla",
+    "description": "Estacionamiento de 20 m² en sector Las Acacias, Melipilla. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 31500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Carrera 133",
+    "city": "Melipilla",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6339971",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.6932,
+    "lng": -71.2191,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -32976,6 +39984,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-melipilla-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Melipilla",
+    "description": "Estacionamiento de 20 m² en sector Las Acacias, Melipilla. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 110000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Carrera 133",
+    "city": "Melipilla",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6339971",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.6932,
+    "lng": -71.2191,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-padre-hurtado-venta",
     "title": "Casa con Jardín y Quincho en Padre Hurtado",
     "description": "Casa familiar ubicada en el sector Padre Hurtado de Padre Hurtado. 4 dormitorios, 3 baños, 110 m². Excelente ubicación y conectividad.",
@@ -33123,6 +40163,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.8217,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-padre-hurtado-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Padre Hurtado",
+    "description": "Estacionamiento de 22 m² en sector Padre Hurtado, Padre Hurtado. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 170",
+    "city": "Padre Hurtado",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6343090",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.5667,
+    "lng": -70.8167,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -33276,6 +40348,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-padre-hurtado-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Padre Hurtado",
+    "description": "Estacionamiento de 22 m² en sector Padre Hurtado, Padre Hurtado. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 170",
+    "city": "Padre Hurtado",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6343090",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.5667,
+    "lng": -70.8167,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-paine-venta",
     "title": "Casa Familiar de 3 Dormitorios en Paine",
     "description": "Casa familiar ubicada en el sector Centro de Paine. 2 dormitorios, 1 baños, 123 m². Excelente ubicación y conectividad.",
@@ -33423,6 +40527,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.749,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-paine-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Paine",
+    "description": "Estacionamiento de 24 m² en sector Centro, Paine. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 22000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Portales 207",
+    "city": "Paine",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6346209",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.8132,
+    "lng": -70.7465,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -33576,6 +40712,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-paine-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Paine",
+    "description": "Estacionamiento de 24 m² en sector Centro, Paine. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 135000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Portales 207",
+    "city": "Paine",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6346209",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.8132,
+    "lng": -70.7465,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-pedro-aguirre-cerda-venta",
     "title": "Casa con Vista Panorámica en Pedro Aguirre Cerda",
     "description": "Casa familiar ubicada en el sector Centro de Pedro Aguirre Cerda. 3 dormitorios, 2 baños, 136 m². Excelente ubicación y conectividad.",
@@ -33723,6 +40891,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6836,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-pedro-aguirre-cerda-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Pedro Aguirre Cerda",
+    "description": "Estacionamiento de 26 m² en sector Centro, Pedro Aguirre Cerda. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Pedro Aguirre Cerda 244",
+    "city": "Pedro Aguirre Cerda",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6349328",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.4919,
+    "lng": -70.6836,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -33876,6 +41076,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-pedro-aguirre-cerda-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Pedro Aguirre Cerda",
+    "description": "Estacionamiento de 26 m² en sector Centro, Pedro Aguirre Cerda. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Pedro Aguirre Cerda 244",
+    "city": "Pedro Aguirre Cerda",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6349328",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.4919,
+    "lng": -70.6836,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-penaflor-venta",
     "title": "Casa Rústica de Campo en Peñaflor",
     "description": "Casa familiar ubicada en el sector Centro de Peñaflor. 4 dormitorios, 3 baños, 149 m². Excelente ubicación y conectividad.",
@@ -34023,6 +41255,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.8748,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-penaflor-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Peñaflor",
+    "description": "Estacionamiento de 13 m² en sector Centro, Peñaflor. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 27000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Carlos 281",
+    "city": "Peñaflor",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6352447",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.6078,
+    "lng": -70.8773,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -34176,6 +41440,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-penaflor-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Peñaflor",
+    "description": "Estacionamiento de 13 m² en sector Centro, Peñaflor. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 160000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Carlos 281",
+    "city": "Peñaflor",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6352447",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.6078,
+    "lng": -70.8773,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-penalolen-venta",
     "title": "Casa Moderna de 2 Plantas en Peñalolén",
     "description": "Casa familiar ubicada en el sector Centro de Peñalolén. 2 dormitorios, 1 baños, 162 m². Excelente ubicación y conectividad.",
@@ -34323,6 +41619,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5343,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-penalolen-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Peñalolén",
+    "description": "Estacionamiento de 15 m² en sector Centro, Peñalolén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 29500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Grecia 318",
+    "city": "Peñalolén",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6355566",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.4793,
+    "lng": -70.5293,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -34476,6 +41804,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-penalolen-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Peñalolén",
+    "description": "Estacionamiento de 15 m² en sector Centro, Peñalolén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 95000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Grecia 318",
+    "city": "Peñalolén",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6355566",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.4793,
+    "lng": -70.5293,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-pirque-venta",
     "title": "Casa Campestre con Terreno en Pirque",
     "description": "Casa familiar ubicada en el sector Concha y Toro de Pirque. 3 dormitorios, 2 baños, 175 m². Excelente ubicación y conectividad.",
@@ -34623,6 +41983,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5717,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-pirque-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Pirque",
+    "description": "Estacionamiento de 17 m² en sector Concha y Toro, Pirque. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 32000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Concha y Toro 355",
+    "city": "Pirque",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6358685",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.6358,
+    "lng": -70.5692,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -34776,6 +42168,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-pirque-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Pirque",
+    "description": "Estacionamiento de 17 m² en sector Concha y Toro, Pirque. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Concha y Toro 355",
+    "city": "Pirque",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6358685",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.6358,
+    "lng": -70.5692,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-providencia-venta",
     "title": "Casa con Patio Trasero en Providencia",
     "description": "Casa familiar ubicada en el sector Barrio Italia de Providencia. 4 dormitorios, 3 baños, 188 m². Excelente ubicación y conectividad.",
@@ -34923,6 +42347,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6118,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-providencia-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Providencia",
+    "description": "Estacionamiento de 19 m² en sector Barrio Italia, Providencia. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 20000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Salvador 392",
+    "city": "Providencia",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6361804",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.4304,
+    "lng": -70.6118,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -35076,6 +42532,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-providencia-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Providencia",
+    "description": "Estacionamiento de 19 m² en sector Barrio Italia, Providencia. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 120000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Salvador 392",
+    "city": "Providencia",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6361804",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.4304,
+    "lng": -70.6118,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-pudahuel-venta",
     "title": "Casa Típica del Pueblo en Pudahuel",
     "description": "Casa familiar ubicada en el sector Cerrillos de Pudahuel. 2 dormitorios, 1 baños, 201 m². Excelente ubicación y conectividad.",
@@ -35223,6 +42711,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.763,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-pudahuel-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Pudahuel",
+    "description": "Estacionamiento de 21 m² en sector Cerrillos, Pudahuel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 22500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Mapocho 429",
+    "city": "Pudahuel",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6364923",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.4355,
+    "lng": -70.7555,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -35376,6 +42896,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-pudahuel-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Pudahuel",
+    "description": "Estacionamiento de 21 m² en sector Cerrillos, Pudahuel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 130000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Mapocho 429",
+    "city": "Pudahuel",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6364923",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.4355,
+    "lng": -70.7555,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-puente-alto-venta",
     "title": "Casa de Chalet en Puente Alto",
     "description": "Casa familiar ubicada en el sector El Peñón de Puente Alto. 3 dormitorios, 2 baños, 214 m². Excelente ubicación y conectividad.",
@@ -35523,6 +43075,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5803,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-puente-alto-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Puente Alto",
+    "description": "Estacionamiento de 23 m² en sector El Peñón, Puente Alto. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 25000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Gabriela 466",
+    "city": "Puente Alto",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6368042",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.6187,
+    "lng": -70.5853,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -35676,6 +43260,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-puente-alto-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Puente Alto",
+    "description": "Estacionamiento de 23 m² en sector El Peñón, Puente Alto. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Gabriela 466",
+    "city": "Puente Alto",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6368042",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.6187,
+    "lng": -70.5853,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-quilicura-venta",
     "title": "Casa con Piscina en Quilicura",
     "description": "Casa familiar ubicada en el sector Los Libertadores de Quilicura. 4 dormitorios, 3 baños, 227 m². Excelente ubicación y conectividad.",
@@ -35823,6 +43439,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7343,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-quilicura-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Quilicura",
+    "description": "Estacionamiento de 25 m² en sector Los Libertadores, Quilicura. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 27500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Américo Vespucio 503",
+    "city": "Quilicura",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6371161",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.3652,
+    "lng": -70.7318,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -35976,6 +43624,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-quilicura-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Quilicura",
+    "description": "Estacionamiento de 25 m² en sector Los Libertadores, Quilicura. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 155000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Américo Vespucio 503",
+    "city": "Quilicura",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6371161",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.3652,
+    "lng": -70.7318,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-quinta-normal-venta",
     "title": "Casa con Jardín y Quincho en Quinta Normal",
     "description": "Casa familiar ubicada en el sector Centro de Quinta Normal. 2 dormitorios, 1 baños, 240 m². Excelente ubicación y conectividad.",
@@ -36123,6 +43803,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6883,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-quinta-normal-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Quinta Normal",
+    "description": "Estacionamiento de 12 m² en sector Centro, Quinta Normal. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 30000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Carrascal 540",
+    "city": "Quinta Normal",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6374280",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.4217,
+    "lng": -70.6883,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -36276,6 +43988,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-quinta-normal-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Quinta Normal",
+    "description": "Estacionamiento de 12 m² en sector Centro, Quinta Normal. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Carrascal 540",
+    "city": "Quinta Normal",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6374280",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.4217,
+    "lng": -70.6883,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-recoleta-venta",
     "title": "Casa Familiar de 3 Dormitorios en Recoleta",
     "description": "Casa familiar ubicada en el sector Dávila de Recoleta. 3 dormitorios, 2 baños, 253 m². Excelente ubicación y conectividad.",
@@ -36423,6 +44167,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6359,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-recoleta-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Recoleta",
+    "description": "Estacionamiento de 14 m² en sector Dávila, Recoleta. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 18000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Dávila 577",
+    "city": "Recoleta",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6377399",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.4087,
+    "lng": -70.6384,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -36576,6 +44352,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-recoleta-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Recoleta",
+    "description": "Estacionamiento de 14 m² en sector Dávila, Recoleta. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Dávila 577",
+    "city": "Recoleta",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6377399",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.4087,
+    "lng": -70.6384,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-renca-venta",
     "title": "Casa con Vista Panorámica en Renca",
     "description": "Casa familiar ubicada en el sector Centro de Renca. 4 dormitorios, 3 baños, 266 m². Excelente ubicación y conectividad.",
@@ -36723,6 +44531,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7327,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-renca-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Renca",
+    "description": "Estacionamiento de 16 m² en sector Centro, Renca. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 20500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Libertadores 614",
+    "city": "Renca",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6380518",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.4036,
+    "lng": -70.7277,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -36876,6 +44716,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-renca-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Renca",
+    "description": "Estacionamiento de 16 m² en sector Centro, Renca. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 115000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Libertadores 614",
+    "city": "Renca",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6380518",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.4036,
+    "lng": -70.7277,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-san-bernardo-venta",
     "title": "Casa Rústica de Campo en San Bernardo",
     "description": "Casa familiar ubicada en el sector Centro de San Bernardo. 2 dormitorios, 1 baños, 279 m². Excelente ubicación y conectividad.",
@@ -37023,6 +44895,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.697,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-san-bernardo-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en San Bernardo",
+    "description": "Estacionamiento de 18 m² en sector Centro, San Bernardo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 23000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Portales 651",
+    "city": "San Bernardo",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6383637",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.6045,
+    "lng": -70.7045,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -37176,6 +45080,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-san-bernardo-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en San Bernardo",
+    "description": "Estacionamiento de 18 m² en sector Centro, San Bernardo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Portales 651",
+    "city": "San Bernardo",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6383637",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.6045,
+    "lng": -70.7045,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-san-joaquin-venta",
     "title": "Casa Moderna de 2 Plantas en San Joaquín",
     "description": "Casa familiar ubicada en el sector Franklin de San Joaquín. 3 dormitorios, 2 baños, 92 m². Excelente ubicación y conectividad.",
@@ -37323,6 +45259,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6288,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-san-joaquin-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en San Joaquín",
+    "description": "Estacionamiento de 20 m² en sector Franklin, San Joaquín. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 25500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Santa Rosa 688",
+    "city": "San Joaquín",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6386756",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.496,
+    "lng": -70.6288,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -37476,6 +45444,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-san-joaquin-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en San Joaquín",
+    "description": "Estacionamiento de 20 m² en sector Franklin, San Joaquín. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 140000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Santa Rosa 688",
+    "city": "San Joaquín",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6386756",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.496,
+    "lng": -70.6288,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-san-jose-de-maipo-venta",
     "title": "Casa Campestre con Terreno en San José de Maipo",
     "description": "Casa familiar ubicada en el sector San Alfonso de San José de Maipo. 4 dormitorios, 3 baños, 105 m². Excelente ubicación y conectividad.",
@@ -37623,6 +45623,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.3467,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-san-jose-de-maipo-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en San José de Maipo",
+    "description": "Estacionamiento de 22 m² en sector San Alfonso, San José de Maipo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 28000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Cipreses 725",
+    "city": "San José de Maipo",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6389875",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.6372,
+    "lng": -70.3492,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -37776,6 +45808,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-san-jose-de-maipo-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en San José de Maipo",
+    "description": "Estacionamiento de 22 m² en sector San Alfonso, San José de Maipo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 150000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Cipreses 725",
+    "city": "San José de Maipo",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6389875",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.6372,
+    "lng": -70.3492,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-san-miguel-venta",
     "title": "Casa con Patio Trasero en San Miguel",
     "description": "Casa familiar ubicada en el sector Centro de San Miguel. 2 dormitorios, 1 baños, 118 m². Excelente ubicación y conectividad.",
@@ -37923,6 +45987,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6507,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-san-miguel-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en San Miguel",
+    "description": "Estacionamiento de 24 m² en sector Centro, San Miguel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 30500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Santa Rosa 762",
+    "city": "San Miguel",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6392994",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.4979,
+    "lng": -70.6557,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -38076,6 +46172,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-san-miguel-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en San Miguel",
+    "description": "Estacionamiento de 24 m² en sector Centro, San Miguel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Santa Rosa 762",
+    "city": "San Miguel",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6392994",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.4979,
+    "lng": -70.6557,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-san-pedro-venta",
     "title": "Casa Típica del Pueblo en San Pedro",
     "description": "Casa familiar ubicada en el sector Centro de San Pedro. 3 dormitorios, 2 baños, 131 m². Excelente ubicación y conectividad.",
@@ -38223,6 +46351,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.453,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-san-pedro-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en San Pedro",
+    "description": "Estacionamiento de 26 m² en sector Centro, San Pedro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 18500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Andes 799",
+    "city": "San Pedro",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6396113",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.9005,
+    "lng": -71.4505,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -38376,6 +46536,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-san-pedro-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en San Pedro",
+    "description": "Estacionamiento de 26 m² en sector Centro, San Pedro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 100000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Andes 799",
+    "city": "San Pedro",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6396113",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.9005,
+    "lng": -71.4505,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-san-ramon-venta",
     "title": "Casa de Chalet en San Ramón",
     "description": "Casa familiar ubicada en el sector Centro de San Ramón. 4 dormitorios, 3 baños, 144 m². Excelente ubicación y conectividad.",
@@ -38523,6 +46715,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6403,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-san-ramon-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en San Ramón",
+    "description": "Estacionamiento de 13 m² en sector Centro, San Ramón. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Santa Rosa 836",
+    "city": "San Ramón",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6399232",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.5303,
+    "lng": -70.6403,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -38676,6 +46900,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-san-ramon-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en San Ramón",
+    "description": "Estacionamiento de 13 m² en sector Centro, San Ramón. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 110000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Santa Rosa 836",
+    "city": "San Ramón",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6399232",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.5303,
+    "lng": -70.6403,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-santiago-venta",
     "title": "Casa con Piscina en Santiago",
     "description": "Casa familiar ubicada en el sector Barrio Yungay de Santiago. 2 dormitorios, 1 baños, 157 m². Excelente ubicación y conectividad.",
@@ -38823,6 +47079,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6703,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-santiago-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Santiago",
+    "description": "Estacionamiento de 15 m² en sector Barrio Yungay, Santiago. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 23500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Recoleta 873",
+    "city": "Santiago",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6402351",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.4524,
+    "lng": -70.6728,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -38976,6 +47264,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-santiago-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Santiago",
+    "description": "Estacionamiento de 15 m² en sector Barrio Yungay, Santiago. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Recoleta 873",
+    "city": "Santiago",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6402351",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -33.4524,
+    "lng": -70.6728,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-talagante-venta",
     "title": "Casa con Jardín y Quincho en Talagante",
     "description": "Casa familiar ubicada en el sector Centro de Talagante. 3 dormitorios, 2 baños, 170 m². Excelente ubicación y conectividad.",
@@ -39123,6 +47443,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.9322,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-talagante-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Talagante",
+    "description": "Estacionamiento de 17 m² en sector Centro, Talagante. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 26000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Quillayes 910",
+    "city": "Talagante",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6405470",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.6644,
+    "lng": -70.9272,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -39276,6 +47628,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-talagante-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Talagante",
+    "description": "Estacionamiento de 17 m² en sector Centro, Talagante. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 135000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Quillayes 910",
+    "city": "Talagante",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6405470",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.6644,
+    "lng": -70.9272,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-til-til-venta",
     "title": "Casa Familiar de 3 Dormitorios en Til Til",
     "description": "Casa familiar ubicada en el sector Til Til de Til Til. 4 dormitorios, 3 baños, 183 m². Excelente ubicación y conectividad.",
@@ -39423,6 +47807,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.9323,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-til-til-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Til Til",
+    "description": "Estacionamiento de 19 m² en sector Til Til, Til Til. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 28500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 947",
+    "city": "Til Til",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6408589",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.0798,
+    "lng": -70.9298,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -39576,6 +47992,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-til-til-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Til Til",
+    "description": "Estacionamiento de 19 m² en sector Til Til, Til Til. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 947",
+    "city": "Til Til",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6408589",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -33.0798,
+    "lng": -70.9298,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-vitacura-venta",
     "title": "Casa con Vista Panorámica en Vitacura",
     "description": "Casa familiar ubicada en el sector Centro de Vitacura. 2 dormitorios, 1 baños, 196 m². Excelente ubicación y conectividad.",
@@ -39723,6 +48171,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5697,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-vitacura-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Vitacura",
+    "description": "Estacionamiento de 21 m² en sector Centro, Vitacura. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 31000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle San Sebastián 984",
+    "city": "Vitacura",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6411708",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.3863,
+    "lng": -70.5697,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -39876,6 +48356,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-vitacura-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Vitacura",
+    "description": "Estacionamiento de 21 m² en sector Centro, Vitacura. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 160000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle San Sebastián 984",
+    "city": "Vitacura",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6411708",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -33.3863,
+    "lng": -70.5697,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiii-casa-nunoa-venta",
     "title": "Casa Rústica de Campo en Ñuñoa",
     "description": "Casa familiar ubicada en el sector Barrio Ñuñoa de Ñuñoa. 3 dormitorios, 2 baños, 209 m². Excelente ubicación y conectividad.",
@@ -40023,6 +48535,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.5945,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiii-estacionamiento-nunoa-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Ñuñoa",
+    "description": "Estacionamiento de 23 m² en sector Barrio Ñuñoa, Ñuñoa. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Caupolicán 1021",
+    "city": "Ñuñoa",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6414827",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.4564,
+    "lng": -70.597,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -40176,6 +48720,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiii-estacionamiento-nunoa-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Ñuñoa",
+    "description": "Estacionamiento de 23 m² en sector Barrio Ñuñoa, Ñuñoa. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 95000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Caupolicán 1021",
+    "city": "Ñuñoa",
+    "state": "Región Metropolitana de Santiago",
+    "zip_code": "6414827",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.4564,
+    "lng": -70.597,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-chimbarongo-venta",
     "title": "Casa Moderna de 2 Plantas en Chimbarongo",
     "description": "Casa familiar ubicada en el sector Centro de Chimbarongo. 4 dormitorios, 3 baños, 222 m². Excelente ubicación y conectividad.",
@@ -40323,6 +48899,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.0454,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-chimbarongo-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Chimbarongo",
+    "description": "Estacionamiento de 25 m² en sector Centro, Chimbarongo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 22000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. San Martín 1058",
+    "city": "Chimbarongo",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6417946",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.7043,
+    "lng": -71.0404,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -40476,6 +49084,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-chimbarongo-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Chimbarongo",
+    "description": "Estacionamiento de 25 m² en sector Centro, Chimbarongo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. San Martín 1058",
+    "city": "Chimbarongo",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6417946",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.7043,
+    "lng": -71.0404,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-chepica-venta",
     "title": "Casa Campestre con Terreno en Chépica",
     "description": "Casa familiar ubicada en el sector Centro de Chépica. 2 dormitorios, 1 baños, 235 m². Excelente ubicación y conectividad.",
@@ -40623,6 +49263,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.2883,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-chepica-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Chépica",
+    "description": "Estacionamiento de 12 m² en sector Centro, Chépica. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 1095",
+    "city": "Chépica",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6421065",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.7386,
+    "lng": -71.2858,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -40776,6 +49448,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-chepica-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Chépica",
+    "description": "Estacionamiento de 12 m² en sector Centro, Chépica. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 120000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 1095",
+    "city": "Chépica",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6421065",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.7386,
+    "lng": -71.2858,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-codegua-venta",
     "title": "Casa con Patio Trasero en Codegua",
     "description": "Casa familiar ubicada en el sector Codegua de Codegua. 3 dormitorios, 2 baños, 248 m². Excelente ubicación y conectividad.",
@@ -40923,6 +49627,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.6657,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-codegua-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Codegua",
+    "description": "Estacionamiento de 14 m² en sector Codegua, Codegua. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 27000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1132",
+    "city": "Codegua",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6424184",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.0323,
+    "lng": -70.6657,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -41076,6 +49812,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-codegua-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Codegua",
+    "description": "Estacionamiento de 14 m² en sector Codegua, Codegua. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 130000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1132",
+    "city": "Codegua",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6424184",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.0323,
+    "lng": -70.6657,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-coinco-venta",
     "title": "Casa Típica del Pueblo en Coinco",
     "description": "Casa familiar ubicada en el sector Coinco de Coinco. 4 dormitorios, 3 baños, 261 m². Excelente ubicación y conectividad.",
@@ -41223,6 +49991,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.973,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-coinco-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Coinco",
+    "description": "Estacionamiento de 16 m² en sector Coinco, Coinco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 29500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1169",
+    "city": "Coinco",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6427303",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.2655,
+    "lng": -70.9655,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -41376,6 +50176,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-coinco-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Coinco",
+    "description": "Estacionamiento de 16 m² en sector Coinco, Coinco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1169",
+    "city": "Coinco",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6427303",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.2655,
+    "lng": -70.9655,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-coltauco-venta",
     "title": "Casa de Chalet en Coltauco",
     "description": "Casa familiar ubicada en el sector Coltauco de Coltauco. 2 dormitorios, 1 baños, 274 m². Excelente ubicación y conectividad.",
@@ -41523,6 +50355,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.0803,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-coltauco-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Coltauco",
+    "description": "Estacionamiento de 18 m² en sector Coltauco, Coltauco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 32000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1206",
+    "city": "Coltauco",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6430422",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.2853,
+    "lng": -71.0853,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -41676,6 +50540,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-coltauco-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Coltauco",
+    "description": "Estacionamiento de 18 m² en sector Coltauco, Coltauco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 155000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1206",
+    "city": "Coltauco",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6430422",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.2853,
+    "lng": -71.0853,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-donihue-venta",
     "title": "Casa con Piscina en Doñihue",
     "description": "Casa familiar ubicada en el sector Doñihue de Doñihue. 3 dormitorios, 2 baños, 87 m². Excelente ubicación y conectividad.",
@@ -41823,6 +50719,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.9677,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-donihue-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Doñihue",
+    "description": "Estacionamiento de 20 m² en sector Doñihue, Doñihue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 20000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1243",
+    "city": "Doñihue",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6433541",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.2318,
+    "lng": -70.9652,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -41976,6 +50904,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-donihue-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Doñihue",
+    "description": "Estacionamiento de 20 m² en sector Doñihue, Doñihue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1243",
+    "city": "Doñihue",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6433541",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.2318,
+    "lng": -70.9652,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-graneros-venta",
     "title": "Casa con Jardín y Quincho en Graneros",
     "description": "Casa familiar ubicada en el sector Graneros de Graneros. 4 dormitorios, 3 baños, 100 m². Excelente ubicación y conectividad.",
@@ -42123,6 +51083,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7283,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-graneros-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Graneros",
+    "description": "Estacionamiento de 22 m² en sector Graneros, Graneros. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 22500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1280",
+    "city": "Graneros",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6436660",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.0617,
+    "lng": -70.7283,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -42276,6 +51268,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-graneros-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Graneros",
+    "description": "Estacionamiento de 22 m² en sector Graneros, Graneros. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1280",
+    "city": "Graneros",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6436660",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.0617,
+    "lng": -70.7283,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-la-estrella-venta",
     "title": "Casa Familiar de 3 Dormitorios en La Estrella",
     "description": "Casa familiar ubicada en el sector La Estrella de La Estrella. 2 dormitorios, 1 baños, 113 m². Excelente ubicación y conectividad.",
@@ -42423,6 +51447,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.749,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-la-estrella-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en La Estrella",
+    "description": "Estacionamiento de 24 m² en sector La Estrella, La Estrella. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 25000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1317",
+    "city": "La Estrella",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6439779",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.2015,
+    "lng": -71.7515,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -42576,6 +51632,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-la-estrella-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en La Estrella",
+    "description": "Estacionamiento de 24 m² en sector La Estrella, La Estrella. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 115000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1317",
+    "city": "La Estrella",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6439779",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.2015,
+    "lng": -71.7515,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-las-cabras-venta",
     "title": "Casa con Vista Panorámica en Las Cabras",
     "description": "Casa familiar ubicada en el sector Centro de Las Cabras. 3 dormitorios, 2 baños, 126 m². Excelente ubicación y conectividad.",
@@ -42723,6 +51811,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.313,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-las-cabras-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Las Cabras",
+    "description": "Estacionamiento de 26 m² en sector Centro, Las Cabras. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 27500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle del Río 1354",
+    "city": "Las Cabras",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6442898",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.288,
+    "lng": -71.308,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -42876,6 +51996,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-las-cabras-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Las Cabras",
+    "description": "Estacionamiento de 26 m² en sector Centro, Las Cabras. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle del Río 1354",
+    "city": "Las Cabras",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6442898",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.288,
+    "lng": -71.308,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-litueche-venta",
     "title": "Casa Rústica de Campo en Litueche",
     "description": "Casa familiar ubicada en el sector Litueche de Litueche. 4 dormitorios, 3 baños, 139 m². Excelente ubicación y conectividad.",
@@ -43023,6 +52175,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.717,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-litueche-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Litueche",
+    "description": "Estacionamiento de 13 m² en sector Litueche, Litueche. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 30000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1391",
+    "city": "Litueche",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6446017",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.1245,
+    "lng": -71.7245,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -43176,6 +52360,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-litueche-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Litueche",
+    "description": "Estacionamiento de 13 m² en sector Litueche, Litueche. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 140000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1391",
+    "city": "Litueche",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6446017",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.1245,
+    "lng": -71.7245,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-lolol-venta",
     "title": "Casa Moderna de 2 Plantas en Lolol",
     "description": "Casa familiar ubicada en el sector Centro de Lolol. 2 dormitorios, 1 baños, 152 m². Excelente ubicación y conectividad.",
@@ -43323,6 +52539,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.641,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-lolol-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Lolol",
+    "description": "Estacionamiento de 15 m² en sector Centro, Lolol. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 18000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Carrera 1428",
+    "city": "Lolol",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6449136",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.721,
+    "lng": -71.641,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -43476,6 +52724,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-lolol-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Lolol",
+    "description": "Estacionamiento de 15 m² en sector Centro, Lolol. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 150000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Carrera 1428",
+    "city": "Lolol",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6449136",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.721,
+    "lng": -71.641,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-machali-venta",
     "title": "Casa Campestre con Terreno en Machalí",
     "description": "Casa familiar ubicada en el sector Machalí de Machalí. 3 dormitorios, 2 baños, 165 m². Excelente ubicación y conectividad.",
@@ -43623,6 +52903,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.645,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-machali-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Machalí",
+    "description": "Estacionamiento de 17 m² en sector Machalí, Machalí. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 20500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1465",
+    "city": "Machalí",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6452255",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.1808,
+    "lng": -70.6475,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -43776,6 +53088,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-machali-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Machalí",
+    "description": "Estacionamiento de 17 m² en sector Machalí, Machalí. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1465",
+    "city": "Machalí",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6452255",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.1808,
+    "lng": -70.6475,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-malloa-venta",
     "title": "Casa con Patio Trasero en Malloa",
     "description": "Casa familiar ubicada en el sector Malloa de Malloa. 4 dormitorios, 3 baños, 178 m². Excelente ubicación y conectividad.",
@@ -43923,6 +53267,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.949,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-malloa-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Malloa",
+    "description": "Estacionamiento de 19 m² en sector Malloa, Malloa. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 23000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1502",
+    "city": "Malloa",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6455374",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.444,
+    "lng": -70.954,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -44076,6 +53452,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-malloa-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Malloa",
+    "description": "Estacionamiento de 19 m² en sector Malloa, Malloa. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 100000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1502",
+    "city": "Malloa",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6455374",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.444,
+    "lng": -70.954,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-marchigue-venta",
     "title": "Casa Típica del Pueblo en Marchigüe",
     "description": "Casa familiar ubicada en el sector Marchigüe de Marchigüe. 2 dormitorios, 1 baños, 191 m². Excelente ubicación y conectividad.",
@@ -44223,6 +53631,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.623,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-marchigue-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Marchigüe",
+    "description": "Estacionamiento de 21 m² en sector Marchigüe, Marchigüe. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 25500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1539",
+    "city": "Marchigüe",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6458493",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.3905,
+    "lng": -71.6205,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -44376,6 +53816,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-marchigue-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Marchigüe",
+    "description": "Estacionamiento de 21 m² en sector Marchigüe, Marchigüe. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 110000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1539",
+    "city": "Marchigüe",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6458493",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.3905,
+    "lng": -71.6205,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-mostazal-venta",
     "title": "Casa de Chalet en Mostazal",
     "description": "Casa familiar ubicada en el sector Mostazal de Mostazal. 3 dormitorios, 2 baños, 204 m². Excelente ubicación y conectividad.",
@@ -44523,6 +53995,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.697,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-mostazal-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Mostazal",
+    "description": "Estacionamiento de 23 m² en sector Mostazal, Mostazal. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 28000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1576",
+    "city": "Mostazal",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6461612",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.9803,
+    "lng": -70.697,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -44676,6 +54180,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-mostazal-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Mostazal",
+    "description": "Estacionamiento de 23 m² en sector Mostazal, Mostazal. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1576",
+    "city": "Mostazal",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6461612",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -33.9803,
+    "lng": -70.697,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-nancagua-venta",
     "title": "Casa con Piscina en Nancagua",
     "description": "Casa familiar ubicada en el sector Centro de Nancagua. 4 dormitorios, 3 baños, 217 m². Excelente ubicación y conectividad.",
@@ -44823,6 +54359,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.201,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-nancagua-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Nancagua",
+    "description": "Estacionamiento de 25 m² en sector Centro, Nancagua. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 30500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1613",
+    "city": "Nancagua",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6464731",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.6735,
+    "lng": -71.2035,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -44976,6 +54544,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-nancagua-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Nancagua",
+    "description": "Estacionamiento de 25 m² en sector Centro, Nancagua. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 135000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1613",
+    "city": "Nancagua",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6464731",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.6735,
+    "lng": -71.2035,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-navidad-venta",
     "title": "Casa con Jardín y Quincho en Navidad",
     "description": "Casa familiar ubicada en el sector Navidad de Navidad. 2 dormitorios, 1 baños, 230 m². Excelente ubicación y conectividad.",
@@ -45123,6 +54723,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.8369,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-navidad-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Navidad",
+    "description": "Estacionamiento de 12 m² en sector Navidad, Navidad. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 18500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 1650",
+    "city": "Navidad",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6467850",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.9547,
+    "lng": -71.8319,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -45276,6 +54908,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-navidad-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Navidad",
+    "description": "Estacionamiento de 12 m² en sector Navidad, Navidad. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 1650",
+    "city": "Navidad",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6467850",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -33.9547,
+    "lng": -71.8319,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-olivar-venta",
     "title": "Casa Familiar de 3 Dormitorios en Olivar",
     "description": "Casa familiar ubicada en el sector Olivar de Olivar. 3 dormitorios, 2 baños, 243 m². Excelente ubicación y conectividad.",
@@ -45423,6 +55087,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.819,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-olivar-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Olivar",
+    "description": "Estacionamiento de 14 m² en sector Olivar, Olivar. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1687",
+    "city": "Olivar",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6470969",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.1965,
+    "lng": -70.8165,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -45576,6 +55272,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-olivar-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Olivar",
+    "description": "Estacionamiento de 14 m² en sector Olivar, Olivar. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 160000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1687",
+    "city": "Olivar",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6470969",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.1965,
+    "lng": -70.8165,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-palmilla-venta",
     "title": "Casa con Vista Panorámica en Palmilla",
     "description": "Casa familiar ubicada en el sector Centro de Palmilla. 4 dormitorios, 3 baños, 256 m². Excelente ubicación y conectividad.",
@@ -45723,6 +55451,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.373,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-palmilla-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Palmilla",
+    "description": "Estacionamiento de 16 m² en sector Centro, Palmilla. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 23500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1724",
+    "city": "Palmilla",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6474088",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.603,
+    "lng": -71.373,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -45876,6 +55636,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-palmilla-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Palmilla",
+    "description": "Estacionamiento de 16 m² en sector Centro, Palmilla. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 95000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1724",
+    "city": "Palmilla",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6474088",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.603,
+    "lng": -71.373,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-paredones-venta",
     "title": "Casa Rústica de Campo en Paredones",
     "description": "Casa familiar ubicada en el sector Paredones de Paredones. 2 dormitorios, 1 baños, 269 m². Excelente ubicación y conectividad.",
@@ -46023,6 +55815,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.897,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-paredones-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Paredones",
+    "description": "Estacionamiento de 18 m² en sector Paredones, Paredones. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 26000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1761",
+    "city": "Paredones",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6477207",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.6595,
+    "lng": -71.8995,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -46176,6 +56000,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-paredones-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Paredones",
+    "description": "Estacionamiento de 18 m² en sector Paredones, Paredones. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1761",
+    "city": "Paredones",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6477207",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.6595,
+    "lng": -71.8995,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-peralillo-venta",
     "title": "Casa Moderna de 2 Plantas en Peralillo",
     "description": "Casa familiar ubicada en el sector Centro de Peralillo. 3 dormitorios, 2 baños, 82 m². Excelente ubicación y conectividad.",
@@ -46323,6 +56179,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.491,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-peralillo-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Peralillo",
+    "description": "Estacionamiento de 20 m² en sector Centro, Peralillo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 28500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Carrera 1798",
+    "city": "Peralillo",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6480326",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.486,
+    "lng": -71.486,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -46476,6 +56364,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-peralillo-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Peralillo",
+    "description": "Estacionamiento de 20 m² en sector Centro, Peralillo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 120000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Carrera 1798",
+    "city": "Peralillo",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6480326",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.486,
+    "lng": -71.486,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-peumo-venta",
     "title": "Casa Campestre con Terreno en Peumo",
     "description": "Casa familiar ubicada en el sector Peumo de Peumo. 4 dormitorios, 3 baños, 95 m². Excelente ubicación y conectividad.",
@@ -46623,6 +56543,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.175,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-peumo-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Peumo",
+    "description": "Estacionamiento de 22 m² en sector Peumo, Peumo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 31000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1835",
+    "city": "Peumo",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6483445",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.4025,
+    "lng": -71.1725,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -46776,6 +56728,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-peumo-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Peumo",
+    "description": "Estacionamiento de 22 m² en sector Peumo, Peumo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 130000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1835",
+    "city": "Peumo",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6483445",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.4025,
+    "lng": -71.1725,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-pichidegua-venta",
     "title": "Casa con Patio Trasero en Pichidegua",
     "description": "Casa familiar ubicada en el sector Pichidegua de Pichidegua. 2 dormitorios, 1 baños, 108 m². Excelente ubicación y conectividad.",
@@ -46923,6 +56907,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.279,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-pichidegua-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Pichidegua",
+    "description": "Estacionamiento de 24 m² en sector Pichidegua, Pichidegua. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1872",
+    "city": "Pichidegua",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6486564",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.369,
+    "lng": -71.279,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -47076,6 +57092,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-pichidegua-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Pichidegua",
+    "description": "Estacionamiento de 24 m² en sector Pichidegua, Pichidegua. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1872",
+    "city": "Pichidegua",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6486564",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.369,
+    "lng": -71.279,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-pichilemu-venta",
     "title": "Casa Típica del Pueblo en Pichilemu",
     "description": "Casa familiar ubicada en el sector La Puntilla de Pichilemu. 3 dormitorios, 2 baños, 121 m². Excelente ubicación y conectividad.",
@@ -47223,6 +57271,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.0077,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-pichilemu-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Pichilemu",
+    "description": "Estacionamiento de 26 m² en sector La Puntilla, Pichilemu. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Aviador 1909",
+    "city": "Pichilemu",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6489683",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.3833,
+    "lng": -72.0002,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -47376,6 +57456,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-pichilemu-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Pichilemu",
+    "description": "Estacionamiento de 26 m² en sector La Puntilla, Pichilemu. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 155000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Aviador 1909",
+    "city": "Pichilemu",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6489683",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.3833,
+    "lng": -72.0002,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-placilla-venta",
     "title": "Casa de Chalet en Placilla",
     "description": "Casa familiar ubicada en el sector Centro de Placilla. 4 dormitorios, 3 baños, 134 m². Excelente ubicación y conectividad.",
@@ -47523,6 +57635,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.077,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-placilla-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Placilla",
+    "description": "Estacionamiento de 13 m² en sector Centro, Placilla. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Andes 1946",
+    "city": "Placilla",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6492802",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.622,
+    "lng": -71.082,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -47676,6 +57820,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-placilla-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Placilla",
+    "description": "Estacionamiento de 13 m² en sector Centro, Placilla. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Andes 1946",
+    "city": "Placilla",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6492802",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.622,
+    "lng": -71.082,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-pumanque-venta",
     "title": "Casa con Piscina en Pumanque",
     "description": "Casa familiar ubicada en el sector Pumanque de Pumanque. 2 dormitorios, 1 baños, 147 m². Excelente ubicación y conectividad.",
@@ -47823,6 +57999,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.681,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-pumanque-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Pumanque",
+    "description": "Estacionamiento de 15 m² en sector Pumanque, Pumanque. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 26500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1983",
+    "city": "Pumanque",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6495921",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.5685,
+    "lng": -71.6785,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -47976,6 +58184,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-pumanque-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Pumanque",
+    "description": "Estacionamiento de 15 m² en sector Pumanque, Pumanque. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1983",
+    "city": "Pumanque",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6495921",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.5685,
+    "lng": -71.6785,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-quinta-de-tilcoco-venta",
     "title": "Casa con Jardín y Quincho en Quinta de Tilcoco",
     "description": "Casa familiar ubicada en el sector Quinta de Tilcoco de Quinta de Tilcoco. 3 dormitorios, 2 baños, 160 m². Excelente ubicación y conectividad.",
@@ -48123,6 +58363,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.025,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-quinta-de-tilcoco-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Quinta de Tilcoco",
+    "description": "Estacionamiento de 17 m² en sector Quinta de Tilcoco, Quinta de Tilcoco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 29000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 2020",
+    "city": "Quinta de Tilcoco",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6499040",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.365,
+    "lng": -71.035,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -48276,6 +58548,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-quinta-de-tilcoco-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Quinta de Tilcoco",
+    "description": "Estacionamiento de 17 m² en sector Quinta de Tilcoco, Quinta de Tilcoco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 115000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 2020",
+    "city": "Quinta de Tilcoco",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6499040",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.365,
+    "lng": -71.035,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-rancagua-venta",
     "title": "Casa Familiar de 3 Dormitorios en Rancagua",
     "description": "Casa familiar ubicada en el sector El Roble de Rancagua. 4 dormitorios, 3 baños, 173 m². Excelente ubicación y conectividad.",
@@ -48423,6 +58727,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.7434,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-rancagua-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Rancagua",
+    "description": "Estacionamiento de 19 m² en sector El Roble, Rancagua. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 31500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Carrera 2057",
+    "city": "Rancagua",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6502159",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.1723,
+    "lng": -70.7459,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -48576,6 +58912,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-rancagua-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Rancagua",
+    "description": "Estacionamiento de 19 m² en sector El Roble, Rancagua. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Carrera 2057",
+    "city": "Rancagua",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6502159",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.1723,
+    "lng": -70.7459,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-rengo-venta",
     "title": "Casa con Vista Panorámica en Rengo",
     "description": "Casa familiar ubicada en el sector Centro de Rengo. 2 dormitorios, 1 baños, 186 m². Excelente ubicación y conectividad.",
@@ -48723,6 +59091,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.8619,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-rengo-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Rengo",
+    "description": "Estacionamiento de 21 m² en sector Centro, Rengo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 20000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. San Martín 2094",
+    "city": "Rengo",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6505278",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.4061,
+    "lng": -70.8569,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -48876,6 +59276,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-rengo-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Rengo",
+    "description": "Estacionamiento de 21 m² en sector Centro, Rengo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 140000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. San Martín 2094",
+    "city": "Rengo",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6505278",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.4061,
+    "lng": -70.8569,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-requinoa-venta",
     "title": "Casa Rústica de Campo en Requínoa",
     "description": "Casa familiar ubicada en el sector Requínoa de Requínoa. 3 dormitorios, 2 baños, 199 m². Excelente ubicación y conectividad.",
@@ -49023,6 +59455,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.8137,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-requinoa-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Requínoa",
+    "description": "Estacionamiento de 23 m² en sector Requínoa, Requínoa. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 22500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 131",
+    "city": "Requínoa",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6508397",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.2878,
+    "lng": -70.8212,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -49176,6 +59640,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-requinoa-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Requínoa",
+    "description": "Estacionamiento de 23 m² en sector Requínoa, Requínoa. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 150000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 131",
+    "city": "Requínoa",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6508397",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.2878,
+    "lng": -70.8212,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-san-fernando-venta",
     "title": "Casa Moderna de 2 Plantas en San Fernando",
     "description": "Casa familiar ubicada en el sector Centro de San Fernando. 4 dormitorios, 3 baños, 212 m². Excelente ubicación y conectividad.",
@@ -49323,6 +59819,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.9899,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-san-fernando-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en San Fernando",
+    "description": "Estacionamiento de 25 m² en sector Centro, San Fernando. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 25000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. 18 de Septiembre 168",
+    "city": "San Fernando",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6511516",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.5849,
+    "lng": -70.9899,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -49476,6 +60004,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-san-fernando-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en San Fernando",
+    "description": "Estacionamiento de 25 m² en sector Centro, San Fernando. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. 18 de Septiembre 168",
+    "city": "San Fernando",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6511516",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.5849,
+    "lng": -70.9899,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-san-vicente-venta",
     "title": "Casa Campestre con Terreno en San Vicente",
     "description": "Casa familiar ubicada en el sector Centro de San Vicente. 2 dormitorios, 1 baños, 225 m². Excelente ubicación y conectividad.",
@@ -49623,6 +60183,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.0722,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-san-vicente-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en San Vicente",
+    "description": "Estacionamiento de 12 m² en sector Centro, San Vicente. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 27500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Los Andes 205",
+    "city": "San Vicente",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6514635",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.4369,
+    "lng": -71.0747,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -49776,6 +60368,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-san-vicente-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en San Vicente",
+    "description": "Estacionamiento de 12 m² en sector Centro, San Vicente. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 100000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Los Andes 205",
+    "city": "San Vicente",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6514635",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.4369,
+    "lng": -71.0747,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vi-casa-santa-cruz-venta",
     "title": "Casa con Patio Trasero en Santa Cruz",
     "description": "Casa familiar ubicada en el sector Centro de Santa Cruz. 3 dormitorios, 2 baños, 238 m². Excelente ubicación y conectividad.",
@@ -49923,6 +60547,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.3634,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vi-estacionamiento-santa-cruz-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Santa Cruz",
+    "description": "Estacionamiento de 14 m² en sector Centro, Santa Cruz. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 30000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. 18 de Octubre 242",
+    "city": "Santa Cruz",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6517754",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.6432,
+    "lng": -71.3684,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -50076,6 +60732,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vi-estacionamiento-santa-cruz-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Santa Cruz",
+    "description": "Estacionamiento de 14 m² en sector Centro, Santa Cruz. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 110000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. 18 de Octubre 242",
+    "city": "Santa Cruz",
+    "state": "Libertador Gral. Bernardo O",
+    "zip_code": "6517754",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.6432,
+    "lng": -71.3684,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-cauquenes-venta",
     "title": "Casa Típica del Pueblo en Cauquenes",
     "description": "Casa familiar ubicada en el sector Centro de Cauquenes. 4 dormitorios, 3 baños, 251 m². Excelente ubicación y conectividad.",
@@ -50223,6 +60911,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.3197,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-cauquenes-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Cauquenes",
+    "description": "Estacionamiento de 16 m² en sector Centro, Cauquenes. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle San Martín 279",
+    "city": "Cauquenes",
+    "state": "Maule",
+    "zip_code": "6520873",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -35.9672,
+    "lng": -72.3172,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -50376,6 +61096,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-cauquenes-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Cauquenes",
+    "description": "Estacionamiento de 16 m² en sector Centro, Cauquenes. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle San Martín 279",
+    "city": "Cauquenes",
+    "state": "Maule",
+    "zip_code": "6520873",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -35.9672,
+    "lng": -72.3172,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-chanco-venta",
     "title": "Casa de Chalet en Chanco",
     "description": "Casa familiar ubicada en el sector Chanco de Chanco. 2 dormitorios, 1 baños, 264 m². Excelente ubicación y conectividad.",
@@ -50523,6 +61275,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.5303,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-chanco-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Chanco",
+    "description": "Estacionamiento de 18 m² en sector Chanco, Chanco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 316",
+    "city": "Chanco",
+    "state": "Maule",
+    "zip_code": "6523992",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -35.7303,
+    "lng": -72.5303,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -50676,6 +61460,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-chanco-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Chanco",
+    "description": "Estacionamiento de 18 m² en sector Chanco, Chanco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 316",
+    "city": "Chanco",
+    "state": "Maule",
+    "zip_code": "6523992",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -35.7303,
+    "lng": -72.5303,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-colbun-venta",
     "title": "Casa con Piscina en Colbún",
     "description": "Casa familiar ubicada en el sector Colbún de Colbún. 3 dormitorios, 2 baños, 277 m². Excelente ubicación y conectividad.",
@@ -50823,6 +61639,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.4843,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-colbun-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Colbún",
+    "description": "Estacionamiento de 20 m² en sector Colbún, Colbún. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 353",
+    "city": "Colbún",
+    "state": "Maule",
+    "zip_code": "6527111",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -35.6868,
+    "lng": -71.4868,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -50976,6 +61824,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-colbun-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Colbún",
+    "description": "Estacionamiento de 20 m² en sector Colbún, Colbún. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 353",
+    "city": "Colbún",
+    "state": "Maule",
+    "zip_code": "6527111",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -35.6868,
+    "lng": -71.4868,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-constitucion-venta",
     "title": "Casa con Jardín y Quincho en Constitución",
     "description": "Casa familiar ubicada en el sector Centro de Constitución. 4 dormitorios, 3 baños, 90 m². Excelente ubicación y conectividad.",
@@ -51123,6 +62003,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.4117,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-constitucion-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Constitución",
+    "description": "Estacionamiento de 22 m² en sector Centro, Constitución. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Costanera 390",
+    "city": "Constitución",
+    "state": "Maule",
+    "zip_code": "6530230",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -35.3333,
+    "lng": -72.4167,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -51276,6 +62188,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-constitucion-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Constitución",
+    "description": "Estacionamiento de 22 m² en sector Centro, Constitución. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Costanera 390",
+    "city": "Constitución",
+    "state": "Maule",
+    "zip_code": "6530230",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -35.3333,
+    "lng": -72.4167,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-curepto-venta",
     "title": "Casa Familiar de 3 Dormitorios en Curepto",
     "description": "Casa familiar ubicada en el sector Centro de Curepto. 2 dormitorios, 1 baños, 103 m². Excelente ubicación y conectividad.",
@@ -51423,6 +62367,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.0157,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-curepto-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Curepto",
+    "description": "Estacionamiento de 24 m² en sector Centro, Curepto. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 427",
+    "city": "Curepto",
+    "state": "Maule",
+    "zip_code": "6533349",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -35.0798,
+    "lng": -72.0132,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -51576,6 +62552,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-curepto-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Curepto",
+    "description": "Estacionamiento de 24 m² en sector Centro, Curepto. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 427",
+    "city": "Curepto",
+    "state": "Maule",
+    "zip_code": "6533349",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -35.0798,
+    "lng": -72.0132,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-curico-venta",
     "title": "Casa con Vista Panorámica en Curicó",
     "description": "Casa familiar ubicada en el sector Centro de Curicó. 3 dormitorios, 2 baños, 116 m². Excelente ubicación y conectividad.",
@@ -51723,6 +62731,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.2363,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-curico-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Curicó",
+    "description": "Estacionamiento de 26 m² en sector Centro, Curicó. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle 5 Norte 464",
+    "city": "Curicó",
+    "state": "Maule",
+    "zip_code": "6536468",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.9863,
+    "lng": -71.2363,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -51876,6 +62916,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-curico-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Curicó",
+    "description": "Estacionamiento de 26 m² en sector Centro, Curicó. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle 5 Norte 464",
+    "city": "Curicó",
+    "state": "Maule",
+    "zip_code": "6536468",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -34.9863,
+    "lng": -71.2363,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-empedrado-venta",
     "title": "Casa Rústica de Campo en Empedrado",
     "description": "Casa familiar ubicada en el sector Centro de Empedrado. 4 dormitorios, 3 baños, 129 m². Excelente ubicación y conectividad.",
@@ -52023,6 +63095,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.2803,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-empedrado-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Empedrado",
+    "description": "Estacionamiento de 13 m² en sector Centro, Empedrado. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Carrera 501",
+    "city": "Empedrado",
+    "state": "Maule",
+    "zip_code": "6539587",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -35.5995,
+    "lng": -72.2828,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -52176,6 +63280,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-empedrado-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Empedrado",
+    "description": "Estacionamiento de 13 m² en sector Centro, Empedrado. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Carrera 501",
+    "city": "Empedrado",
+    "state": "Maule",
+    "zip_code": "6539587",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -35.5995,
+    "lng": -72.2828,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-hualane-venta",
     "title": "Casa Moderna de 2 Plantas en Hualañé",
     "description": "Casa familiar ubicada en el sector Hualañé de Hualañé. 2 dormitorios, 1 baños, 142 m². Excelente ubicación y conectividad.",
@@ -52323,6 +63459,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.801,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-hualane-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Hualañé",
+    "description": "Estacionamiento de 15 m² en sector Hualañé, Hualañé. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 538",
+    "city": "Hualañé",
+    "state": "Maule",
+    "zip_code": "6542706",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.966,
+    "lng": -71.796,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -52476,6 +63644,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-hualane-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Hualañé",
+    "description": "Estacionamiento de 15 m² en sector Hualañé, Hualañé. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 538",
+    "city": "Hualañé",
+    "state": "Maule",
+    "zip_code": "6542706",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.966,
+    "lng": -71.796,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-licanten-venta",
     "title": "Casa Campestre con Terreno en Licantén",
     "description": "Casa familiar ubicada en el sector Licantén de Licantén. 3 dormitorios, 2 baños, 155 m². Excelente ubicación y conectividad.",
@@ -52623,6 +63823,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.025,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-licanten-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Licantén",
+    "description": "Estacionamiento de 17 m² en sector Licantén, Licantén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 575",
+    "city": "Licantén",
+    "state": "Maule",
+    "zip_code": "6545825",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.9825,
+    "lng": -72.0225,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -52776,6 +64008,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-licanten-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Licantén",
+    "description": "Estacionamiento de 17 m² en sector Licantén, Licantén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 575",
+    "city": "Licantén",
+    "state": "Maule",
+    "zip_code": "6545825",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -34.9825,
+    "lng": -72.0225,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-linares-venta",
     "title": "Casa con Patio Trasero en Linares",
     "description": "Casa familiar ubicada en el sector Centro de Linares. 4 dormitorios, 3 baños, 168 m². Excelente ubicación y conectividad.",
@@ -52923,6 +64187,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.599,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-linares-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Linares",
+    "description": "Estacionamiento de 19 m² en sector Centro, Linares. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Libre 612",
+    "city": "Linares",
+    "state": "Maule",
+    "zip_code": "6548944",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -35.849,
+    "lng": -71.599,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -53076,6 +64372,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-linares-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Linares",
+    "description": "Estacionamiento de 19 m² en sector Centro, Linares. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Libre 612",
+    "city": "Linares",
+    "state": "Maule",
+    "zip_code": "6548944",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -35.849,
+    "lng": -71.599,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-longavi-venta",
     "title": "Casa Típica del Pueblo en Longaví",
     "description": "Casa familiar ubicada en el sector Centro de Longaví. 2 dormitorios, 1 baños, 181 m². Excelente ubicación y conectividad.",
@@ -53223,6 +64551,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.6863,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-longavi-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Longaví",
+    "description": "Estacionamiento de 21 m² en sector Centro, Longaví. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Los Andes 649",
+    "city": "Longaví",
+    "state": "Maule",
+    "zip_code": "6552063",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -35.9655,
+    "lng": -71.6788,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -53376,6 +64736,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-longavi-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Longaví",
+    "description": "Estacionamiento de 21 m² en sector Centro, Longaví. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Los Andes 649",
+    "city": "Longaví",
+    "state": "Maule",
+    "zip_code": "6552063",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -35.9655,
+    "lng": -71.6788,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-maule-venta",
     "title": "Casa de Chalet en Maule",
     "description": "Casa familiar ubicada en el sector Centro de Maule. 3 dormitorios, 2 baños, 194 m². Excelente ubicación y conectividad.",
@@ -53523,6 +64915,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.717,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-maule-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Maule",
+    "description": "Estacionamiento de 23 m² en sector Centro, Maule. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Andes 686",
+    "city": "Maule",
+    "state": "Maule",
+    "zip_code": "6555182",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -35.522,
+    "lng": -71.722,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -53676,6 +65100,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-maule-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Maule",
+    "description": "Estacionamiento de 23 m² en sector Centro, Maule. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Andes 686",
+    "city": "Maule",
+    "state": "Maule",
+    "zip_code": "6555182",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -35.522,
+    "lng": -71.722,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-molina-venta",
     "title": "Casa con Piscina en Molina",
     "description": "Casa familiar ubicada en el sector Centro de Molina. 4 dormitorios, 3 baños, 207 m². Excelente ubicación y conectividad.",
@@ -53823,6 +65279,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.2843,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-molina-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Molina",
+    "description": "Estacionamiento de 25 m² en sector Centro, Molina. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle San Martín 723",
+    "city": "Molina",
+    "state": "Maule",
+    "zip_code": "6558301",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -35.1152,
+    "lng": -71.2818,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -53976,6 +65464,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-molina-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Molina",
+    "description": "Estacionamiento de 25 m² en sector Centro, Molina. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle San Martín 723",
+    "city": "Molina",
+    "state": "Maule",
+    "zip_code": "6558301",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -35.1152,
+    "lng": -71.2818,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-parral-venta",
     "title": "Casa con Jardín y Quincho en Parral",
     "description": "Casa familiar ubicada en el sector Centro de Parral. 2 dormitorios, 1 baños, 220 m². Excelente ubicación y conectividad.",
@@ -54123,6 +65643,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.8383,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-parral-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Parral",
+    "description": "Estacionamiento de 12 m² en sector Centro, Parral. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. San Martín 760",
+    "city": "Parral",
+    "state": "Maule",
+    "zip_code": "6561420",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.145,
+    "lng": -71.8283,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -54276,6 +65828,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-parral-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Parral",
+    "description": "Estacionamiento de 12 m² en sector Centro, Parral. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. San Martín 760",
+    "city": "Parral",
+    "state": "Maule",
+    "zip_code": "6561420",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.145,
+    "lng": -71.8283,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-pelarco-venta",
     "title": "Casa Familiar de 3 Dormitorios en Pelarco",
     "description": "Casa familiar ubicada en el sector Pelarco de Pelarco. 3 dormitorios, 2 baños, 233 m². Excelente ubicación y conectividad.",
@@ -54423,6 +66007,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.4323,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-pelarco-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Pelarco",
+    "description": "Estacionamiento de 14 m² en sector Pelarco, Pelarco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 797",
+    "city": "Pelarco",
+    "state": "Maule",
+    "zip_code": "6564539",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -35.3348,
+    "lng": -71.4348,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -54576,6 +66192,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-pelarco-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Pelarco",
+    "description": "Estacionamiento de 14 m² en sector Pelarco, Pelarco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 797",
+    "city": "Pelarco",
+    "state": "Maule",
+    "zip_code": "6564539",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -35.3348,
+    "lng": -71.4348,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-pelluhue-venta",
     "title": "Casa con Vista Panorámica en Pelluhue",
     "description": "Casa familiar ubicada en el sector Pelluhue de Pelluhue. 4 dormitorios, 3 baños, 246 m². Excelente ubicación y conectividad.",
@@ -54723,6 +66371,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.573,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-pelluhue-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Pelluhue",
+    "description": "Estacionamiento de 16 m² en sector Pelluhue, Pelluhue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 834",
+    "city": "Pelluhue",
+    "state": "Maule",
+    "zip_code": "6567658",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -35.818,
+    "lng": -72.568,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -54876,6 +66556,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-pelluhue-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Pelluhue",
+    "description": "Estacionamiento de 16 m² en sector Pelluhue, Pelluhue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 834",
+    "city": "Pelluhue",
+    "state": "Maule",
+    "zip_code": "6567658",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -35.818,
+    "lng": -72.568,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-pencahue-venta",
     "title": "Casa Rústica de Campo en Pencahue",
     "description": "Casa familiar ubicada en el sector Pencahue de Pencahue. 2 dormitorios, 1 baños, 259 m². Excelente ubicación y conectividad.",
@@ -55023,6 +66735,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.817,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-pencahue-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Pencahue",
+    "description": "Estacionamiento de 18 m² en sector Pencahue, Pencahue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 871",
+    "city": "Pencahue",
+    "state": "Maule",
+    "zip_code": "6570777",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -35.4045,
+    "lng": -71.8245,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -55176,6 +66920,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-pencahue-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Pencahue",
+    "description": "Estacionamiento de 18 m² en sector Pencahue, Pencahue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 871",
+    "city": "Pencahue",
+    "state": "Maule",
+    "zip_code": "6570777",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -35.4045,
+    "lng": -71.8245,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-rauco-venta",
     "title": "Casa Moderna de 2 Plantas en Rauco",
     "description": "Casa familiar ubicada en el sector Rauco de Rauco. 3 dormitorios, 2 baños, 272 m². Excelente ubicación y conectividad.",
@@ -55323,6 +67099,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.281,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-rauco-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Rauco",
+    "description": "Estacionamiento de 20 m² en sector Rauco, Rauco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 908",
+    "city": "Rauco",
+    "state": "Maule",
+    "zip_code": "6573896",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.931,
+    "lng": -71.281,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -55476,6 +67284,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-rauco-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Rauco",
+    "description": "Estacionamiento de 20 m² en sector Rauco, Rauco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 908",
+    "city": "Rauco",
+    "state": "Maule",
+    "zip_code": "6573896",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.931,
+    "lng": -71.281,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-retiro-venta",
     "title": "Casa Campestre con Terreno en Retiro",
     "description": "Casa familiar ubicada en el sector Centro de Retiro. 4 dormitorios, 3 baños, 85 m². Excelente ubicación y conectividad.",
@@ -55623,6 +67463,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.755,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-retiro-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Retiro",
+    "description": "Estacionamiento de 22 m² en sector Centro, Retiro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 945",
+    "city": "Retiro",
+    "state": "Maule",
+    "zip_code": "6577015",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.0475,
+    "lng": -71.7475,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -55776,6 +67648,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-retiro-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Retiro",
+    "description": "Estacionamiento de 22 m² en sector Centro, Retiro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 945",
+    "city": "Retiro",
+    "state": "Maule",
+    "zip_code": "6577015",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.0475,
+    "lng": -71.7475,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-romeral-venta",
     "title": "Casa con Patio Trasero en Romeral",
     "description": "Casa familiar ubicada en el sector Romeral de Romeral. 2 dormitorios, 1 baños, 98 m². Excelente ubicación y conectividad.",
@@ -55923,6 +67827,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.129,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-romeral-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Romeral",
+    "description": "Estacionamiento de 24 m² en sector Romeral, Romeral. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 982",
+    "city": "Romeral",
+    "state": "Maule",
+    "zip_code": "6580134",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.974,
+    "lng": -71.134,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -56076,6 +68012,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-romeral-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Romeral",
+    "description": "Estacionamiento de 24 m² en sector Romeral, Romeral. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 982",
+    "city": "Romeral",
+    "state": "Maule",
+    "zip_code": "6580134",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -34.974,
+    "lng": -71.134,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-rio-claro-venta",
     "title": "Casa Típica del Pueblo en Río Claro",
     "description": "Casa familiar ubicada en el sector Centro de Río Claro. 3 dormitorios, 2 baños, 111 m². Excelente ubicación y conectividad.",
@@ -56223,6 +68191,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.253,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-rio-claro-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Río Claro",
+    "description": "Estacionamiento de 26 m² en sector Centro, Río Claro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Ríos 1019",
+    "city": "Río Claro",
+    "state": "Maule",
+    "zip_code": "6583253",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -35.2838,
+    "lng": -71.2505,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -56376,6 +68376,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-rio-claro-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Río Claro",
+    "description": "Estacionamiento de 26 m² en sector Centro, Río Claro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Ríos 1019",
+    "city": "Río Claro",
+    "state": "Maule",
+    "zip_code": "6583253",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -35.2838,
+    "lng": -71.2505,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-sagrada-familia-venta",
     "title": "Casa de Chalet en Sagrada Familia",
     "description": "Casa familiar ubicada en el sector Sagrada Familia de Sagrada Familia. 4 dormitorios, 3 baños, 124 m². Excelente ubicación y conectividad.",
@@ -56523,6 +68555,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.3803,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-sagrada-familia-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Sagrada Familia",
+    "description": "Estacionamiento de 13 m² en sector Sagrada Familia, Sagrada Familia. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1056",
+    "city": "Sagrada Familia",
+    "state": "Maule",
+    "zip_code": "6586372",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.997,
+    "lng": -71.3803,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -56676,6 +68740,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-sagrada-familia-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Sagrada Familia",
+    "description": "Estacionamiento de 13 m² en sector Sagrada Familia, Sagrada Familia. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1056",
+    "city": "Sagrada Familia",
+    "state": "Maule",
+    "zip_code": "6586372",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.997,
+    "lng": -71.3803,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-san-clemente-venta",
     "title": "Casa con Piscina en San Clemente",
     "description": "Casa familiar ubicada en el sector Centro de San Clemente. 2 dormitorios, 1 baños, 137 m². Excelente ubicación y conectividad.",
@@ -56823,6 +68919,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.4843,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-san-clemente-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en San Clemente",
+    "description": "Estacionamiento de 15 m² en sector Centro, San Clemente. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Los Andes 1093",
+    "city": "San Clemente",
+    "state": "Maule",
+    "zip_code": "6589491",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -35.5368,
+    "lng": -71.4868,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -56976,6 +69104,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-san-clemente-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en San Clemente",
+    "description": "Estacionamiento de 15 m² en sector Centro, San Clemente. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Los Andes 1093",
+    "city": "San Clemente",
+    "state": "Maule",
+    "zip_code": "6589491",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -35.5368,
+    "lng": -71.4868,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-san-javier-venta",
     "title": "Casa con Jardín y Quincho en San Javier",
     "description": "Casa familiar ubicada en el sector Centro de San Javier. 3 dormitorios, 2 baños, 150 m². Excelente ubicación y conectividad.",
@@ -57123,6 +69283,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.7383,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-san-javier-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en San Javier",
+    "description": "Estacionamiento de 17 m² en sector Centro, San Javier. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. San Martín 1130",
+    "city": "San Javier",
+    "state": "Maule",
+    "zip_code": "6592610",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -35.5833,
+    "lng": -71.7333,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -57276,6 +69468,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-san-javier-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en San Javier",
+    "description": "Estacionamiento de 17 m² en sector Centro, San Javier. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. San Martín 1130",
+    "city": "San Javier",
+    "state": "Maule",
+    "zip_code": "6592610",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -35.5833,
+    "lng": -71.7333,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-san-rafael-venta",
     "title": "Casa Familiar de 3 Dormitorios en San Rafael",
     "description": "Casa familiar ubicada en el sector Centro de San Rafael. 4 dormitorios, 3 baños, 163 m². Excelente ubicación y conectividad.",
@@ -57423,6 +69647,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.519,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-san-rafael-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en San Rafael",
+    "description": "Estacionamiento de 19 m² en sector Centro, San Rafael. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1167",
+    "city": "San Rafael",
+    "state": "Maule",
+    "zip_code": "6595729",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -35.2965,
+    "lng": -71.5165,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -57576,6 +69832,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-san-rafael-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en San Rafael",
+    "description": "Estacionamiento de 19 m² en sector Centro, San Rafael. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1167",
+    "city": "San Rafael",
+    "state": "Maule",
+    "zip_code": "6595729",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -35.2965,
+    "lng": -71.5165,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-talca-venta",
     "title": "Casa con Vista Panorámica en Talca",
     "description": "Casa familiar ubicada en el sector Centro de Talca. 2 dormitorios, 1 baños, 176 m². Excelente ubicación y conectividad.",
@@ -57723,6 +70011,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.6586,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-talca-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Talca",
+    "description": "Estacionamiento de 21 m² en sector Centro, Talca. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. 18 de Septiembre 1204",
+    "city": "Talca",
+    "state": "Maule",
+    "zip_code": "6598848",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -35.4294,
+    "lng": -71.6586,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -57876,6 +70196,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-talca-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Talca",
+    "description": "Estacionamiento de 21 m² en sector Centro, Talca. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. 18 de Septiembre 1204",
+    "city": "Talca",
+    "state": "Maule",
+    "zip_code": "6598848",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -35.4294,
+    "lng": -71.6586,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-teno-venta",
     "title": "Casa Rústica de Campo en Teno",
     "description": "Casa familiar ubicada en el sector Teno de Teno. 3 dormitorios, 2 baños, 189 m². Excelente ubicación y conectividad.",
@@ -58023,6 +70375,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.167,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-teno-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Teno",
+    "description": "Estacionamiento de 23 m² en sector Teno, Teno. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1241",
+    "city": "Teno",
+    "state": "Maule",
+    "zip_code": "6601967",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.8695,
+    "lng": -71.1695,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -58176,6 +70560,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-teno-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Teno",
+    "description": "Estacionamiento de 23 m² en sector Teno, Teno. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1241",
+    "city": "Teno",
+    "state": "Maule",
+    "zip_code": "6601967",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -34.8695,
+    "lng": -71.1695,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-vichuquen-venta",
     "title": "Casa Moderna de 2 Plantas en Vichuquén",
     "description": "Casa familiar ubicada en el sector Vichuquén de Vichuquén. 4 dormitorios, 3 baños, 202 m². Excelente ubicación y conectividad.",
@@ -58323,6 +70739,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.001,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-vichuquen-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Vichuquén",
+    "description": "Estacionamiento de 25 m² en sector Vichuquén, Vichuquén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1278",
+    "city": "Vichuquén",
+    "state": "Maule",
+    "zip_code": "6605086",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.836,
+    "lng": -71.996,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -58476,6 +70924,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-vichuquen-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Vichuquén",
+    "description": "Estacionamiento de 25 m² en sector Vichuquén, Vichuquén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1278",
+    "city": "Vichuquén",
+    "state": "Maule",
+    "zip_code": "6605086",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -34.836,
+    "lng": -71.996,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-villa-alegre-venta",
     "title": "Casa Campestre con Terreno en Villa Alegre",
     "description": "Casa familiar ubicada en el sector Centro de Villa Alegre. 2 dormitorios, 1 baños, 215 m². Excelente ubicación y conectividad.",
@@ -58623,6 +71103,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.7283,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-villa-alegre-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Villa Alegre",
+    "description": "Estacionamiento de 12 m² en sector Centro, Villa Alegre. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Andes 1315",
+    "city": "Villa Alegre",
+    "state": "Maule",
+    "zip_code": "6608205",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -35.6858,
+    "lng": -71.7358,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -58776,6 +71288,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-villa-alegre-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Villa Alegre",
+    "description": "Estacionamiento de 12 m² en sector Centro, Villa Alegre. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Andes 1315",
+    "city": "Villa Alegre",
+    "state": "Maule",
+    "zip_code": "6608205",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -35.6858,
+    "lng": -71.7358,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "vii-casa-yerbas-buenas-venta",
     "title": "Casa con Patio Trasero en Yerbas Buenas",
     "description": "Casa familiar ubicada en el sector Centro de Yerbas Buenas. 3 dormitorios, 2 baños, 228 m². Excelente ubicación y conectividad.",
@@ -58923,6 +71467,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.569,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "vii-estacionamiento-yerbas-buenas-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Yerbas Buenas",
+    "description": "Estacionamiento de 14 m² en sector Centro, Yerbas Buenas. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle San Martín 1352",
+    "city": "Yerbas Buenas",
+    "state": "Maule",
+    "zip_code": "6611324",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -35.749,
+    "lng": -71.569,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -59076,6 +71652,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "vii-estacionamiento-yerbas-buenas-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Yerbas Buenas",
+    "description": "Estacionamiento de 14 m² en sector Centro, Yerbas Buenas. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle San Martín 1352",
+    "city": "Yerbas Buenas",
+    "state": "Maule",
+    "zip_code": "6611324",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -35.749,
+    "lng": -71.569,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-bulnes-venta",
     "title": "Casa Típica del Pueblo en Bulnes",
     "description": "Casa familiar ubicada en el sector Centro de Bulnes. 4 dormitorios, 3 baños, 241 m². Excelente ubicación y conectividad.",
@@ -59223,6 +71831,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.303,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-bulnes-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Bulnes",
+    "description": "Estacionamiento de 16 m² en sector Centro, Bulnes. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Carrera 1389",
+    "city": "Bulnes",
+    "state": "Ñuble",
+    "zip_code": "6614443",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -36.7388,
+    "lng": -72.2955,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -59376,6 +72016,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-bulnes-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Bulnes",
+    "description": "Estacionamiento de 16 m² en sector Centro, Bulnes. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Carrera 1389",
+    "city": "Bulnes",
+    "state": "Ñuble",
+    "zip_code": "6614443",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -36.7388,
+    "lng": -72.2955,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-chillan-venta",
     "title": "Casa de Chalet en Chillán",
     "description": "Casa familiar ubicada en el sector Centro de Chillán. 2 dormitorios, 1 baños, 254 m². Excelente ubicación y conectividad.",
@@ -59523,6 +72195,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.097,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-chillan-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Chillán",
+    "description": "Estacionamiento de 18 m² en sector Centro, Chillán. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Chile 1426",
+    "city": "Chillán",
+    "state": "Ñuble",
+    "zip_code": "6617562",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.602,
+    "lng": -72.102,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -59676,6 +72380,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-chillan-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Chillán",
+    "description": "Estacionamiento de 18 m² en sector Centro, Chillán. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Chile 1426",
+    "city": "Chillán",
+    "state": "Ñuble",
+    "zip_code": "6617562",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.602,
+    "lng": -72.102,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-chillan-viejo-venta",
     "title": "Casa con Piscina en Chillán Viejo",
     "description": "Casa familiar ubicada en el sector Centro de Chillán Viejo. 3 dormitorios, 2 baños, 267 m². Excelente ubicación y conectividad.",
@@ -59823,6 +72559,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.1343,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-chillan-viejo-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Chillán Viejo",
+    "description": "Estacionamiento de 20 m² en sector Centro, Chillán Viejo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 1463",
+    "city": "Chillán Viejo",
+    "state": "Ñuble",
+    "zip_code": "6620681",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.6318,
+    "lng": -72.1318,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -59976,6 +72744,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-chillan-viejo-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Chillán Viejo",
+    "description": "Estacionamiento de 20 m² en sector Centro, Chillán Viejo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 1463",
+    "city": "Chillán Viejo",
+    "state": "Ñuble",
+    "zip_code": "6620681",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.6318,
+    "lng": -72.1318,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-cobquecura-venta",
     "title": "Casa con Jardín y Quincho en Cobquecura",
     "description": "Casa familiar ubicada en el sector Centro de Cobquecura. 4 dormitorios, 3 baños, 80 m². Excelente ubicación y conectividad.",
@@ -60123,6 +72923,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.895,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-cobquecura-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Cobquecura",
+    "description": "Estacionamiento de 22 m² en sector Centro, Cobquecura. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1500",
+    "city": "Cobquecura",
+    "state": "Ñuble",
+    "zip_code": "6623800",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.1383,
+    "lng": -71.905,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -60276,6 +73108,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-cobquecura-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Cobquecura",
+    "description": "Estacionamiento de 22 m² en sector Centro, Cobquecura. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1500",
+    "city": "Cobquecura",
+    "state": "Ñuble",
+    "zip_code": "6623800",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.1383,
+    "lng": -71.905,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-coelemu-venta",
     "title": "Casa Familiar de 3 Dormitorios en Coelemu",
     "description": "Casa familiar ubicada en el sector Centro de Coelemu. 2 dormitorios, 1 baños, 93 m². Excelente ubicación y conectividad.",
@@ -60423,6 +73287,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.699,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-coelemu-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Coelemu",
+    "description": "Estacionamiento de 24 m² en sector Centro, Coelemu. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Carrera 1537",
+    "city": "Coelemu",
+    "state": "Ñuble",
+    "zip_code": "6626919",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -36.4848,
+    "lng": -72.7015,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -60576,6 +73472,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-coelemu-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Coelemu",
+    "description": "Estacionamiento de 24 m² en sector Centro, Coelemu. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Carrera 1537",
+    "city": "Coelemu",
+    "state": "Ñuble",
+    "zip_code": "6626919",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -36.4848,
+    "lng": -72.7015,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-coihueco-venta",
     "title": "Casa con Vista Panorámica en Coihueco",
     "description": "Casa familiar ubicada en el sector Coihueco de Coihueco. 3 dormitorios, 2 baños, 106 m². Excelente ubicación y conectividad.",
@@ -60723,6 +73651,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.8363,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-coihueco-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Coihueco",
+    "description": "Estacionamiento de 26 m² en sector Coihueco, Coihueco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1574",
+    "city": "Coihueco",
+    "state": "Ñuble",
+    "zip_code": "6630038",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -36.6313,
+    "lng": -71.8313,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -60876,6 +73836,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-coihueco-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Coihueco",
+    "description": "Estacionamiento de 26 m² en sector Coihueco, Coihueco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1574",
+    "city": "Coihueco",
+    "state": "Ñuble",
+    "zip_code": "6630038",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -36.6313,
+    "lng": -71.8313,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-el-carmen-venta",
     "title": "Casa Rústica de Campo en El Carmen",
     "description": "Casa familiar ubicada en el sector El Carmen de El Carmen. 4 dormitorios, 3 baños, 119 m². Excelente ubicación y conectividad.",
@@ -61023,6 +74015,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.017,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-el-carmen-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en El Carmen",
+    "description": "Estacionamiento de 13 m² en sector El Carmen, El Carmen. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1611",
+    "city": "El Carmen",
+    "state": "Ñuble",
+    "zip_code": "6633157",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.9045,
+    "lng": -72.0245,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -61176,6 +74200,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-el-carmen-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en El Carmen",
+    "description": "Estacionamiento de 13 m² en sector El Carmen, El Carmen. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1611",
+    "city": "El Carmen",
+    "state": "Ñuble",
+    "zip_code": "6633157",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.9045,
+    "lng": -72.0245,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-niquen-venta",
     "title": "Casa Moderna de 2 Plantas en Ñiquén",
     "description": "Casa familiar ubicada en el sector Ñiquén de Ñiquén. 2 dormitorios, 1 baños, 132 m². Excelente ubicación y conectividad.",
@@ -61323,6 +74379,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.901,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-niquen-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Ñiquén",
+    "description": "Estacionamiento de 15 m² en sector Ñiquén, Ñiquén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1648",
+    "city": "Ñiquén",
+    "state": "Ñuble",
+    "zip_code": "6636276",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.401,
+    "lng": -71.901,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -61476,6 +74564,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-niquen-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Ñiquén",
+    "description": "Estacionamiento de 15 m² en sector Ñiquén, Ñiquén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1648",
+    "city": "Ñiquén",
+    "state": "Ñuble",
+    "zip_code": "6636276",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.401,
+    "lng": -71.901,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-ninhue-venta",
     "title": "Casa Campestre con Terreno en Ninhue",
     "description": "Casa familiar ubicada en el sector Centro de Ninhue. 3 dormitorios, 2 baños, 145 m². Excelente ubicación y conectividad.",
@@ -61623,6 +74743,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.395,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-ninhue-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Ninhue",
+    "description": "Estacionamiento de 17 m² en sector Centro, Ninhue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1685",
+    "city": "Ninhue",
+    "state": "Ñuble",
+    "zip_code": "6639395",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.3975,
+    "lng": -72.3975,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -61776,6 +74928,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-ninhue-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Ninhue",
+    "description": "Estacionamiento de 17 m² en sector Centro, Ninhue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1685",
+    "city": "Ninhue",
+    "state": "Ñuble",
+    "zip_code": "6639395",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.3975,
+    "lng": -72.3975,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-pemuco-venta",
     "title": "Casa con Patio Trasero en Pemuco",
     "description": "Casa familiar ubicada en el sector Centro de Pemuco. 4 dormitorios, 3 baños, 158 m². Excelente ubicación y conectividad.",
@@ -61923,6 +75107,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.099,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-pemuco-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Pemuco",
+    "description": "Estacionamiento de 19 m² en sector Centro, Pemuco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Andes 1722",
+    "city": "Pemuco",
+    "state": "Ñuble",
+    "zip_code": "6642514",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -36.9873,
+    "lng": -72.104,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -62076,6 +75292,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-pemuco-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Pemuco",
+    "description": "Estacionamiento de 19 m² en sector Centro, Pemuco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Andes 1722",
+    "city": "Pemuco",
+    "state": "Ñuble",
+    "zip_code": "6642514",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -36.9873,
+    "lng": -72.104,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-pinto-venta",
     "title": "Casa Típica del Pueblo en Pinto",
     "description": "Casa familiar ubicada en el sector Pinto de Pinto. 2 dormitorios, 1 baños, 171 m². Excelente ubicación y conectividad.",
@@ -62223,6 +75471,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.903,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-pinto-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Pinto",
+    "description": "Estacionamiento de 21 m² en sector Pinto, Pinto. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1759",
+    "city": "Pinto",
+    "state": "Ñuble",
+    "zip_code": "6645633",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -36.6338,
+    "lng": -71.9005,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -62376,6 +75656,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-pinto-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Pinto",
+    "description": "Estacionamiento de 21 m² en sector Pinto, Pinto. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 1759",
+    "city": "Pinto",
+    "state": "Ñuble",
+    "zip_code": "6645633",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -36.6338,
+    "lng": -71.9005,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-portezuelo-venta",
     "title": "Casa de Chalet en Portezuelo",
     "description": "Casa familiar ubicada en el sector Centro de Portezuelo. 3 dormitorios, 2 baños, 184 m². Excelente ubicación y conectividad.",
@@ -62523,6 +75835,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.4303,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-portezuelo-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Portezuelo",
+    "description": "Estacionamiento de 23 m² en sector Centro, Portezuelo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1796",
+    "city": "Portezuelo",
+    "state": "Ñuble",
+    "zip_code": "6648752",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.5303,
+    "lng": -72.4303,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -62676,6 +76020,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-portezuelo-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Portezuelo",
+    "description": "Estacionamiento de 23 m² en sector Centro, Portezuelo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1796",
+    "city": "Portezuelo",
+    "state": "Ñuble",
+    "zip_code": "6648752",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.5303,
+    "lng": -72.4303,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-quillon-venta",
     "title": "Casa con Piscina en Quillón",
     "description": "Casa familiar ubicada en el sector Quillón de Quillón. 4 dormitorios, 3 baños, 197 m². Excelente ubicación y conectividad.",
@@ -62823,6 +76199,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.471,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-quillon-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Quillón",
+    "description": "Estacionamiento de 25 m² en sector Quillón, Quillón. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1833",
+    "city": "Quillón",
+    "state": "Ñuble",
+    "zip_code": "6651871",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.7868,
+    "lng": -72.4735,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -62976,6 +76384,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-quillon-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Quillón",
+    "description": "Estacionamiento de 25 m² en sector Quillón, Quillón. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1833",
+    "city": "Quillón",
+    "state": "Ñuble",
+    "zip_code": "6651871",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.7868,
+    "lng": -72.4735,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-quirihue-venta",
     "title": "Casa con Jardín y Quincho en Quirihue",
     "description": "Casa familiar ubicada en el sector Centro de Quirihue. 2 dormitorios, 1 baños, 210 m². Excelente ubicación y conectividad.",
@@ -63123,6 +76563,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.545,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-quirihue-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Quirihue",
+    "description": "Estacionamiento de 12 m² en sector Centro, Quirihue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Carrera 1870",
+    "city": "Quirihue",
+    "state": "Ñuble",
+    "zip_code": "6654990",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.2833,
+    "lng": -72.55,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -63276,6 +76748,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-quirihue-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Quirihue",
+    "description": "Estacionamiento de 12 m² en sector Centro, Quirihue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Carrera 1870",
+    "city": "Quirihue",
+    "state": "Ñuble",
+    "zip_code": "6654990",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.2833,
+    "lng": -72.55,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-ranquil-venta",
     "title": "Casa Familiar de 3 Dormitorios en Ranquil",
     "description": "Casa familiar ubicada en el sector Ranquil de Ranquil. 3 dormitorios, 2 baños, 223 m². Excelente ubicación y conectividad.",
@@ -63423,6 +76927,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.619,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-ranquil-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Ranquil",
+    "description": "Estacionamiento de 14 m² en sector Ranquil, Ranquil. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1907",
+    "city": "Ranquil",
+    "state": "Ñuble",
+    "zip_code": "6658109",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -36.6165,
+    "lng": -72.6165,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -63576,6 +77112,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-ranquil-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Ranquil",
+    "description": "Estacionamiento de 14 m² en sector Ranquil, Ranquil. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1907",
+    "city": "Ranquil",
+    "state": "Ñuble",
+    "zip_code": "6658109",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -36.6165,
+    "lng": -72.6165,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-san-carlos-venta",
     "title": "Casa con Vista Panorámica en San Carlos",
     "description": "Casa familiar ubicada en el sector Centro de San Carlos. 4 dormitorios, 3 baños, 236 m². Excelente ubicación y conectividad.",
@@ -63723,6 +77291,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.953,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-san-carlos-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en San Carlos",
+    "description": "Estacionamiento de 16 m² en sector Centro, San Carlos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. San Martín 1944",
+    "city": "San Carlos",
+    "state": "Ñuble",
+    "zip_code": "6661228",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -36.423,
+    "lng": -71.953,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -63876,6 +77476,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-san-carlos-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en San Carlos",
+    "description": "Estacionamiento de 16 m² en sector Centro, San Carlos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. San Martín 1944",
+    "city": "San Carlos",
+    "state": "Ñuble",
+    "zip_code": "6661228",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -36.423,
+    "lng": -71.953,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-san-fabian-venta",
     "title": "Casa Rústica de Campo en San Fabián",
     "description": "Casa familiar ubicada en el sector San Fabián de San Fabián. 2 dormitorios, 1 baños, 249 m². Excelente ubicación y conectividad.",
@@ -64023,6 +77655,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.547,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-san-fabian-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en San Fabián",
+    "description": "Estacionamiento de 18 m² en sector San Fabián, San Fabián. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1981",
+    "city": "San Fabián",
+    "state": "Ñuble",
+    "zip_code": "6664347",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.5495,
+    "lng": -71.5495,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -64176,6 +77840,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-san-fabian-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en San Fabián",
+    "description": "Estacionamiento de 18 m² en sector San Fabián, San Fabián. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1981",
+    "city": "San Fabián",
+    "state": "Ñuble",
+    "zip_code": "6664347",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.5495,
+    "lng": -71.5495,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-san-ignacio-venta",
     "title": "Casa Moderna de 2 Plantas en San Ignacio",
     "description": "Casa familiar ubicada en el sector Centro de San Ignacio. 3 dormitorios, 2 baños, 262 m². Excelente ubicación y conectividad.",
@@ -64323,6 +78019,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.021,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-san-ignacio-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en San Ignacio",
+    "description": "Estacionamiento de 20 m² en sector Centro, San Ignacio. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle San Martín 2018",
+    "city": "San Ignacio",
+    "state": "Ñuble",
+    "zip_code": "6667466",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.796,
+    "lng": -72.016,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -64476,6 +78204,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-san-ignacio-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en San Ignacio",
+    "description": "Estacionamiento de 20 m² en sector Centro, San Ignacio. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle San Martín 2018",
+    "city": "San Ignacio",
+    "state": "Ñuble",
+    "zip_code": "6667466",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.796,
+    "lng": -72.016,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-san-nicolas-venta",
     "title": "Casa Campestre con Terreno en San Nicolás",
     "description": "Casa familiar ubicada en el sector Centro de San Nicolás. 4 dormitorios, 3 baños, 275 m². Excelente ubicación y conectividad.",
@@ -64623,6 +78383,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.225,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-san-nicolas-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en San Nicolás",
+    "description": "Estacionamiento de 22 m² en sector Centro, San Nicolás. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 2055",
+    "city": "San Nicolás",
+    "state": "Ñuble",
+    "zip_code": "6670585",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.5025,
+    "lng": -72.2225,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -64776,6 +78568,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-san-nicolas-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en San Nicolás",
+    "description": "Estacionamiento de 22 m² en sector Centro, San Nicolás. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 2055",
+    "city": "San Nicolás",
+    "state": "Ñuble",
+    "zip_code": "6670585",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.5025,
+    "lng": -72.2225,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-treguaco-venta",
     "title": "Casa con Patio Trasero en Treguaco",
     "description": "Casa familiar ubicada en el sector Treguaco de Treguaco. 2 dormitorios, 1 baños, 88 m². Excelente ubicación y conectividad.",
@@ -64923,6 +78747,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.679,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-treguaco-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Treguaco",
+    "description": "Estacionamiento de 24 m² en sector Treguaco, Treguaco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 2092",
+    "city": "Treguaco",
+    "state": "Ñuble",
+    "zip_code": "6673704",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -36.439,
+    "lng": -72.679,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -65076,6 +78932,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-treguaco-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Treguaco",
+    "description": "Estacionamiento de 24 m² en sector Treguaco, Treguaco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 2092",
+    "city": "Treguaco",
+    "state": "Ñuble",
+    "zip_code": "6673704",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -36.439,
+    "lng": -72.679,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xvi-casa-yungay-venta",
     "title": "Casa Típica del Pueblo en Yungay",
     "description": "Casa familiar ubicada en el sector Centro de Yungay. 3 dormitorios, 2 baños, 101 m². Excelente ubicación y conectividad.",
@@ -65223,6 +79111,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.023,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xvi-estacionamiento-yungay-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Yungay",
+    "description": "Estacionamiento de 26 m² en sector Centro, Yungay. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 129",
+    "city": "Yungay",
+    "state": "Ñuble",
+    "zip_code": "6676823",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -37.1155,
+    "lng": -72.0155,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -65376,6 +79296,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xvi-estacionamiento-yungay-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Yungay",
+    "description": "Estacionamiento de 26 m² en sector Centro, Yungay. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 129",
+    "city": "Yungay",
+    "state": "Ñuble",
+    "zip_code": "6676823",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -37.1155,
+    "lng": -72.0155,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-alto-biobio-venta",
     "title": "Casa de Chalet en Alto Biobío",
     "description": "Casa familiar ubicada en el sector Rucalhue de Alto Biobío. 4 dormitorios, 3 baños, 114 m². Excelente ubicación y conectividad.",
@@ -65523,6 +79475,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.7137,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-alto-biobio-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Alto Biobío",
+    "description": "Estacionamiento de 13 m² en sector Rucalhue, Alto Biobío. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 30000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Camino al Volcán 166",
+    "city": "Alto Biobío",
+    "state": "Biobío",
+    "zip_code": "6679942",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -37.8853,
+    "lng": -71.7187,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -65676,6 +79660,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-alto-biobio-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Alto Biobío",
+    "description": "Estacionamiento de 13 m² en sector Rucalhue, Alto Biobío. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Camino al Volcán 166",
+    "city": "Alto Biobío",
+    "state": "Biobío",
+    "zip_code": "6679942",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -37.8853,
+    "lng": -71.7187,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-antuco-venta",
     "title": "Casa con Piscina en Antuco",
     "description": "Casa familiar ubicada en el sector Antuco de Antuco. 2 dormitorios, 1 baños, 127 m². Excelente ubicación y conectividad.",
@@ -65823,6 +79839,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.6843,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-antuco-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Antuco",
+    "description": "Estacionamiento de 15 m² en sector Antuco, Antuco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 18500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 203",
+    "city": "Antuco",
+    "state": "Biobío",
+    "zip_code": "6683061",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -37.3318,
+    "lng": -71.6818,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -65976,6 +80024,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-antuco-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Antuco",
+    "description": "Estacionamiento de 15 m² en sector Antuco, Antuco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 140000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 203",
+    "city": "Antuco",
+    "state": "Biobío",
+    "zip_code": "6683061",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -37.3318,
+    "lng": -71.6818,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-arauco-venta",
     "title": "Casa con Jardín y Quincho en Arauco",
     "description": "Casa familiar ubicada en el sector Centro de Arauco. 3 dormitorios, 2 baños, 140 m². Excelente ubicación y conectividad.",
@@ -66123,6 +80203,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.3217,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-arauco-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Arauco",
+    "description": "Estacionamiento de 17 m² en sector Centro, Arauco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle San Martín 240",
+    "city": "Arauco",
+    "state": "Biobío",
+    "zip_code": "6686180",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -37.2383,
+    "lng": -73.3217,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -66276,6 +80388,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-arauco-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Arauco",
+    "description": "Estacionamiento de 17 m² en sector Centro, Arauco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 150000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle San Martín 240",
+    "city": "Arauco",
+    "state": "Biobío",
+    "zip_code": "6686180",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -37.2383,
+    "lng": -73.3217,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-cabrero-venta",
     "title": "Casa Familiar de 3 Dormitorios en Cabrero",
     "description": "Casa familiar ubicada en el sector Cabrero de Cabrero. 4 dormitorios, 3 baños, 153 m². Excelente ubicación y conectividad.",
@@ -66423,6 +80567,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.399,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-cabrero-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Cabrero",
+    "description": "Estacionamiento de 19 m² en sector Cabrero, Cabrero. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 23500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 277",
+    "city": "Cabrero",
+    "state": "Biobío",
+    "zip_code": "6689299",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -37.0348,
+    "lng": -72.4015,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -66576,6 +80752,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-cabrero-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Cabrero",
+    "description": "Estacionamiento de 19 m² en sector Cabrero, Cabrero. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 277",
+    "city": "Cabrero",
+    "state": "Biobío",
+    "zip_code": "6689299",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -37.0348,
+    "lng": -72.4015,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-canete-venta",
     "title": "Casa con Vista Panorámica en Cañete",
     "description": "Casa familiar ubicada en el sector Centro de Cañete. 2 dormitorios, 1 baños, 166 m². Excelente ubicación y conectividad.",
@@ -66723,6 +80931,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.3863,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-canete-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Cañete",
+    "description": "Estacionamiento de 21 m² en sector Centro, Cañete. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 26000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Carrera 314",
+    "city": "Cañete",
+    "state": "Biobío",
+    "zip_code": "6692418",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -37.798,
+    "lng": -73.3813,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -66876,6 +81116,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-canete-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Cañete",
+    "description": "Estacionamiento de 21 m² en sector Centro, Cañete. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 100000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Carrera 314",
+    "city": "Cañete",
+    "state": "Biobío",
+    "zip_code": "6692418",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -37.798,
+    "lng": -73.3813,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-chiguayante-venta",
     "title": "Casa Rústica de Campo en Chiguayante",
     "description": "Casa familiar ubicada en el sector Chiguayante de Chiguayante. 3 dormitorios, 2 baños, 179 m². Excelente ubicación y conectividad.",
@@ -67023,6 +81295,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.0303,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-chiguayante-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Chiguayante",
+    "description": "Estacionamiento de 23 m² en sector Chiguayante, Chiguayante. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 28500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 351",
+    "city": "Chiguayante",
+    "state": "Biobío",
+    "zip_code": "6695537",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.9212,
+    "lng": -73.0378,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -67176,6 +81480,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-chiguayante-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Chiguayante",
+    "description": "Estacionamiento de 23 m² en sector Chiguayante, Chiguayante. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 110000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 351",
+    "city": "Chiguayante",
+    "state": "Biobío",
+    "zip_code": "6695537",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.9212,
+    "lng": -73.0378,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-concepcion-venta",
     "title": "Casa Moderna de 2 Plantas en Concepción",
     "description": "Casa familiar ubicada en el sector Barrio Chiguata de Concepción. 4 dormitorios, 3 baños, 192 m². Excelente ubicación y conectividad.",
@@ -67323,6 +81659,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.0513,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-concepcion-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Concepción",
+    "description": "Estacionamiento de 25 m² en sector Barrio Chiguata, Concepción. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 31000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Colo Colo 388",
+    "city": "Concepción",
+    "state": "Biobío",
+    "zip_code": "6698656",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.828,
+    "lng": -73.0513,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -67476,6 +81844,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-concepcion-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Concepción",
+    "description": "Estacionamiento de 25 m² en sector Barrio Chiguata, Concepción. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Colo Colo 388",
+    "city": "Concepción",
+    "state": "Biobío",
+    "zip_code": "6698656",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.828,
+    "lng": -73.0513,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-contulmo-venta",
     "title": "Casa Campestre con Terreno en Contulmo",
     "description": "Casa familiar ubicada en el sector Centro de Contulmo. 2 dormitorios, 1 baños, 205 m². Excelente ubicación y conectividad.",
@@ -67623,6 +82023,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.2383,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-contulmo-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Contulmo",
+    "description": "Estacionamiento de 12 m² en sector Centro, Contulmo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 425",
+    "city": "Contulmo",
+    "state": "Biobío",
+    "zip_code": "6701775",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -38.0142,
+    "lng": -73.2308,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -67776,6 +82208,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-contulmo-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Contulmo",
+    "description": "Estacionamiento de 12 m² en sector Centro, Contulmo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 135000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 425",
+    "city": "Contulmo",
+    "state": "Biobío",
+    "zip_code": "6701775",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -38.0142,
+    "lng": -73.2308,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-coronel-venta",
     "title": "Casa con Patio Trasero en Coronel",
     "description": "Casa familiar ubicada en el sector Coronel de Coronel. 3 dormitorios, 2 baños, 218 m². Excelente ubicación y conectividad.",
@@ -67923,6 +82387,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.149,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-coronel-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Coronel",
+    "description": "Estacionamiento de 14 m² en sector Coronel, Coronel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 462",
+    "city": "Coronel",
+    "state": "Biobío",
+    "zip_code": "6704894",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -37.0207,
+    "lng": -73.154,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -68076,6 +82572,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-coronel-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Coronel",
+    "description": "Estacionamiento de 14 m² en sector Coronel, Coronel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 462",
+    "city": "Coronel",
+    "state": "Biobío",
+    "zip_code": "6704894",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -37.0207,
+    "lng": -73.154,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-curanilahue-venta",
     "title": "Casa Típica del Pueblo en Curanilahue",
     "description": "Casa familiar ubicada en el sector Centro de Curanilahue. 4 dormitorios, 3 baños, 231 m². Excelente ubicación y conectividad.",
@@ -68223,6 +82751,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.353,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-curanilahue-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Curanilahue",
+    "description": "Estacionamiento de 16 m² en sector Centro, Curanilahue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Ríos 499",
+    "city": "Curanilahue",
+    "state": "Biobío",
+    "zip_code": "6708013",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -37.4672,
+    "lng": -73.3505,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -68376,6 +82936,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-curanilahue-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Curanilahue",
+    "description": "Estacionamiento de 16 m² en sector Centro, Curanilahue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 160000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Ríos 499",
+    "city": "Curanilahue",
+    "state": "Biobío",
+    "zip_code": "6708013",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -37.4672,
+    "lng": -73.3505,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-florida-venta",
     "title": "Casa de Chalet en Florida",
     "description": "Casa familiar ubicada en el sector Centro de Florida. 2 dormitorios, 1 baños, 244 m². Excelente ubicación y conectividad.",
@@ -68523,6 +83115,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.6637,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-florida-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Florida",
+    "description": "Estacionamiento de 18 m² en sector Centro, Florida. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 26500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 536",
+    "city": "Florida",
+    "state": "Biobío",
+    "zip_code": "6711132",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.8137,
+    "lng": -72.6637,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -68676,6 +83300,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-florida-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Florida",
+    "description": "Estacionamiento de 18 m² en sector Centro, Florida. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 95000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 536",
+    "city": "Florida",
+    "state": "Biobío",
+    "zip_code": "6711132",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.8137,
+    "lng": -72.6637,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-hualpen-venta",
     "title": "Casa con Piscina en Hualpén",
     "description": "Casa familiar ubicada en el sector Las Salinas de Hualpén. 3 dormitorios, 2 baños, 257 m². Excelente ubicación y conectividad.",
@@ -68823,6 +83479,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.0982,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-hualpen-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Hualpén",
+    "description": "Estacionamiento de 20 m² en sector Las Salinas, Hualpén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 29000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 573",
+    "city": "Hualpén",
+    "state": "Biobío",
+    "zip_code": "6714251",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.7924,
+    "lng": -73.1007,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -68976,6 +83664,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-hualpen-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Hualpén",
+    "description": "Estacionamiento de 20 m² en sector Las Salinas, Hualpén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 573",
+    "city": "Hualpén",
+    "state": "Biobío",
+    "zip_code": "6714251",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.7924,
+    "lng": -73.1007,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-hualqui-venta",
     "title": "Casa con Jardín y Quincho en Hualqui",
     "description": "Casa familiar ubicada en el sector Hualqui de Hualqui. 4 dormitorios, 3 baños, 270 m². Excelente ubicación y conectividad.",
@@ -69123,6 +83843,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.9383,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-hualqui-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Hualqui",
+    "description": "Estacionamiento de 22 m² en sector Hualqui, Hualqui. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 31500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 610",
+    "city": "Hualqui",
+    "state": "Biobío",
+    "zip_code": "6717370",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.9667,
+    "lng": -72.9333,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -69276,6 +84028,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-hualqui-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Hualqui",
+    "description": "Estacionamiento de 22 m² en sector Hualqui, Hualqui. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 120000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 610",
+    "city": "Hualqui",
+    "state": "Biobío",
+    "zip_code": "6717370",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -36.9667,
+    "lng": -72.9333,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-laja-venta",
     "title": "Casa Familiar de 3 Dormitorios en Laja",
     "description": "Casa familiar ubicada en el sector Laja de Laja. 2 dormitorios, 1 baños, 83 m². Excelente ubicación y conectividad.",
@@ -69423,6 +84207,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.7157,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-laja-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Laja",
+    "description": "Estacionamiento de 24 m² en sector Laja, Laja. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 647",
+    "city": "Laja",
+    "state": "Biobío",
+    "zip_code": "6720489",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -37.2798,
+    "lng": -72.7132,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -69576,6 +84392,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-laja-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Laja",
+    "description": "Estacionamiento de 24 m² en sector Laja, Laja. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 130000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 647",
+    "city": "Laja",
+    "state": "Biobío",
+    "zip_code": "6720489",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -37.2798,
+    "lng": -72.7132,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-lebu-venta",
     "title": "Casa con Vista Panorámica en Lebu",
     "description": "Casa familiar ubicada en el sector Centro de Lebu. 3 dormitorios, 2 baños, 96 m². Excelente ubicación y conectividad.",
@@ -69723,6 +84571,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.653,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-lebu-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Lebu",
+    "description": "Estacionamiento de 26 m² en sector Centro, Lebu. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 22000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Arturo Prat 684",
+    "city": "Lebu",
+    "state": "Biobío",
+    "zip_code": "6723608",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -37.603,
+    "lng": -73.653,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -69876,6 +84756,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-lebu-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Lebu",
+    "description": "Estacionamiento de 26 m² en sector Centro, Lebu. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Arturo Prat 684",
+    "city": "Lebu",
+    "state": "Biobío",
+    "zip_code": "6723608",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -37.603,
+    "lng": -73.653,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-los-alamos-venta",
     "title": "Casa Rústica de Campo en Los Álamos",
     "description": "Casa familiar ubicada en el sector Centro de Los Álamos. 4 dormitorios, 3 baños, 109 m². Excelente ubicación y conectividad.",
@@ -70023,6 +84935,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.4637,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-los-alamos-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Los Álamos",
+    "description": "Estacionamiento de 13 m² en sector Centro, Los Álamos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 721",
+    "city": "Los Álamos",
+    "state": "Biobío",
+    "zip_code": "6726727",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -37.6328,
+    "lng": -73.4662,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -70176,6 +85120,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-los-alamos-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Los Álamos",
+    "description": "Estacionamiento de 13 m² en sector Centro, Los Álamos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 155000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 721",
+    "city": "Los Álamos",
+    "state": "Biobío",
+    "zip_code": "6726727",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -37.6328,
+    "lng": -73.4662,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-los-angeles-venta",
     "title": "Casa Moderna de 2 Plantas en Los Ángeles",
     "description": "Casa familiar ubicada en el sector Los Ángeles de Los Ángeles. 2 dormitorios, 1 baños, 122 m². Excelente ubicación y conectividad.",
@@ -70323,6 +85299,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.351,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-los-angeles-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Los Ángeles",
+    "description": "Estacionamiento de 15 m² en sector Los Ángeles, Los Ángeles. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 27000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 758",
+    "city": "Los Ángeles",
+    "state": "Biobío",
+    "zip_code": "6729846",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -37.4627,
+    "lng": -72.346,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -70476,6 +85484,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-los-angeles-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Los Ángeles",
+    "description": "Estacionamiento de 15 m² en sector Los Ángeles, Los Ángeles. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 758",
+    "city": "Los Ángeles",
+    "state": "Biobío",
+    "zip_code": "6729846",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -37.4627,
+    "lng": -72.346,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-lota-venta",
     "title": "Casa Campestre con Terreno en Lota",
     "description": "Casa familiar ubicada en el sector Centro de Lota. 3 dormitorios, 2 baños, 135 m². Excelente ubicación y conectividad.",
@@ -70623,6 +85663,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.1617,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-lota-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Lota",
+    "description": "Estacionamiento de 17 m² en sector Centro, Lota. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 29500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle 21 de Mayo 795",
+    "city": "Lota",
+    "state": "Biobío",
+    "zip_code": "6732965",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -37.0858,
+    "lng": -73.1692,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -70776,6 +85848,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-lota-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Lota",
+    "description": "Estacionamiento de 17 m² en sector Centro, Lota. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle 21 de Mayo 795",
+    "city": "Lota",
+    "state": "Biobío",
+    "zip_code": "6732965",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -37.0858,
+    "lng": -73.1692,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-mulchen-venta",
     "title": "Casa con Patio Trasero en Mulchén",
     "description": "Casa familiar ubicada en el sector Mulchén de Mulchén. 4 dormitorios, 3 baños, 148 m². Excelente ubicación y conectividad.",
@@ -70923,6 +86027,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.2323,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-mulchen-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Mulchén",
+    "description": "Estacionamiento de 19 m² en sector Mulchén, Mulchén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 32000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 832",
+    "city": "Mulchén",
+    "state": "Biobío",
+    "zip_code": "6736084",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -37.7157,
+    "lng": -72.2323,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -71076,6 +86212,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-mulchen-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Mulchén",
+    "description": "Estacionamiento de 19 m² en sector Mulchén, Mulchén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 115000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 832",
+    "city": "Mulchén",
+    "state": "Biobío",
+    "zip_code": "6736084",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -37.7157,
+    "lng": -72.2323,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-nacimiento-venta",
     "title": "Casa Típica del Pueblo en Nacimiento",
     "description": "Casa familiar ubicada en el sector Nacimiento de Nacimiento. 2 dormitorios, 1 baños, 161 m². Excelente ubicación y conectividad.",
@@ -71223,6 +86391,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.6697,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-nacimiento-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Nacimiento",
+    "description": "Estacionamiento de 21 m² en sector Nacimiento, Nacimiento. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 20000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 869",
+    "city": "Nacimiento",
+    "state": "Biobío",
+    "zip_code": "6739203",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -37.4955,
+    "lng": -72.6622,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -71376,6 +86576,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-nacimiento-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Nacimiento",
+    "description": "Estacionamiento de 21 m² en sector Nacimiento, Nacimiento. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 869",
+    "city": "Nacimiento",
+    "state": "Biobío",
+    "zip_code": "6739203",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -37.4955,
+    "lng": -72.6622,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-negrete-venta",
     "title": "Casa de Chalet en Negrete",
     "description": "Casa familiar ubicada en el sector Negrete de Negrete. 3 dormitorios, 2 baños, 174 m². Excelente ubicación y conectividad.",
@@ -71523,6 +86755,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.5137,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-negrete-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Negrete",
+    "description": "Estacionamiento de 23 m² en sector Negrete, Negrete. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 22500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 906",
+    "city": "Negrete",
+    "state": "Biobío",
+    "zip_code": "6742322",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -37.5853,
+    "lng": -72.5187,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -71676,6 +86940,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-negrete-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Negrete",
+    "description": "Estacionamiento de 23 m² en sector Negrete, Negrete. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 140000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 906",
+    "city": "Negrete",
+    "state": "Biobío",
+    "zip_code": "6742322",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -37.5853,
+    "lng": -72.5187,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-penco-venta",
     "title": "Casa con Piscina en Penco",
     "description": "Casa familiar ubicada en el sector Centro de Penco. 4 dormitorios, 3 baños, 187 m². Excelente ubicación y conectividad.",
@@ -71823,6 +87119,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.9843,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-penco-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Penco",
+    "description": "Estacionamiento de 25 m² en sector Centro, Penco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 25000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 943",
+    "city": "Penco",
+    "state": "Biobío",
+    "zip_code": "6745441",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.7318,
+    "lng": -72.9818,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -71976,6 +87304,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-penco-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Penco",
+    "description": "Estacionamiento de 25 m² en sector Centro, Penco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 150000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 943",
+    "city": "Penco",
+    "state": "Biobío",
+    "zip_code": "6745441",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -36.7318,
+    "lng": -72.9818,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-quilaco-venta",
     "title": "Casa con Jardín y Quincho en Quilaco",
     "description": "Casa familiar ubicada en el sector Quilaco de Quilaco. 2 dormitorios, 1 baños, 200 m². Excelente ubicación y conectividad.",
@@ -72123,6 +87483,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.7117,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-quilaco-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Quilaco",
+    "description": "Estacionamiento de 12 m² en sector Quilaco, Quilaco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 27500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 980",
+    "city": "Quilaco",
+    "state": "Biobío",
+    "zip_code": "6748560",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -37.6783,
+    "lng": -72.7117,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -72276,6 +87668,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-quilaco-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Quilaco",
+    "description": "Estacionamiento de 12 m² en sector Quilaco, Quilaco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 165000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 980",
+    "city": "Quilaco",
+    "state": "Biobío",
+    "zip_code": "6748560",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -37.6783,
+    "lng": -72.7117,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-quilleco-venta",
     "title": "Casa Familiar de 3 Dormitorios en Quilleco",
     "description": "Casa familiar ubicada en el sector Quilleco de Quilleco. 3 dormitorios, 2 baños, 213 m². Excelente ubicación y conectividad.",
@@ -72423,6 +87847,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.4657,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-quilleco-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Quilleco",
+    "description": "Estacionamiento de 14 m² en sector Quilleco, Quilleco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 30000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1017",
+    "city": "Quilleco",
+    "state": "Biobío",
+    "zip_code": "6751679",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -37.4682,
+    "lng": -72.4682,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -72576,6 +88032,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-quilleco-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Quilleco",
+    "description": "Estacionamiento de 14 m² en sector Quilleco, Quilleco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 100000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1017",
+    "city": "Quilleco",
+    "state": "Biobío",
+    "zip_code": "6751679",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -37.4682,
+    "lng": -72.4682,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-san-pedro-de-la-paz-venta",
     "title": "Casa con Vista Panorámica en San Pedro de la Paz",
     "description": "Casa familiar ubicada en el sector Centro de San Pedro de la Paz. 4 dormitorios, 3 baños, 226 m². Excelente ubicación y conectividad.",
@@ -72723,6 +88211,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.1036,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-san-pedro-de-la-paz-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en San Pedro de la Paz",
+    "description": "Estacionamiento de 16 m² en sector Centro, San Pedro de la Paz. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 18000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Lomas de San Pedro 1054",
+    "city": "San Pedro de la Paz",
+    "state": "Biobío",
+    "zip_code": "6754798",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -36.8386,
+    "lng": -73.0986,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -72876,6 +88396,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-san-pedro-de-la-paz-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en San Pedro de la Paz",
+    "description": "Estacionamiento de 16 m² en sector Centro, San Pedro de la Paz. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 110000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Lomas de San Pedro 1054",
+    "city": "San Pedro de la Paz",
+    "state": "Biobío",
+    "zip_code": "6754798",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -36.8386,
+    "lng": -73.0986,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-san-rosendo-venta",
     "title": "Casa Rústica de Campo en San Rosendo",
     "description": "Casa familiar ubicada en el sector San Rosendo de San Rosendo. 2 dormitorios, 1 baños, 239 m². Excelente ubicación y conectividad.",
@@ -73023,6 +88575,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.7137,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-san-rosendo-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en San Rosendo",
+    "description": "Estacionamiento de 18 m² en sector San Rosendo, San Rosendo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 20500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1091",
+    "city": "San Rosendo",
+    "state": "Biobío",
+    "zip_code": "6757917",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -37.2712,
+    "lng": -72.7212,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -73176,6 +88760,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-san-rosendo-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en San Rosendo",
+    "description": "Estacionamiento de 18 m² en sector San Rosendo, San Rosendo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 125000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1091",
+    "city": "San Rosendo",
+    "state": "Biobío",
+    "zip_code": "6757917",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -37.2712,
+    "lng": -72.7212,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-santa-barbara-venta",
     "title": "Casa Moderna de 2 Plantas en Santa Bárbara",
     "description": "Casa familiar ubicada en el sector Santa Bárbara de Santa Bárbara. 3 dormitorios, 2 baños, 252 m². Excelente ubicación y conectividad.",
@@ -73323,6 +88939,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.0177,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-santa-barbara-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Santa Bárbara",
+    "description": "Estacionamiento de 20 m² en sector Santa Bárbara, Santa Bárbara. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 23000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1128",
+    "city": "Santa Bárbara",
+    "state": "Biobío",
+    "zip_code": "6761036",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -37.6677,
+    "lng": -72.0177,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -73476,6 +89124,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-santa-barbara-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Santa Bárbara",
+    "description": "Estacionamiento de 20 m² en sector Santa Bárbara, Santa Bárbara. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 135000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1128",
+    "city": "Santa Bárbara",
+    "state": "Biobío",
+    "zip_code": "6761036",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -37.6677,
+    "lng": -72.0177,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-santa-juana-venta",
     "title": "Casa Campestre con Terreno en Santa Juana",
     "description": "Casa familiar ubicada en el sector Centro de Santa Juana. 4 dormitorios, 3 baños, 265 m². Excelente ubicación y conectividad.",
@@ -73623,6 +89303,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.9283,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-santa-juana-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Santa Juana",
+    "description": "Estacionamiento de 22 m² en sector Centro, Santa Juana. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 25500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 1165",
+    "city": "Santa Juana",
+    "state": "Biobío",
+    "zip_code": "6764155",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -37.1642,
+    "lng": -72.9308,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -73776,6 +89488,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-santa-juana-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Santa Juana",
+    "description": "Estacionamiento de 22 m² en sector Centro, Santa Juana. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 145000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 1165",
+    "city": "Santa Juana",
+    "state": "Biobío",
+    "zip_code": "6764155",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -37.1642,
+    "lng": -72.9308,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-talcahuano-venta",
     "title": "Casa con Patio Trasero en Talcahuano",
     "description": "Casa familiar ubicada en el sector Centro de Talcahuano. 2 dormitorios, 1 baños, 278 m². Excelente ubicación y conectividad.",
@@ -73923,6 +89667,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.1157,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-talcahuano-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Talcahuano",
+    "description": "Estacionamiento de 24 m² en sector Centro, Talcahuano. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 28000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. San Martín 1202",
+    "city": "Talcahuano",
+    "state": "Biobío",
+    "zip_code": "6767274",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -36.7207,
+    "lng": -73.1207,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -74076,6 +89852,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-talcahuano-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Talcahuano",
+    "description": "Estacionamiento de 24 m² en sector Centro, Talcahuano. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 160000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. San Martín 1202",
+    "city": "Talcahuano",
+    "state": "Biobío",
+    "zip_code": "6767274",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -36.7207,
+    "lng": -73.1207,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-tirua-venta",
     "title": "Casa Típica del Pueblo en Tirúa",
     "description": "Casa familiar ubicada en el sector Centro de Tirúa. 3 dormitorios, 2 baños, 91 m². Excelente ubicación y conectividad.",
@@ -74223,6 +90031,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.503,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-tirua-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Tirúa",
+    "description": "Estacionamiento de 26 m² en sector Centro, Tirúa. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 30500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Costanera 1239",
+    "city": "Tirúa",
+    "state": "Biobío",
+    "zip_code": "6770393",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -38.3338,
+    "lng": -73.5005,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -74376,6 +90216,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-tirua-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Tirúa",
+    "description": "Estacionamiento de 26 m² en sector Centro, Tirúa. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 95000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Costanera 1239",
+    "city": "Tirúa",
+    "state": "Biobío",
+    "zip_code": "6770393",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -38.3338,
+    "lng": -73.5005,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-tome-venta",
     "title": "Casa de Chalet en Tomé",
     "description": "Casa familiar ubicada en el sector Centro de Tomé. 4 dormitorios, 3 baños, 104 m². Excelente ubicación y conectividad.",
@@ -74523,6 +90395,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.947,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-tome-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Tomé",
+    "description": "Estacionamiento de 13 m² en sector Centro, Tomé. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 19000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Costanera 1276",
+    "city": "Tomé",
+    "state": "Biobío",
+    "zip_code": "6773512",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.6137,
+    "lng": -72.947,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -74676,6 +90580,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-tome-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Tomé",
+    "description": "Estacionamiento de 13 m² en sector Centro, Tomé. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 105000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Costanera 1276",
+    "city": "Tomé",
+    "state": "Biobío",
+    "zip_code": "6773512",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -36.6137,
+    "lng": -72.947,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-tucapel-venta",
     "title": "Casa con Piscina en Tucapel",
     "description": "Casa familiar ubicada en el sector Tucapel de Tucapel. 2 dormitorios, 1 baños, 117 m². Excelente ubicación y conectividad.",
@@ -74823,6 +90759,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.5677,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-tucapel-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Tucapel",
+    "description": "Estacionamiento de 15 m² en sector Tucapel, Tucapel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 21500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1313",
+    "city": "Tucapel",
+    "state": "Biobío",
+    "zip_code": "6776631",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -37.4535,
+    "lng": -72.5702,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -74976,6 +90944,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-tucapel-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Tucapel",
+    "description": "Estacionamiento de 15 m² en sector Tucapel, Tucapel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 120000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1313",
+    "city": "Tucapel",
+    "state": "Biobío",
+    "zip_code": "6776631",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -37.4535,
+    "lng": -72.5702,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "viii-casa-yumbel-venta",
     "title": "Casa con Jardín y Quincho en Yumbel",
     "description": "Casa familiar ubicada en el sector Yumbel de Yumbel. 3 dormitorios, 2 baños, 130 m². Excelente ubicación y conectividad.",
@@ -75123,6 +91123,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.5617,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "viii-estacionamiento-yumbel-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Yumbel",
+    "description": "Estacionamiento de 17 m² en sector Yumbel, Yumbel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 24000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1350",
+    "city": "Yumbel",
+    "state": "Biobío",
+    "zip_code": "6779750",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -37.1,
+    "lng": -72.5667,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -75276,6 +91308,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "viii-estacionamiento-yumbel-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Yumbel",
+    "description": "Estacionamiento de 17 m² en sector Yumbel, Yumbel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 130000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1350",
+    "city": "Yumbel",
+    "state": "Biobío",
+    "zip_code": "6779750",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -37.1,
+    "lng": -72.5667,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-angol-venta",
     "title": "Casa Familiar de 3 Dormitorios en Angol",
     "description": "Casa familiar ubicada en el sector Centro de Angol. 4 dormitorios, 3 baños, 143 m². Excelente ubicación y conectividad.",
@@ -75423,6 +91487,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.7157,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-angol-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Angol",
+    "description": "Estacionamiento de 19 m² en sector Centro, Angol. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle O'Higgins 1387",
+    "city": "Angol",
+    "state": "La Araucanía",
+    "zip_code": "6782869",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -37.7965,
+    "lng": -72.7132,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -75576,6 +91672,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-angol-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Angol",
+    "description": "Estacionamiento de 19 m² en sector Centro, Angol. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle O'Higgins 1387",
+    "city": "Angol",
+    "state": "La Araucanía",
+    "zip_code": "6782869",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -37.7965,
+    "lng": -72.7132,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-carahue-venta",
     "title": "Casa con Vista Panorámica en Carahue",
     "description": "Casa familiar ubicada en el sector Centro de Carahue. 2 dormitorios, 1 baños, 156 m². Excelente ubicación y conectividad.",
@@ -75723,6 +91851,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.1697,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-carahue-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Carahue",
+    "description": "Estacionamiento de 21 m² en sector Centro, Carahue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle San Martín 1424",
+    "city": "Carahue",
+    "state": "La Araucanía",
+    "zip_code": "6785988",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -38.703,
+    "lng": -73.1697,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -75876,6 +92036,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-carahue-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Carahue",
+    "description": "Estacionamiento de 21 m² en sector Centro, Carahue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle San Martín 1424",
+    "city": "Carahue",
+    "state": "La Araucanía",
+    "zip_code": "6785988",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -38.703,
+    "lng": -73.1697,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-cholchol-venta",
     "title": "Casa Rústica de Campo en Cholchol",
     "description": "Casa familiar ubicada en el sector Cholchol de Cholchol. 3 dormitorios, 2 baños, 169 m². Excelente ubicación y conectividad.",
@@ -76023,6 +92215,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.847,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-cholchol-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Cholchol",
+    "description": "Estacionamiento de 23 m² en sector Cholchol, Cholchol. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1461",
+    "city": "Cholchol",
+    "state": "La Araucanía",
+    "zip_code": "6789107",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -38.5995,
+    "lng": -72.8495,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -76176,6 +92400,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-cholchol-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Cholchol",
+    "description": "Estacionamiento de 23 m² en sector Cholchol, Cholchol. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1461",
+    "city": "Cholchol",
+    "state": "La Araucanía",
+    "zip_code": "6789107",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -38.5995,
+    "lng": -72.8495,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-collipulli-venta",
     "title": "Casa Moderna de 2 Plantas en Collipulli",
     "description": "Casa familiar ubicada en el sector Collipulli de Collipulli. 4 dormitorios, 3 baños, 182 m². Excelente ubicación y conectividad.",
@@ -76323,6 +92579,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.4343,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-collipulli-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Collipulli",
+    "description": "Estacionamiento de 25 m² en sector Collipulli, Collipulli. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 1498",
+    "city": "Collipulli",
+    "state": "La Araucanía",
+    "zip_code": "6792226",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -37.946,
+    "lng": -72.4293,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -76476,6 +92764,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-collipulli-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Collipulli",
+    "description": "Estacionamiento de 25 m² en sector Collipulli, Collipulli. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 1498",
+    "city": "Collipulli",
+    "state": "La Araucanía",
+    "zip_code": "6792226",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -37.946,
+    "lng": -72.4293,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-cunco-venta",
     "title": "Casa Campestre con Terreno en Cunco",
     "description": "Casa familiar ubicada en el sector Centro de Cunco. 2 dormitorios, 1 baños, 195 m². Excelente ubicación y conectividad.",
@@ -76623,6 +92943,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.0283,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-cunco-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Cunco",
+    "description": "Estacionamiento de 12 m² en sector Centro, Cunco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 1535",
+    "city": "Cunco",
+    "state": "La Araucanía",
+    "zip_code": "6795345",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -38.9358,
+    "lng": -72.0358,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -76776,6 +93128,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-cunco-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Cunco",
+    "description": "Estacionamiento de 12 m² en sector Centro, Cunco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 1535",
+    "city": "Cunco",
+    "state": "La Araucanía",
+    "zip_code": "6795345",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -38.9358,
+    "lng": -72.0358,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-curacautin-venta",
     "title": "Casa con Patio Trasero en Curacautín",
     "description": "Casa familiar ubicada en el sector Curacautín de Curacautín. 3 dormitorios, 2 baños, 208 m². Excelente ubicación y conectividad.",
@@ -76923,6 +93307,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.8823,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-curacautin-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Curacautín",
+    "description": "Estacionamiento de 14 m² en sector Curacautín, Curacautín. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1572",
+    "city": "Curacautín",
+    "state": "La Araucanía",
+    "zip_code": "6798464",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -38.4323,
+    "lng": -71.8823,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -77076,6 +93492,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-curacautin-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Curacautín",
+    "description": "Estacionamiento de 14 m² en sector Curacautín, Curacautín. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1572",
+    "city": "Curacautín",
+    "state": "La Araucanía",
+    "zip_code": "6798464",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -38.4323,
+    "lng": -71.8823,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-curarrehue-venta",
     "title": "Casa Típica del Pueblo en Curarrehue",
     "description": "Casa familiar ubicada en el sector Centro de Curarrehue. 4 dormitorios, 3 baños, 221 m². Excelente ubicación y conectividad.",
@@ -77223,6 +93671,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.5863,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-curarrehue-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Curarrehue",
+    "description": "Estacionamiento de 16 m² en sector Centro, Curarrehue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 1609",
+    "city": "Curarrehue",
+    "state": "La Araucanía",
+    "zip_code": "6801583",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -39.3622,
+    "lng": -71.5788,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -77376,6 +93856,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-curarrehue-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Curarrehue",
+    "description": "Estacionamiento de 16 m² en sector Centro, Curarrehue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 1609",
+    "city": "Curarrehue",
+    "state": "La Araucanía",
+    "zip_code": "6801583",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -39.3622,
+    "lng": -71.5788,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-ercilla-venta",
     "title": "Casa de Chalet en Ercilla",
     "description": "Casa familiar ubicada en el sector Ercilla de Ercilla. 2 dormitorios, 1 baños, 234 m². Excelente ubicación y conectividad.",
@@ -77523,6 +94035,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.3803,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-ercilla-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Ercilla",
+    "description": "Estacionamiento de 18 m² en sector Ercilla, Ercilla. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1646",
+    "city": "Ercilla",
+    "state": "La Araucanía",
+    "zip_code": "6804702",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -38.0687,
+    "lng": -72.3853,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -77676,6 +94220,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-ercilla-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Ercilla",
+    "description": "Estacionamiento de 18 m² en sector Ercilla, Ercilla. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1646",
+    "city": "Ercilla",
+    "state": "La Araucanía",
+    "zip_code": "6804702",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -38.0687,
+    "lng": -72.3853,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-freire-venta",
     "title": "Casa con Piscina en Freire",
     "description": "Casa familiar ubicada en el sector Freire de Freire. 3 dormitorios, 2 baños, 247 m². Excelente ubicación y conectividad.",
@@ -77823,6 +94399,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.6343,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-freire-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Freire",
+    "description": "Estacionamiento de 20 m² en sector Freire, Freire. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1683",
+    "city": "Freire",
+    "state": "La Araucanía",
+    "zip_code": "6807821",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -38.9485,
+    "lng": -72.6318,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -77976,6 +94584,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-freire-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Freire",
+    "description": "Estacionamiento de 20 m² en sector Freire, Freire. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1683",
+    "city": "Freire",
+    "state": "La Araucanía",
+    "zip_code": "6807821",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -38.9485,
+    "lng": -72.6318,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-galvarino-venta",
     "title": "Casa con Jardín y Quincho en Galvarino",
     "description": "Casa familiar ubicada en el sector Centro de Galvarino. 4 dormitorios, 3 baños, 260 m². Excelente ubicación y conectividad.",
@@ -78123,6 +94763,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.7883,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-galvarino-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Galvarino",
+    "description": "Estacionamiento de 22 m² en sector Centro, Galvarino. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle San Martín 1720",
+    "city": "Galvarino",
+    "state": "La Araucanía",
+    "zip_code": "6810940",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -38.405,
+    "lng": -72.7883,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -78276,6 +94948,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-galvarino-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Galvarino",
+    "description": "Estacionamiento de 22 m² en sector Centro, Galvarino. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle San Martín 1720",
+    "city": "Galvarino",
+    "state": "La Araucanía",
+    "zip_code": "6810940",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -38.405,
+    "lng": -72.7883,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-gorbea-venta",
     "title": "Casa Familiar de 3 Dormitorios en Gorbea",
     "description": "Casa familiar ubicada en el sector Centro de Gorbea. 2 dormitorios, 1 baños, 273 m². Excelente ubicación y conectividad.",
@@ -78423,6 +95127,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.6657,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-gorbea-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Gorbea",
+    "description": "Estacionamiento de 24 m² en sector Centro, Gorbea. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Carrera 1757",
+    "city": "Gorbea",
+    "state": "La Araucanía",
+    "zip_code": "6814059",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -39.1015,
+    "lng": -72.6682,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -78576,6 +95312,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-gorbea-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Gorbea",
+    "description": "Estacionamiento de 24 m² en sector Centro, Gorbea. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Carrera 1757",
+    "city": "Gorbea",
+    "state": "La Araucanía",
+    "zip_code": "6814059",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -39.1015,
+    "lng": -72.6682,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-lautaro-venta",
     "title": "Casa con Vista Panorámica en Lautaro",
     "description": "Casa familiar ubicada en el sector Centro de Lautaro. 3 dormitorios, 2 baños, 86 m². Excelente ubicación y conectividad.",
@@ -78723,6 +95491,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.453,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-lautaro-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Lautaro",
+    "description": "Estacionamiento de 26 m² en sector Centro, Lautaro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Andes 1794",
+    "city": "Lautaro",
+    "state": "La Araucanía",
+    "zip_code": "6817178",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -38.5313,
+    "lng": -72.448,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -78876,6 +95676,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-lautaro-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Lautaro",
+    "description": "Estacionamiento de 26 m² en sector Centro, Lautaro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Andes 1794",
+    "city": "Lautaro",
+    "state": "La Araucanía",
+    "zip_code": "6817178",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -38.5313,
+    "lng": -72.448,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-loncoche-venta",
     "title": "Casa Rústica de Campo en Loncoche",
     "description": "Casa familiar ubicada en el sector Centro de Loncoche. 4 dormitorios, 3 baños, 99 m². Excelente ubicación y conectividad.",
@@ -79023,6 +95855,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.6803,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-loncoche-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Loncoche",
+    "description": "Estacionamiento de 13 m² en sector Centro, Loncoche. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Carrera 1831",
+    "city": "Loncoche",
+    "state": "La Araucanía",
+    "zip_code": "6820297",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -39.0712,
+    "lng": -72.6878,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -79176,6 +96040,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-loncoche-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Loncoche",
+    "description": "Estacionamiento de 13 m² en sector Centro, Loncoche. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Carrera 1831",
+    "city": "Loncoche",
+    "state": "La Araucanía",
+    "zip_code": "6820297",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -39.0712,
+    "lng": -72.6878,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-lonquimay-venta",
     "title": "Casa Moderna de 2 Plantas en Lonquimay",
     "description": "Casa familiar ubicada en el sector Lonquimay de Lonquimay. 2 dormitorios, 1 baños, 112 m². Excelente ubicación y conectividad.",
@@ -79323,6 +96219,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.2343,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-lonquimay-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Lonquimay",
+    "description": "Estacionamiento de 15 m² en sector Lonquimay, Lonquimay. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1868",
+    "city": "Lonquimay",
+    "state": "La Araucanía",
+    "zip_code": "6823416",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -38.4343,
+    "lng": -71.2343,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -79476,6 +96404,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-lonquimay-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Lonquimay",
+    "description": "Estacionamiento de 15 m² en sector Lonquimay, Lonquimay. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1868",
+    "city": "Lonquimay",
+    "state": "La Araucanía",
+    "zip_code": "6823416",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -38.4343,
+    "lng": -71.2343,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-los-sauces-venta",
     "title": "Casa Campestre con Terreno en Los Sauces",
     "description": "Casa familiar ubicada en el sector Los Sauces de Los Sauces. 3 dormitorios, 2 baños, 125 m². Excelente ubicación y conectividad.",
@@ -79623,6 +96583,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.8383,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-los-sauces-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Los Sauces",
+    "description": "Estacionamiento de 17 m² en sector Los Sauces, Los Sauces. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1905",
+    "city": "Los Sauces",
+    "state": "La Araucanía",
+    "zip_code": "6826535",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -37.9642,
+    "lng": -72.8308,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -79776,6 +96768,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-los-sauces-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Los Sauces",
+    "description": "Estacionamiento de 17 m² en sector Los Sauces, Los Sauces. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 1905",
+    "city": "Los Sauces",
+    "state": "La Araucanía",
+    "zip_code": "6826535",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -37.9642,
+    "lng": -72.8308,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-lumaco-venta",
     "title": "Casa con Patio Trasero en Lumaco",
     "description": "Casa familiar ubicada en el sector Lumaco de Lumaco. 4 dormitorios, 3 baños, 138 m². Excelente ubicación y conectividad.",
@@ -79923,6 +96947,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.899,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-lumaco-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Lumaco",
+    "description": "Estacionamiento de 19 m² en sector Lumaco, Lumaco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1942",
+    "city": "Lumaco",
+    "state": "La Araucanía",
+    "zip_code": "6829654",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -38.154,
+    "lng": -72.904,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -80076,6 +97132,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-lumaco-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Lumaco",
+    "description": "Estacionamiento de 19 m² en sector Lumaco, Lumaco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1942",
+    "city": "Lumaco",
+    "state": "La Araucanía",
+    "zip_code": "6829654",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -38.154,
+    "lng": -72.904,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-melipeuco-venta",
     "title": "Casa Típica del Pueblo en Melipeuco",
     "description": "Casa familiar ubicada en el sector Centro de Melipeuco. 2 dormitorios, 1 baños, 151 m². Excelente ubicación y conectividad.",
@@ -80223,6 +97311,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.6863,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-melipeuco-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Melipeuco",
+    "description": "Estacionamiento de 21 m² en sector Centro, Melipeuco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 1979",
+    "city": "Melipeuco",
+    "state": "La Araucanía",
+    "zip_code": "6832773",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -38.8505,
+    "lng": -71.6838,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -80376,6 +97496,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-melipeuco-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Melipeuco",
+    "description": "Estacionamiento de 21 m² en sector Centro, Melipeuco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 1979",
+    "city": "Melipeuco",
+    "state": "La Araucanía",
+    "zip_code": "6832773",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -38.8505,
+    "lng": -71.6838,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-nueva-imperial-venta",
     "title": "Casa de Chalet en Nueva Imperial",
     "description": "Casa familiar ubicada en el sector Centro de Nueva Imperial. 3 dormitorios, 2 baños, 164 m². Excelente ubicación y conectividad.",
@@ -80523,6 +97675,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.947,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-nueva-imperial-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Nueva Imperial",
+    "description": "Estacionamiento de 23 m² en sector Centro, Nueva Imperial. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Los Andes 2016",
+    "city": "Nueva Imperial",
+    "state": "La Araucanía",
+    "zip_code": "6835892",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -38.7303,
+    "lng": -72.947,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -80676,6 +97860,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-nueva-imperial-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Nueva Imperial",
+    "description": "Estacionamiento de 23 m² en sector Centro, Nueva Imperial. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Los Andes 2016",
+    "city": "Nueva Imperial",
+    "state": "La Araucanía",
+    "zip_code": "6835892",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -38.7303,
+    "lng": -72.947,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-padre-las-casas-venta",
     "title": "Casa con Piscina en Padre Las Casas",
     "description": "Casa familiar ubicada en el sector Centro de Padre Las Casas. 4 dormitorios, 3 baños, 177 m². Excelente ubicación y conectividad.",
@@ -80823,6 +98039,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.601,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-padre-las-casas-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Padre Las Casas",
+    "description": "Estacionamiento de 25 m² en sector Centro, Padre Las Casas. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 2053",
+    "city": "Padre Las Casas",
+    "state": "La Araucanía",
+    "zip_code": "6839011",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -38.7702,
+    "lng": -72.6035,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -80976,6 +98224,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-padre-las-casas-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Padre Las Casas",
+    "description": "Estacionamiento de 25 m² en sector Centro, Padre Las Casas. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 2053",
+    "city": "Padre Las Casas",
+    "state": "La Araucanía",
+    "zip_code": "6839011",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -38.7702,
+    "lng": -72.6035,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-perquenco-venta",
     "title": "Casa con Jardín y Quincho en Perquenco",
     "description": "Casa familiar ubicada en el sector Perquenco de Perquenco. 2 dormitorios, 1 baños, 190 m². Excelente ubicación y conectividad.",
@@ -81123,6 +98403,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.3883,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-perquenco-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Perquenco",
+    "description": "Estacionamiento de 12 m² en sector Perquenco, Perquenco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 2090",
+    "city": "Perquenco",
+    "state": "La Araucanía",
+    "zip_code": "6842130",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -38.4167,
+    "lng": -72.3833,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -81276,6 +98588,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-perquenco-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Perquenco",
+    "description": "Estacionamiento de 12 m² en sector Perquenco, Perquenco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Libertador 2090",
+    "city": "Perquenco",
+    "state": "La Araucanía",
+    "zip_code": "6842130",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -38.4167,
+    "lng": -72.3833,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-pitrufquen-venta",
     "title": "Casa Familiar de 3 Dormitorios en Pitrufquén",
     "description": "Casa familiar ubicada en el sector Centro de Pitrufquén. 3 dormitorios, 2 baños, 203 m². Excelente ubicación y conectividad.",
@@ -81423,6 +98767,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.6323,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-pitrufquen-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Pitrufquén",
+    "description": "Estacionamiento de 14 m² en sector Centro, Pitrufquén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Carrera 127",
+    "city": "Pitrufquén",
+    "state": "La Araucanía",
+    "zip_code": "6845249",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -38.9798,
+    "lng": -72.6298,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -81576,6 +98952,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-pitrufquen-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Pitrufquén",
+    "description": "Estacionamiento de 14 m² en sector Centro, Pitrufquén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Carrera 127",
+    "city": "Pitrufquén",
+    "state": "La Araucanía",
+    "zip_code": "6845249",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -38.9798,
+    "lng": -72.6298,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-pucon-venta",
     "title": "Casa con Vista Panorámica en Pucón",
     "description": "Casa familiar ubicada en el sector Centro de Pucón. 4 dormitorios, 3 baños, 216 m². Excelente ubicación y conectividad.",
@@ -81723,6 +99131,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.9783,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-pucon-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Pucón",
+    "description": "Estacionamiento de 16 m² en sector Centro, Pucón. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Costanera 164",
+    "city": "Pucón",
+    "state": "La Araucanía",
+    "zip_code": "6848368",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -39.2847,
+    "lng": -71.9783,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -81876,6 +99316,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-pucon-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Pucón",
+    "description": "Estacionamiento de 16 m² en sector Centro, Pucón. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Costanera 164",
+    "city": "Pucón",
+    "state": "La Araucanía",
+    "zip_code": "6848368",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -39.2847,
+    "lng": -71.9783,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-puren-venta",
     "title": "Casa Rústica de Campo en Purén",
     "description": "Casa familiar ubicada en el sector Purén de Purén. 2 dormitorios, 1 baños, 229 m². Excelente ubicación y conectividad.",
@@ -82023,6 +99495,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.0803,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-puren-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Purén",
+    "description": "Estacionamiento de 18 m² en sector Purén, Purén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 201",
+    "city": "Purén",
+    "state": "La Araucanía",
+    "zip_code": "6851487",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -38.0162,
+    "lng": -73.0828,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -82176,6 +99680,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-puren-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Purén",
+    "description": "Estacionamiento de 18 m² en sector Purén, Purén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 201",
+    "city": "Purén",
+    "state": "La Araucanía",
+    "zip_code": "6851487",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -38.0162,
+    "lng": -73.0828,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-renaico-venta",
     "title": "Casa Moderna de 2 Plantas en Renaico",
     "description": "Casa familiar ubicada en el sector Renaico de Renaico. 3 dormitorios, 2 baños, 242 m². Excelente ubicación y conectividad.",
@@ -82323,6 +99859,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.5843,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-renaico-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Renaico",
+    "description": "Estacionamiento de 20 m² en sector Renaico, Renaico. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 238",
+    "city": "Renaico",
+    "state": "La Araucanía",
+    "zip_code": "6854606",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -37.6627,
+    "lng": -72.5793,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -82476,6 +100044,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-renaico-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Renaico",
+    "description": "Estacionamiento de 20 m² en sector Renaico, Renaico. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 238",
+    "city": "Renaico",
+    "state": "La Araucanía",
+    "zip_code": "6854606",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -37.6627,
+    "lng": -72.5793,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-saavedra-venta",
     "title": "Casa Campestre con Terreno en Saavedra",
     "description": "Casa familiar ubicada en el sector Centro de Saavedra. 4 dormitorios, 3 baños, 255 m². Excelente ubicación y conectividad.",
@@ -82623,6 +100223,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.3883,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-saavedra-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Saavedra",
+    "description": "Estacionamiento de 22 m² en sector Centro, Saavedra. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 275",
+    "city": "Saavedra",
+    "state": "La Araucanía",
+    "zip_code": "6857725",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -38.7858,
+    "lng": -73.3858,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -82776,6 +100408,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-saavedra-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Saavedra",
+    "description": "Estacionamiento de 22 m² en sector Centro, Saavedra. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 275",
+    "city": "Saavedra",
+    "state": "La Araucanía",
+    "zip_code": "6857725",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -38.7858,
+    "lng": -73.3858,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-temuco-venta",
     "title": "Casa con Patio Trasero en Temuco",
     "description": "Casa familiar ubicada en el sector Centro de Temuco. 2 dormitorios, 1 baños, 268 m². Excelente ubicación y conectividad.",
@@ -82923,6 +100587,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.5894,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-temuco-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Temuco",
+    "description": "Estacionamiento de 24 m² en sector Centro, Temuco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Lautaro 312",
+    "city": "Temuco",
+    "state": "La Araucanía",
+    "zip_code": "6860844",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -38.7349,
+    "lng": -72.5894,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -83076,6 +100772,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-temuco-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Temuco",
+    "description": "Estacionamiento de 24 m² en sector Centro, Temuco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Lautaro 312",
+    "city": "Temuco",
+    "state": "La Araucanía",
+    "zip_code": "6860844",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -38.7349,
+    "lng": -72.5894,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-teodoro-schmidt-venta",
     "title": "Casa Típica del Pueblo en Teodoro Schmidt",
     "description": "Casa familiar ubicada en el sector Centro de Teodoro Schmidt. 3 dormitorios, 2 baños, 81 m². Excelente ubicación y conectividad.",
@@ -83223,6 +100951,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.103,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-teodoro-schmidt-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Teodoro Schmidt",
+    "description": "Estacionamiento de 26 m² en sector Centro, Teodoro Schmidt. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 349",
+    "city": "Teodoro Schmidt",
+    "state": "La Araucanía",
+    "zip_code": "6863963",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -38.9788,
+    "lng": -73.0955,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -83376,6 +101136,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-teodoro-schmidt-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Teodoro Schmidt",
+    "description": "Estacionamiento de 26 m² en sector Centro, Teodoro Schmidt. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 349",
+    "city": "Teodoro Schmidt",
+    "state": "La Araucanía",
+    "zip_code": "6863963",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -38.9788,
+    "lng": -73.0955,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-tolten-venta",
     "title": "Casa de Chalet en Toltén",
     "description": "Casa familiar ubicada en el sector Centro de Toltén. 4 dormitorios, 3 baños, 94 m². Excelente ubicación y conectividad.",
@@ -83523,6 +101315,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.2137,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-tolten-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Toltén",
+    "description": "Estacionamiento de 13 m² en sector Centro, Toltén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Carrera 386",
+    "city": "Toltén",
+    "state": "La Araucanía",
+    "zip_code": "6867082",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -39.2187,
+    "lng": -73.2187,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -83676,6 +101500,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-tolten-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Toltén",
+    "description": "Estacionamiento de 13 m² en sector Centro, Toltén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Carrera 386",
+    "city": "Toltén",
+    "state": "La Araucanía",
+    "zip_code": "6867082",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -39.2187,
+    "lng": -73.2187,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-traiguen-venta",
     "title": "Casa con Piscina en Traiguén",
     "description": "Casa familiar ubicada en el sector Traiguén de Traiguén. 2 dormitorios, 1 baños, 107 m². Excelente ubicación y conectividad.",
@@ -83823,6 +101679,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.6677,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-traiguen-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Traiguén",
+    "description": "Estacionamiento de 15 m² en sector Traiguén, Traiguén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 423",
+    "city": "Traiguén",
+    "state": "La Araucanía",
+    "zip_code": "6870201",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -38.2485,
+    "lng": -72.6652,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -83976,6 +101864,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-traiguen-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Traiguén",
+    "description": "Estacionamiento de 15 m² en sector Traiguén, Traiguén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Robles 423",
+    "city": "Traiguén",
+    "state": "La Araucanía",
+    "zip_code": "6870201",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -38.2485,
+    "lng": -72.6652,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-victoria-venta",
     "title": "Casa con Jardín y Quincho en Victoria",
     "description": "Casa familiar ubicada en el sector Victoria de Victoria. 3 dormitorios, 2 baños, 120 m². Excelente ubicación y conectividad.",
@@ -84123,6 +102043,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.3283,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-victoria-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Victoria",
+    "description": "Estacionamiento de 17 m² en sector Victoria, Victoria. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 460",
+    "city": "Victoria",
+    "state": "La Araucanía",
+    "zip_code": "6873320",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -38.2283,
+    "lng": -72.3283,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -84276,6 +102228,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-victoria-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Victoria",
+    "description": "Estacionamiento de 17 m² en sector Victoria, Victoria. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 460",
+    "city": "Victoria",
+    "state": "La Araucanía",
+    "zip_code": "6873320",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -38.2283,
+    "lng": -72.3283,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-vilcun-venta",
     "title": "Casa Familiar de 3 Dormitorios en Vilcún",
     "description": "Casa familiar ubicada en el sector Centro de Vilcún. 4 dormitorios, 3 baños, 133 m². Excelente ubicación y conectividad.",
@@ -84423,6 +102407,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.2323,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-vilcun-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Vilcún",
+    "description": "Estacionamiento de 19 m² en sector Centro, Vilcún. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 497",
+    "city": "Vilcún",
+    "state": "La Araucanía",
+    "zip_code": "6876439",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -38.6848,
+    "lng": -72.2348,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -84576,6 +102592,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-vilcun-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Vilcún",
+    "description": "Estacionamiento de 19 m² en sector Centro, Vilcún. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 497",
+    "city": "Vilcún",
+    "state": "La Araucanía",
+    "zip_code": "6876439",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -38.6848,
+    "lng": -72.2348,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "ix-casa-villarrica-venta",
     "title": "Casa con Vista Panorámica en Villarrica",
     "description": "Casa familiar ubicada en el sector Centro de Villarrica. 2 dormitorios, 1 baños, 146 m². Excelente ubicación y conectividad.",
@@ -84723,6 +102771,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.2363,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "ix-estacionamiento-villarrica-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Villarrica",
+    "description": "Estacionamiento de 21 m² en sector Centro, Villarrica. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Pedro de Valdivia 534",
+    "city": "Villarrica",
+    "state": "La Araucanía",
+    "zip_code": "6879558",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -39.2813,
+    "lng": -72.2313,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -84876,6 +102956,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "ix-estacionamiento-villarrica-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Villarrica",
+    "description": "Estacionamiento de 21 m² en sector Centro, Villarrica. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Pedro de Valdivia 534",
+    "city": "Villarrica",
+    "state": "La Araucanía",
+    "zip_code": "6879558",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -39.2813,
+    "lng": -72.2313,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiv-casa-corral-venta",
     "title": "Casa Rústica de Campo en Corral",
     "description": "Casa familiar ubicada en el sector Corral de Corral. 3 dormitorios, 2 baños, 159 m². Excelente ubicación y conectividad.",
@@ -85023,6 +103135,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.4303,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiv-estacionamiento-corral-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Corral",
+    "description": "Estacionamiento de 23 m² en sector Corral, Corral. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 571",
+    "city": "Corral",
+    "state": "Los Ríos",
+    "zip_code": "6882677",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -39.8878,
+    "lng": -73.4378,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -85176,6 +103320,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiv-estacionamiento-corral-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Corral",
+    "description": "Estacionamiento de 23 m² en sector Corral, Corral. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 571",
+    "city": "Corral",
+    "state": "Los Ríos",
+    "zip_code": "6882677",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -39.8878,
+    "lng": -73.4378,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiv-casa-futrono-venta",
     "title": "Casa Moderna de 2 Plantas en Futrono",
     "description": "Casa familiar ubicada en el sector Centro de Futrono. 4 dormitorios, 3 baños, 172 m². Excelente ubicación y conectividad.",
@@ -85323,6 +103499,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.401,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiv-estacionamiento-futrono-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Futrono",
+    "description": "Estacionamiento de 25 m² en sector Centro, Futrono. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 608",
+    "city": "Futrono",
+    "state": "Los Ríos",
+    "zip_code": "6885796",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -40.1343,
+    "lng": -72.401,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -85476,6 +103684,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiv-estacionamiento-futrono-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Futrono",
+    "description": "Estacionamiento de 25 m² en sector Centro, Futrono. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 608",
+    "city": "Futrono",
+    "state": "Los Ríos",
+    "zip_code": "6885796",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -40.1343,
+    "lng": -72.401,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiv-casa-la-union-venta",
     "title": "Casa Campestre con Terreno en La Unión",
     "description": "Casa familiar ubicada en el sector Centro de La Unión. 2 dormitorios, 1 baños, 185 m². Excelente ubicación y conectividad.",
@@ -85623,6 +103863,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.0769,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiv-estacionamiento-la-union-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en La Unión",
+    "description": "Estacionamiento de 12 m² en sector Centro, La Unión. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 645",
+    "city": "La Unión",
+    "state": "Los Ríos",
+    "zip_code": "6888915",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -40.2917,
+    "lng": -73.0794,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -85776,6 +104048,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiv-estacionamiento-la-union-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en La Unión",
+    "description": "Estacionamiento de 12 m² en sector Centro, La Unión. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 645",
+    "city": "La Unión",
+    "state": "Los Ríos",
+    "zip_code": "6888915",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -40.2917,
+    "lng": -73.0794,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiv-casa-lago-ranco-venta",
     "title": "Casa con Patio Trasero en Lago Ranco",
     "description": "Casa familiar ubicada en el sector Centro de Lago Ranco. 3 dormitorios, 2 baños, 198 m². Excelente ubicación y conectividad.",
@@ -85923,6 +104227,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.4823,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiv-estacionamiento-lago-ranco-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Lago Ranco",
+    "description": "Estacionamiento de 14 m² en sector Centro, Lago Ranco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Ríos 682",
+    "city": "Lago Ranco",
+    "state": "Los Ríos",
+    "zip_code": "6892034",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -40.3207,
+    "lng": -72.4873,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -86076,6 +104412,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiv-estacionamiento-lago-ranco-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Lago Ranco",
+    "description": "Estacionamiento de 14 m² en sector Centro, Lago Ranco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Ríos 682",
+    "city": "Lago Ranco",
+    "state": "Los Ríos",
+    "zip_code": "6892034",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -40.3207,
+    "lng": -72.4873,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiv-casa-lanco-venta",
     "title": "Casa Típica del Pueblo en Lanco",
     "description": "Casa familiar ubicada en el sector Centro de Lanco. 4 dormitorios, 3 baños, 211 m². Excelente ubicación y conectividad.",
@@ -86223,6 +104591,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.7863,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiv-estacionamiento-lanco-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Lanco",
+    "description": "Estacionamiento de 16 m² en sector Centro, Lanco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle San Martín 719",
+    "city": "Lanco",
+    "state": "Los Ríos",
+    "zip_code": "6895153",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -39.4505,
+    "lng": -72.7838,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -86376,6 +104776,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiv-estacionamiento-lanco-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Lanco",
+    "description": "Estacionamiento de 16 m² en sector Centro, Lanco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle San Martín 719",
+    "city": "Lanco",
+    "state": "Los Ríos",
+    "zip_code": "6895153",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -39.4505,
+    "lng": -72.7838,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiv-casa-los-lagos-venta",
     "title": "Casa de Chalet en Los Lagos",
     "description": "Casa familiar ubicada en el sector Los Lagos de Los Lagos. 2 dormitorios, 1 baños, 224 m². Excelente ubicación y conectividad.",
@@ -86523,6 +104955,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.797,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiv-estacionamiento-los-lagos-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Los Lagos",
+    "description": "Estacionamiento de 18 m² en sector Los Lagos, Los Lagos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 756",
+    "city": "Los Lagos",
+    "state": "Los Ríos",
+    "zip_code": "6898272",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -39.647,
+    "lng": -72.797,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -86676,6 +105140,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiv-estacionamiento-los-lagos-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Los Lagos",
+    "description": "Estacionamiento de 18 m² en sector Los Lagos, Los Lagos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 756",
+    "city": "Los Lagos",
+    "state": "Los Ríos",
+    "zip_code": "6898272",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -39.647,
+    "lng": -72.797,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiv-casa-mariquina-venta",
     "title": "Casa con Piscina en Mariquina",
     "description": "Casa familiar ubicada en el sector Centro de Mariquina. 3 dormitorios, 2 baños, 237 m². Excelente ubicación y conectividad.",
@@ -86823,6 +105319,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.9677,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiv-estacionamiento-mariquina-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Mariquina",
+    "description": "Estacionamiento de 20 m² en sector Centro, Mariquina. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 793",
+    "city": "Mariquina",
+    "state": "Los Ríos",
+    "zip_code": "6901391",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -39.5202,
+    "lng": -72.9702,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -86976,6 +105504,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiv-estacionamiento-mariquina-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Mariquina",
+    "description": "Estacionamiento de 20 m² en sector Centro, Mariquina. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 793",
+    "city": "Mariquina",
+    "state": "Los Ríos",
+    "zip_code": "6901391",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -39.5202,
+    "lng": -72.9702,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiv-casa-mafil-venta",
     "title": "Casa con Jardín y Quincho en Máfil",
     "description": "Casa familiar ubicada en el sector Centro de Máfil. 4 dormitorios, 3 baños, 250 m². Excelente ubicación y conectividad.",
@@ -87123,6 +105683,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.945,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiv-estacionamiento-mafil-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Máfil",
+    "description": "Estacionamiento de 22 m² en sector Centro, Máfil. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Carrera 830",
+    "city": "Máfil",
+    "state": "Los Ríos",
+    "zip_code": "6904510",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -39.6667,
+    "lng": -72.95,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -87276,6 +105868,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiv-estacionamiento-mafil-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Máfil",
+    "description": "Estacionamiento de 22 m² en sector Centro, Máfil. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Carrera 830",
+    "city": "Máfil",
+    "state": "Los Ríos",
+    "zip_code": "6904510",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -39.6667,
+    "lng": -72.95,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiv-casa-paillaco-venta",
     "title": "Casa Familiar de 3 Dormitorios en Paillaco",
     "description": "Casa familiar ubicada en el sector Paillaco de Paillaco. 2 dormitorios, 1 baños, 263 m². Excelente ubicación y conectividad.",
@@ -87423,6 +106047,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.8657,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiv-estacionamiento-paillaco-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Paillaco",
+    "description": "Estacionamiento de 24 m² en sector Paillaco, Paillaco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 867",
+    "city": "Paillaco",
+    "state": "Los Ríos",
+    "zip_code": "6907629",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -40.0632,
+    "lng": -72.8632,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -87576,6 +106232,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiv-estacionamiento-paillaco-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Paillaco",
+    "description": "Estacionamiento de 24 m² en sector Paillaco, Paillaco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 867",
+    "city": "Paillaco",
+    "state": "Los Ríos",
+    "zip_code": "6907629",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -40.0632,
+    "lng": -72.8632,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiv-casa-panguipulli-venta",
     "title": "Casa con Vista Panorámica en Panguipulli",
     "description": "Casa familiar ubicada en el sector Centro de Panguipulli. 3 dormitorios, 2 baños, 276 m². Excelente ubicación y conectividad.",
@@ -87723,6 +106411,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.3349,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiv-estacionamiento-panguipulli-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Panguipulli",
+    "description": "Estacionamiento de 26 m² en sector Centro, Panguipulli. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Los Ríos 904",
+    "city": "Panguipulli",
+    "state": "Los Ríos",
+    "zip_code": "6910748",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -39.6474,
+    "lng": -72.3349,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -87876,6 +106596,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiv-estacionamiento-panguipulli-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Panguipulli",
+    "description": "Estacionamiento de 26 m² en sector Centro, Panguipulli. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Los Ríos 904",
+    "city": "Panguipulli",
+    "state": "Los Ríos",
+    "zip_code": "6910748",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -39.6474,
+    "lng": -72.3349,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiv-casa-rio-bueno-venta",
     "title": "Casa Rústica de Campo en Río Bueno",
     "description": "Casa familiar ubicada en el sector Centro de Río Bueno. 4 dormitorios, 3 baños, 89 m². Excelente ubicación y conectividad.",
@@ -88023,6 +106775,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.9637,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiv-estacionamiento-rio-bueno-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Río Bueno",
+    "description": "Estacionamiento de 13 m² en sector Centro, Río Bueno. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 941",
+    "city": "Río Bueno",
+    "state": "Los Ríos",
+    "zip_code": "6913867",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -40.3162,
+    "lng": -72.9662,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -88176,6 +106960,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiv-estacionamiento-rio-bueno-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Río Bueno",
+    "description": "Estacionamiento de 13 m² en sector Centro, Río Bueno. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 941",
+    "city": "Río Bueno",
+    "state": "Los Ríos",
+    "zip_code": "6913867",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -40.3162,
+    "lng": -72.9662,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xiv-casa-valdivia-venta",
     "title": "Casa Moderna de 2 Plantas en Valdivia",
     "description": "Casa familiar ubicada en el sector Centro de Valdivia. 2 dormitorios, 1 baños, 102 m². Excelente ubicación y conectividad.",
@@ -88323,6 +107139,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.2469,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xiv-estacionamiento-valdivia-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Valdivia",
+    "description": "Estacionamiento de 15 m² en sector Centro, Valdivia. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Costanera 978",
+    "city": "Valdivia",
+    "state": "Los Ríos",
+    "zip_code": "6916986",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -39.8102,
+    "lng": -73.2419,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -88476,6 +107324,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xiv-estacionamiento-valdivia-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Valdivia",
+    "description": "Estacionamiento de 15 m² en sector Centro, Valdivia. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Costanera 978",
+    "city": "Valdivia",
+    "state": "Los Ríos",
+    "zip_code": "6916986",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -39.8102,
+    "lng": -73.2419,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-ancud-venta",
     "title": "Casa Campestre con Terreno en Ancud",
     "description": "Casa familiar ubicada en el sector Centro de Ancud. 3 dormitorios, 2 baños, 115 m². Excelente ubicación y conectividad.",
@@ -88623,6 +107503,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.8283,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-ancud-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Ancud",
+    "description": "Estacionamiento de 17 m² en sector Centro, Ancud. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Costanera 1015",
+    "city": "Ancud",
+    "state": "Los Lagos",
+    "zip_code": "6920105",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -41.8692,
+    "lng": -73.8358,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -88776,6 +107688,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-ancud-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Ancud",
+    "description": "Estacionamiento de 17 m² en sector Centro, Ancud. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Costanera 1015",
+    "city": "Ancud",
+    "state": "Los Lagos",
+    "zip_code": "6920105",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -41.8692,
+    "lng": -73.8358,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-calbuco-venta",
     "title": "Casa con Patio Trasero en Calbuco",
     "description": "Casa familiar ubicada en el sector Centro de Calbuco. 4 dormitorios, 3 baños, 128 m². Excelente ubicación y conectividad.",
@@ -88923,6 +107867,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.1323,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-calbuco-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Calbuco",
+    "description": "Estacionamiento de 19 m² en sector Centro, Calbuco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1052",
+    "city": "Calbuco",
+    "state": "Los Lagos",
+    "zip_code": "6923224",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -41.7657,
+    "lng": -73.1323,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -89076,6 +108052,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-calbuco-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Calbuco",
+    "description": "Estacionamiento de 19 m² en sector Centro, Calbuco. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1052",
+    "city": "Calbuco",
+    "state": "Los Lagos",
+    "zip_code": "6923224",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -41.7657,
+    "lng": -73.1323,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-castro-venta",
     "title": "Casa Típica del Pueblo en Castro",
     "description": "Casa familiar ubicada en el sector Centro de Castro. 2 dormitorios, 1 baños, 141 m². Excelente ubicación y conectividad.",
@@ -89223,6 +108231,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.7761,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-castro-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Castro",
+    "description": "Estacionamiento de 21 m² en sector Centro, Castro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Costanera 1089",
+    "city": "Castro",
+    "state": "Los Lagos",
+    "zip_code": "6926343",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -42.4677,
+    "lng": -73.7686,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -89376,6 +108416,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-castro-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Castro",
+    "description": "Estacionamiento de 21 m² en sector Centro, Castro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Costanera 1089",
+    "city": "Castro",
+    "state": "Los Lagos",
+    "zip_code": "6926343",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -42.4677,
+    "lng": -73.7686,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-chaiten-venta",
     "title": "Casa de Chalet en Chaitén",
     "description": "Casa familiar ubicada en el sector Centro de Chaitén. 3 dormitorios, 2 baños, 154 m². Excelente ubicación y conectividad.",
@@ -89523,6 +108595,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.7137,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-chaiten-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Chaitén",
+    "description": "Estacionamiento de 23 m² en sector Centro, Chaitén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Arrayanes 1126",
+    "city": "Chaitén",
+    "state": "Los Lagos",
+    "zip_code": "6929462",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -42.9187,
+    "lng": -72.7187,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -89676,6 +108780,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-chaiten-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Chaitén",
+    "description": "Estacionamiento de 23 m² en sector Centro, Chaitén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Arrayanes 1126",
+    "city": "Chaitén",
+    "state": "Los Lagos",
+    "zip_code": "6929462",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -42.9187,
+    "lng": -72.7187,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-chonchi-venta",
     "title": "Casa con Piscina en Chonchi",
     "description": "Casa familiar ubicada en el sector Centro de Chonchi. 4 dormitorios, 3 baños, 167 m². Excelente ubicación y conectividad.",
@@ -89823,6 +108959,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.7843,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-chonchi-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Chonchi",
+    "description": "Estacionamiento de 25 m² en sector Centro, Chonchi. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1163",
+    "city": "Chonchi",
+    "state": "Los Lagos",
+    "zip_code": "6932581",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -42.6152,
+    "lng": -73.7818,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -89976,6 +109144,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-chonchi-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Chonchi",
+    "description": "Estacionamiento de 25 m² en sector Centro, Chonchi. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1163",
+    "city": "Chonchi",
+    "state": "Los Lagos",
+    "zip_code": "6932581",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -42.6152,
+    "lng": -73.7818,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-cochamo-venta",
     "title": "Casa con Jardín y Quincho en Cochamó",
     "description": "Casa familiar ubicada en el sector Cochamó de Cochamó. 2 dormitorios, 1 baños, 180 m². Excelente ubicación y conectividad.",
@@ -90123,6 +109323,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.305,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-cochamo-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Cochamó",
+    "description": "Estacionamiento de 12 m² en sector Cochamó, Cochamó. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1200",
+    "city": "Cochamó",
+    "state": "Los Lagos",
+    "zip_code": "6935700",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -41.505,
+    "lng": -72.305,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -90276,6 +109508,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-cochamo-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Cochamó",
+    "description": "Estacionamiento de 12 m² en sector Cochamó, Cochamó. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1200",
+    "city": "Cochamó",
+    "state": "Los Lagos",
+    "zip_code": "6935700",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -41.505,
+    "lng": -72.305,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-curaco-de-velez-venta",
     "title": "Casa Familiar de 3 Dormitorios en Curaco de Vélez",
     "description": "Casa familiar ubicada en el sector Centro de Curaco de Vélez. 3 dormitorios, 2 baños, 193 m². Excelente ubicación y conectividad.",
@@ -90423,6 +109687,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.599,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-curaco-de-velez-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Curaco de Vélez",
+    "description": "Estacionamiento de 14 m² en sector Centro, Curaco de Vélez. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Pedro 1237",
+    "city": "Curaco de Vélez",
+    "state": "Los Lagos",
+    "zip_code": "6938819",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -42.4348,
+    "lng": -73.6015,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -90576,6 +109872,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-curaco-de-velez-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Curaco de Vélez",
+    "description": "Estacionamiento de 14 m² en sector Centro, Curaco de Vélez. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Pedro 1237",
+    "city": "Curaco de Vélez",
+    "state": "Los Lagos",
+    "zip_code": "6938819",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -42.4348,
+    "lng": -73.6015,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-dalcahue-venta",
     "title": "Casa con Vista Panorámica en Dalcahue",
     "description": "Casa familiar ubicada en el sector Centro de Dalcahue. 4 dormitorios, 3 baños, 206 m². Excelente ubicación y conectividad.",
@@ -90723,6 +110051,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.653,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-dalcahue-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Dalcahue",
+    "description": "Estacionamiento de 16 m² en sector Centro, Dalcahue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Libertadores 1274",
+    "city": "Dalcahue",
+    "state": "Los Lagos",
+    "zip_code": "6941938",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -42.3813,
+    "lng": -73.648,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -90876,6 +110236,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-dalcahue-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Dalcahue",
+    "description": "Estacionamiento de 16 m² en sector Centro, Dalcahue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Libertadores 1274",
+    "city": "Dalcahue",
+    "state": "Los Lagos",
+    "zip_code": "6941938",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -42.3813,
+    "lng": -73.648,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-fresia-venta",
     "title": "Casa Rústica de Campo en Fresia",
     "description": "Casa familiar ubicada en el sector Centro de Fresia. 2 dormitorios, 1 baños, 219 m². Excelente ubicación y conectividad.",
@@ -91023,6 +110415,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.4137,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-fresia-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Fresia",
+    "description": "Estacionamiento de 18 m² en sector Centro, Fresia. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1311",
+    "city": "Fresia",
+    "state": "Los Lagos",
+    "zip_code": "6945057",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -41.1545,
+    "lng": -73.4212,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -91176,6 +110600,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-fresia-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Fresia",
+    "description": "Estacionamiento de 18 m² en sector Centro, Fresia. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1311",
+    "city": "Fresia",
+    "state": "Los Lagos",
+    "zip_code": "6945057",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -41.1545,
+    "lng": -73.4212,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-frutillar-venta",
     "title": "Casa Moderna de 2 Plantas en Frutillar",
     "description": "Casa familiar ubicada en el sector Centro de Frutillar. 3 dormitorios, 2 baños, 232 m². Excelente ubicación y conectividad.",
@@ -91323,6 +110779,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.0499,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-frutillar-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Frutillar",
+    "description": "Estacionamiento de 20 m² en sector Centro, Frutillar. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Costanera 1348",
+    "city": "Frutillar",
+    "state": "Los Lagos",
+    "zip_code": "6948176",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -41.1313,
+    "lng": -73.0499,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -91476,6 +110964,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-frutillar-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Frutillar",
+    "description": "Estacionamiento de 20 m² en sector Centro, Frutillar. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Costanera 1348",
+    "city": "Frutillar",
+    "state": "Los Lagos",
+    "zip_code": "6948176",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -41.1313,
+    "lng": -73.0499,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-futaleufu-venta",
     "title": "Casa Campestre con Terreno en Futaleufú",
     "description": "Casa familiar ubicada en el sector Centro de Futaleufú. 4 dormitorios, 3 baños, 245 m². Excelente ubicación y conectividad.",
@@ -91623,6 +111143,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.8717,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-futaleufu-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Futaleufú",
+    "description": "Estacionamiento de 22 m² en sector Centro, Futaleufú. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Los Carrera 1385",
+    "city": "Futaleufú",
+    "state": "Los Lagos",
+    "zip_code": "6951295",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -43.1808,
+    "lng": -71.8642,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -91776,6 +111328,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-futaleufu-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Futaleufú",
+    "description": "Estacionamiento de 22 m² en sector Centro, Futaleufú. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Los Carrera 1385",
+    "city": "Futaleufú",
+    "state": "Los Lagos",
+    "zip_code": "6951295",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -43.1808,
+    "lng": -71.8642,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-hualaihue-venta",
     "title": "Casa con Patio Trasero en Hualaihué",
     "description": "Casa familiar ubicada en el sector Hualaihué de Hualaihué. 2 dormitorios, 1 baños, 258 m². Excelente ubicación y conectividad.",
@@ -91923,6 +111507,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.6823,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-hualaihue-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Hualaihué",
+    "description": "Estacionamiento de 24 m² en sector Hualaihué, Hualaihué. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1422",
+    "city": "Hualaihué",
+    "state": "Los Lagos",
+    "zip_code": "6954414",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -42.054,
+    "lng": -72.6873,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -92076,6 +111692,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-hualaihue-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Hualaihué",
+    "description": "Estacionamiento de 24 m² en sector Hualaihué, Hualaihué. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 1422",
+    "city": "Hualaihué",
+    "state": "Los Lagos",
+    "zip_code": "6954414",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -42.054,
+    "lng": -72.6873,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-llanquihue-venta",
     "title": "Casa Típica del Pueblo en Llanquihue",
     "description": "Casa familiar ubicada en el sector Llanquihue de Llanquihue. 3 dormitorios, 2 baños, 271 m². Excelente ubicación y conectividad.",
@@ -92223,6 +111871,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.0113,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-llanquihue-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Llanquihue",
+    "description": "Estacionamiento de 26 m² en sector Llanquihue, Llanquihue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1459",
+    "city": "Llanquihue",
+    "state": "Los Lagos",
+    "zip_code": "6957533",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -41.2561,
+    "lng": -73.0088,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -92376,6 +112056,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-llanquihue-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Llanquihue",
+    "description": "Estacionamiento de 26 m² en sector Llanquihue, Llanquihue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 1459",
+    "city": "Llanquihue",
+    "state": "Los Lagos",
+    "zip_code": "6957533",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -41.2561,
+    "lng": -73.0088,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-los-muermos-venta",
     "title": "Casa de Chalet en Los Muermos",
     "description": "Casa familiar ubicada en el sector Los Muermos de Los Muermos. 4 dormitorios, 3 baños, 84 m². Excelente ubicación y conectividad.",
@@ -92523,6 +112235,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.4637,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-los-muermos-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Los Muermos",
+    "description": "Estacionamiento de 13 m² en sector Los Muermos, Los Muermos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1496",
+    "city": "Los Muermos",
+    "state": "Los Lagos",
+    "zip_code": "6960652",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -41.397,
+    "lng": -73.4637,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -92676,6 +112420,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-los-muermos-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Los Muermos",
+    "description": "Estacionamiento de 13 m² en sector Los Muermos, Los Muermos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1496",
+    "city": "Los Muermos",
+    "state": "Los Lagos",
+    "zip_code": "6960652",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -41.397,
+    "lng": -73.4637,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-maullin-venta",
     "title": "Casa con Piscina en Maullín",
     "description": "Casa familiar ubicada en el sector Centro de Maullín. 2 dormitorios, 1 baños, 97 m². Excelente ubicación y conectividad.",
@@ -92823,6 +112599,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.601,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-maullin-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Maullín",
+    "description": "Estacionamiento de 15 m² en sector Centro, Maullín. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 1533",
+    "city": "Maullín",
+    "state": "Los Lagos",
+    "zip_code": "6963771",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -41.6202,
+    "lng": -73.6035,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -92976,6 +112784,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-maullin-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Maullín",
+    "description": "Estacionamiento de 15 m² en sector Centro, Maullín. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 1533",
+    "city": "Maullín",
+    "state": "Los Lagos",
+    "zip_code": "6963771",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -41.6202,
+    "lng": -73.6035,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-osorno-venta",
     "title": "Casa con Jardín y Quincho en Osorno",
     "description": "Casa familiar ubicada en el sector Centro de Osorno. 3 dormitorios, 2 baños, 110 m². Excelente ubicación y conectividad.",
@@ -93123,6 +112963,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.1386,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-osorno-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Osorno",
+    "description": "Estacionamiento de 17 m² en sector Centro, Osorno. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. 5 de Octubre 1570",
+    "city": "Osorno",
+    "state": "Los Lagos",
+    "zip_code": "6966890",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -40.5739,
+    "lng": -73.1336,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -93276,6 +113148,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-osorno-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Osorno",
+    "description": "Estacionamiento de 17 m² en sector Centro, Osorno. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. 5 de Octubre 1570",
+    "city": "Osorno",
+    "state": "Los Lagos",
+    "zip_code": "6966890",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -40.5739,
+    "lng": -73.1336,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-palena-venta",
     "title": "Casa Familiar de 3 Dormitorios en Palena",
     "description": "Casa familiar ubicada en el sector Centro de Palena. 4 dormitorios, 3 baños, 123 m². Excelente ubicación y conectividad.",
@@ -93423,6 +113327,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.799,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-palena-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Palena",
+    "description": "Estacionamiento de 19 m² en sector Centro, Palena. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Andes 1607",
+    "city": "Palena",
+    "state": "Los Lagos",
+    "zip_code": "6970009",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -43.6132,
+    "lng": -71.7965,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -93576,6 +113512,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-palena-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Palena",
+    "description": "Estacionamiento de 19 m² en sector Centro, Palena. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Andes 1607",
+    "city": "Palena",
+    "state": "Los Lagos",
+    "zip_code": "6970009",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -43.6132,
+    "lng": -71.7965,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-puerto-montt-venta",
     "title": "Casa con Vista Panorámica en Puerto Montt",
     "description": "Casa familiar ubicada en el sector Centro de Puerto Montt. 2 dormitorios, 1 baños, 136 m². Excelente ubicación y conectividad.",
@@ -93723,6 +113691,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.9454,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-puerto-montt-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Puerto Montt",
+    "description": "Estacionamiento de 21 m² en sector Centro, Puerto Montt. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Carlos Richter 1644",
+    "city": "Puerto Montt",
+    "state": "Los Lagos",
+    "zip_code": "6973128",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -41.4723,
+    "lng": -72.9454,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -93876,6 +113876,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-puerto-montt-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Puerto Montt",
+    "description": "Estacionamiento de 21 m² en sector Centro, Puerto Montt. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Av. Carlos Richter 1644",
+    "city": "Puerto Montt",
+    "state": "Los Lagos",
+    "zip_code": "6973128",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -41.4723,
+    "lng": -72.9454,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-puerto-octay-venta",
     "title": "Casa Rústica de Campo en Puerto Octay",
     "description": "Casa familiar ubicada en el sector Centro de Puerto Octay. 3 dormitorios, 2 baños, 149 m². Excelente ubicación y conectividad.",
@@ -94023,6 +114055,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.8803,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-puerto-octay-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Puerto Octay",
+    "description": "Estacionamiento de 23 m² en sector Centro, Puerto Octay. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 1681",
+    "city": "Puerto Octay",
+    "state": "Los Lagos",
+    "zip_code": "6976247",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -40.9662,
+    "lng": -72.8828,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -94176,6 +114240,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-puerto-octay-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Puerto Octay",
+    "description": "Estacionamiento de 23 m² en sector Centro, Puerto Octay. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 1681",
+    "city": "Puerto Octay",
+    "state": "Los Lagos",
+    "zip_code": "6976247",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -40.9662,
+    "lng": -72.8828,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-puerto-varas-venta",
     "title": "Casa Moderna de 2 Plantas en Puerto Varas",
     "description": "Casa familiar ubicada en el sector Centro de Puerto Varas. 4 dormitorios, 3 baños, 162 m². Excelente ubicación y conectividad.",
@@ -94323,6 +114419,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.9866,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-puerto-varas-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Puerto Varas",
+    "description": "Estacionamiento de 25 m² en sector Centro, Puerto Varas. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle San Pedro 1718",
+    "city": "Puerto Varas",
+    "state": "Los Lagos",
+    "zip_code": "6979366",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -41.3157,
+    "lng": -72.9816,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -94476,6 +114604,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-puerto-varas-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Puerto Varas",
+    "description": "Estacionamiento de 25 m² en sector Centro, Puerto Varas. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle San Pedro 1718",
+    "city": "Puerto Varas",
+    "state": "Los Lagos",
+    "zip_code": "6979366",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -41.3157,
+    "lng": -72.9816,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-puqueldon-venta",
     "title": "Casa Campestre con Terreno en Puqueldón",
     "description": "Casa familiar ubicada en el sector Centro de Puqueldón. 2 dormitorios, 1 baños, 175 m². Excelente ubicación y conectividad.",
@@ -94623,6 +114783,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.7217,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-puqueldon-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Puqueldón",
+    "description": "Estacionamiento de 12 m² en sector Centro, Puqueldón. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 1755",
+    "city": "Puqueldón",
+    "state": "Los Lagos",
+    "zip_code": "6982485",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -42.5858,
+    "lng": -73.7192,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -94776,6 +114968,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-puqueldon-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Puqueldón",
+    "description": "Estacionamiento de 12 m² en sector Centro, Puqueldón. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 1755",
+    "city": "Puqueldón",
+    "state": "Los Lagos",
+    "zip_code": "6982485",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -42.5858,
+    "lng": -73.7192,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-purranque-venta",
     "title": "Casa con Patio Trasero en Purranque",
     "description": "Casa familiar ubicada en el sector Purranque de Purranque. 3 dormitorios, 2 baños, 188 m². Excelente ubicación y conectividad.",
@@ -94923,6 +115147,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.1657,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-purranque-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Purranque",
+    "description": "Estacionamiento de 14 m² en sector Purranque, Purranque. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1792",
+    "city": "Purranque",
+    "state": "Los Lagos",
+    "zip_code": "6985604",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -40.9157,
+    "lng": -73.1657,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -95076,6 +115332,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-purranque-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Purranque",
+    "description": "Estacionamiento de 14 m² en sector Purranque, Purranque. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 1792",
+    "city": "Purranque",
+    "state": "Los Lagos",
+    "zip_code": "6985604",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -40.9157,
+    "lng": -73.1657,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-puyehue-venta",
     "title": "Casa Típica del Pueblo en Puyehue",
     "description": "Casa familiar ubicada en el sector Puyehue de Puyehue. 4 dormitorios, 3 baños, 201 m². Excelente ubicación y conectividad.",
@@ -95223,6 +115511,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.603,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-puyehue-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Puyehue",
+    "description": "Estacionamiento de 16 m² en sector Puyehue, Puyehue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1829",
+    "city": "Puyehue",
+    "state": "Los Lagos",
+    "zip_code": "6988723",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -40.6622,
+    "lng": -72.5955,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -95376,6 +115696,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-puyehue-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Puyehue",
+    "description": "Estacionamiento de 16 m² en sector Puyehue, Puyehue. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle 21 de Mayo 1829",
+    "city": "Puyehue",
+    "state": "Los Lagos",
+    "zip_code": "6988723",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -40.6622,
+    "lng": -72.5955,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-queilen-venta",
     "title": "Casa de Chalet en Queilén",
     "description": "Casa familiar ubicada en el sector Centro de Queilén. 2 dormitorios, 1 baños, 214 m². Excelente ubicación y conectividad.",
@@ -95523,6 +115875,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.4637,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-queilen-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Queilén",
+    "description": "Estacionamiento de 18 m² en sector Centro, Queilén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Andes 1866",
+    "city": "Queilén",
+    "state": "Los Lagos",
+    "zip_code": "6991842",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -42.4687,
+    "lng": -73.4687,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -95676,6 +116060,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-queilen-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Queilén",
+    "description": "Estacionamiento de 18 m² en sector Centro, Queilén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Andes 1866",
+    "city": "Queilén",
+    "state": "Los Lagos",
+    "zip_code": "6991842",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -42.4687,
+    "lng": -73.4687,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-quellon-venta",
     "title": "Casa con Piscina en Quellón",
     "description": "Casa familiar ubicada en el sector Centro de Quellón. 3 dormitorios, 2 baños, 227 m². Excelente ubicación y conectividad.",
@@ -95823,6 +116239,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.6177,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-quellon-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Quellón",
+    "description": "Estacionamiento de 20 m² en sector Centro, Quellón. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 1903",
+    "city": "Quellón",
+    "state": "Los Lagos",
+    "zip_code": "6994961",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -43.1152,
+    "lng": -73.6152,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -95976,6 +116424,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-quellon-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Quellón",
+    "description": "Estacionamiento de 20 m² en sector Centro, Quellón. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 1903",
+    "city": "Quellón",
+    "state": "Los Lagos",
+    "zip_code": "6994961",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -43.1152,
+    "lng": -73.6152,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-quemchi-venta",
     "title": "Casa con Jardín y Quincho en Quemchi",
     "description": "Casa familiar ubicada en el sector Centro de Quemchi. 4 dormitorios, 3 baños, 240 m². Excelente ubicación y conectividad.",
@@ -96123,6 +116603,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.4783,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-quemchi-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Quemchi",
+    "description": "Estacionamiento de 22 m² en sector Centro, Quemchi. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1940",
+    "city": "Quemchi",
+    "state": "Los Lagos",
+    "zip_code": "6998080",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -42.155,
+    "lng": -73.4883,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -96276,6 +116788,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-quemchi-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Quemchi",
+    "description": "Estacionamiento de 22 m² en sector Centro, Quemchi. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 1940",
+    "city": "Quemchi",
+    "state": "Los Lagos",
+    "zip_code": "6998080",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -42.155,
+    "lng": -73.4883,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-quinchao-venta",
     "title": "Casa Familiar de 3 Dormitorios en Quinchao",
     "description": "Casa familiar ubicada en el sector Centro de Quinchao. 2 dormitorios, 1 baños, 253 m². Excelente ubicación y conectividad.",
@@ -96423,6 +116967,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.4823,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-quinchao-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Quinchao",
+    "description": "Estacionamiento de 24 m² en sector Centro, Quinchao. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Pedro 1977",
+    "city": "Quinchao",
+    "state": "Los Lagos",
+    "zip_code": "7001199",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -42.4682,
+    "lng": -73.4848,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -96576,6 +117152,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-quinchao-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Quinchao",
+    "description": "Estacionamiento de 24 m² en sector Centro, Quinchao. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Pedro 1977",
+    "city": "Quinchao",
+    "state": "Los Lagos",
+    "zip_code": "7001199",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -42.4682,
+    "lng": -73.4848,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-rio-negro-venta",
     "title": "Casa con Vista Panorámica en Río Negro",
     "description": "Casa familiar ubicada en el sector Centro de Río Negro. 3 dormitorios, 2 baños, 266 m². Excelente ubicación y conectividad.",
@@ -96723,6 +117331,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.2197,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-rio-negro-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Río Negro",
+    "description": "Estacionamiento de 26 m² en sector Centro, Río Negro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Carrera 2014",
+    "city": "Río Negro",
+    "state": "Los Lagos",
+    "zip_code": "7004318",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -40.7813,
+    "lng": -73.2147,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -96876,6 +117516,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-rio-negro-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Río Negro",
+    "description": "Estacionamiento de 26 m² en sector Centro, Río Negro. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Carrera 2014",
+    "city": "Río Negro",
+    "state": "Los Lagos",
+    "zip_code": "7004318",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -40.7813,
+    "lng": -73.2147,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-san-juan-de-la-costa-venta",
     "title": "Casa Rústica de Campo en San Juan de la Costa",
     "description": "Casa familiar ubicada en el sector Centro de San Juan de la Costa. 4 dormitorios, 3 baños, 279 m². Excelente ubicación y conectividad.",
@@ -97023,6 +117695,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.3803,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-san-juan-de-la-costa-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en San Juan de la Costa",
+    "description": "Estacionamiento de 13 m² en sector Centro, San Juan de la Costa. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 2051",
+    "city": "San Juan de la Costa",
+    "state": "Los Lagos",
+    "zip_code": "7007437",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -40.5212,
+    "lng": -73.3878,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -97176,6 +117880,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-san-juan-de-la-costa-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en San Juan de la Costa",
+    "description": "Estacionamiento de 13 m² en sector Centro, San Juan de la Costa. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 2051",
+    "city": "San Juan de la Costa",
+    "state": "Los Lagos",
+    "zip_code": "7007437",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -40.5212,
+    "lng": -73.3878,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "x-casa-san-pablo-venta",
     "title": "Casa Moderna de 2 Plantas en San Pablo",
     "description": "Casa familiar ubicada en el sector Centro de San Pablo. 2 dormitorios, 1 baños, 92 m². Excelente ubicación y conectividad.",
@@ -97323,6 +118059,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.0177,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "x-estacionamiento-san-pablo-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en San Pablo",
+    "description": "Estacionamiento de 15 m² en sector Centro, San Pablo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Carrera 2088",
+    "city": "San Pablo",
+    "state": "Los Lagos",
+    "zip_code": "7010556",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -40.4177,
+    "lng": -73.0177,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -97476,6 +118244,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "x-estacionamiento-san-pablo-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en San Pablo",
+    "description": "Estacionamiento de 15 m² en sector Centro, San Pablo. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Carrera 2088",
+    "city": "San Pablo",
+    "state": "Los Lagos",
+    "zip_code": "7010556",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -40.4177,
+    "lng": -73.0177,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xi-casa-aysen-venta",
     "title": "Casa Campestre con Terreno en Aysén",
     "description": "Casa familiar ubicada en el sector Centro de Aysén. 3 dormitorios, 2 baños, 105 m². Excelente ubicación y conectividad.",
@@ -97623,6 +118423,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.695,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xi-estacionamiento-aysen-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Aysén",
+    "description": "Estacionamiento de 17 m² en sector Centro, Aysén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 125",
+    "city": "Aysén",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7013675",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -45.3975,
+    "lng": -72.6975,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -97776,6 +118608,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xi-estacionamiento-aysen-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Aysén",
+    "description": "Estacionamiento de 17 m² en sector Centro, Aysén. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 125",
+    "city": "Aysén",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7013675",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -45.3975,
+    "lng": -72.6975,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xi-casa-chile-chico-venta",
     "title": "Casa con Patio Trasero en Chile Chico",
     "description": "Casa familiar ubicada en el sector Centro de Chile Chico. 4 dormitorios, 3 baños, 118 m². Excelente ubicación y conectividad.",
@@ -97923,6 +118787,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.719,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xi-estacionamiento-chile-chico-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Chile Chico",
+    "description": "Estacionamiento de 19 m² en sector Centro, Chile Chico. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Andes 162",
+    "city": "Chile Chico",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7016794",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -46.544,
+    "lng": -71.724,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -98076,6 +118972,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xi-estacionamiento-chile-chico-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Chile Chico",
+    "description": "Estacionamiento de 19 m² en sector Centro, Chile Chico. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Av. Los Andes 162",
+    "city": "Chile Chico",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7016794",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -46.544,
+    "lng": -71.724,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xi-casa-cisnes-venta",
     "title": "Casa Típica del Pueblo en Cisnes",
     "description": "Casa familiar ubicada en el sector Centro de Cisnes. 2 dormitorios, 1 baños, 131 m². Excelente ubicación y conectividad.",
@@ -98223,6 +119151,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.703,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xi-estacionamiento-cisnes-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Cisnes",
+    "description": "Estacionamiento de 21 m² en sector Centro, Cisnes. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Andes 199",
+    "city": "Cisnes",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7019913",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -44.7505,
+    "lng": -72.7005,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -98376,6 +119336,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xi-estacionamiento-cisnes-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Cisnes",
+    "description": "Estacionamiento de 21 m² en sector Centro, Cisnes. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. Los Andes 199",
+    "city": "Cisnes",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7019913",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -44.7505,
+    "lng": -72.7005,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xi-casa-cochrane-venta",
     "title": "Casa de Chalet en Cochrane",
     "description": "Casa familiar ubicada en el sector Centro de Cochrane. 3 dormitorios, 2 baños, 144 m². Excelente ubicación y conectividad.",
@@ -98523,6 +119515,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.5803,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xi-estacionamiento-cochrane-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Cochrane",
+    "description": "Estacionamiento de 23 m² en sector Centro, Cochrane. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 236",
+    "city": "Cochrane",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7023032",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -47.247,
+    "lng": -72.5803,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -98676,6 +119700,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xi-estacionamiento-cochrane-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Cochrane",
+    "description": "Estacionamiento de 23 m² en sector Centro, Cochrane. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 236",
+    "city": "Cochrane",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7023032",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -47.247,
+    "lng": -72.5803,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xi-casa-coyhaique-venta",
     "title": "Casa con Piscina en Coyhaique",
     "description": "Casa familiar ubicada en el sector Centro de Coyhaique. 4 dormitorios, 3 baños, 157 m². Excelente ubicación y conectividad.",
@@ -98823,6 +119879,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.0695,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xi-estacionamiento-coyhaique-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Coyhaique",
+    "description": "Estacionamiento de 25 m² en sector Centro, Coyhaique. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Pedro Aguirre Cerda 273",
+    "city": "Coyhaique",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7026151",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -45.5747,
+    "lng": -72.072,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -98976,6 +120064,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xi-estacionamiento-coyhaique-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Coyhaique",
+    "description": "Estacionamiento de 25 m² en sector Centro, Coyhaique. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. Pedro Aguirre Cerda 273",
+    "city": "Coyhaique",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7026151",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -45.5747,
+    "lng": -72.072,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xi-casa-guaitecas-venta",
     "title": "Casa con Jardín y Quincho en Guaitecas",
     "description": "Casa familiar ubicada en el sector Melinka de Guaitecas. 2 dormitorios, 1 baños, 170 m². Excelente ubicación y conectividad.",
@@ -99123,6 +120243,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.745,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xi-estacionamiento-guaitecas-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Guaitecas",
+    "description": "Estacionamiento de 12 m² en sector Melinka, Guaitecas. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Caletones 310",
+    "city": "Guaitecas",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7029270",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -43.8833,
+    "lng": -73.75,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -99276,6 +120428,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xi-estacionamiento-guaitecas-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Guaitecas",
+    "description": "Estacionamiento de 12 m² en sector Melinka, Guaitecas. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Caletones 310",
+    "city": "Guaitecas",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7029270",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -43.8833,
+    "lng": -73.75,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xi-casa-lago-verde-venta",
     "title": "Casa Familiar de 3 Dormitorios en Lago Verde",
     "description": "Casa familiar ubicada en el sector Lago Verde de Lago Verde. 3 dormitorios, 2 baños, 183 m². Excelente ubicación y conectividad.",
@@ -99423,6 +120607,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.8657,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xi-estacionamiento-lago-verde-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Lago Verde",
+    "description": "Estacionamiento de 14 m² en sector Lago Verde, Lago Verde. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 347",
+    "city": "Lago Verde",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7032389",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -44.2298,
+    "lng": -71.8632,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -99576,6 +120792,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xi-estacionamiento-lago-verde-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Lago Verde",
+    "description": "Estacionamiento de 14 m² en sector Lago Verde, Lago Verde. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 14,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Carrera 347",
+    "city": "Lago Verde",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7032389",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -44.2298,
+    "lng": -71.8632,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xi-casa-o-venta",
     "title": "Casa con Vista Panorámica en O\\",
     "description": "Casa familiar ubicada en el sector O\\ de O\\. 4 dormitorios, 3 baños, 196 m². Excelente ubicación y conectividad.",
@@ -99723,6 +120971,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.5697,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xi-estacionamiento-o-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en O\\",
+    "description": "Estacionamiento de 16 m² en sector O\\, O\\. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 384",
+    "city": "O\\",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7035508",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -48.4697,
+    "lng": -72.5697,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -99876,6 +121156,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xi-estacionamiento-o-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en O\\",
+    "description": "Estacionamiento de 16 m² en sector O\\, O\\. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 16,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Arturo Prat 384",
+    "city": "O\\",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7035508",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -48.4697,
+    "lng": -72.5697,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xi-casa-rio-ibanez-venta",
     "title": "Casa Rústica de Campo en Río Ibáñez",
     "description": "Casa familiar ubicada en el sector Cochrane de Río Ibáñez. 2 dormitorios, 1 baños, 209 m². Excelente ubicación y conectividad.",
@@ -100023,6 +121335,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.9303,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xi-estacionamiento-rio-ibanez-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Río Ibáñez",
+    "description": "Estacionamiento de 18 m² en sector Cochrane, Río Ibáñez. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 421",
+    "city": "Río Ibáñez",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7038627",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -46.2828,
+    "lng": -71.9328,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -100176,6 +121520,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xi-estacionamiento-rio-ibanez-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Río Ibáñez",
+    "description": "Estacionamiento de 18 m² en sector Cochrane, Río Ibáñez. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 18,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 421",
+    "city": "Río Ibáñez",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7038627",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -46.2828,
+    "lng": -71.9328,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xi-casa-tortel-venta",
     "title": "Casa Moderna de 2 Plantas en Tortel",
     "description": "Casa familiar ubicada en el sector Centro de Tortel. 3 dormitorios, 2 baños, 222 m². Excelente ubicación y conectividad.",
@@ -100323,6 +121699,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -73.5343,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xi-estacionamiento-tortel-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en Tortel",
+    "description": "Estacionamiento de 20 m² en sector Centro, Tortel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 11000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Pasarelas 458",
+    "city": "Tortel",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7041746",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -47.796,
+    "lng": -73.5293,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -100476,6 +121884,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xi-estacionamiento-tortel-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en Tortel",
+    "description": "Estacionamiento de 20 m² en sector Centro, Tortel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 20,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Pasarelas 458",
+    "city": "Tortel",
+    "state": "Aysén del Gral. Carlos Ibáñez del Campo",
+    "zip_code": "7041746",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -47.796,
+    "lng": -73.5293,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xii-casa-antartica-venta",
     "title": "Casa Campestre con Terreno en Antártica",
     "description": "Casa familiar ubicada en el sector Villa Las Estrellas de Antártica. 4 dormitorios, 3 baños, 235 m². Excelente ubicación y conectividad.",
@@ -100623,6 +122063,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -58.965,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xii-estacionamiento-antartica-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Antártica",
+    "description": "Estacionamiento de 22 m² en sector Villa Las Estrellas, Antártica. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. 12 de Octubre 495",
+    "city": "Antártica",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7044865",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -62.1925,
+    "lng": -58.9625,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -100776,6 +122248,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xii-estacionamiento-antartica-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Antártica",
+    "description": "Estacionamiento de 22 m² en sector Villa Las Estrellas, Antártica. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 22,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Av. 12 de Octubre 495",
+    "city": "Antártica",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7044865",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -62.1925,
+    "lng": -58.9625,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xii-casa-cabo-de-hornos-venta",
     "title": "Casa con Patio Trasero en Cabo de Hornos",
     "description": "Casa familiar ubicada en el sector Centro de Cabo de Hornos. 2 dormitorios, 1 baños, 248 m². Excelente ubicación y conectividad.",
@@ -100923,6 +122427,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -67.6157,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xii-estacionamiento-cabo-de-hornos-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Cabo de Hornos",
+    "description": "Estacionamiento de 24 m² en sector Centro, Cabo de Hornos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Pedro Aguirre Cerda 532",
+    "city": "Cabo de Hornos",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7047984",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -55.0157,
+    "lng": -67.6157,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -101076,6 +122612,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xii-estacionamiento-cabo-de-hornos-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Cabo de Hornos",
+    "description": "Estacionamiento de 24 m² en sector Centro, Cabo de Hornos. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 24,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Pedro Aguirre Cerda 532",
+    "city": "Cabo de Hornos",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7047984",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -55.0157,
+    "lng": -67.6157,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xii-casa-laguna-blanca-venta",
     "title": "Casa Típica del Pueblo en Laguna Blanca",
     "description": "Casa familiar ubicada en el sector Centro de Laguna Blanca. 3 dormitorios, 2 baños, 261 m². Excelente ubicación y conectividad.",
@@ -101223,6 +122791,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -71.253,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xii-estacionamiento-laguna-blanca-venta",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Venta en Laguna Blanca",
+    "description": "Estacionamiento de 26 m² en sector Centro, Laguna Blanca. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 569",
+    "city": "Laguna Blanca",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7051103",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -52.4788,
+    "lng": -71.2455,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -101376,6 +122976,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xii-estacionamiento-laguna-blanca-arriendo",
+    "title": "Estacionamiento en Edificio Residencial Moderno en Arriendo en Laguna Blanca",
+    "description": "Estacionamiento de 26 m² en sector Centro, Laguna Blanca. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 26,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle Los Andes 569",
+    "city": "Laguna Blanca",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7051103",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -52.4788,
+    "lng": -71.2455,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xii-casa-natales-venta",
     "title": "Casa de Chalet en Natales",
     "description": "Casa familiar ubicada en el sector Natales de Natales. 4 dormitorios, 3 baños, 274 m². Excelente ubicación y conectividad.",
@@ -101523,6 +123155,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.5034,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xii-estacionamiento-natales-venta",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Venta en Natales",
+    "description": "Estacionamiento de 13 m² en sector Natales, Natales. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 8000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 606",
+    "city": "Natales",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7054222",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -51.7289,
+    "lng": -72.5084,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -101676,6 +123340,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xii-estacionamiento-natales-arriendo",
+    "title": "Estacionamiento en Sector Financiero y Comercial en Arriendo en Natales",
+    "description": "Estacionamiento de 13 m² en sector Natales, Natales. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 13,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle O'Higgins 606",
+    "city": "Natales",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7054222",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -51.7289,
+    "lng": -72.5084,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xii-casa-porvenir-venta",
     "title": "Casa con Piscina en Porvenir",
     "description": "Casa familiar ubicada en el sector Centro de Porvenir. 2 dormitorios, 1 baños, 87 m². Excelente ubicación y conectividad.",
@@ -101823,6 +123519,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.3713,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xii-estacionamiento-porvenir-venta",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Venta en Porvenir",
+    "description": "Estacionamiento de 15 m² en sector Centro, Porvenir. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle San Martín 643",
+    "city": "Porvenir",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7057341",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -53.2952,
+    "lng": -70.3688,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -101976,6 +123704,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xii-estacionamiento-porvenir-arriendo",
+    "title": "Estacionamiento Subterráneo con Portón Automático en Arriendo en Porvenir",
+    "description": "Estacionamiento de 15 m² en sector Centro, Porvenir. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 15,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle San Martín 643",
+    "city": "Porvenir",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7057341",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -53.2952,
+    "lng": -70.3688,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xii-casa-primavera-venta",
     "title": "Casa con Jardín y Quincho en Primavera",
     "description": "Casa familiar ubicada en el sector Centro de Primavera. 3 dormitorios, 2 baños, 100 m². Excelente ubicación y conectividad.",
@@ -102123,6 +123883,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -69.245,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xii-estacionamiento-primavera-venta",
+    "title": "Estacionamiento con Circuito Cerrado TV en Venta en Primavera",
+    "description": "Estacionamiento de 17 m² en sector Centro, Primavera. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 680",
+    "city": "Primavera",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7060460",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -52.7117,
+    "lng": -69.245,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -102276,6 +124068,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xii-estacionamiento-primavera-arriendo",
+    "title": "Estacionamiento con Circuito Cerrado TV en Arriendo en Primavera",
+    "description": "Estacionamiento de 17 m² en sector Centro, Primavera. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 17,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Calle Los Andes 680",
+    "city": "Primavera",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7060460",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -52.7117,
+    "lng": -69.245,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xii-casa-punta-arenas-venta",
     "title": "Casa Familiar de 3 Dormitorios en Punta Arenas",
     "description": "Casa familiar ubicada en el sector Barrio Español de Punta Arenas. 4 dormitorios, 3 baños, 113 m². Excelente ubicación y conectividad.",
@@ -102423,6 +124247,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.9161,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xii-estacionamiento-punta-arenas-venta",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Venta en Punta Arenas",
+    "description": "Estacionamiento de 19 m² en sector Barrio Español, Punta Arenas. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 9500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. España 717",
+    "city": "Punta Arenas",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7063579",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -53.1653,
+    "lng": -70.9186,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -102576,6 +124432,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xii-estacionamiento-punta-arenas-arriendo",
+    "title": "Estacionamiento Cerca de Metro y Avenidas Principales en Arriendo en Punta Arenas",
+    "description": "Estacionamiento de 19 m² en sector Barrio Español, Punta Arenas. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 19,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Av. España 717",
+    "city": "Punta Arenas",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7063579",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Cámaras CCTV",
+      "Conserjería 24 hrs",
+      "Control remoto",
+      "Techado"
+    ],
+    "lat": -53.1653,
+    "lng": -70.9186,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xii-casa-rio-verde-venta",
     "title": "Casa con Vista Panorámica en Río Verde",
     "description": "Casa familiar ubicada en el sector Centro de Río Verde. 2 dormitorios, 1 baños, 126 m². Excelente ubicación y conectividad.",
@@ -102723,6 +124611,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -70.753,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xii-estacionamiento-rio-verde-venta",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Venta en Río Verde",
+    "description": "Estacionamiento de 21 m² en sector Centro, Río Verde. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 12000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Andes 754",
+    "city": "Río Verde",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7066698",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -52.648,
+    "lng": -70.748,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -102876,6 +124796,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xii-estacionamiento-rio-verde-arriendo",
+    "title": "Estacionamiento Subterráneo Nivel -1 en Arriendo en Río Verde",
+    "description": "Estacionamiento de 21 m² en sector Centro, Río Verde. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 21,
+    "parking_spots": 1,
+    "year_built": 2018,
+    "address": "Calle Los Andes 754",
+    "city": "Río Verde",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7066698",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Excelente maniobrabilidad",
+      "Gasto común bajo",
+      "Iluminación LED",
+      "Acceso a ascensores"
+    ],
+    "lat": -52.648,
+    "lng": -70.748,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xii-casa-san-gregorio-venta",
     "title": "Casa Rústica de Campo en San Gregorio",
     "description": "Casa familiar ubicada en el sector Centro de San Gregorio. 3 dormitorios, 2 baños, 139 m². Excelente ubicación y conectividad.",
@@ -103023,6 +124975,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -69.747,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xii-estacionamiento-san-gregorio-venta",
+    "title": "Estacionamiento Techado con Control Remoto en Venta en San Gregorio",
+    "description": "Estacionamiento de 23 m² en sector Centro, San Gregorio. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 14500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 791",
+    "city": "San Gregorio",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7069817",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -52.3212,
+    "lng": -69.7545,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -103176,6 +125160,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xii-estacionamiento-san-gregorio-arriendo",
+    "title": "Estacionamiento Techado con Control Remoto en Arriendo en San Gregorio",
+    "description": "Estacionamiento de 23 m² en sector Centro, San Gregorio. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 55000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 23,
+    "parking_spots": 1,
+    "year_built": 2021,
+    "address": "Calle Los Andes 791",
+    "city": "San Gregorio",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7069817",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Para SUV / Camioneta grande",
+      "Portón eléctrico",
+      "Control de acceso",
+      "Cerca de salida"
+    ],
+    "lat": -52.3212,
+    "lng": -69.7545,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xii-casa-timaukel-venta",
     "title": "Casa Moderna de 2 Plantas en Timaukel",
     "description": "Casa familiar ubicada en el sector Centro de Timaukel. 4 dormitorios, 3 baños, 152 m². Excelente ubicación y conectividad.",
@@ -103323,6 +125339,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -69.851,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xii-estacionamiento-timaukel-venta",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Venta en Timaukel",
+    "description": "Estacionamiento de 25 m² en sector Centro, Timaukel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 10500000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Cerro Castillo 828",
+    "city": "Timaukel",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7072936",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -54.001,
+    "lng": -69.851,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   },
   {
@@ -103476,6 +125524,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xii-estacionamiento-timaukel-arriendo",
+    "title": "Estacionamiento con Acceso TAG y Seguridad 24/7 en Arriendo en Timaukel",
+    "description": "Estacionamiento de 25 m² en sector Centro, Timaukel. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 70000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 25,
+    "parking_spots": 1,
+    "year_built": 2012,
+    "address": "Cerro Castillo 828",
+    "city": "Timaukel",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7072936",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Guardias permanentes",
+      "Acceso peatonal con tarjeta",
+      "Red seca y extintores",
+      "Nivel -2"
+    ],
+    "lat": -54.001,
+    "lng": -69.851,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xii-casa-torres-del-paine-venta",
     "title": "Casa Campestre con Terreno en Torres del Paine",
     "description": "Casa familiar ubicada en el sector Torres del Paine de Torres del Paine. 2 dormitorios, 1 baños, 165 m². Excelente ubicación y conectividad.",
@@ -103626,6 +125706,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "agent_phone": "+56 9 0000 0001"
   },
   {
+    "id": "xii-estacionamiento-torres-del-paine-venta",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Venta en Torres del Paine",
+    "description": "Estacionamiento de 12 m² en sector Torres del Paine, Torres del Paine. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 13000000,
+    "property_type": "parking",
+    "status": "for_sale",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 865",
+    "city": "Torres del Paine",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7076055",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -51.2508,
+    "lng": -72.8775,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
     "id": "xii-casa-torres-del-paine-arriendo",
     "title": "Casa Campestre con Terreno en Arriendo en Torres del Paine",
     "description": "Casa familiar ubicada en el sector Torres del Paine de Torres del Paine. 2 dormitorios, 1 baños, 165 m². Excelente ubicación y conectividad.",
@@ -103773,6 +125885,38 @@ export const SAMPLE_PROPERTIES: Property[] = [
     "lng": -72.875,
     "agent_name": "Agente Rix7",
     "agent_email": "arriendos@rix7.cl",
+    "agent_phone": "+56 9 0000 0001"
+  },
+  {
+    "id": "xii-estacionamiento-torres-del-paine-arriendo",
+    "title": "Estacionamiento Amplio para Camioneta / SUV en Arriendo en Torres del Paine",
+    "description": "Estacionamiento de 12 m² en sector Torres del Paine, Torres del Paine. Acceso controlado, seguridad 24 horas y excelente conectividad.",
+    "price": 45000,
+    "property_type": "parking",
+    "status": "for_rent",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "area_sqm": 12,
+    "parking_spots": 1,
+    "year_built": 2015,
+    "address": "Calle San Martín 865",
+    "city": "Torres del Paine",
+    "state": "Magallanes y de la Antártica Chilena",
+    "zip_code": "7076055",
+    "images": [
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "features": [
+      "Subterráneo nivel -1",
+      "Acceso con TAG / Tarjeta",
+      "Seguridad 24/7",
+      "Portón automático"
+    ],
+    "lat": -51.2508,
+    "lng": -72.8775,
+    "agent_name": "Agente Rix7",
+    "agent_email": "estacionamientos@rix7.cl",
     "agent_phone": "+56 9 0000 0001"
   }
 ];
