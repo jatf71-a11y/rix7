@@ -42,6 +42,15 @@ function createUserLocationSvg(): string {
   </div>`;
 }
 
+function createCityBeaconSvg(): string {
+  return `<div style="position:relative;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+    <div style="position:absolute;inset:0;border-radius:50%;background:rgba(37,99,235,0.22);animation:ping 2.8s cubic-bezier(0,0,0.2,1) infinite;"></div>
+    <div style="position:absolute;inset:6px;border-radius:50%;background:rgba(37,99,235,0.32);animation:ping 2.8s cubic-bezier(0,0,0.2,1) infinite 0.7s;"></div>
+    <div style="position:absolute;inset:10px;border-radius:50%;background:#2563EB;border:3px solid white;box-shadow:0 0 0 3px rgba(37,99,235,0.45),0 4px 12px rgba(37,99,235,0.55);"></div>
+    <div style="position:absolute;inset:16px;border-radius:50%;background:white;"></div>
+  </div>`;
+}
+
 
 // ─── Interface ────────────────────────────────────────────────────────
 
@@ -55,6 +64,7 @@ interface MapContainerInnerProps {
   nearbyActive?: boolean;
   onPropertySelect?: (id: string | null) => void;
   externalUserLocation?: { lat: number; lng: number } | null;
+  detectedCity?: { name: string; regionName?: string; lat: number; lng: number; isGps?: boolean } | null;
 }
 
 // ─── Component ────────────────────────────────────────────────────────
@@ -68,12 +78,14 @@ export default function MapContainerInner({
   nearbyActive = false,
   onPropertySelect,
   externalUserLocation,
+  detectedCity,
 }: MapContainerInnerProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Map<string, Marker>>(new Map());
   const openPopupMarkerRef = useRef<Marker | null>(null);
   const userMarkerRef = useRef<Marker | null>(null);
+  const cityMarkerRef = useRef<Marker | null>(null);
   const effectiveUserLocation = externalUserLocation;
 
   // ─── Inicializar mapa ───────────────────────────────────────────────
@@ -106,9 +118,6 @@ export default function MapContainerInner({
     map.current.addControl(new NavigationControl(), 'top-right');
 
     // El mapa no detecta cambios de tamaño de su contenedor por sí solo.
-    // Sin esto, si el contenedor arranca oculto (vista lista en móvil) o cambia
-    // de tamaño, el canvas queda con dimensiones stale y flyTo/marcadores/ondas
-    // quedan descentrados.
     const resizeObserver = new ResizeObserver(() => {
       map.current?.resize();
     });
@@ -121,8 +130,78 @@ export default function MapContainerInner({
         map.current = null;
       }
       userMarkerRef.current = null;
+      cityMarkerRef.current = null;
     };
   }, []);
+
+  // ─── Centrar en la Ciudad Detectada (IP / GPS) y crear marker de ciudad ───
+  useEffect(() => {
+    if (!map.current || !detectedCity) return;
+    if (nearbyActive) {
+      if (cityMarkerRef.current) {
+        cityMarkerRef.current.remove();
+        cityMarkerRef.current = null;
+      }
+      return;
+    }
+    if (targetLocation) return;
+
+    map.current.flyTo({
+      center: [detectedCity.lng, detectedCity.lat],
+      zoom: 13,
+      duration: 2000,
+    });
+
+    if (cityMarkerRef.current) {
+      try {
+        const mapEl = mapContainer.current;
+        const markerEl = cityMarkerRef.current.getElement();
+        if (!mapEl || !markerEl || !mapEl.contains(markerEl)) {
+          cityMarkerRef.current = null;
+        }
+      } catch {
+        cityMarkerRef.current = null;
+      }
+    }
+
+    if (!cityMarkerRef.current) {
+      const el = document.createElement('div');
+      el.innerHTML = createCityBeaconSvg();
+      el.style.width = '38px';
+      el.style.height = '38px';
+      el.style.cursor = 'pointer';
+      el.title = `Tu Ciudad: ${detectedCity.name}`;
+
+      cityMarkerRef.current = new Marker({ element: el })
+        .setLngLat([detectedCity.lng, detectedCity.lat])
+        .addTo(map.current);
+
+      const popup = new Popup({ offset: 20, closeButton: false, maxWidth: '240px' })
+        .setHTML(`<div style="font-family:system-ui;background:white;border-radius:12px;overflow:hidden;box-shadow:0 8px 30px rgba(37,99,235,0.18);border:1px solid #bfdbfe;min-width:180px;">
+          <div style="height:3px;background:linear-gradient(90deg,#2563EB,#3b82f6,#2563EB);"></div>
+          <div style="padding:10px 14px 10px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2563EB;"></span>
+              <span style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.4px;">${detectedCity.isGps ? 'Ubicación GPS' : 'Tu Ciudad'}</span>
+            </div>
+            <div style="font-weight:800;font-size:14px;color:#0f172a;margin-top:2px;">${detectedCity.name}</div>
+            ${detectedCity.regionName ? `<div style="font-size:11px;color:#64748b;margin-top:1px;">${detectedCity.regionName}</div>` : ''}
+          </div>
+        </div>`);
+
+      const marker = cityMarkerRef.current;
+      marker.setPopup(popup);
+
+      const markerEl = marker.getElement();
+      markerEl.addEventListener('mouseenter', () => { try { marker.togglePopup(); } catch {} });
+      markerEl.addEventListener('mouseleave', () => { try { marker.getPopup()?.remove(); } catch {} });
+      markerEl.addEventListener('click', () => {
+        map.current?.flyTo({ center: [detectedCity.lng, detectedCity.lat], zoom: 13.5, duration: 1000 });
+      });
+    } else {
+      cityMarkerRef.current.setLngLat([detectedCity.lng, detectedCity.lat]);
+    }
+  }, [detectedCity, nearbyActive, targetLocation]);
 
   // ─── Centrar mapa en ubicación del usuario + crear marker ──────────
   useEffect(() => {
@@ -432,6 +511,31 @@ export default function MapContainerInner({
       <div ref={mapContainer} className="w-full h-full z-0" />
 
       <style>{`@keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }`}</style>
+
+      {/* ═══ Badge de Ciudad Detectada en Mapa GIS ═══ */}
+      {detectedCity && !nearbyActive && (
+        <button
+          type="button"
+          onClick={() => {
+            map.current?.flyTo({ center: [detectedCity.lng, detectedCity.lat], zoom: 13, duration: 1500 });
+          }}
+          className="absolute top-3 left-3 z-[400] flex items-center gap-2.5 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-lg shadow-slate-900/10 border border-slate-200/90 hover:bg-slate-50 transition-all text-left group cursor-pointer"
+          title="Centrar mapa en tu ciudad detectada"
+        >
+          <div className="relative flex items-center justify-center w-3 h-3">
+            <span className="w-3 h-3 rounded-full bg-blue-500 animate-ping absolute opacity-75" />
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-600 relative" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none">
+              {detectedCity.isGps ? 'GPS Detectado' : 'Tu Ciudad GIS'}
+            </span>
+            <span className="text-xs font-bold text-slate-800 leading-tight group-hover:text-blue-600 transition-colors">
+              {detectedCity.name}
+            </span>
+          </div>
+        </button>
+      )}
 
       {/* ═══ Ondas expandientes CSS desde la ubicación del usuario ═══ */}
       <div ref={pingOverlayRef} className="absolute inset-0 z-[500] pointer-events-none overflow-hidden" style={{ display: 'none' }}>

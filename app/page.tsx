@@ -8,6 +8,7 @@ import { PropertyFilters } from '@/components/properties/PropertyFilters';
 import { PropertyGrid } from '@/components/properties/PropertyGrid';
 import { FeaturedCarousel } from '@/components/properties/FeaturedCarousel';
 import { PartnerLogosCarousel } from '@/components/properties/PartnerLogosCarousel';
+import { findNearestChileLocation } from '@/lib/data/chileLocations';
 import { Map, List, Loader2 } from 'lucide-react';
 
 // ═══ HAVERSINE: Distancia en km entre dos coordenadas ═══
@@ -106,6 +107,15 @@ function HomePageContent() {
   // Centro del mapa: Plaza de Armas de la ciudad del usuario (se detecta al montar)
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: -33.4425, lng: -70.6530 }); // Santiago por defecto
 
+  // Ciudad detectada automáticamente al visitar la web
+  const [detectedCity, setDetectedCity] = useState<{
+    name: string;
+    regionName?: string;
+    lat: number;
+    lng: number;
+    isGps?: boolean;
+  } | null>(null);
+
   // Nearby mode (ubicación del usuario) — solo se setea cuando presiona "Mi Ubicación"
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [nearbyActive, setNearbyActive] = useState(false);
@@ -116,30 +126,55 @@ function HomePageContent() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<'list' | 'map'>('map');
 
-  // Ubicación inicial: Santiago centro. La detección real ocurre SOLO cuando el
-  // usuario la pide explícitamente (botón "Mi Ubicación" → toggleNearby), que
-  // ya tiene su propio fallback. No llamamos a la geolocation API al montar:
-  // en redes donde el network location provider de Chrome está bloqueado
-  // (error 403 en consola), la llamada automática solo ensucia la consola y
-  // dispara un prompt de permisos innecesario.
-
-  // Al montar, detectar la ciudad del usuario vía IP (geolocation de navegador
-  // queda fuera: Chrome la bloquea en varias redes con error 403 en consola).
-  // Si falla, se queda en Santiago centro. Sin prompt de permisos.
+  // Al montar, detectar la ciudad del usuario mediante /api/geo (headers Vercel / IP)
+  // y afinar con GPS de navegador si está disponible.
   useEffect(() => {
     let cancelled = false;
-    fetch('https://ipapi.co/json/')
+
+    // 1. Detección rápida vía endpoint interno /api/geo (sin problemas de CSP ni CORS)
+    fetch('/api/geo')
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data) => {
-        if (cancelled || typeof data?.latitude !== 'number' || typeof data?.longitude !== 'number') return;
-        const nearest = findNearestCity(data.latitude, data.longitude);
-        setMapCenter({ lat: nearest.lat, lng: nearest.lng });
+        if (cancelled || !data?.success) return;
+        const cityData = {
+          name: data.city || data.communeName || 'Santiago',
+          regionName: data.regionName,
+          lat: data.lat,
+          lng: data.lng,
+          isGps: false,
+        };
+        setDetectedCity((prev) => (prev?.isGps ? prev : cityData));
+        setMapCenter({ lat: data.lat, lng: data.lng });
       })
       .catch(() => {
         // Fallback: Santiago centro (ya es el default de mapCenter)
       });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // 2. Si el navegador soporta Geolocation API, consultar de forma no intrusiva
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (cancelled) return;
+          const nearest = findNearestChileLocation(pos.coords.latitude, pos.coords.longitude);
+          setDetectedCity({
+            name: nearest.communeName,
+            regionName: nearest.regionName,
+            lat: nearest.lat,
+            lng: nearest.lng,
+            isGps: true,
+          });
+          setMapCenter({ lat: nearest.lat, lng: nearest.lng });
+        },
+        () => {
+          // Si el usuario no otorga permisos o falla, se mantiene la detección por /api/geo
+        },
+        { enableHighAccuracy: false, timeout: 4000, maximumAge: 300000 }
+      );
+    }
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -494,6 +529,7 @@ function HomePageContent() {
             regionName={selectedRegion ?? undefined}
             communeName={selectedCommune ?? undefined}
             mapCenter={mapCenter}
+            detectedCity={detectedCity}
             onPropertySelect={(id) => {
               setSelectedPropertyId(id);
               setHoveredPropertyId(id);

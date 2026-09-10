@@ -630,3 +630,63 @@ export function findLocation(query: string): {
 export function getTotalCommunes(): number {
   return CHILE_REGIONS.reduce((sum, r) => sum + r.communes.length, 0);
 }
+
+/**
+ * Encuentra la comuna y región más cercana a un par de coordenadas (lat, lng).
+ */
+export function findNearestChileLocation(lat: number, lng: number): {
+  communeName: string;
+  regionName: string;
+  regionCode: string;
+  lat: number;
+  lng: number;
+  zoom: number;
+  distanceKm: number;
+} {
+  let closestCommune: Commune | null = null;
+  let closestRegion: Region = CHILE_REGIONS[6]; // Default RM
+  let minDistance = Infinity;
+
+  for (const reg of CHILE_REGIONS) {
+    for (const com of reg.communes) {
+      const dLat = ((com.lat - lat) * Math.PI) / 180;
+      const dLng = ((com.lng - lng) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat * Math.PI) / 180) *
+          Math.cos((com.lat * Math.PI) / 180) *
+          Math.sin(dLng / 2) *
+          Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const dist = 6371 * c;
+
+      if (dist < minDistance) {
+        minDistance = dist;
+        closestCommune = com;
+        closestRegion = reg;
+      }
+    }
+  }
+
+  if (!closestCommune) {
+    return {
+      communeName: 'Santiago',
+      regionName: 'Región Metropolitana de Santiago',
+      regionCode: 'XIII',
+      lat: -33.4489,
+      lng: -70.6693,
+      zoom: 13,
+      distanceKm: 0,
+    };
+  }
+
+  return {
+    communeName: closestCommune.name,
+    regionName: closestRegion.name,
+    regionCode: closestRegion.code,
+    lat: closestCommune.lat,
+    lng: closestCommune.lng,
+    zoom: closestCommune.zoom || 13,
+    distanceKm: Math.round(minDistance * 10) / 10,
+  };
+}
