@@ -3,9 +3,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { partners, Partner } from '@/lib/data/partners';
+import { PartnerLogo } from '@/components/properties/PartnerLogo';
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 
-export function PartnerLogosCarousel() {
+interface PartnerLogosCarouselProps {
+  partnerCounts?: Record<string, number>;
+}
+
+export function PartnerLogosCarousel({ partnerCounts = {} }: PartnerLogosCarouselProps) {
   const [isPaused, setIsPaused] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -107,27 +112,15 @@ export function PartnerLogosCarousel() {
               >
                 {/* Logo */}
                 <div className="h-10 min-w-[40px] flex items-center justify-center rounded-lg bg-slate-50 overflow-hidden flex-shrink-0 px-1">
-                  <img
-                    src={partner.logo}
-                    alt={partner.name}
-                    className="h-8 object-contain"
-                    onError={(e) => {
-                      // Fallback: show first letter
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent && !parent.querySelector('.fallback-letter')) {
-                        const span = document.createElement('span');
-                        span.className = 'fallback-letter text-lg font-bold';
-                        span.style.color = partner.color;
-                        span.textContent = partner.name.charAt(0);
-                        parent.appendChild(span);
-                      }
-                    }}
+                  <PartnerLogo
+                    logo={partner.logo}
+                    name={partner.name}
+                    color={partner.color}
+                    className="h-8 w-auto"
                   />
                 </div>
 
-                {/* Name + description */}
+                {/* Name + description + count */}
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-slate-800 truncate max-w-[140px]">
                     {partner.name}
@@ -135,6 +128,11 @@ export function PartnerLogosCarousel() {
                   <p className="text-[10px] text-slate-400 truncate max-w-[140px]">
                     {partner.description}
                   </p>
+                  {partnerCounts[partner.id] !== undefined && (
+                    <p className="text-[10px] font-semibold text-blue-600 mt-0.5">
+                      {partnerCounts[partner.id]} propiedades
+                    </p>
+                  )}
                 </div>
 
                 {/* Hover icon */}

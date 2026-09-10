@@ -162,6 +162,7 @@ export default function PropertyDetailPage() {
           title={property.title}
           partnerLogo={partner?.logo}
           partnerName={partner?.name}
+          partnerColor={partner?.color}
           showPartnerLogo={!!showLogo}
         />
 

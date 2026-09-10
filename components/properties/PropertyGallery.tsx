@@ -2,16 +2,18 @@
 
 import React, { useState } from 'react';
 import { Images, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { PartnerLogo } from '@/components/properties/PartnerLogo';
 
 interface PropertyGalleryProps {
   images: string[];
   title: string;
   partnerLogo?: string;
   partnerName?: string;
+  partnerColor?: string;
   showPartnerLogo?: boolean;
 }
 
-export function PropertyGallery({ images, title, partnerLogo, partnerName, showPartnerLogo }: PropertyGalleryProps) {
+export function PropertyGallery({ images, title, partnerLogo, partnerName, partnerColor = '#64748b', showPartnerLogo }: PropertyGalleryProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
@@ -55,8 +57,8 @@ export function PropertyGallery({ images, title, partnerLogo, partnerName, showP
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
           {/* Partner logo badge */}
           {showPartnerLogo && partnerLogo && (
-            <div className="absolute top-3 right-3 h-9 rounded-lg overflow-hidden shadow-lg">
-              <img src={partnerLogo} alt={partnerName || ''} className="h-9 object-contain" />
+            <div className="absolute top-3 right-3 h-9 rounded-lg overflow-hidden shadow-lg bg-white/80">
+              <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[24px] px-1" />
             </div>
           )}
         </div>
@@ -76,9 +78,9 @@ export function PropertyGallery({ images, title, partnerLogo, partnerName, showP
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
             {/* Partner logo badge */}
             {showPartnerLogo && partnerLogo && (
-              <div className="absolute top-2 right-2 h-7 rounded-lg overflow-hidden shadow-md">
-                <img src={partnerLogo} alt={partnerName || ''} className="h-7 object-contain" />
-              </div>
+            <div className="absolute top-2 right-2 h-7 rounded-lg overflow-hidden shadow-md bg-white/80">
+              <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[20px] px-1" />
+            </div>
             )}
 
             {/* Si es la 5ta foto y hay más fotos disponibles */}
@@ -120,8 +122,8 @@ export function PropertyGallery({ images, title, partnerLogo, partnerName, showP
               />
               {/* Partner logo badge on lightbox */}
               {showPartnerLogo && partnerLogo && (
-                <div className="absolute top-4 right-4 h-10 rounded-lg overflow-hidden shadow-xl">
-                  <img src={partnerLogo} alt={partnerName || ''} className="h-10 object-contain" />
+                <div className="absolute top-4 right-4 h-10 rounded-lg overflow-hidden shadow-xl bg-white/80">
+                  <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[28px] px-1" />
                 </div>
               )}
             </div>

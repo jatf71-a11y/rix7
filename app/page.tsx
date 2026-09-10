@@ -7,6 +7,7 @@ import { PropertyMap } from '@/components/map/PropertyMap';
 import { PropertyFilters } from '@/components/properties/PropertyFilters';
 import { PropertyGrid } from '@/components/properties/PropertyGrid';
 import { FeaturedCarousel } from '@/components/properties/FeaturedCarousel';
+import { PartnerLogosCarousel } from '@/components/properties/PartnerLogosCarousel';
 import { Map, List, Loader2 } from 'lucide-react';
 
 // ═══ HAVERSINE: Distancia en km entre dos coordenadas ═══
@@ -27,6 +28,50 @@ const DEFAULT_COUNTS: Record<PropertyType, number> = {
   all: 0, apartment: 0, house: 0, premium: 0, parcel: 0,
   office: 0, land: 0, parking: 0, local: 0, warehouse: 0,
 };
+
+// ═══ Ciudades de Chile: Plaza de Armas / centro cívico ═══
+const CHILEAN_CITIES = [
+  { name: 'Santiago', lat: -33.4425, lng: -70.6530 },
+  { name: 'Valparaíso', lat: -33.0472, lng: -71.6127 },
+  { name: 'Concepción', lat: -36.8270, lng: -73.0503 },
+  { name: 'Antofagasta', lat: -23.6509, lng: -70.3975 },
+  { name: 'Temuco', lat: -38.7359, lng: -72.5904 },
+  { name: 'Rancagua', lat: -34.1708, lng: -70.7404 },
+  { name: 'Talca', lat: -35.4264, lng: -71.6554 },
+  { name: 'Arica', lat: -18.4783, lng: -70.3126 },
+  { name: 'Iquique', lat: -20.2133, lng: -70.1503 },
+  { name: 'Puerto Montt', lat: -41.4693, lng: -72.9424 },
+  { name: 'La Serena', lat: -29.9027, lng: -71.2520 },
+  { name: 'Coquimbo', lat: -29.9533, lng: -71.3395 },
+  { name: 'Osorno', lat: -40.5730, lng: -73.1350 },
+  { name: 'Valdivia', lat: -39.8196, lng: -73.2452 },
+  { name: 'Calama', lat: -22.4535, lng: -68.9286 },
+  { name: 'Copiapó', lat: -27.3668, lng: -70.3323 },
+  { name: ' Chillán', lat: -36.6066, lng: -72.1034 },
+  { name: 'Punta Arenas', lat: -53.1638, lng: -70.9171 },
+  { name: 'Curicó', lat: -34.9828, lng: -71.2369 },
+  { name: 'Quilpué', lat: -33.0475, lng: -71.4425 },
+  { name: 'Vina del Mar', lat: -33.0153, lng: -71.5500 },
+  { name: 'San Bernardo', lat: -33.5926, lng: -70.6992 },
+  { name: 'Talcahuano', lat: -36.7167, lng: -73.1167 },
+  { name: 'Puerto Varas', lat: -41.3167, lng: -72.9833 },
+  { name: 'Castro', lat: -42.4724, lng: -73.7620 },
+];
+
+function findNearestCity(lat: number, lng: number): { name: string; lat: number; lng: number } {
+  let best = CHILEAN_CITIES[0];
+  let bestDist = Infinity;
+  for (const city of CHILEAN_CITIES) {
+    const dLat = city.lat - lat;
+    const dLng = city.lng - lng;
+    const dist = dLat * dLat + dLng * dLng; // sq-dist is enough for comparison
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = city;
+    }
+  }
+  return best;
+}
 
 function HomePageContent() {
   const searchParams = useSearchParams();
@@ -58,32 +103,43 @@ function HomePageContent() {
   const [selectedCommune, setSelectedCommune] = useState<string | null>(null);
   const [targetLocation, setTargetLocation] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
 
-  // Nearby mode (ubicación del usuario)
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>({ lat: -33.4489, lng: -70.6693 });
+  // Centro del mapa: Plaza de Armas de la ciudad del usuario (se detecta al montar)
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: -33.4425, lng: -70.6530 }); // Santiago por defecto
+
+  // Nearby mode (ubicación del usuario) — solo se setea cuando presiona "Mi Ubicación"
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [nearbyActive, setNearbyActive] = useState(false);
   const NEARBY_RADIUS_KM = 5;
 
   // Hover / Select en mapa
   const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
-  const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
+  const [mobileView, setMobileView] = useState<'list' | 'map'>('map');
 
-  // ═══ Geolocation on mount — detectar ubicación del usuario para el mapa ═══
+  // Ubicación inicial: Santiago centro. La detección real ocurre SOLO cuando el
+  // usuario la pide explícitamente (botón "Mi Ubicación" → toggleNearby), que
+  // ya tiene su propio fallback. No llamamos a la geolocation API al montar:
+  // en redes donde el network location provider de Chrome está bloqueado
+  // (error 403 en consola), la llamada automática solo ensucia la consola y
+  // dispara un prompt de permisos innecesario.
+
+  // Al montar, detectar la ciudad del usuario vía IP (geolocation de navegador
+  // queda fuera: Chrome la bloquea en varias redes con error 403 en consola).
+  // Si falla, se queda en Santiago centro. Sin prompt de permisos.
   useEffect(() => {
-    const DEV_FALLBACK = { lat: -33.4489, lng: -70.6693 }; // Santiago centro
-    if (!navigator.geolocation) {
-      setUserLocation(DEV_FALLBACK);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-      },
-      () => {
-        setUserLocation(DEV_FALLBACK);
-      },
-      { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
-    );
+    let cancelled = false;
+    fetch('https://ipapi.co/json/')
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((data) => {
+        if (cancelled || typeof data?.latitude !== 'number' || typeof data?.longitude !== 'number') return;
+        const nearest = findNearestCity(data.latitude, data.longitude);
+        setMapCenter({ lat: nearest.lat, lng: nearest.lng });
+      })
+      .catch(() => {
+        // Fallback: Santiago centro (ya es el default de mapCenter)
+      });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -194,6 +250,17 @@ function HomePageContent() {
   const newPropertiesCount = useMemo(() => {
     return serverProperties.filter((p) => p.year_built != null && p.year_built > currentYear).length;
   }, [serverProperties, currentYear]);
+
+  // 6. Conteo por socio (partner_id) para el carrusel de socios
+  const partnerCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const p of serverProperties) {
+      if (p.partner_id) {
+        counts[p.partner_id] = (counts[p.partner_id] || 0) + 1;
+      }
+    }
+    return counts;
+  }, [serverProperties]);
 
   // Sincronizar URL (solo al montar)
   useEffect(() => {
@@ -317,7 +384,7 @@ function HomePageContent() {
     filters.searchQuery === '' && filters.newPropertyType === null;
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-64px)] overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-64px)] overflow-hidden">
       {/* Barra Superior de Filtros */}
       <PropertyFilters
         filters={filters}
@@ -359,14 +426,14 @@ function HomePageContent() {
       </div>
 
       {/* Split Layout: Grid | Mapa */}
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden relative min-h-0">
+      <div className="flex-1 grid grid-rows-[1fr] grid-cols-1 md:grid-cols-12 overflow-hidden relative min-h-0">
         {/* Grid de Propiedades */}
         <section
-          className={`md:col-span-6 lg:col-span-7 h-full p-2 pt-3 md:px-4 md:pt-[52px] md:pb-4 ${
+          className={`md:col-span-6 lg:col-span-7 h-full min-h-0 p-2 pt-3 md:px-4 md:pt-[52px] md:pb-4 ${
             mobileView === 'map' ? 'hidden md:block' : 'block'
           }`}
         >
-          <div className="p-4 pb-20 md:pb-6 h-full rounded-2xl border border-slate-200 overflow-hidden shadow-sm bg-white">
+          <div className="p-4 pb-20 md:pb-6 h-full rounded-2xl border border-slate-200 overflow-y-auto shadow-sm bg-white">
             <div className="flex items-baseline justify-between mb-2">
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-black text-slate-900">
@@ -383,6 +450,11 @@ function HomePageContent() {
                 {propertiesFiltered.length} resultados
               </span>
             </div>
+
+            {/* Socios estratégicos — solo en la vista por defecto (carrusel) para no competir con la grilla */}
+            {isDefaultState && !isLoading && propertiesFiltered.length > 0 && (
+              <PartnerLogosCarousel partnerCounts={partnerCounts} />
+            )}
 
             {/* Vista: Carrusel destacado (sin filtros) o Grid de propiedades (con filtros) */}
             {isDefaultState && !isLoading && propertiesFiltered.length > 0 ? (
@@ -406,7 +478,7 @@ function HomePageContent() {
 
         {/* Mapa GIS */}
         <section
-          className={`md:col-span-6 lg:col-span-5 h-full relative p-2 pt-3 md:px-4 md:pt-[52px] md:pb-4 ${
+          className={`md:col-span-6 lg:col-span-5 h-full min-h-0 relative p-2 pt-3 md:px-4 md:pt-[52px] md:pb-4 ${
             mobileView === 'list' ? 'hidden md:block' : 'block'
           }`}
         >
@@ -421,6 +493,7 @@ function HomePageContent() {
             isRent={filters.operationType === 'for_rent'}
             regionName={selectedRegion ?? undefined}
             communeName={selectedCommune ?? undefined}
+            mapCenter={mapCenter}
             onPropertySelect={(id) => {
               setSelectedPropertyId(id);
               setHoveredPropertyId(id);

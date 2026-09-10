@@ -17,6 +17,7 @@ interface PropertyMapProps {
   regionName?: string;
   communeName?: string;
   externalUserLocation?: { lat: number; lng: number } | null;
+  mapCenter?: { lat: number; lng: number } | null;
 }
 
 const DynamicMapContainer = dynamic(
@@ -33,11 +34,15 @@ const DynamicMapContainer = dynamic(
 );
 
 export function PropertyMap(props: PropertyMapProps) {
-  const { totalResults: _totalResults, isRent: _isRent, regionName: _regionName, communeName: _communeName, ...mapProps } = props;
+  const { totalResults: _totalResults, isRent: _isRent, regionName: _regionName, communeName: _communeName, mapCenter, ...mapProps } = props;
 
   return (
     <div className="w-full h-full relative overflow-hidden rounded-2xl">
-      <DynamicMapContainer {...mapProps} />
+      <DynamicMapContainer
+        {...mapProps}
+        center={mapCenter ? [mapCenter.lng, mapCenter.lat] : undefined}
+        zoom={mapCenter ? 13 : undefined}
+      />
     </div>
   );
 }

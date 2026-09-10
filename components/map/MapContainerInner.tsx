@@ -35,8 +35,8 @@ function createPinSvg(color: string, size: number, isSelected: boolean): string 
 
 function createUserLocationSvg(): string {
   return `<div style="position:relative;width:44px;height:44px;display:flex;align-items:center;justify-content:center;">
-    <div style="position:absolute;inset:0;border-radius:50%;background:rgba(239,68,68,0.18);animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></div>
-    <div style="position:absolute;inset:6px;border-radius:50%;background:rgba(239,68,68,0.28);animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite 0.4s;"></div>
+    <div style="position:absolute;inset:0;border-radius:50%;background:rgba(239,68,68,0.18);animation:ping 3s cubic-bezier(0,0,0.2,1) infinite;"></div>
+    <div style="position:absolute;inset:6px;border-radius:50%;background:rgba(239,68,68,0.28);animation:ping 3s cubic-bezier(0,0,0.2,1) infinite 0.8s;"></div>
     <div style="position:absolute;inset:12px;border-radius:50%;background:#dc2626;border:4px solid white;box-shadow:0 0 0 4px rgba(220,38,38,0.6),0 4px 16px rgba(220,38,38,0.7);"></div>
     <div style="position:absolute;inset:20px;border-radius:50%;background:white;"></div>
   </div>`;
@@ -72,6 +72,7 @@ export default function MapContainerInner({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Map<string, Marker>>(new Map());
+  const openPopupMarkerRef = useRef<Marker | null>(null);
   const userMarkerRef = useRef<Marker | null>(null);
   const effectiveUserLocation = externalUserLocation;
 
@@ -104,7 +105,17 @@ export default function MapContainerInner({
 
     map.current.addControl(new NavigationControl(), 'top-right');
 
+    // El mapa no detecta cambios de tamaño de su contenedor por sí solo.
+    // Sin esto, si el contenedor arranca oculto (vista lista en móvil) o cambia
+    // de tamaño, el canvas queda con dimensiones stale y flyTo/marcadores/ondas
+    // quedan descentrados.
+    const resizeObserver = new ResizeObserver(() => {
+      map.current?.resize();
+    });
+    resizeObserver.observe(mapContainer.current);
+
     return () => {
+      resizeObserver.disconnect();
       if (map.current) {
         map.current.remove();
         map.current = null;
@@ -116,6 +127,7 @@ export default function MapContainerInner({
   // ─── Centrar mapa en ubicación del usuario + crear marker ──────────
   useEffect(() => {
     if (!map.current || !effectiveUserLocation) return;
+    if (!nearbyActive) return; // Solo mostrar pin cuando el usuario activa "Mi Ubicación"
     if (targetLocation) return;
 
     map.current.flyTo({
@@ -155,7 +167,7 @@ export default function MapContainerInner({
           <div style="padding:12px 14px 10px;">
             <div style="display:flex;align-items:center;gap:8px;">
               <div style="position:relative;width:10px;height:10px;flex-shrink:0;">
-                <div style="position:absolute;inset:-3px;border-radius:50%;background:rgba(220,38,38,0.2);animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></div>
+                <div style="position:absolute;inset:-3px;border-radius:50%;background:rgba(220,38,38,0.2);animation:ping 3s cubic-bezier(0,0,0.2,1) infinite;"></div>
                 <div style="position:absolute;inset:0;border-radius:50%;background:#dc2626;"></div>
               </div>
               <div style="font-weight:700;font-size:13px;color:#0f172a;">Mi Ubicación</div>
@@ -178,6 +190,7 @@ export default function MapContainerInner({
 
   useEffect(() => {
     if (!map.current || !effectiveUserLocation) return;
+    if (!nearbyActive) return; // Solo mostrar ondas cuando el usuario activa "Mi Ubicación"
     const mapInstance = map.current;
     const overlay = pingOverlayRef.current;
     if (!overlay) return;
@@ -199,13 +212,15 @@ export default function MapContainerInner({
     updatePosition();
     mapInstance.on('move', updatePosition);
     mapInstance.on('zoom', updatePosition);
+    mapInstance.on('resize', updatePosition);
 
     return () => {
       overlay.style.display = 'none';
       mapInstance.off('move', updatePosition);
       mapInstance.off('zoom', updatePosition);
+      mapInstance.off('resize', updatePosition);
     };
-  }, [effectiveUserLocation]);
+  }, [effectiveUserLocation, nearbyActive]);
 
   // ─── Property markers (viewport-culled) ─────────────────────────────
   const updateMarkers = useCallback(() => {
@@ -229,6 +244,7 @@ export default function MapContainerInner({
 
     for (const [id, marker] of Array.from(markersRef.current.entries())) {
       if (!visibleIds.has(id)) {
+        if (openPopupMarkerRef.current === marker) openPopupMarkerRef.current = null;
         marker.remove();
         markersRef.current.delete(id);
       }
@@ -261,14 +277,21 @@ export default function MapContainerInner({
       el.dataset.propertyId = p.id;
       el.style.cursor = 'pointer';
       el.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))';
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        onPropertySelect?.(p.id);
-      });
 
       const marker = new Marker({ element: el, offset: [0, -size * 0.65] })
         .setLngLat([p.lng, p.lat])
         .addTo(mapInstance);
+
+      // Click en el pin: resalta la propiedad y despliega el popup resumen
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onPropertySelect?.(p.id);
+        if (openPopupMarkerRef.current && openPopupMarkerRef.current !== marker) {
+          try { openPopupMarkerRef.current.getPopup()?.remove(); } catch {}
+        }
+        marker.togglePopup();
+        openPopupMarkerRef.current = marker.getPopup()?.isOpen() ? marker : null;
+      });
 
       const isRent = p.status === 'for_rent';
       const statusColor = isRent ? '#2563EB' : '#059669';
@@ -280,7 +303,7 @@ export default function MapContainerInner({
             <div style="padding:12px 14px 10px;">
               <div style="display:flex;align-items:start;justify-content:space-between;gap:6px;">
                 <div style="flex:1;min-width:0;">
-                  <div style="font-weight:700;font-size:13px;color:#0f172a;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.title}</div>
+                  <a href="/properties/${p.id}" title="Ver ficha de la propiedad" style="display:block;font-weight:700;font-size:13px;color:#0f172a;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none;">${p.title}</a>
                   <div style="display:flex;align-items:center;gap:4px;margin-top:3px;">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     <span style="color:#64748b;font-size:10px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.address}, ${p.city}</span>
@@ -342,7 +365,24 @@ export default function MapContainerInner({
     map.current.flyTo({ center: [lng, lat], zoom: z, duration: 1500 });
   }, [targetLocation]);
 
-  // ─── Auto-fit bounds (sin ubicación del usuario) ───────────────────
+  // ─── Centrar en la Plaza de Armas de la ciudad (cuando geolocation la resuelve) ───
+  const prevCenterKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!map.current || !center) return;
+    const key = `${center[0]},${center[1]}`;
+    if (prevCenterKeyRef.current === null) {
+      // Primer render: el mapa ya se construyó con este centro
+      prevCenterKeyRef.current = key;
+      return;
+    }
+    if (prevCenterKeyRef.current === key) return;
+    prevCenterKeyRef.current = key;
+    if (targetLocation) return;
+    if (effectiveUserLocation) return;
+    map.current.flyTo({ center: [center[0], center[1]], zoom: 13, duration: 2000 });
+  }, [center, targetLocation, effectiveUserLocation]);
+
+  // ─── Auto-fit bounds (solo en cambios de filtro posteriores) ─────────
   const prevCountRef = useRef(properties.length);
   const mountedRef = useRef(false);
 
@@ -356,6 +396,12 @@ export default function MapContainerInner({
     if (properties.length === prevCountRef.current) return;
     if (targetLocation) return;
     if (effectiveUserLocation) return;
+    // Primera carga de datos: NO auto-ajustar a todo Chile. El mapa debe
+    // quedarse centrado en la Plaza de Armas de la ciudad del usuario.
+    if (prevCountRef.current === 0) {
+      prevCountRef.current = properties.length;
+      return;
+    }
     prevCountRef.current = properties.length;
     if (properties.length === 0) return;
 
@@ -408,7 +454,7 @@ export default function MapContainerInner({
       )}
 
       {/* Botón volver a mi ubicación */}
-      {effectiveUserLocation && (
+      {nearbyActive && effectiveUserLocation && (
         <button
           onClick={flyToMyLocation}
           className="absolute bottom-14 right-4 z-[1000] p-3 bg-red-600 text-white rounded-full shadow-xl shadow-red-600/30 hover:bg-red-700 hover:scale-105 active:scale-95 transition-all"

@@ -1,7 +1,6 @@
-const CACHE_NAME = 'rix7-v1';
+const CACHE_NAME = 'rix7-v2'; // v2: ya no se pre-cachea '/' (evita servir HTML stale)
 const TILE_CACHE = 'rix7-tiles-v1';
 const STATIC_ASSETS = [
-  '/',
   '/manifest.json',
 ];
 

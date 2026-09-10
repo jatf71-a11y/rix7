@@ -6,13 +6,29 @@ import { AuthProvider } from '@/components/auth/AuthProvider';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { CurrencyProvider } from '@/components/currency/CurrencyProvider';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'Rix7 | Portal Inmobiliario Inteligente & Web GIS Chile',
-  description: 'Plataforma inmobiliaria moderna para todo Chile con mapa MapLibre GL JS, selector de monedas ($, UF, US$), calculadora de dividendo y catálogo en tiempo real.',
+  description: SITE_DESCRIPTION,
   manifest: '/manifest.json',
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: 'website',
+    locale: 'es_CL',
+    siteName: SITE_NAME,
+    url: '/',
+    title: 'Rix7 | Portal Inmobiliario Inteligente & Web GIS Chile',
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Rix7 | Portal Inmobiliario Inteligente & Web GIS Chile',
+    description: SITE_DESCRIPTION,
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

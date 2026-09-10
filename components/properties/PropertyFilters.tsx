@@ -512,14 +512,14 @@ export function PropertyFilters({
             )}
           </div>
 
-          {/* Botón de Mi Ubicación (Nearby) — solo icono, mismo tamaño que categorías */}
+          {/* Botón de Mi Ubicación (Nearby) — icono + contador */}
           {onToggleNearby && (
             <button
               onClick={onToggleNearby}
-              className={`relative flex items-center justify-center w-8 h-8 rounded-lg text-xs font-bold transition-all border ${
+              className={`relative flex items-center justify-center w-8 h-8 rounded-lg text-xs font-bold transition-all ${
                 nearbyActive
-                  ? 'bg-red-600 text-white border-red-600 shadow-sm shadow-red-500/20'
-                  : 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-900'
+                  ? 'bg-red-600 text-white shadow-sm shadow-red-500/20'
+                  : 'bg-blue-600 text-white shadow-sm shadow-blue-500/20 hover:bg-blue-700'
               }`}
               title={nearbyActive ? 'Todas' : 'Mi Ubicación'}
             >

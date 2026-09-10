@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getPartnerBySlug, partners } from '@/lib/data/partners';
+import { PartnerLogo } from '@/components/properties/PartnerLogo';
 import { ArrowLeft, MapPin, Bed, Bath, Maximize2, LampDesk, ExternalLink, Building2 } from 'lucide-react';
 import { Property } from '@/lib/types/property';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
@@ -55,7 +56,7 @@ export default function EmpresaPage({ params }: { params: { slug: string } }) {
           </Link>
           <div className="flex items-center gap-3">
             <div className="h-8 overflow-hidden">
-              <img src={partner.logo} alt={partner.name} className="h-8 object-contain" />
+              <PartnerLogo logo={partner.logo} name={partner.name} color={partner.color} className="h-full w-auto" />
             </div>
             <span className="text-sm font-bold text-slate-800">{partner.name}</span>
           </div>
@@ -67,7 +68,7 @@ export default function EmpresaPage({ params }: { params: { slug: string } }) {
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex items-center gap-6">
             <div className="h-16 overflow-hidden">
-              <img src={partner.logo} alt={partner.name} className="h-16 object-contain" />
+              <PartnerLogo logo={partner.logo} name={partner.name} color={partner.color} className="h-full w-auto" />
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-black text-slate-900">{partner.name}</h1>
@@ -143,7 +144,7 @@ export default function EmpresaPage({ params }: { params: { slug: string } }) {
                   {/* Partner logo badge — solo en destacadas o nuevas */}
                   {(property.featured || (property.created_at && (Date.now() - new Date(property.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000)) && (
                     <div className="absolute top-3 right-3 h-8 rounded-lg overflow-hidden shadow-lg">
-                      <img src={partner.logo} alt={partner.name} className="h-8 object-contain" />
+                      <PartnerLogo logo={partner.logo} name={partner.name} color={partner.color} className="h-full w-auto" />
                     </div>
                   )}
                 </div>

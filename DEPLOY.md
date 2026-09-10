@@ -121,8 +121,10 @@ Para revertir código: `git revert <commit>` + push (dispara nuevo deploy).
 
 ---
 
-## 9. Dominio propio (opcional)
+## 9. Dominio propio: rix7.cl
 
-1. Vercel → Settings → **Domains** → agrega `rix7.cl` (o el que uses).
-2. En tu registrador crea CNAME → `cname.vercel-dns.com`.
+1. Vercel → Settings → **Domains** → agrega `rix7.cl` (y `www.rix7.cl`, con redirect automático al dominio principal).
+2. En tu registrador crea CNAME → `cname.vercel-dns.com` (o los nameservers de Vercel si prefieres delegar todo).
 3. Vercel emite SSL automático (Let's Encrypt). HSTS ya está activo vía `vercel.json`.
+4. SEO ya está cableado al dominio: `NEXT_PUBLIC_SITE_URL=https://rix7.cl` (ver `.env.example`) fija `metadataBase`, Open Graph y el host en `robots.txt`; `https://rix7.cl/sitemap.xml` se genera con todas las propiedades y empresas.
+5. Verifica tras el deploy: `curl -s https://rix7.cl/robots.txt` y `curl -s https://rix7.cl/sitemap.xml | head -20`.
