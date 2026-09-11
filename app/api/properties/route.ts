@@ -2,18 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Property, PropertyType } from '@/lib/types/property';
 import { ALL_PROPERTIES } from '@/lib/data/propertyCatalog';
 import { normalizeForSearch } from '@/lib/utils/text';
+import {
+  matchesBaseFilter,
+  MarkerFilterParams,
+} from '@/lib/utils/markers';
 
 // ═══ Parámetros de filtrado (sin la operación, que se evalúa aparte) ═══
-interface BaseFilterParams {
-  searchQuery: string;
-  region: string;
-  commune: string;
-  minPrice: number | null;
-  maxPrice: number | null;
-  minBedrooms: number | null;
-  minBathrooms: number | null;
-  minPrivates: number | null;
-}
+interface BaseFilterParams extends MarkerFilterParams {}
 
 /**
  * Índice de texto precalculado (id → campos normalizados).
@@ -36,71 +31,30 @@ function getSearchIndex(): Map<string, string> {
   return searchIndex;
 }
 
-// ═══ Base filter: operation + location + search + price + bedrooms + bathrooms ═══
-// Used for both the main result set AND category counts (without propertyType)
-function baseFilter(p: Property, operation: string, params: BaseFilterParams): boolean {
-  const { searchQuery, region, commune, minPrice, maxPrice, minBedrooms, minBathrooms, minPrivates } = params;
-
-  // Operación
-  if (operation !== 'all' && p.status !== operation) return false;
-
-  // Precio
-  if (minPrice && p.price < minPrice) return false;
-  if (maxPrice && p.price > maxPrice) return false;
-
-  // Dormitorios (exacto, excepto 5+)
-  if (minBedrooms !== null) {
-    if (minBedrooms === 5) {
-      if (p.bedrooms < 5) return false;
-    } else {
-      if (p.bedrooms !== minBedrooms) return false;
-    }
-  }
-
-  // Baños (exacto, excepto 4+)
-  if (minBathrooms !== null) {
-    if (minBathrooms === 4) {
-      if (p.bathrooms < 4) return false;
-    } else {
-      if (p.bathrooms !== minBathrooms) return false;
-    }
-  }
-
-  // Privados (el selector de la UI ofrece "4+", igual que baños)
-  if (minPrivates !== null) {
-    if (minPrivates >= 4) {
-      if ((p.privates ?? 0) < 4) return false;
-    } else {
-      if ((p.privates ?? 0) !== minPrivates) return false;
-    }
-  }
-
-  // Comuna
-  if (commune && p.city?.toLowerCase() !== commune) return false;
-
-  // Región (solo si no hay comuna seleccionada)
-  if (!commune && region && p.state) {
-    if (!p.state.toLowerCase().includes(region) && !region.includes(p.state.toLowerCase())) return false;
-  }
-
-  // Búsqueda por texto (contra el índice normalizado)
-  if (searchQuery) {
-    const haystack = getSearchIndex().get(p.id);
-    if (!haystack || !haystack.includes(searchQuery)) return false;
-  }
-
-  return true;
-}
-
 /** Conteos de venta/arriendo del set base, en una sola pasada. */
 function countOperations(params: BaseFilterParams): { for_sale: number; for_rent: number } {
+  const index = getSearchIndex();
   let for_sale = 0;
   let for_rent = 0;
   for (const p of ALL_PROPERTIES) {
-    if (baseFilter(p, 'for_sale', params)) for_sale++;
-    else if (baseFilter(p, 'for_rent', params)) for_rent++;
+    if (matchesBaseFilter(p, 'for_sale', params, index)) for_sale++;
+    else if (matchesBaseFilter(p, 'for_rent', params, index)) for_rent++;
   }
   return { for_sale, for_rent };
+}
+
+/**
+ * Proyección ligera para la vista de lista: sin coordenadas ni datos de
+ * agente ni zip (los popups del mapa usan /api/markers y las fichas usan
+ * /api/properties/[id]). Recorta ~60% del payload de la lista.
+ */
+function toListProperty(p: Property) {
+  const {
+    lat: _lat, lng: _lng, zip_code: _zip,
+    agent_name: _an, agent_email: _ae, agent_phone: _ap, agent_avatar: _aa,
+    ...rest
+  } = p;
+  return rest;
 }
 
 export async function GET(request: NextRequest) {
@@ -153,7 +107,9 @@ export async function GET(request: NextRequest) {
       });
 
       if (!error && data && data.length > 0) {
-        const filtered = operation === 'all' ? data : data.filter((p: any) => p.status === operation);
+        const filtered = data
+          .filter((p: any) => matchesBaseFilter(p, operation, baseParams, getSearchIndex()))
+          .map(toListProperty);
         const start = (page - 1) * limit;
 
         // Category counts from Supabase data (base filter without propertyType)
@@ -185,7 +141,9 @@ export async function GET(request: NextRequest) {
   // ═══ Filtro local del catálogo nacional ═══
 
   // 1. Base set: operation + location + search + price + bedrooms + bathrooms
-  const base = ALL_PROPERTIES.filter((p) => baseFilter(p, operation, baseParams));
+  const base = ALL_PROPERTIES.filter((p) =>
+    matchesBaseFilter(p, operation, baseParams, getSearchIndex())
+  );
 
   // 2. Category counts: derive from base set (ignore propertyType for counts)
   const categoryCounts: Record<string, number> = { all: base.length };
@@ -221,7 +179,7 @@ export async function GET(request: NextRequest) {
   }
 
   const start = (page - 1) * limit;
-  const paged = filtered.slice(start, start + limit);
+  const paged = filtered.slice(start, start + limit).map(toListProperty);
 
   return NextResponse.json({
     success: true,

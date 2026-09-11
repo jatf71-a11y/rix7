@@ -2,11 +2,11 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { Property } from '@/lib/types/property';
+import { PropertyMarker } from '@/lib/utils/markers';
 import { Loader2 } from 'lucide-react';
 
 interface PropertyMapProps {
-  properties: Property[];
+  properties: PropertyMarker[];
   selectedPropertyId?: string | null;
   targetLocation?: { lat: number; lng: number; zoom: number } | null;
   nearbyActive?: boolean;
