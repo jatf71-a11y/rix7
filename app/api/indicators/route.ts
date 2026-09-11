@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 
-export const revalidate = 3600; // Revalidar cada 1 hora
+// Route dinámico: la prerenderización estática intentaba fetch a mindicador.cl
+// durante el build (rompiendo el incremental cache) y congelaba la UF/dólar
+// hasta el próximo deploy. El `next: { revalidate }` del fetch sigue
+// cacheando la llamada externa 1 h, que es lo que protege la cuota de la API.
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {

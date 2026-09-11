@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, memo } from 'react';
 import Link from 'next/link';
 import { Property } from '@/lib/types/property';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
-import { formatPrice, formatArea, getPropertyTypeLabel, getStatusLabel } from '@/lib/utils/formatters';
+import { formatArea, getPropertyTypeLabel, getStatusLabel } from '@/lib/utils/formatters';
 import { Bed, Bath, Maximize2, Heart, ChevronLeft, ChevronRight, MapPin, LampDesk } from 'lucide-react';
 
 interface PropertyCardProps {
@@ -19,7 +19,7 @@ function PropertyCardComponent({ property, isHovered, onMouseEnter, onMouseLeave
   const [isFavorited, setIsFavorited] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
-  const { currency } = useCurrency();
+  const { format } = useCurrency();
 
   const isRent = property.status === 'for_rent';
   const isNew = property.created_at ? (Date.now() - new Date(property.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000 : false;
@@ -176,7 +176,7 @@ function PropertyCardComponent({ property, isHovered, onMouseEnter, onMouseLeave
         <div className="p-4 sm:p-5">
           <div className="flex items-baseline justify-between">
             <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
-              {formatPrice(property.price, currency, 'es-CL', isRent)}
+              {format(property.price, isRent)}
             </span>
           </div>
 

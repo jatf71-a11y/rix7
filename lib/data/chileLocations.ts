@@ -625,13 +625,6 @@ export function findLocation(query: string): {
 }
 
 /**
- * Retorna el total de comunas en el dataset.
- */
-export function getTotalCommunes(): number {
-  return CHILE_REGIONS.reduce((sum, r) => sum + r.communes.length, 0);
-}
-
-/**
  * Encuentra la comuna y región más cercana a un par de coordenadas (lat, lng).
  */
 export function findNearestChileLocation(lat: number, lng: number): {

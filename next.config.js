@@ -5,9 +5,11 @@ const nextConfig = {
   // Forked children were dying on this machine (low free RAM / Windows fork
   // flakiness), crashing every dev route with "Jest worker encountered
   // 2 child process exceptions".
-  experimental: {
-    workerThreads: true,
-  },
+  // Solo en desarrollo: activo durante `next build` rompe el IPC del cache
+  // incremental ("Invalid URL http://localhost:undefined ... revalidateTag").
+  experimental: process.env.NODE_ENV === 'development'
+    ? { workerThreads: true }
+    : {},
   images: {
     remotePatterns: [
       {
@@ -21,13 +23,6 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
-  },
-  webpack: (config) => {
-    // Fix maplibre-gl worker in Next.js
-    config.resolve.alias = {
-      ...config.resolve.alias,
-    };
-    return config;
   },
 };
 

@@ -1027,7 +1027,3 @@ export function getCatalogPropertyById(id: string): Property | undefined {
   return PROPERTY_INDEX.get(id);
 }
 
-/** Catálogo completo en memoria (manuales + generados). */
-export function getAllCatalogProperties(): Property[] {
-  return ALL_PROPERTIES;
-}

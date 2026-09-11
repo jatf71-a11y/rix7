@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Property } from '@/lib/types/property';
 import { PropertyCard } from './PropertyCard';
@@ -23,6 +23,33 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
   return chunks;
 }
 
+/**
+ * Envoltura memoizada por tarjeta: entrega callbacks con identidad estable
+ * para que `memo(PropertyCard)` no se invalide en cada render del grid
+ * (antes cada hover re-renderizaba todas las filas visibles).
+ */
+const PropertyCardSlot = memo(function PropertyCardSlot({
+  property,
+  isHovered,
+  onHoverProperty,
+}: {
+  property: Property;
+  isHovered: boolean;
+  onHoverProperty?: (id: string | null) => void;
+}) {
+  const handleEnter = useCallback(() => onHoverProperty?.(property.id), [onHoverProperty, property.id]);
+  const handleLeave = useCallback(() => onHoverProperty?.(null), [onHoverProperty]);
+
+  return (
+    <PropertyCard
+      property={property}
+      isHovered={isHovered}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+    />
+  );
+});
+
 export function PropertyGrid({
   properties,
   loading,
@@ -32,7 +59,8 @@ export function PropertyGrid({
 }: PropertyGridProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const rows = chunkArray(properties, 2);
+  // Sin useMemo esto recreaba ~1.000 arrays en cada render del grid.
+  const rows = useMemo(() => chunkArray(properties, 2), [properties]);
 
   const virtualizer = useVirtualizer({
     count: rows.length,
@@ -107,12 +135,11 @@ export function PropertyGrid({
               }}
             >
               {rowItems.map((property) => (
-                <PropertyCard
+                <PropertyCardSlot
                   key={property.id}
                   property={property}
                   isHovered={hoveredPropertyId === property.id}
-                  onMouseEnter={() => onHoverProperty && onHoverProperty(property.id)}
-                  onMouseLeave={() => onHoverProperty && onHoverProperty(null)}
+                  onHoverProperty={onHoverProperty}
                 />
               ))}
             </div>

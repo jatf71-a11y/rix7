@@ -9,33 +9,8 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   TOOLTIP LIGERO PARA MAPA MAPLIBRE
+   ONDAS EXPANDENTES DESDE "MI UBICACIÓN" (mapa GIS)
    ═══════════════════════════════════════════════════════════════════ */
-.rix7-tooltip,
-.rix7-tooltip-selected {
-  background: white !important;
-  border: none !important;
-  border-radius: 8px !important;
-  padding: 3px 8px !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-  font-family: system-ui, -apple-system, sans-serif !important;
-}
-
-.rix7-tooltip-selected {
-  background: #0f172a !important;
-  color: white !important;
-}
-
-.rix7-tooltip::before,
-.rix7-tooltip-selected::before {
-  border-top-color: white !important;
-}
-
-.rix7-tooltip-selected::before {
-  border-top-color: #0f172a !important;
-}
-
-
 .ping-ring {
   position: absolute;
   left: var(--ring-x, 50%);

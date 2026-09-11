@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from 'react';
 import { calculateMortgage } from '@/lib/utils/mortgage';
-import { formatPrice } from '@/lib/utils/formatters';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
 import { Calculator } from 'lucide-react';
 
@@ -10,15 +9,17 @@ interface MortgageCalculatorProps {
   propertyPrice: number;
 }
 
+// Parámetros fijos del simulador (aún no editables desde la UI)
+const PROPERTY_TAX_RATE = 0.4; // Contribuciones anuales estimadas (% del valor)
+const ANNUAL_INSURANCE = 380000; // Seguro desgravamen + sismo anual (CLP)
+const MONTHLY_HOA = 120000; // Gastos comunes promedio (CLP)
+
 export function MortgageCalculator({ propertyPrice }: MortgageCalculatorProps) {
-  const { currency } = useCurrency();
+  const { format } = useCurrency();
   const [homePrice, setHomePrice] = useState(propertyPrice);
   const [downPaymentPercent, setDownPaymentPercent] = useState(20);
   const [loanTermYears, setLoanTermYears] = useState(25);
   const [interestRate, setInterestRate] = useState(4.65); // Tasa hipotecaria anual promedio
-  const [propertyTaxRate, setPropertyTaxRate] = useState(0.4); // Contribuciones anuales estimadas
-  const [annualInsurance, setAnnualInsurance] = useState(380000); // Seguro desgravamen + sismo anual en CLP
-  const [monthlyHoa, setMonthlyHoa] = useState(120000); // Gastos comunes promedio en CLP
 
   // Calcular desglose en tiempo real
   const breakdown = useMemo(() => {
@@ -27,11 +28,11 @@ export function MortgageCalculator({ propertyPrice }: MortgageCalculatorProps) {
       downPaymentPercent,
       loanTermYears,
       interestRate,
-      annualPropertyTaxRate: propertyTaxRate,
-      annualHomeInsurance: annualInsurance,
-      monthlyHoa,
+      annualPropertyTaxRate: PROPERTY_TAX_RATE,
+      annualHomeInsurance: ANNUAL_INSURANCE,
+      monthlyHoa: MONTHLY_HOA,
     });
-  }, [homePrice, downPaymentPercent, loanTermYears, interestRate, propertyTaxRate, annualInsurance, monthlyHoa]);
+  }, [homePrice, downPaymentPercent, loanTermYears, interestRate]);
 
   // Porcentajes para la barra visual
   const principalPercent = (breakdown.principalAndInterest / breakdown.monthlyPayment) * 100 || 0;
@@ -60,7 +61,7 @@ export function MortgageCalculator({ propertyPrice }: MortgageCalculatorProps) {
             Dividendo Mensual Estimado
           </span>
           <div className="text-4xl font-extrabold tracking-tight text-white mt-1">
-            {formatPrice(breakdown.monthlyPayment, currency, 'es-CL', true)}
+            {format(breakdown.monthlyPayment, true)}
           </div>
         </div>
 
@@ -92,19 +93,19 @@ export function MortgageCalculator({ propertyPrice }: MortgageCalculatorProps) {
           <div className="grid grid-cols-2 gap-2 mt-3 text-[11px] text-slate-300">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-blue-500" />
-              <span>Dividendo Base: <strong>{formatPrice(breakdown.principalAndInterest, currency, 'es-CL')}</strong></span>
+              <span>Dividendo Base: <strong>{format(breakdown.principalAndInterest)}</strong></span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span>Contribuciones: <strong>{formatPrice(breakdown.monthlyPropertyTax, currency, 'es-CL')}</strong></span>
+              <span>Contribuciones: <strong>{format(breakdown.monthlyPropertyTax)}</strong></span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-amber-400" />
-              <span>Seguros: <strong>{formatPrice(breakdown.monthlyInsurance, currency, 'es-CL')}</strong></span>
+              <span>Seguros: <strong>{format(breakdown.monthlyInsurance)}</strong></span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-purple-400" />
-              <span>Gastos Comunes: <strong>{formatPrice(breakdown.monthlyHoa, currency, 'es-CL')}</strong></span>
+              <span>Gastos Comunes: <strong>{format(breakdown.monthlyHoa)}</strong></span>
             </div>
           </div>
         </div>
@@ -119,7 +120,7 @@ export function MortgageCalculator({ propertyPrice }: MortgageCalculatorProps) {
               Valor de la Propiedad
             </label>
             <span className="text-sm font-bold text-slate-900">
-              {formatPrice(homePrice, currency, 'es-CL')}
+              {format(homePrice)}
             </span>
           </div>
           <input
@@ -140,7 +141,7 @@ export function MortgageCalculator({ propertyPrice }: MortgageCalculatorProps) {
               Pie Inicial ({downPaymentPercent}%)
             </label>
             <span className="text-sm font-bold text-slate-900">
-              {formatPrice(breakdown.downPaymentAmount, currency, 'es-CL')}
+              {format(breakdown.downPaymentAmount)}
             </span>
           </div>
           <input
@@ -160,7 +161,7 @@ export function MortgageCalculator({ propertyPrice }: MortgageCalculatorProps) {
             Plazo del Crédito
           </label>
           <div className="grid grid-cols-3 gap-2">
-            {[15, 20, 25, 30].slice(0, 3).map((years) => (
+            {[15, 20, 25].map((years) => (
               <button
                 key={years}
                 type="button"
@@ -203,15 +204,15 @@ export function MortgageCalculator({ propertyPrice }: MortgageCalculatorProps) {
       <div className="mt-8 pt-6 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl">
         <div>
           <span className="text-[11px] font-semibold text-slate-500 uppercase">Monto Financiado</span>
-          <div className="text-base font-bold text-slate-900">{formatPrice(breakdown.loanAmount, currency, 'es-CL')}</div>
+          <div className="text-base font-bold text-slate-900">{format(breakdown.loanAmount)}</div>
         </div>
         <div>
           <span className="text-[11px] font-semibold text-slate-500 uppercase">Total Intereses Estimados</span>
-          <div className="text-base font-bold text-slate-900">{formatPrice(breakdown.totalInterestPaid, currency, 'es-CL')}</div>
+          <div className="text-base font-bold text-slate-900">{format(breakdown.totalInterestPaid)}</div>
         </div>
         <div>
           <span className="text-[11px] font-semibold text-slate-500 uppercase">Costo Total del Crédito</span>
-          <div className="text-base font-bold text-slate-900">{formatPrice(breakdown.totalCostOverTerm, currency, 'es-CL')}</div>
+          <div className="text-base font-bold text-slate-900">{format(breakdown.totalCostOverTerm)}</div>
         </div>
       </div>
     </div>

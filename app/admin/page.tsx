@@ -3,20 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Users, Building2, TrendingUp, ExternalLink } from 'lucide-react';
-
-interface Partner {
-  id: string;
-  slug: string;
-  name: string;
-  logo: string;
-  description: string;
-  website?: string;
-  color: string;
-}
+import { Partner } from '@/lib/data/partners';
 
 export default function AdminDashboard() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
+  // Métricas reales del catálogo (antes eran números fijos desactualizados)
+  const [catalogStats, setCatalogStats] = useState<{ total: number; categories: number } | null>(null);
 
   useEffect(() => {
     fetch('/api/admin/partners')
@@ -25,6 +18,18 @@ export default function AdminDashboard() {
         if (result.success) setPartners(result.data);
       })
       .finally(() => setLoading(false));
+
+    fetch('/api/properties?limit=1')
+      .then((r) => r.json())
+      .then((result) => {
+        if (!result.success) return;
+        const counts: Record<string, number> = result.categoryCounts || {};
+        setCatalogStats({
+          total: result.totalCatalog ?? result.total ?? 0,
+          categories: Object.values(counts).filter((n) => n > 0).length,
+        });
+      })
+      .catch(() => {});
   }, []);
 
   return (
@@ -55,7 +60,9 @@ export default function AdminDashboard() {
               <Building2 className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-2xl font-black text-slate-900">1742</p>
+              <p className="text-2xl font-black text-slate-900">
+                {catalogStats ? catalogStats.total.toLocaleString('es-CL') : '...'}
+              </p>
               <p className="text-xs font-medium text-slate-500">Propiedades Totales</p>
             </div>
           </div>
@@ -67,8 +74,10 @@ export default function AdminDashboard() {
               <TrendingUp className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <p className="text-2xl font-black text-slate-900">11</p>
-              <p className="text-xs font-medium text-slate-500">Categorías</p>
+              <p className="text-2xl font-black text-slate-900">
+                {catalogStats ? catalogStats.categories : '...'}
+              </p>
+              <p className="text-xs font-medium text-slate-500">Categorías con stock</p>
             </div>
           </div>
         </div>

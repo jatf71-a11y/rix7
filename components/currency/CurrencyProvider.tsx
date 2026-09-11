@@ -1,12 +1,11 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Currency, formatPrice, DEFAULT_UF_RATE, DEFAULT_USD_RATE } from '@/lib/utils/formatters';
 
 export interface ExchangeRates {
   uf: number;
   dolar: number;
-  utm?: number;
   source?: string;
   date?: string;
 }
@@ -15,7 +14,7 @@ interface CurrencyContextType {
   currency: Currency;
   setCurrency: (currency: Currency) => void;
   rates: ExchangeRates;
-  isLoadingRates: boolean;
+  /** Formatea un monto en CLP con la moneda activa y las tasas del Banco Central */
   format: (amountInClp: number, isRent?: boolean) => string;
 }
 
@@ -28,7 +27,6 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     dolar: DEFAULT_USD_RATE,
     source: 'Banco Central de Chile',
   });
-  const [isLoadingRates, setIsLoadingRates] = useState(true);
 
   // 1. Cargar preferencia local guardada
   useEffect(() => {
@@ -48,36 +46,36 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
           setRates({
             uf: data.uf.value,
             dolar: data.dolar.value,
-            utm: data.utm?.value,
             source: data.source || 'Banco Central de Chile',
             date: data.date,
           });
         }
       } catch (err) {
         console.error('Error al cargar tipos de cambio oficiales:', err);
-      } finally {
-        setIsLoadingRates(false);
       }
     }
 
     fetchOfficialRates();
   }, []);
 
-  const setCurrency = (c: Currency) => {
+  const setCurrency = useCallback((c: Currency) => {
     setCurrencyState(c);
     localStorage.setItem('rix7_currency', c);
-  };
+  }, []);
 
-  // Helper de formateo reactivo con tasas del Banco Central
-  const format = (amountInClp: number, isRent: boolean = false) => {
-    return formatPrice(amountInClp, currency, 'es-CL', isRent, rates.uf, rates.dolar);
-  };
-
-  return (
-    <CurrencyContext.Provider value={{ currency, setCurrency, rates, isLoadingRates, format }}>
-      {children}
-    </CurrencyContext.Provider>
+  // Helper de formateo reactivo con las tasas del Banco Central
+  const format = useCallback(
+    (amountInClp: number, isRent: boolean = false) =>
+      formatPrice(amountInClp, currency, 'es-CL', isRent, rates.uf, rates.dolar),
+    [currency, rates.uf, rates.dolar]
   );
+
+  const value = useMemo(
+    () => ({ currency, setCurrency, rates, format }),
+    [currency, setCurrency, rates, format]
+  );
+
+  return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
 }
 
 export function useCurrency() {

@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { partners, Partner } from '@/lib/data/partners';
+import { partners } from '@/lib/data/partners';
 import { PartnerLogo } from '@/components/properties/PartnerLogo';
-import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PartnerLogosCarouselProps {
   partnerCounts?: Record<string, number>;
@@ -50,9 +50,9 @@ export function PartnerLogosCarousel({ partnerCounts = {} }: PartnerLogosCarouse
   const displayPartners = [...partners, ...partners, ...partners];
 
   return (
-    <div className="mb-5">
+    <div className="mb-4">
       {/* Título */}
-      <div className="flex items-center gap-2 mb-3 px-1">
+      <div className="flex items-center gap-2 mb-2 px-1">
         <div className="h-px flex-1 bg-gradient-to-r from-blue-200 to-transparent" />
         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
           Nuestros Socios Estratégicos
@@ -72,78 +72,64 @@ export function PartnerLogosCarousel({ partnerCounts = {} }: PartnerLogosCarouse
         {/* Flechas de navegación */}
         <button
           onClick={() => scroll('left')}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-white/90 border border-slate-200 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-50 hover:border-blue-300"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white/90 border border-slate-200 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-50 hover:border-blue-300"
         >
-          <ChevronLeft className="w-4 h-4 text-slate-600" />
+          <ChevronLeft className="w-3.5 h-3.5 text-slate-600" />
         </button>
         <button
           onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-white/90 border border-slate-200 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-50 hover:border-blue-300"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white/90 border border-slate-200 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-50 hover:border-blue-300"
         >
-          <ChevronRight className="w-4 h-4 text-slate-600" />
+          <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
         </button>
 
         {/* Gradient fade at edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-[1] pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-[1] pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-white to-transparent z-[1] pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white to-transparent z-[1] pointer-events-none" />
 
         {/* Scroll container */}
         <div
           ref={scrollRef}
-          className="flex items-center gap-4 overflow-x-auto scrollbar-hide px-4 py-3"
+          className="flex items-stretch gap-2 overflow-x-auto scrollbar-hide px-2 py-2"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {displayPartners.map((partner, idx) => (
             <Link
               key={`${partner.id}-${idx}`}
               href={`/empresas/${partner.slug}`}
-              className="flex-shrink-0 relative group/logo"
+              title={`${partner.name} · ${partner.description}`}
+              className={`relative flex-shrink-0 w-[86px] h-[86px] flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl border transition-all duration-200 ${
+                hoveredId === partner.id
+                  ? 'border-blue-400 bg-blue-50 shadow-md -translate-y-0.5'
+                  : 'border-slate-200 bg-white hover:border-blue-200 hover:bg-slate-50'
+              }`}
               onMouseEnter={() => setHoveredId(partner.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
-              <div
-                className={`
-                  flex items-center gap-3 px-5 py-3 rounded-xl border-2 transition-all duration-300
-                  ${hoveredId === partner.id
-                    ? 'border-blue-500 shadow-lg scale-105 bg-white'
-                    : 'border-slate-100 hover:border-blue-200 bg-white hover:shadow-md'
-                  }
-                `}
-              >
-                {/* Logo */}
-                <div className="h-10 min-w-[40px] flex items-center justify-center rounded-lg bg-slate-50 overflow-hidden flex-shrink-0 px-1">
-                  <PartnerLogo
-                    logo={partner.logo}
-                    name={partner.name}
-                    color={partner.color}
-                    className="h-8 w-auto"
-                  />
-                </div>
-
-                {/* Name + description + count */}
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-slate-800 truncate max-w-[140px]">
-                    {partner.name}
-                  </p>
-                  <p className="text-[10px] text-slate-400 truncate max-w-[140px]">
-                    {partner.description}
-                  </p>
-                  {partnerCounts[partner.id] !== undefined && (
-                    <p className="text-[10px] font-semibold text-blue-600 mt-0.5">
-                      {partnerCounts[partner.id]} propiedades
-                    </p>
-                  )}
-                </div>
-
-                {/* Hover icon */}
-                <ExternalLink
-                  className={`w-3.5 h-3.5 flex-shrink-0 transition-all ${
-                    hoveredId === partner.id
-                      ? 'text-blue-500 opacity-100 translate-x-0'
-                      : 'text-slate-300 opacity-0 -translate-x-2'
-                  }`}
+              {/* Logo, tipo icono */}
+              <span className="w-9 h-9 rounded-lg bg-white border border-slate-100 flex items-center justify-center overflow-hidden flex-shrink-0 p-1 text-[12px]">
+                <PartnerLogo
+                  logo={partner.logo}
+                  name={partner.name}
+                  color={partner.color}
+                  className="h-full w-full"
                 />
-              </div>
+              </span>
+
+              {/* Nombre */}
+              <span className="w-full text-[10px] font-bold text-slate-700 text-center leading-tight line-clamp-2">
+                {partner.name}
+              </span>
+
+              {/* Contador de propiedades */}
+              {partnerCounts[partner.id] !== undefined && (
+                <span
+                  className="absolute top-1 right-1 text-[9px] font-extrabold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded-full leading-none"
+                  title={`${partnerCounts[partner.id]} propiedades`}
+                >
+                  {partnerCounts[partner.id]}
+                </span>
+              )}
             </Link>
           ))}
         </div>

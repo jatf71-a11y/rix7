@@ -15,7 +15,7 @@ export function AuthModal() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  const supabase = createClient();
+  const [supabase] = useState(() => createClient());
 
   // Sincronizar modo inicial si cambia desde el context
   React.useEffect(() => {

@@ -472,6 +472,8 @@ function genParcel(region, commune, idx, status) {
 function genOffice(region, commune, idx, status) {
   const area = 60 + (idx * 11) % 200;
   const parking = 1 + (idx % 3);
+  // Privados (oficinas/plantas): distribución determinista 0–5, con mayoría 1–3
+  const privates = [1, 1, 2, 2, 3, 0, 1, 2, 4, 5][idx % 10];
   const year = 2008 + (idx * 4) % 18;
   const base = isUrban(region.code) ? (status === 'for_rent' ? 400000 : 200000000) : (status === 'for_rent' ? 150000 : 50000000);
   const price = Math.round((base + (idx * 41000000) % base) / (status === 'for_rent' ? 10000 : 1000000)) * (status === 'for_rent' ? 10000 : 1000000);
@@ -489,7 +491,7 @@ function genOffice(region, commune, idx, status) {
     title: `${styles[idx % styles.length]}${titleSuffix} en ${commune.name}`,
     description: getRealDescription(commune.name, 'office', 0, 1, area, idx, communeData4),
     price, property_type: 'office', status,
-    bedrooms: 0, bathrooms: 1, area_sqm: area, parking_spots: parking, year_built: year,
+    bedrooms: 0, bathrooms: 1, privates, area_sqm: area, parking_spots: parking, year_built: year,
     address: getRealAddress(commune.name, 'office', idx), city: commune.name, state: region.name,
     zip_code: `${4000000 + (idx * 3709) % 6000000}`,
     images: ['https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80'],

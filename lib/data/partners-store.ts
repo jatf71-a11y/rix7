@@ -7,14 +7,6 @@ export function getAllPartners(): Partner[] {
   return [...partnerList];
 }
 
-export function getPartnerBySlugStore(slug: string): Partner | undefined {
-  return partnerList.find((p) => p.slug === slug);
-}
-
-export function getPartnerByIdStore(id: string): Partner | undefined {
-  return partnerList.find((p) => p.id === id);
-}
-
 export function addPartner(partner: Partner): Partner {
   partnerList.push(partner);
   return partner;

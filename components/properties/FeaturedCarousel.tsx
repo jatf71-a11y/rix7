@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Property } from '@/lib/types/property';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
-import { formatPrice, formatArea, getPropertyTypeLabel, getStatusLabel } from '@/lib/utils/formatters';
+import { formatArea, getPropertyTypeLabel, getStatusLabel } from '@/lib/utils/formatters';
 import { MapPin, Bed, Bath, Maximize2, ChevronRight } from 'lucide-react';
 
 interface FeaturedCarouselProps {
@@ -25,7 +25,7 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [mounted, setMounted] = useState(false);
-  const { currency, rates } = useCurrency();
+  const { format } = useCurrency();
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -156,7 +156,7 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
               {/* Precio grande */}
               <div className="text-right flex-shrink-0">
                 <div className="text-2xl font-black text-white drop-shadow-lg">
-                  {formatPrice(current.price, currency, 'es-CL', isRent, rates.uf)}
+                  {format(current.price, isRent)}
                 </div>
                 <div className="flex items-center gap-1.5 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <span className="text-xs font-semibold text-blue-300">Ver detalle</span>

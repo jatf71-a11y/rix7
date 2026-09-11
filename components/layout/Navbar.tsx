@@ -4,10 +4,13 @@ import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '../auth/AuthProvider';
-import { Building2, LogOut, PlusCircle, Heart, Menu, X, Settings } from 'lucide-react';
+import { useCurrency } from '../currency/CurrencyProvider';
+import { formatNumber } from '@/lib/utils/formatters';
+import { LogOut, PlusCircle, Heart, Menu, X, Settings, Info } from 'lucide-react';
 
 function NavbarContent() {
-  const { user, openAuthModal, signOut } = useAuth();
+  const { user, openAuthModal, signOut, isAdmin, isAdminDevBypass } = useAuth();
+  const { rates } = useCurrency();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const searchParams = useSearchParams();
   const currentOp = searchParams.get('operation');
@@ -59,10 +62,6 @@ function NavbarContent() {
           </Link>
           <Link href="/properties/scl-premium-vitacura#hipoteca" className="text-slate-600 hover:text-slate-900 transition-colors">
             Créditos Hipotecarios
-          </Link>
-          <Link href="/admin" className="flex items-center gap-1 text-slate-500 hover:text-blue-600 transition-colors">
-            <Settings className="w-3.5 h-3.5" />
-            <span className="text-xs">Admin</span>
           </Link>
         </nav>
 
@@ -117,6 +116,31 @@ function NavbarContent() {
               </button>
             </div>
           )}
+
+          {/* Badge tipo de cambio (Banco Central de Chile) */}
+          <div
+            className="hidden lg:flex items-center gap-1 pl-3 border-l border-slate-200 text-sm font-semibold text-slate-700 whitespace-nowrap"
+            title="Tipos de cambio oficiales del Banco Central de Chile"
+          >
+            <Info className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span suppressHydrationWarning>
+              UF <strong className="text-slate-900">${formatNumber(Math.round(rates.uf))}</strong>
+              <span className="text-slate-300 mx-0.5">|</span>
+              USD <strong className="text-slate-900">${formatNumber(Math.round(rates.dolar))}</strong>
+            </span>
+          </div>
+
+          {/* Acceso al Panel Admin — al final de la línea de acciones, solo para administradores */}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="flex items-center gap-1.5 pl-3 border-l border-slate-200 text-slate-500 hover:text-blue-600 transition-colors shrink-0"
+              title={isAdminDevBypass ? 'Panel Admin (acceso de desarrollo)' : 'Panel Admin'}
+            >
+              <Settings className="w-3.5 h-3.5" />
+              <span className="text-xs font-semibold">Admin</span>
+            </Link>
+          )}
         </div>
 
         {/* Botón Menú Móvil */}
@@ -160,14 +184,16 @@ function NavbarContent() {
             >
               Publicar
             </Link>
-            <Link
-              href="/admin"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="p-2 rounded-lg hover:bg-slate-50 flex items-center gap-2"
-            >
-              <Settings className="w-4 h-4 text-slate-400" />
-              <span>Panel Admin</span>
-            </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 rounded-lg hover:bg-slate-50 flex items-center gap-2"
+              >
+                <Settings className="w-4 h-4 text-slate-400" />
+                <span>Panel Admin</span>
+              </Link>
+            )}
           </nav>
 
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
@@ -204,6 +230,19 @@ function NavbarContent() {
                 </button>
               </div>
             )}
+
+            {/* Badge tipo de cambio (Banco Central de Chile) */}
+            <div
+              className="flex items-center gap-1.5 pt-3 border-t border-slate-100 text-sm font-semibold text-slate-700"
+              title="Tipos de cambio oficiales del Banco Central de Chile"
+            >
+              <Info className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span suppressHydrationWarning>
+                UF <strong className="text-slate-900">${formatNumber(Math.round(rates.uf))}</strong>
+                <span className="text-slate-300 mx-0.5">|</span>
+                USD <strong className="text-slate-900">${formatNumber(Math.round(rates.dolar))}</strong>
+              </span>
+            </div>
           </div>
         </div>
       )}

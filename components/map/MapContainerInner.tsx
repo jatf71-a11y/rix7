@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useEffect, useRef, useCallback } from 'react';
-import { Map as MapLibreMap, setWorkerUrl, NavigationControl, Marker, Popup, LngLatBounds } from 'maplibre-gl';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
+import { Map as MapLibreMap, setWorkerUrl, NavigationControl, Marker, Popup, LngLatBounds, GeoJSONSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Property } from '@/lib/types/property';
-import { LocateFixed } from 'lucide-react';
+import { Loader2, LocateFixed } from 'lucide-react';
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
@@ -33,21 +33,29 @@ function createPinSvg(color: string, size: number, isSelected: boolean): string 
   </svg>`;
 }
 
+// Color del marcador POI según categoría
+const POI_CATEGORY_COLORS: Record<string, string> = {
+  metro: '#2563EB',
+  transport: '#2563EB',
+  mall: '#D97706',
+  education: '#059669',
+  health: '#E11D48',
+  civic: '#4F46E5',
+  park: '#047857',
+  commerce: '#EA580C',
+  safety: '#0284C7',
+  leisure: '#C026D3',
+  finance: '#0891B2',
+  sport: '#65A30D',
+  address: '#475569',
+};
+
 function createUserLocationSvg(): string {
   return `<div style="position:relative;width:44px;height:44px;display:flex;align-items:center;justify-content:center;">
     <div style="position:absolute;inset:0;border-radius:50%;background:rgba(239,68,68,0.18);animation:ping 3s cubic-bezier(0,0,0.2,1) infinite;"></div>
     <div style="position:absolute;inset:6px;border-radius:50%;background:rgba(239,68,68,0.28);animation:ping 3s cubic-bezier(0,0,0.2,1) infinite 0.8s;"></div>
     <div style="position:absolute;inset:12px;border-radius:50%;background:#dc2626;border:4px solid white;box-shadow:0 0 0 4px rgba(220,38,38,0.6),0 4px 16px rgba(220,38,38,0.7);"></div>
     <div style="position:absolute;inset:20px;border-radius:50%;background:white;"></div>
-  </div>`;
-}
-
-function createCityBeaconSvg(): string {
-  return `<div style="position:relative;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
-    <div style="position:absolute;inset:0;border-radius:50%;background:rgba(37,99,235,0.22);animation:ping 2.8s cubic-bezier(0,0,0.2,1) infinite;"></div>
-    <div style="position:absolute;inset:6px;border-radius:50%;background:rgba(37,99,235,0.32);animation:ping 2.8s cubic-bezier(0,0,0.2,1) infinite 0.7s;"></div>
-    <div style="position:absolute;inset:10px;border-radius:50%;background:#2563EB;border:3px solid white;box-shadow:0 0 0 3px rgba(37,99,235,0.45),0 4px 12px rgba(37,99,235,0.55);"></div>
-    <div style="position:absolute;inset:16px;border-radius:50%;background:white;"></div>
   </div>`;
 }
 
@@ -60,11 +68,11 @@ interface MapContainerInnerProps {
   targetLocation?: { lat: number; lng: number; zoom: number } | null;
   center?: [number, number];
   zoom?: number;
-  onUserLocation?: (loc: { lat: number; lng: number }) => void;
   nearbyActive?: boolean;
   onPropertySelect?: (id: string | null) => void;
   externalUserLocation?: { lat: number; lng: number } | null;
   detectedCity?: { name: string; regionName?: string; lat: number; lng: number; isGps?: boolean } | null;
+  activePoi?: { id: string; name: string; subtitle?: string; category?: string; categoryLabel?: string; lat: number; lng: number; zoom?: number; radiusKm: number } | null;
 }
 
 // ─── Component ────────────────────────────────────────────────────────
@@ -79,14 +87,17 @@ export default function MapContainerInner({
   onPropertySelect,
   externalUserLocation,
   detectedCity,
+  activePoi,
 }: MapContainerInnerProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Map<string, Marker>>(new Map());
   const openPopupMarkerRef = useRef<Marker | null>(null);
   const userMarkerRef = useRef<Marker | null>(null);
-  const cityMarkerRef = useRef<Marker | null>(null);
   const effectiveUserLocation = externalUserLocation;
+  // Indica que el mapa ya fue creado. Permite reintentar el dibujo del pin / beacon
+  // si la ubicación (GPS) llegó antes de que el mapa terminara de inicializarse.
+  const [mapReady, setMapReady] = useState(false);
 
   // ─── Inicializar mapa ───────────────────────────────────────────────
   useEffect(() => {
@@ -116,6 +127,7 @@ export default function MapContainerInner({
     });
 
     map.current.addControl(new NavigationControl(), 'top-right');
+    setMapReady(true);
 
     // El mapa no detecta cambios de tamaño de su contenedor por sí solo.
     const resizeObserver = new ResizeObserver(() => {
@@ -125,25 +137,21 @@ export default function MapContainerInner({
 
     return () => {
       resizeObserver.disconnect();
+      setMapReady(false);
       if (map.current) {
         map.current.remove();
         map.current = null;
       }
       userMarkerRef.current = null;
-      cityMarkerRef.current = null;
     };
   }, []);
 
-  // ─── Centrar en la Ciudad Detectada (IP / GPS) y crear marker de ciudad ───
+  // ─── Centrar en la Ciudad Detectada (IP / GPS) ───
+  // No se dibuja ningún pin de ciudad: el badge flotante "Tu Ciudad GIS" ya
+  // muestra la ciudad detectada y permite recentrar el mapa al pulsarlo.
   useEffect(() => {
-    if (!map.current || !detectedCity) return;
-    if (nearbyActive) {
-      if (cityMarkerRef.current) {
-        cityMarkerRef.current.remove();
-        cityMarkerRef.current = null;
-      }
-      return;
-    }
+    if (!map.current || !mapReady || !detectedCity) return;
+    if (nearbyActive) return;
     if (targetLocation) return;
 
     map.current.flyTo({
@@ -151,69 +159,22 @@ export default function MapContainerInner({
       zoom: 13,
       duration: 2000,
     });
-
-    if (cityMarkerRef.current) {
-      try {
-        const mapEl = mapContainer.current;
-        const markerEl = cityMarkerRef.current.getElement();
-        if (!mapEl || !markerEl || !mapEl.contains(markerEl)) {
-          cityMarkerRef.current = null;
-        }
-      } catch {
-        cityMarkerRef.current = null;
-      }
-    }
-
-    if (!cityMarkerRef.current) {
-      const el = document.createElement('div');
-      el.innerHTML = createCityBeaconSvg();
-      el.style.width = '38px';
-      el.style.height = '38px';
-      el.style.cursor = 'pointer';
-      el.title = `Tu Ciudad: ${detectedCity.name}`;
-
-      cityMarkerRef.current = new Marker({ element: el })
-        .setLngLat([detectedCity.lng, detectedCity.lat])
-        .addTo(map.current);
-
-      const popup = new Popup({ offset: 20, closeButton: false, maxWidth: '240px' })
-        .setHTML(`<div style="font-family:system-ui;background:white;border-radius:12px;overflow:hidden;box-shadow:0 8px 30px rgba(37,99,235,0.18);border:1px solid #bfdbfe;min-width:180px;">
-          <div style="height:3px;background:linear-gradient(90deg,#2563EB,#3b82f6,#2563EB);"></div>
-          <div style="padding:10px 14px 10px;">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2563EB;"></span>
-              <span style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.4px;">${detectedCity.isGps ? 'Ubicación GPS' : 'Tu Ciudad'}</span>
-            </div>
-            <div style="font-weight:800;font-size:14px;color:#0f172a;margin-top:2px;">${detectedCity.name}</div>
-            ${detectedCity.regionName ? `<div style="font-size:11px;color:#64748b;margin-top:1px;">${detectedCity.regionName}</div>` : ''}
-          </div>
-        </div>`);
-
-      const marker = cityMarkerRef.current;
-      marker.setPopup(popup);
-
-      const markerEl = marker.getElement();
-      markerEl.addEventListener('mouseenter', () => { try { marker.togglePopup(); } catch {} });
-      markerEl.addEventListener('mouseleave', () => { try { marker.getPopup()?.remove(); } catch {} });
-      markerEl.addEventListener('click', () => {
-        map.current?.flyTo({ center: [detectedCity.lng, detectedCity.lat], zoom: 13.5, duration: 1000 });
-      });
-    } else {
-      cityMarkerRef.current.setLngLat([detectedCity.lng, detectedCity.lat]);
-    }
-  }, [detectedCity, nearbyActive, targetLocation]);
+  }, [detectedCity, nearbyActive, targetLocation, mapReady]);
 
   // ─── Centrar mapa en ubicación del usuario + crear marker ──────────
+  // El pin se muestra en la primera visita (GPS) y también en modo "Mi Ubicación".
+  // Si hay targetLocation (botón "Mi Ubicación"), el centrado lo hace el efecto de abajo.
+  // mapReady en las deps: si el GPS respondió antes de que el mapa existiera,
+  // al crearse el mapa este efecto se re-ejecuta y dibuja el pin (no se descarta).
   useEffect(() => {
-    if (!map.current || !effectiveUserLocation) return;
-    if (!nearbyActive) return; // Solo mostrar pin cuando el usuario activa "Mi Ubicación"
-    if (targetLocation) return;
-
-    map.current.flyTo({
-      center: [effectiveUserLocation.lng, effectiveUserLocation.lat],
-      zoom: 13,
-      duration: 2000,
-    });
+    if (!map.current || !mapReady || !effectiveUserLocation) return;
+    if (!targetLocation) {
+      map.current.flyTo({
+        center: [effectiveUserLocation.lng, effectiveUserLocation.lat],
+        zoom: 13,
+        duration: 2000,
+      });
+    }
 
     // Recrear marker si el mapa cambió (HMR remount)
     if (userMarkerRef.current) {
@@ -262,7 +223,7 @@ export default function MapContainerInner({
       markerEl.addEventListener('mouseleave', () => { try { (marker as any).closePopup(); } catch {} });
       markerEl.style.cursor = 'pointer';
     }
-  }, [effectiveUserLocation, targetLocation]);
+  }, [effectiveUserLocation, targetLocation, mapReady]);
 
   // ─── Expanding rings: DOM-based, scale with zoom ────────────────────
   const pingOverlayRef = useRef<HTMLDivElement>(null);
@@ -301,6 +262,96 @@ export default function MapContainerInner({
     };
   }, [effectiveUserLocation, nearbyActive]);
 
+  // ─── Punto de Interés (POI): centrar, marcador y círculo de radio ───
+  const poiMarkerRef = useRef<Marker | null>(null);
+  const lastPoiCenterRef = useRef<string>('');
+
+  useEffect(() => {
+    const mapInstance = map.current;
+    if (!mapInstance || !mapReady) return;
+
+    // Limpiar estado anterior (marcador y capas de radio)
+    if (poiMarkerRef.current) {
+      try { poiMarkerRef.current.remove(); } catch {}
+      poiMarkerRef.current = null;
+    }
+    try { mapInstance.removeLayer('poi-radius-fill'); } catch {}
+    try { mapInstance.removeLayer('poi-radius-line'); } catch {}
+    try { mapInstance.removeSource('poi-radius'); } catch {}
+
+    if (!activePoi) return;
+
+    // Centrar solo cuando cambia el punto (no al ajustar el radio)
+    const poiKey = `${activePoi.lat.toFixed(5)},${activePoi.lng.toFixed(5)}`;
+    if (lastPoiCenterRef.current !== poiKey) {
+      mapInstance.flyTo({ center: [activePoi.lng, activePoi.lat], zoom: activePoi.zoom || 14.5, duration: 1500 });
+      lastPoiCenterRef.current = poiKey;
+    }
+
+    // Círculo de radio como polígono geográfico (escala con el zoom)
+    const radiusKm = activePoi.radiusKm || 2;
+    const latKm = radiusKm / 111.32;
+    const lngKm = radiusKm / (111.32 * Math.cos((activePoi.lat * Math.PI) / 180));
+    const ring: [number, number][] = [];
+    for (let i = 0; i <= 72; i++) {
+      const angle = (i * 2 * Math.PI) / 72;
+      ring.push([activePoi.lng + lngKm * Math.cos(angle), activePoi.lat + latKm * Math.sin(angle)]);
+    }
+    const radiusGeoJson = {
+      type: 'Feature',
+      properties: {},
+      geometry: { type: 'Polygon', coordinates: [ring] },
+    } as GeoJSON.Feature<GeoJSON.Polygon>;
+
+    try {
+      const existing = mapInstance.getSource('poi-radius') as GeoJSONSource | undefined;
+      if (existing) {
+        existing.setData(radiusGeoJson);
+      } else {
+        mapInstance.addSource('poi-radius', { type: 'geojson', data: radiusGeoJson });
+        mapInstance.addLayer({
+          id: 'poi-radius-fill',
+          type: 'fill',
+          source: 'poi-radius',
+          paint: { 'fill-color': '#2563EB', 'fill-opacity': 0.12 },
+        });
+        mapInstance.addLayer({
+          id: 'poi-radius-line',
+          type: 'line',
+          source: 'poi-radius',
+          paint: { 'line-color': '#2563EB', 'line-width': 2, 'line-opacity': 0.75, 'line-dasharray': [2, 1.5] },
+        });
+      }
+    } catch {}
+
+    // Marcador del punto seleccionado
+    const color = POI_CATEGORY_COLORS[activePoi.category || 'address'] || '#475569';
+    const el = document.createElement('div');
+    el.innerHTML = createPinSvg(color, 34, true);
+    el.style.width = '34px';
+    el.style.height = '44px';
+    el.style.cursor = 'pointer';
+    el.title = activePoi.name;
+
+    poiMarkerRef.current = new Marker({ element: el })
+      .setLngLat([activePoi.lng, activePoi.lat])
+      .addTo(mapInstance);
+
+    const marker = poiMarkerRef.current;
+    const popup = new Popup({ offset: 26, closeButton: false, maxWidth: '240px' }).setHTML(
+      `<div style="font-family:system-ui;background:white;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(37,99,235,0.15);border:1px solid #bfdbfe;">
+        <div style="height:3px;background:linear-gradient(90deg,#2563EB,#3b82f6,#2563EB);"></div>
+        <div style="padding:10px 14px;">
+          <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.4px;">${activePoi.categoryLabel || 'Punto de interés'} · Radio ${radiusKm} km</div>
+          <div style="font-weight:800;font-size:13px;color:#0f172a;margin-top:2px;">${activePoi.name}</div>
+        </div>
+      </div>`
+    );
+    marker.setPopup(popup);
+    marker.getElement().addEventListener('mouseenter', () => { try { (marker as any).openPopup(); } catch {} });
+    marker.getElement().addEventListener('mouseleave', () => { try { (marker as any).closePopup(); } catch {} });
+  }, [activePoi, mapReady]);
+
   // ─── Property markers (viewport-culled) ─────────────────────────────
   const updateMarkers = useCallback(() => {
     if (!map.current) return;
@@ -309,15 +360,17 @@ export default function MapContainerInner({
     const zoomLevel = mapInstance.getZoom();
     const showLabels = zoomLevel >= 10;
 
+    const currentYear = new Date().getFullYear();
     const visibleIds = new Set<string>();
+    const visibleProperties: Property[] = [];
     const maxVisible = properties.length > 500 ? 300 : properties.length;
-    let count = 0;
 
+    // Una sola pasada: recoge los pines dentro del viewport (con tope).
     for (const p of properties) {
-      if (count >= maxVisible) break;
+      if (visibleProperties.length >= maxVisible) break;
       if (bounds.contains([p.lng, p.lat])) {
         visibleIds.add(p.id);
-        count++;
+        visibleProperties.push(p);
       }
     }
 
@@ -329,11 +382,9 @@ export default function MapContainerInner({
       }
     }
 
-    for (const p of properties) {
-      if (!visibleIds.has(p.id)) continue;
-
+    for (const p of visibleProperties) {
       const isSelected = p.id === selectedPropertyId;
-      const isNew = p.year_built != null && p.year_built > new Date().getFullYear();
+      const isNew = p.year_built != null && p.year_built > currentYear;
       const color = getColor(isSelected, isNew);
       const size = isSelected ? 32 : 22;
 
@@ -416,15 +467,27 @@ export default function MapContainerInner({
     }
   }, [properties, selectedPropertyId]);
 
-  useEffect(() => {
-    if (!map.current) return;
-    const timer = setTimeout(updateMarkers, 150);
-    return () => clearTimeout(timer);
+  // Un único timer para todos los re-encuadres: antes cada `moveend`/`zoomend`
+  // creaba un timeout nuevo sin cancelar el anterior, así que arrastrar el mapa
+  // acumulaba redibujados de marcadores en cola.
+  const markerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scheduleMarkers = useCallback((delay: number) => {
+    if (markerTimerRef.current) clearTimeout(markerTimerRef.current);
+    markerTimerRef.current = setTimeout(updateMarkers, delay);
   }, [updateMarkers]);
 
   useEffect(() => {
     if (!map.current) return;
-    const onMoveEnd = () => setTimeout(updateMarkers, 100);
+    scheduleMarkers(150);
+    return () => {
+      if (markerTimerRef.current) clearTimeout(markerTimerRef.current);
+    };
+  }, [scheduleMarkers]);
+
+  useEffect(() => {
+    if (!map.current) return;
+    const onMoveEnd = () => scheduleMarkers(100);
     map.current.on('moveend', onMoveEnd);
     map.current.on('zoomend', onMoveEnd);
     return () => {
@@ -433,7 +496,7 @@ export default function MapContainerInner({
         map.current.off('zoomend', onMoveEnd);
       }
     };
-  }, [updateMarkers]);
+  }, [scheduleMarkers]);
 
   // ─── FlyTo a ubicación seleccionada ────────────────────────────────
   useEffect(() => {
@@ -511,6 +574,21 @@ export default function MapContainerInner({
       <div ref={mapContainer} className="w-full h-full z-0" />
 
       <style>{`@keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }`}</style>
+
+      {/* ═══ Indicador: detectando ubicación (GPS o IP) ═══ */}
+      {!detectedCity && !nearbyActive && (
+        <div className="absolute top-3 left-3 z-[400] flex items-center gap-2.5 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-lg shadow-slate-900/10 border border-slate-200/90 pointer-events-none">
+          <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none">
+              Detectando
+            </span>
+            <span className="text-xs font-semibold text-slate-600 leading-tight">
+              Tu ubicación...
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ═══ Badge de Ciudad Detectada en Mapa GIS ═══ */}
       {detectedCity && !nearbyActive && (

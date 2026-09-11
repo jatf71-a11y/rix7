@@ -5,7 +5,7 @@ import { PropertyFilterState, PropertyType, NewPropertyType } from '@/lib/types/
 import { LocationSelector } from './LocationSelector';
 import { CHILE_REGIONS } from '@/lib/data/chileLocations';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
-import { Currency, formatNumber } from '@/lib/utils/formatters';
+import { Currency } from '@/lib/utils/formatters';
 import { stripDiacritics } from '@/lib/utils/text';
 import {
   Search,
@@ -25,7 +25,6 @@ import {
   Car,
   Store,
   Warehouse,
-  Info,
   Sparkle,
   Bed,
   Bath,
@@ -35,7 +34,6 @@ import {
 interface PropertyFiltersProps {
   filters: PropertyFilterState;
   onFilterChange: (filters: PropertyFilterState) => void;
-  totalResults: number;
   categoryCounts?: Record<PropertyType, number>;
   selectedRegion?: string | null;
   selectedCommune?: string | null;
@@ -55,6 +53,8 @@ interface PropertyFiltersProps {
   newPropertyType?: NewPropertyType;
   newPropertiesCount?: number;
   onResetAll?: () => void;
+  /** Buscador de POIs/direcciones que se renderiza junto al buscador por comuna */
+  poiSearchSlot?: React.ReactNode;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -175,7 +175,6 @@ function PropiedadesNuevasButton({
 export function PropertyFilters({
   filters,
   onFilterChange,
-  totalResults,
   categoryCounts = {
     all: 0,
     apartment: 0,
@@ -200,6 +199,7 @@ export function PropertyFilters({
   newPropertyType = null,
   newPropertiesCount = 0,
   onResetAll,
+  poiSearchSlot,
 }: PropertyFiltersProps) {
   // Búsqueda de comunas: solo acepta nombres de comunas del listado oficial
   const [localSearch, setLocalSearch] = useState('');
@@ -263,8 +263,6 @@ export function PropertyFilters({
 
   const isRent = filters.operationType === 'for_rent';
   const { currency, setCurrency, rates } = useCurrency();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
 
   // Formatear precio segun moneda seleccionada
   const formatPriceForCurrency = (clp: number, curr: Currency): string => {
@@ -396,10 +394,10 @@ export function PropertyFilters({
     selectedCommune !== null;
 
   return (
-    <div className="bg-white border-b border-slate-200 px-4 py-3 sticky top-16 z-30 shadow-xs">
+    <div className="relative z-30 bg-white border-b border-slate-200 px-4 py-3 shadow-xs">
       <div className="flex flex-col gap-3">
         {/* Fila 1: Segmented Toggle Comprar / Arrendar, Selector GIS, Búsqueda, Botón Nearby y Categorías */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Toggle Comprar vs Arrendar */}
           <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 shadow-inner">
             <button
@@ -446,12 +444,12 @@ export function PropertyFilters({
           )}
 
           {/* Campo de búsqueda de comunas con autocomplete */}
-          <div className="relative flex-1 min-w-[200px] max-w-sm" ref={dropdownRef}>
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <div className="relative w-[200px] sm:w-[240px] shrink-0" ref={dropdownRef}>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               ref={inputRef}
               type="text"
-              placeholder="Buscar comuna..."
+              placeholder="Buscar por Comuna"
               value={localSearch}
               onChange={(e) => {
                 const val = e.target.value;
@@ -461,7 +459,7 @@ export function PropertyFilters({
                 onFilterChange({ ...filters, searchQuery: val });
               }}
               onFocus={() => localSearch.trim() && setShowSuggestions(true)}
-              className="w-full pl-10 pr-8 py-2 bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+              className="w-full pl-9 pr-7 py-1.5 bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
             />
             {localSearch && (
               <button
@@ -512,6 +510,9 @@ export function PropertyFilters({
             )}
           </div>
 
+          {/* Buscador de POIs / direcciones — junto al buscador por comuna */}
+          {poiSearchSlot}
+
           {/* Botón de Mi Ubicación (Nearby) — icono + contador */}
           {onToggleNearby && (
             <button
@@ -538,7 +539,7 @@ export function PropertyFilters({
             count={newPropertiesCount}
           />
 
-          {/* Selector de Moneda + Rango de Precios + Badge */}
+          {/* Selector de Moneda + Rango de Precios */}
           <div className="flex items-center gap-1.5">
           <div className="inline-flex items-center gap-0.5 rounded-xl bg-slate-100 p-1 border border-slate-200">
             {/* Botones de Moneda */}
@@ -583,18 +584,6 @@ export function PropertyFilters({
               </select>
             </div>
 
-            {/* Badge tipo de cambio + Botón Limpiar — dentro del recuadro */}
-            <div
-              className={`flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 whitespace-nowrap shrink-0 ${mounted ? '' : 'invisible'}`}
-              title="Tipos de cambio oficiales del Banco Central de Chile"
-            >
-              <Info className="w-3.5 h-3.5 text-slate-400" />
-              <span suppressHydrationWarning>
-                UF <strong className="text-slate-900">${formatNumber(Math.round(rates.uf))}</strong>
-                <span className="text-slate-400 mx-0.5">|</span>
-                USD <strong className="text-slate-900">${formatNumber(Math.round(rates.dolar))}</strong>
-              </span>
-            </div>
           </div>
           </div>
 
@@ -636,17 +625,20 @@ export function PropertyFilters({
             })}
           </div>
 
-          {/* Botón Limpiar — al final de la línea de categorías */}
-          {hasActiveFilters && (
-            <button
-              onClick={handleReset}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 hover:border-red-300 transition-all shrink-0 whitespace-nowrap"
-              title="Limpiar todos los filtros"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Limpiar</span>
-            </button>
-          )}
+          {/* Botón Limpiar — siempre visible, para poder volver al inicio en cualquier momento.
+              Se resalta en rojo cuando hay filtros activos y queda neutro cuando no hay nada que limpiar. */}
+          <button
+            onClick={handleReset}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all shrink-0 whitespace-nowrap ${
+              hasActiveFilters
+                ? 'text-red-600 bg-red-50 border-red-200 hover:bg-red-100 hover:border-red-300'
+                : 'text-slate-500 bg-slate-50 border-slate-200 hover:bg-slate-100 hover:text-slate-700'
+            }`}
+            title={hasActiveFilters ? 'Limpiar todos los filtros' : 'Volver al inicio'}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Limpiar</span>
+          </button>
 
         </div>
 

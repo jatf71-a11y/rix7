@@ -8,7 +8,7 @@ import { MortgageCalculator } from '@/components/properties/MortgageCalculator';
 import { ContactAgentForm } from '@/components/properties/ContactAgentForm';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
-import { formatPrice, formatArea, getPropertyTypeLabel, getStatusLabel } from '@/lib/utils/formatters';
+import { formatArea, getPropertyTypeLabel, getStatusLabel } from '@/lib/utils/formatters';
 import {
   Bed,
   Bath,
@@ -31,7 +31,7 @@ export default function PropertyDetailPage() {
 
   const [property, setProperty] = useState<Property | null>(null);
   const [notFound, setNotFound] = useState(false);
-  const { currency } = useCurrency();
+  const { format } = useCurrency();
 
   // ═══ Fetch de la propiedad desde la API (Supabase → fallback catálogo) ═══
   useEffect(() => {
@@ -187,10 +187,10 @@ export default function PropertyDetailPage() {
 
               <div className="flex flex-wrap items-baseline justify-between gap-4">
                 <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                  {formatPrice(property.price, currency, 'es-CL', isRent)}
+                  {format(property.price, isRent)}
                 </h1>
                 <span className="text-sm font-semibold text-slate-500">
-                  {formatPrice(pricePerSqm, currency, 'es-CL')} / m²
+                  {format(pricePerSqm)} / m²
                 </span>
               </div>
 

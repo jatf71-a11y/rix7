@@ -5,24 +5,6 @@ export const DEFAULT_UF_RATE = 39500;
 export const DEFAULT_USD_RATE = 950;
 
 /**
- * Convierte un monto base en CLP a la moneda objetivo usando las tasas oficiales
- */
-export function convertPrice(
-  amountInClp: number,
-  targetCurrency: Currency,
-  ufRate: number = DEFAULT_UF_RATE,
-  usdRate: number = DEFAULT_USD_RATE
-): number {
-  if (targetCurrency === 'UF') {
-    return amountInClp / (ufRate || DEFAULT_UF_RATE);
-  }
-  if (targetCurrency === 'USD') {
-    return amountInClp / (usdRate || DEFAULT_USD_RATE);
-  }
-  return amountInClp;
-}
-
-/**
  * Formatea un número según la moneda seleccionada (CLP '$', UF 'UF', USD 'US$')
  * con el tipo de cambio oficial del Banco Central de Chile
  */
@@ -41,8 +23,8 @@ export function formatPrice(
     const ufValue = amountInClp / rate;
     // Si es arriendo mensual (valores menores a 100 UF), mostrar 1 decimal (ej: UF 22,5)
     const formatted = ufValue < 100
-      ? `UF ${ufValue.toLocaleString('es-CL', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`
-      : `UF ${Math.round(ufValue).toLocaleString('es-CL')}`;
+      ? `UF ${ufValue.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`
+      : `UF ${Math.round(ufValue).toLocaleString(locale)}`;
     return isRent ? `${formatted} /mes` : formatted;
   }
 
@@ -54,7 +36,7 @@ export function formatPrice(
   }
 
   // Pesos Chilenos (CLP '$')
-  const formatted = `$ ${Math.round(amountInClp).toLocaleString('es-CL')}`;
+  const formatted = `$ ${Math.round(amountInClp).toLocaleString(locale)}`;
   return isRent ? `${formatted} /mes` : formatted;
 }
 

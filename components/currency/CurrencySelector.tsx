@@ -3,15 +3,13 @@
 import React from 'react';
 import { useCurrency } from './CurrencyProvider';
 import { Currency, formatNumber } from '@/lib/utils/formatters';
-import { Info } from 'lucide-react';
 
 interface CurrencySelectorProps {
   className?: string;
   size?: 'sm' | 'md';
-  showRatesBadge?: boolean;
 }
 
-export function CurrencySelector({ className = '', size = 'sm', showRatesBadge = false }: CurrencySelectorProps) {
+export function CurrencySelector({ className = '', size = 'sm' }: CurrencySelectorProps) {
   const { currency, setCurrency, rates } = useCurrency();
 
   const options: { id: Currency; symbol: string; label: string }[] = [
@@ -41,19 +39,6 @@ export function CurrencySelector({ className = '', size = 'sm', showRatesBadge =
           </button>
         ))}
       </div>
-
-      {showRatesBadge && (
-        <div
-          className="hidden xl:flex items-center gap-1 text-[11px] font-medium text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-lg"
-          title="Tipos de cambio oficiales provistos por el Banco Central de Chile"
-        >
-          <Info className="w-3 h-3 text-blue-600" />
-          <span>
-            UF: <strong className="text-slate-700">${formatNumber(Math.round(rates.uf))}</strong> | USD:{' '}
-            <strong className="text-slate-700">${formatNumber(Math.round(rates.dolar))}</strong>
-          </span>
-        </div>
-      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import {
   deletePartner,
 } from '@/lib/data/partners-store';
 import { Partner } from '@/lib/data/partners';
+import { slugify } from '@/lib/utils/text';
 
 // GET /api/admin/partners — list all partners
 export async function GET() {
@@ -26,11 +27,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const id = slug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-
     const newPartner: Partner = {
-      id,
-      slug: slug.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      id: slugify(slug),
+      slug: slugify(slug),
       name,
       logo: logo || '',
       description: description || '',

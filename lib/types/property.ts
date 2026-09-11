@@ -10,8 +10,6 @@ export type PropertyType =
   | 'local'
   | 'warehouse';
 
-export type PropertyStatus = 'all' | 'for_sale' | 'for_rent' | 'sold';
-
 export interface Property {
   id: string;
   title: string;

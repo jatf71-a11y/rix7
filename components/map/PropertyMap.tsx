@@ -9,16 +9,12 @@ interface PropertyMapProps {
   properties: Property[];
   selectedPropertyId?: string | null;
   targetLocation?: { lat: number; lng: number; zoom: number } | null;
-  onUserLocation?: (loc: { lat: number; lng: number }) => void;
   nearbyActive?: boolean;
   onPropertySelect?: (id: string | null) => void;
-  totalResults?: number;
-  isRent?: boolean;
-  regionName?: string;
-  communeName?: string;
   externalUserLocation?: { lat: number; lng: number } | null;
   mapCenter?: { lat: number; lng: number } | null;
   detectedCity?: { name: string; regionName?: string; lat: number; lng: number; isGps?: boolean } | null;
+  activePoi?: { id: string; name: string; subtitle?: string; category?: string; categoryLabel?: string; lat: number; lng: number; zoom?: number; radiusKm: number } | null;
 }
 
 const DynamicMapContainer = dynamic(
@@ -34,14 +30,11 @@ const DynamicMapContainer = dynamic(
   }
 );
 
-export function PropertyMap(props: PropertyMapProps) {
-  const { totalResults: _totalResults, isRent: _isRent, regionName: _regionName, communeName: _communeName, mapCenter, detectedCity, ...mapProps } = props;
-
+export function PropertyMap({ mapCenter, ...mapProps }: PropertyMapProps) {
   return (
     <div className="w-full h-full relative overflow-hidden rounded-2xl">
       <DynamicMapContainer
         {...mapProps}
-        detectedCity={detectedCity}
         center={mapCenter ? [mapCenter.lng, mapCenter.lat] : undefined}
         zoom={mapCenter ? 13 : undefined}
       />

@@ -14,16 +14,8 @@ import {
   AlertCircle,
   CheckCircle,
 } from 'lucide-react';
-
-interface Partner {
-  id: string;
-  slug: string;
-  name: string;
-  logo: string;
-  description: string;
-  website?: string;
-  color: string;
-}
+import { Partner } from '@/lib/data/partners';
+import { slugify } from '@/lib/utils/text';
 
 const EMPTY_FORM: Omit<Partner, 'id'> = {
   slug: '',
@@ -175,15 +167,6 @@ function AdminEmpresasPage() {
     } finally {
       setDeletingId(null);
     }
-  };
-
-  const autoSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
   };
 
   return (
@@ -389,7 +372,7 @@ function AdminEmpresasPage() {
                     setForm((prev) => ({
                       ...prev,
                       name,
-                      slug: prev.slug || autoSlug(name),
+                      slug: prev.slug || slugify(name),
                     }));
                   }}
                   placeholder="Ej: Catedral Bienes Raíces SpA"

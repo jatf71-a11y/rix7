@@ -2,18 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getPartnerBySlug, partners } from '@/lib/data/partners';
+import { getPartnerBySlug } from '@/lib/data/partners';
 import { PartnerLogo } from '@/components/properties/PartnerLogo';
 import { ArrowLeft, MapPin, Bed, Bath, Maximize2, LampDesk, ExternalLink, Building2 } from 'lucide-react';
 import { Property } from '@/lib/types/property';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
-import { formatPrice, formatArea } from '@/lib/utils/formatters';
+import { formatArea } from '@/lib/utils/formatters';
 
 export default function EmpresaPage({ params }: { params: { slug: string } }) {
   const partner = getPartnerBySlug(params.slug);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const { currency, rates } = useCurrency();
+  const { format } = useCurrency();
 
   useEffect(() => {
     if (!partner) { setLoading(false); return; }
@@ -188,7 +188,7 @@ export default function EmpresaPage({ params }: { params: { slug: string } }) {
                   {/* Price */}
                   <div className="mt-3 pt-3 border-t border-slate-100">
                     <span className="text-lg font-black text-slate-900">
-                      {formatPrice(property.price, currency, 'es-CL', property.status === 'for_rent', rates.uf)}
+                      {format(property.price, property.status === 'for_rent')}
                     </span>
                   </div>
                 </div>

@@ -12,7 +12,7 @@ export const partners: Partner[] = [
   {
     id: 'catedral',
     slug: 'catedral',
-    name: 'Catedral Bienes Raíces SpA',
+    name: 'Catedral Propiedades',
     logo: '/logos/catedral.png',
     description: 'Corredora de propiedades con atención personalizada y trato cercano',
     color: '#3B82F6',
