@@ -39,6 +39,7 @@ export interface Property {
   featured?: boolean;
   newPropertyType?: 'proyectos' | 'entrega_inmediata' | null;
   partner_id?: string;
+  video_url?: string;
 }
 
 export type NewPropertyType = 'proyectos' | 'entrega_inmediata' | null;

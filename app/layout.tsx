@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
+import 'leaflet/dist/leaflet.css';
 import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
 import { AuthProvider } from '@/components/auth/AuthProvider';

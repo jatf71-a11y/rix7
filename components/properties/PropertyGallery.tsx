@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Images, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PartnerLogo } from '@/components/properties/PartnerLogo';
+import { VideoReels } from '@/components/properties/VideoReels';
 
 interface PropertyGalleryProps {
   images: string[];
@@ -11,9 +12,10 @@ interface PropertyGalleryProps {
   partnerName?: string;
   partnerColor?: string;
   showPartnerLogo?: boolean;
+  videoUrl?: string;
 }
 
-export function PropertyGallery({ images, title, partnerLogo, partnerName, partnerColor = '#64748b', showPartnerLogo }: PropertyGalleryProps) {
+export function PropertyGallery({ images, title, partnerLogo, partnerName, partnerColor = '#64748b', showPartnerLogo, videoUrl }: PropertyGalleryProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
@@ -42,65 +44,77 @@ export function PropertyGallery({ images, title, partnerLogo, partnerName, partn
 
   return (
     <div className="relative">
-      {/* Grid en Mosaico con foto principal destacada */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-2 rounded-2xl overflow-hidden max-h-[480px]">
-        {/* Foto Principal Destacada (Ocupa 2 columnas y 2 filas) */}
-        <div
-          onClick={() => openLightbox(0)}
-          className="md:col-span-2 md:row-span-2 relative aspect-[4/3] md:aspect-auto cursor-pointer group overflow-hidden bg-slate-100"
-        >
-          <img
-            src={displayImages[0]}
-            alt={`${title} - Principal`}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-          {/* Partner logo badge */}
-          {showPartnerLogo && partnerLogo && (
-            <div className="absolute top-3 right-3 h-9 rounded-lg overflow-hidden shadow-lg bg-white/80">
-              <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[24px] px-1" />
-            </div>
-          )}
-        </div>
-
-        {/* 4 Fotos Secundarias en Grid */}
-        {displayImages.slice(1, 5).map((img, idx) => (
+      {/* Grid: fotos (2/3) + video (1/3) cuando hay video; solo fotos si no */}
+      <div className={`grid grid-cols-1 gap-2 rounded-2xl overflow-hidden ${videoUrl ? 'md:grid-cols-3' : 'md:grid-cols-4'}`}>
+        {/* Mosaico de fotos */}
+        <div className={`${videoUrl ? 'md:col-span-2' : 'md:col-span-4'} grid grid-cols-1 md:grid-cols-2 gap-2 rounded-2xl overflow-hidden max-h-[480px]`}>
+          {/* Foto Principal Destacada (Ocupa 2 columnas y 2 filas) */}
           <div
-            key={idx}
-            onClick={() => openLightbox(idx + 1)}
-            className="relative hidden md:block aspect-[4/3] cursor-pointer group overflow-hidden bg-slate-100"
+            onClick={() => openLightbox(0)}
+            className="md:col-span-2 md:row-span-2 relative aspect-[4/3] md:aspect-auto cursor-pointer group overflow-hidden bg-slate-100"
           >
             <img
-              src={img}
-              alt={`${title} - Foto ${idx + 2}`}
+              src={displayImages[0]}
+              alt={`${title} - Principal`}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
             {/* Partner logo badge */}
             {showPartnerLogo && partnerLogo && (
-            <div className="absolute top-2 right-2 h-7 rounded-lg overflow-hidden shadow-md bg-white/80">
-              <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[20px] px-1" />
-            </div>
-            )}
-
-            {/* Si es la 5ta foto y hay más fotos disponibles */}
-            {idx === 3 && displayImages.length > 5 && (
-              <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center text-white font-bold text-base">
-                +{displayImages.length - 5} fotos
+              <div className="absolute top-3 right-3 h-8">
+                <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[20px]" />
               </div>
             )}
           </div>
-        ))}
+
+          {/* 4 Fotos Secundarias en Grid */}
+          {displayImages.slice(1, 5).map((img, idx) => (
+            <div
+              key={idx}
+              onClick={() => openLightbox(idx + 1)}
+              className="relative hidden md:block aspect-[4/3] cursor-pointer group overflow-hidden bg-slate-100"
+            >
+              <img
+                src={img}
+                alt={`${title} - Foto ${idx + 2}`}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+              {/* Partner logo badge */}
+              {showPartnerLogo && partnerLogo && (
+                <div className="absolute top-2 right-2 h-6">
+                  <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[16px]" />
+                </div>
+              )}
+
+              {/* Si es la 5ta foto y hay más fotos disponibles */}
+              {idx === 3 && displayImages.length > 5 && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center text-white font-bold text-base">
+                  +{displayImages.length - 5} fotos
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Ventana de video (solo si la propiedad tiene video) */}
+        {videoUrl && (
+          <div className="md:col-span-1 min-h-[260px] md:min-h-0">
+            <VideoReels videoUrl={videoUrl} />
+          </div>
+        )}
       </div>
 
-      {/* Botón flotante para ver todas las fotos */}
-      <button
-        onClick={() => openLightbox(0)}
-        className="absolute bottom-4 right-4 flex items-center gap-2 px-4 py-2 bg-white/90 hover:bg-white text-slate-900 text-xs font-bold rounded-xl shadow-lg backdrop-blur-md transition-all hover:scale-105"
-      >
-        <Images className="w-4 h-4 text-blue-600" />
-        <span>Ver todas las {displayImages.length} fotos</span>
-      </button>
+      {/* Botón flotante: Ver todas las fotos */}
+      <div className="absolute bottom-4 right-4 flex items-center gap-2">
+        <button
+          onClick={() => openLightbox(0)}
+          className="flex items-center gap-2 px-4 py-2 bg-white/90 hover:bg-white text-slate-900 text-xs font-bold rounded-xl shadow-lg backdrop-blur-md transition-all hover:scale-105"
+        >
+          <Images className="w-4 h-4 text-blue-600" />
+          <span>Ver todas las {displayImages.length} fotos</span>
+        </button>
+      </div>
 
       {/* Lightbox Modal de Pantalla Completa */}
       {isLightboxOpen && (
@@ -122,8 +136,8 @@ export function PropertyGallery({ images, title, partnerLogo, partnerName, partn
               />
               {/* Partner logo badge on lightbox */}
               {showPartnerLogo && partnerLogo && (
-                <div className="absolute top-4 right-4 h-10 rounded-lg overflow-hidden shadow-xl bg-white/80">
-                  <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[28px] px-1" />
+                <div className="absolute top-4 right-4 h-9">
+                  <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[24px]" />
                 </div>
               )}
             </div>

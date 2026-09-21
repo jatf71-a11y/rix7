@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Property, PropertyFilterState, PropertyType } from '@/lib/types/property';
-import { PropertyMarker } from '@/lib/utils/markers';
 import { PropertyMap } from '@/components/map/PropertyMap';
 import { PropertyFilters } from '@/components/properties/PropertyFilters';
 import { PropertyGrid } from '@/components/properties/PropertyGrid';
@@ -40,7 +39,6 @@ function HomePageContent() {
   // ESTADO GLOBAL
   // ═══════════════════════════════════════════════════════════════════════════
   const [serverProperties, setServerProperties] = useState<Property[]>([]);
-  const [serverMarkers, setServerMarkers] = useState<PropertyMarker[]>([]);
   const [serverCategoryCounts, setServerCategoryCounts] = useState<Record<PropertyType, number>>(DEFAULT_COUNTS);
   const [serverOperationCounts, setServerOperationCounts] = useState({ for_sale: 0, for_rent: 0 });
   const [isLoading, setIsLoading] = useState(true);
@@ -164,16 +162,12 @@ function HomePageContent() {
   // FETCH: Server-side filtering con debounce
   // ═══════════════════════════════════════════════════════════════════════════
   const abortRef = useRef<AbortController | null>(null);
-  const markersAbortRef = useRef<AbortController | null>(null);
 
   const fetchProperties = useCallback((filterState: PropertyFilterState, region: string | null, commune: string | null) => {
-    // Cancelar requests anteriores
+    // Cancelar request anterior
     if (abortRef.current) abortRef.current.abort();
-    if (markersAbortRef.current) markersAbortRef.current.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-    const markersController = new AbortController();
-    markersAbortRef.current = markersController;
 
     const params = new URLSearchParams();
     params.set('operation', filterState.operationType);
@@ -192,7 +186,6 @@ function HomePageContent() {
 
     setIsLoading(true);
 
-    // Lista ligera para tarjetas / carrusel (sin coordenadas ni agente)
     fetch(`/api/properties?${params.toString()}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((result) => {
@@ -206,16 +199,6 @@ function HomePageContent() {
         if (err.name !== 'AbortError') console.error('Error loading properties:', err);
       })
       .finally(() => setIsLoading(false));
-
-    // Marcadores compactos para el mapa (cacheables en CDN, ~10x más chicos)
-    fetch(`/api/markers?${params.toString()}`, { signal: markersController.signal })
-      .then((r) => r.json())
-      .then((result) => {
-        if (result.success) setServerMarkers(result.data);
-      })
-      .catch((err) => {
-        if (err.name !== 'AbortError') console.error('Error loading markers:', err);
-      });
   }, []);
 
   // Debounced fetch: dispara request 300ms después de que el usuario deja de cambiar filtros
@@ -239,36 +222,20 @@ function HomePageContent() {
   // ═══════════════════════════════════════════════════════════════════════════
   // FILTRADO CLIENT-SIDE: Solo nearby mode (necesita GPS del usuario)
   // ═══════════════════════════════════════════════════════════════════════════
-  // IDs dentro del radio (nearby 5 km o alrededor del POI), calculados sobre
-  // los marcadores — la lista ligera ya no trae coordenadas.
-  const radiusIds = useMemo(() => {
-    if (activePoi) {
-      const ids = new Set<string>();
-      for (const m of serverMarkers) {
-        if (haversineDistance(activePoi.lat, activePoi.lng, m.lat, m.lng) <= activePoi.radiusKm) ids.add(m.id);
-      }
-      return ids;
-    }
-    if (nearbyActive && userLocation) {
-      const ids = new Set<string>();
-      for (const m of serverMarkers) {
-        if (haversineDistance(userLocation.lat, userLocation.lng, m.lat, m.lng) <= NEARBY_RADIUS_KM) ids.add(m.id);
-      }
-      return ids;
-    }
-    return null;
-  }, [serverMarkers, nearbyActive, userLocation, activePoi]);
-
   const propertiesFiltered = useMemo(() => {
-    if (!radiusIds) return serverProperties;
-    return serverProperties.filter((p) => radiusIds.has(p.id));
-  }, [serverProperties, radiusIds]);
-
-  // Marcadores filtrados por radio (lo que pinta el mapa)
-  const markersFiltered = useMemo(() => {
-    if (!radiusIds) return serverMarkers;
-    return serverMarkers.filter((m) => radiusIds.has(m.id));
-  }, [serverMarkers, radiusIds]);
+    // Modo POI: filtrar alrededor del punto de interés / dirección seleccionado
+    if (activePoi) {
+      return serverProperties.filter((p) => {
+        const dist = haversineDistance(activePoi.lat, activePoi.lng, p.lat, p.lng);
+        return dist <= activePoi.radiusKm;
+      });
+    }
+    if (!nearbyActive || !userLocation) return serverProperties;
+    return serverProperties.filter((p) => {
+      const dist = haversineDistance(userLocation.lat, userLocation.lng, p.lat, p.lng);
+      return dist <= NEARBY_RADIUS_KM;
+    });
+  }, [serverProperties, nearbyActive, userLocation, activePoi]);
 
   // 2. Contadores de categorías — server-side o client-side (nearby / POI)
   const categoryCounts = useMemo(() => {
@@ -589,7 +556,7 @@ function HomePageContent() {
         >
           <div className="h-full rounded-2xl border border-slate-200 overflow-hidden shadow-sm relative bg-white">
           <PropertyMap
-            properties={markersFiltered}
+            properties={propertiesFiltered}
             selectedPropertyId={hoveredPropertyId || selectedPropertyId}
             targetLocation={targetLocation}
             nearbyActive={nearbyActive}

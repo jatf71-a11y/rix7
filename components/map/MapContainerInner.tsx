@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { Map as MapLibreMap, setWorkerUrl, NavigationControl, Marker, Popup, LngLatBounds, GeoJSONSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { PropertyMarker } from '@/lib/utils/markers';
+import { Property } from '@/lib/types/property';
 import { Loader2, LocateFixed } from 'lucide-react';
 
 // ─── Helpers ──────────────────────────────────────────────────────────
@@ -63,8 +63,7 @@ function createUserLocationSvg(): string {
 // ─── Interface ────────────────────────────────────────────────────────
 
 interface MapContainerInnerProps {
-  /** Proyección compacta (lib/utils/markers.ts): solo los campos que pines y popups usan. */
-  properties: PropertyMarker[];
+  properties: Property[];
   selectedPropertyId?: string | null;
   targetLocation?: { lat: number; lng: number; zoom: number } | null;
   center?: [number, number];
@@ -363,7 +362,7 @@ export default function MapContainerInner({
 
     const currentYear = new Date().getFullYear();
     const visibleIds = new Set<string>();
-    const visibleProperties: PropertyMarker[] = [];
+    const visibleProperties: Property[] = [];
     const maxVisible = properties.length > 500 ? 300 : properties.length;
 
     // Una sola pasada: recoge los pines dentro del viewport (con tope).

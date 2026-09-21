@@ -1,11 +1,28 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { PropertyGallery } from '@/components/properties/PropertyGallery';
 import { MortgageCalculator } from '@/components/properties/MortgageCalculator';
 import { ContactAgentForm } from '@/components/properties/ContactAgentForm';
+
+// ═══ Leaflet se carga dinámicamente (solo cliente) ═══
+const PropertyMapLeaflet = dynamic(() => import('@/components/map/PropertyMapLeaflet'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="p-6 pb-3">
+        <div className="h-5 w-40 bg-slate-200 rounded animate-pulse" />
+        <div className="h-3 w-60 bg-slate-100 rounded animate-pulse mt-2" />
+      </div>
+      <div className="h-72 sm:h-96 bg-slate-100 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 text-slate-400 animate-spin" />
+      </div>
+    </div>
+  ),
+});
 import { useCurrency } from '@/components/currency/CurrencyProvider';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { formatArea, getPropertyTypeLabel, getStatusLabel } from '@/lib/utils/formatters';
@@ -21,6 +38,8 @@ import {
   CheckCircle,
   SearchX,
   Loader2,
+  MessageCircle,
+  Copy,
 } from 'lucide-react';
 import { Property } from '@/lib/types/property';
 import { getPartnerById } from '@/lib/data/partners';
@@ -31,6 +50,8 @@ export default function PropertyDetailPage() {
 
   const [property, setProperty] = useState<Property | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [copyOk, setCopyOk] = useState(false);
   const { format } = useCurrency();
 
   // ═══ Fetch de la propiedad desde la API (Supabase → fallback catálogo) ═══
@@ -58,6 +79,27 @@ export default function PropertyDetailPage() {
       cancelled = true;
     };
   }, [id]);
+
+  // ═══ Favoritos con localStorage (debe ir antes de cualquier early return) ═══
+  useEffect(() => {
+    if (!property) return;
+    const favs = JSON.parse(localStorage.getItem('rix7_favorites') || '[]') as string[];
+    setIsFavorited(favs.includes(property.id));
+  }, [property]);
+
+  const toggleFavorite = useCallback(() => {
+    if (!property) return;
+    const favs = JSON.parse(localStorage.getItem('rix7_favorites') || '[]') as string[];
+    const idx = favs.indexOf(property.id);
+    if (idx >= 0) {
+      favs.splice(idx, 1);
+      setIsFavorited(false);
+    } else {
+      favs.push(property.id);
+      setIsFavorited(true);
+    }
+    localStorage.setItem('rix7_favorites', JSON.stringify(favs));
+  }, [property]);
 
   // ═══ Estado: Propiedad no encontrada ═══
   if (notFound) {
@@ -128,6 +170,33 @@ export default function PropertyDetailPage() {
   const isRent = property.status === 'for_rent';
   const pricePerSqm = property.area_sqm > 0 ? Math.round(property.price / property.area_sqm) : 0;
 
+  // ═══ Compartir (WhatsApp + enlace copiado) ═══
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const shareText = property ? `${property.title} en ${property.city} | Rix7 — ${shareUrl}` : '';
+
+  const shareWhatsApp = () => {
+    const text = encodeURIComponent(shareText);
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopyOk(true);
+      setTimeout(() => setCopyOk(false), 2000);
+    } catch {}
+  };
+
+  const handleNativeShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: property?.title, text: shareText, url: shareUrl });
+      } else {
+        copyLink();
+      }
+    } catch {}
+  };
+
   return (
     <div className="bg-slate-50 min-h-screen pb-16">
       {/* Barra Superior con Navegación, Selector de Moneda y Acciones */}
@@ -141,15 +210,46 @@ export default function PropertyDetailPage() {
             <span>Volver a la búsqueda</span>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <CurrencySelector />
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
-              <Share2 className="w-3.5 h-3.5" />
-              <span>Compartir</span>
+            {/* Botón WhatsApp */}
+            <button
+              onClick={shareWhatsApp}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-200 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 transition-colors"
+              title="Compartir por WhatsApp"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">WhatsApp</span>
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:text-red-500 hover:bg-slate-50 transition-colors">
-              <Heart className="w-3.5 h-3.5" />
-              <span>Guardar</span>
+            {/* Botón Copiar enlace */}
+            <button
+              onClick={copyLink}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+              title="Copiar enlace"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{copyOk ? '¡Copiado!' : 'Copiar'}</span>
+            </button>
+            {/* Botón Compartir nativo */}
+            <button
+              onClick={handleNativeShare}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+              title="Compartir"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+            </button>
+            {/* Botón Favorito con localStorage */}
+            <button
+              onClick={toggleFavorite}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
+                isFavorited
+                  ? 'bg-red-50 border-red-200 text-red-600'
+                  : 'border-slate-200 text-slate-700 hover:text-red-500 hover:bg-slate-50'
+              }`}
+              title={isFavorited ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+            >
+              <Heart className={`w-3.5 h-3.5 ${isFavorited ? 'fill-current' : ''}`} />
+              <span className="hidden sm:inline">{isFavorited ? 'Guardado' : 'Guardar'}</span>
             </button>
           </div>
         </div>
@@ -164,6 +264,7 @@ export default function PropertyDetailPage() {
           partnerName={partner?.name}
           partnerColor={partner?.color}
           showPartnerLogo={!!showLogo}
+          videoUrl={property.video_url}
         />
 
         {/* Contenedor Principal: Información a la Izquierda y Contacto Fijo a la Derecha */}
@@ -269,6 +370,15 @@ export default function PropertyDetailPage() {
                 </div>
               </div>
             )}
+
+            {/* Mapa Interactivo con POIs del Sector */}
+            <PropertyMapLeaflet
+              lat={property.lat}
+              lng={property.lng}
+              title={property.title}
+              address={property.address}
+              city={property.city}
+            />
 
             {/* Calculadora de Dividendo Hipotecario */}
             {!isRent && <MortgageCalculator propertyPrice={property.price} />}
