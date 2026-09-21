@@ -46,55 +46,55 @@ export function PropertyGallery({ images, title, partnerLogo, partnerName, partn
     <div className="relative">
       {/* Grid: fotos (2/3) + video (1/3) cuando hay video; solo fotos si no */}
       <div className={`grid grid-cols-1 gap-2 rounded-2xl overflow-hidden ${videoUrl ? 'md:grid-cols-3' : 'md:grid-cols-4'}`}>
-        {/* Mosaico de fotos */}
-        <div className={`${videoUrl ? 'md:col-span-2' : 'md:col-span-4'} grid grid-cols-1 md:grid-cols-2 gap-2 rounded-2xl overflow-hidden max-h-[480px]`}>
-          {/* Foto Principal Destacada (Ocupa 2 columnas y 2 filas) */}
-          <div
-            onClick={() => openLightbox(0)}
-            className="md:col-span-2 md:row-span-2 relative aspect-[4/3] md:aspect-auto cursor-pointer group overflow-hidden bg-slate-100"
-          >
+        {/* Carrusel de fotos: una a la vez, conserva el mismo recuadro que el mosaico anterior */}
+        <div
+          onClick={() => openLightbox(activePhotoIndex)}
+          className={`${videoUrl ? 'md:col-span-2' : 'md:col-span-4'} relative aspect-[4/3] md:aspect-auto md:h-[480px] cursor-pointer group overflow-hidden rounded-2xl bg-slate-100`}
+        >
+          {/* Todas las fotos apiladas; solo la activa es visible (crossfade) */}
+          {displayImages.map((img, idx) => (
             <img
-              src={displayImages[0]}
-              alt={`${title} - Principal`}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              key={idx}
+              src={img}
+              alt={`${title} - Foto ${idx + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                idx === activePhotoIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-            {/* Partner logo badge */}
-            {showPartnerLogo && partnerLogo && (
-              <div className="absolute top-3 right-3 h-8">
-                <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[20px]" />
-              </div>
-            )}
+          ))}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
+
+          {/* Controles de navegación (no propagan el clic al lightbox) */}
+          {displayImages.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); prevPhoto(); }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 text-slate-900 bg-white/90 hover:bg-white rounded-full shadow-lg backdrop-blur-md transition-all hover:scale-110 z-10"
+                aria-label="Foto anterior"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); nextPhoto(); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 text-slate-900 bg-white/90 hover:bg-white rounded-full shadow-lg backdrop-blur-md transition-all hover:scale-110 z-10"
+                aria-label="Foto siguiente"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {/* Contador de posición */}
+          <div className="absolute bottom-3 left-3 px-2.5 py-1 bg-black/60 backdrop-blur-sm text-white text-[11px] font-bold rounded-full pointer-events-none">
+            {activePhotoIndex + 1} / {displayImages.length}
           </div>
 
-          {/* 4 Fotos Secundarias en Grid */}
-          {displayImages.slice(1, 5).map((img, idx) => (
-            <div
-              key={idx}
-              onClick={() => openLightbox(idx + 1)}
-              className="relative hidden md:block aspect-[4/3] cursor-pointer group overflow-hidden bg-slate-100"
-            >
-              <img
-                src={img}
-                alt={`${title} - Foto ${idx + 2}`}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-              {/* Partner logo badge */}
-              {showPartnerLogo && partnerLogo && (
-                <div className="absolute top-2 right-2 h-6">
-                  <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[16px]" />
-                </div>
-              )}
-
-              {/* Si es la 5ta foto y hay más fotos disponibles */}
-              {idx === 3 && displayImages.length > 5 && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center text-white font-bold text-base">
-                  +{displayImages.length - 5} fotos
-                </div>
-              )}
+          {/* Partner logo badge */}
+          {showPartnerLogo && partnerLogo && (
+            <div className="absolute top-3 right-3 h-8 pointer-events-none">
+              <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[20px]" />
             </div>
-          ))}
+          )}
         </div>
 
         {/* Ventana de video (solo si la propiedad tiene video) */}
@@ -105,10 +105,10 @@ export function PropertyGallery({ images, title, partnerLogo, partnerName, partn
         )}
       </div>
 
-      {/* Botón flotante: Ver todas las fotos */}
+      {/* Botón flotante: Ver todas las fotos (abre lightbox en la foto actual) */}
       <div className="absolute bottom-4 right-4 flex items-center gap-2">
         <button
-          onClick={() => openLightbox(0)}
+          onClick={() => openLightbox(activePhotoIndex)}
           className="flex items-center gap-2 px-4 py-2 bg-white/90 hover:bg-white text-slate-900 text-xs font-bold rounded-xl shadow-lg backdrop-blur-md transition-all hover:scale-105"
         >
           <Images className="w-4 h-4 text-blue-600" />

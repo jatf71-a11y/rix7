@@ -256,7 +256,12 @@ export default function PropertyDetailPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        {/* Galería Mosaico de Imágenes */}
+        {/* Título de la propiedad (mismo formato que las cards de resultados) */}
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-3">
+          {property.title}
+        </h1>
+
+        {/* Galería: carrusel de fotos + video */}
         <PropertyGallery
           images={property.images}
           title={property.title}
@@ -287,9 +292,10 @@ export default function PropertyDetailPage() {
               </div>
 
               <div className="flex flex-wrap items-baseline justify-between gap-4">
-                <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                {/* Precio (visualmente idéntico; el h1 de la página es el título de la propiedad) */}
+                <div className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
                   {format(property.price, isRent)}
-                </h1>
+                </div>
                 <span className="text-sm font-semibold text-slate-500">
                   {format(pricePerSqm)} / m²
                 </span>

@@ -12,7 +12,9 @@
 
 import type { POI } from '@/components/map/PropertyMapLeaflet';
 
-const CACHE_PREFIX = 'rix7_overpass_';
+// v4: marcadores con el formato chip de la ficha (SVG color sobre caja
+// blanca) — invalida caches con el formato anterior (círculo + SVG blanco).
+const CACHE_PREFIX = 'rix7_overpass_v4_';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 horas
 const MAX_MEMORY_ENTRIES = 30; // límite simple anti-fuga de memoria
 

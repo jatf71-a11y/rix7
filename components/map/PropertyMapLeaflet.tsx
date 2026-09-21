@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { Loader2, School, ShoppingCart, Stethoscope, BusFront, ShieldCheck, Trees } from 'lucide-react';
+import { Loader2, GraduationCap, Stethoscope, BusFront, ShoppingCart, Dumbbell, Trees, ShieldCheck, UtensilsCrossed, Landmark } from 'lucide-react';
+import { POI_CATEGORIES } from '@/lib/data/poiCategories';
 import { getCacheKey, getCachedPOIs, setCachedPOIs } from '@/lib/utils/overpassCache';
 
 export interface POI {
@@ -10,9 +11,10 @@ export interface POI {
   lng: number;
   name: string;
   type: string;
+  typeLabel: string;
   category: string;
-  icon: string;
   color: string;
+  svg: string;
 }
 
 interface PropertyMapLeafletProps {
@@ -23,50 +25,17 @@ interface PropertyMapLeafletProps {
   city: string;
 }
 
-// ═══ Configuración de categorías de POIs (íconos Lucide, mismo estilo que specs de la ficha) ═══
-const POI_CATEGORIES: Record<string, { label: string; color: string; LucideIcon: any; emoji: string; query: string }> = {
-  school: {
-    label: 'Colegios',
-    color: '#3b82f6',
-    LucideIcon: School,
-    emoji: '🏫',
-    query: '["amenity"~"school|kindergarten"]',
-  },
-  supermarket: {
-    label: 'Supermercados',
-    color: '#10b981',
-    LucideIcon: ShoppingCart,
-    emoji: '🛒',
-    query: '["shop"~"supermarket|convenience"]',
-  },
-  clinic: {
-    label: 'Clínicas/Hospitales',
-    color: '#ef4444',
-    LucideIcon: Stethoscope,
-    emoji: '🏥',
-    query: '["amenity"~"clinic|hospital|pharmacy"]',
-  },
-  transport: {
-    label: 'Transporte',
-    color: '#f59e0b',
-    LucideIcon: BusFront,
-    emoji: '🚌',
-    query: '["public_transport"="station"]',
-  },
-  police: {
-    label: 'Seguridad',
-    color: '#6366f1',
-    LucideIcon: ShieldCheck,
-    emoji: '🚔',
-    query: '["amenity"~"police|fire_station"]',
-  },
-  park: {
-    label: 'Áreas Verdes',
-    color: '#22c55e',
-    LucideIcon: Trees,
-    emoji: '🌳',
-    query: '["leisure"~"park|garden"]',
-  },
+// ═══ Íconos Lucide por categoría (solo vista; la config base vive en lib/data/poiCategories) ═══
+const POI_ICONS: Record<string, any> = {
+  education: GraduationCap,
+  health: Stethoscope,
+  transport: BusFront,
+  shopping: ShoppingCart,
+  sports: Dumbbell,
+  park: Trees,
+  safety: ShieldCheck,
+  leisure: UtensilsCrossed,
+  services: Landmark,
 };
 
 export default function PropertyMapLeaflet({ lat, lng, title, address, city }: PropertyMapLeafletProps) {
@@ -76,10 +45,9 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
   const [isMapReady, setIsMapReady] = useState(false);
   const [pois, setPois] = useState<POI[]>([]);
   const [loadingPois, setLoadingPois] = useState(false);
-  const [activeCategories, setActiveCategories] = useState<Record<string, boolean>>({
-    school: true, supermarket: true, clinic: true,
-    transport: true, police: true, park: true,
-  });
+  const [activeCategories, setActiveCategories] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(Object.keys(POI_CATEGORIES).map((key) => [key, true]))
+  );
 
   // ═══ Inicializar Leaflet directamente ═══
   useEffect(() => {
@@ -157,7 +125,7 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
 
     const fetchPOIs = async () => {
       setLoadingPois(true);
-      const radius = 1000;
+      const radius = 1500;
 
       // ═══ 1. Revisar caché (memoria + localStorage, TTL 24h) ═══
       const cacheKey = getCacheKey(lat, lng, radius);
@@ -168,63 +136,15 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
         return;
       }
 
-      // ═══ 2. Cache miss — consultar Overpass API ═══
-      const queries = Object.entries(POI_CATEGORIES).map(([key, cat]) => {
-        return `node${cat.query}(around:${radius},${lat},${lng});`;
-      });
-
-      const query = `[out:json][timeout:20];(${queries.join('\n')});out body;`;
-
-      // Espejos públicos de Overpass — si uno falla (504/429/rate-limit), probamos el siguiente
-      const OVERPASS_ENDPOINTS = [
-        'https://overpass-api.de/api/interpreter',
-        'https://overpass.kumi.systems/api/interpreter',
-        'https://overpass.private.coffee/api/interpreter',
-      ];
-
+      // ═══ 2. Cache miss — consultar nuestra API (proxy server-side de Overpass) ═══
+      // Los espejos de Overpass, la categorización y el rate limit viven en
+      // /api/pois; el cliente solo consume JSON ya procesado.
       try {
-        let response: Response | null = null;
-        let lastError: unknown = null;
+        const response = await fetch(`/api/pois?lat=${lat}&lng=${lng}`);
+        if (!response.ok) throw new Error(`API POIs error: ${response.status}`);
 
-        for (const endpoint of OVERPASS_ENDPOINTS) {
-          try {
-            const res = await fetch(endpoint, {
-              method: 'POST',
-              body: `data=${encodeURIComponent(query)}`,
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            });
-            if (res.ok) {
-              response = res;
-              break;
-            }
-            lastError = new Error(`Overpass API error: ${res.status} en ${endpoint}`);
-          } catch (e) {
-            lastError = e;
-          }
-        }
-
-        if (!response) throw lastError ?? new Error('Overpass no disponible');
-
-        const data = await response.json();
-        const parsed: POI[] = [];
-
-        for (const element of data.elements || []) {
-          if (!element.tags) continue;
-          const category = categorizePOI(element.tags);
-          if (category) {
-            const catConfig = POI_CATEGORIES[category];
-            parsed.push({
-              id: element.id,
-              lat: element.lat,
-              lng: element.lon,
-              name: element.tags.name || catConfig.label,
-              type: element.tags.amenity || element.tags.shop || element.tags.leisure || '',
-              category,
-              icon: catConfig.emoji,
-              color: catConfig.color,
-            });
-          }
-        }
+        const json = await response.json();
+        const parsed: POI[] = json?.data || [];
 
         setPois(parsed);
         // ═══ 3. Guardar en caché para futuras visitas ═══
@@ -252,33 +172,35 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
     markersRef.current.forEach(m => map.removeLayer(m));
     markersRef.current = [];
 
-    // Agregar marcadores de POIs filtrados
+    // Agregar marcadores de POIs filtrados — mismo formato que los chips de
+    // la ficha: caja blanca redondeada con borde gris e ícono de la categoría
     pois.filter(p => activeCategories[p.category]).forEach(poi => {
       const icon = L.divIcon({
-        html: `<div style="width:16px;height:16px;background:${poi.color};border:2px solid white;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:8px;">${poi.icon}</div>`,
+        html:
+          `<div style="width:26px;height:26px;background:#ffffff;border:2px solid #e2e8f0;border-radius:9px;` +
+          `box-shadow:0 2px 6px rgba(15,23,42,0.15);display:flex;align-items:center;justify-content:center;">` +
+          poi.svg +
+          `</div>`,
         className: '',
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
+        iconSize: [26, 26],
+        iconAnchor: [13, 13],
       });
 
       const marker = L.marker([poi.lat, poi.lng], { icon })
         .addTo(map)
-        .bindPopup(`<div style="text-align:center;padding:4px;"><span style="font-size:16px;">${poi.icon}</span><br/><strong style="font-size:12px;">${poi.name}</strong><br/><span style="font-size:10px;color:#666;">${poi.type}</span></div>`);
+        .bindPopup(
+          `<div style="text-align:center;padding:4px;min-width:140px;">` +
+          `<div style="width:40px;height:40px;margin:0 auto 6px;background:#ffffff;border:2px solid #e2e8f0;border-radius:12px;display:flex;align-items:center;justify-content:center;">` +
+          poi.svg.replace('width="13" height="13"', 'width="18" height="18"') +
+          `</div>` +
+          `<strong style="font-size:12px;">${poi.name}</strong><br/>` +
+          `<span style="font-size:10px;color:#666;">${poi.typeLabel || poi.type}</span>` +
+          `</div>`
+        );
 
       markersRef.current.push(marker);
     });
   }, [pois, activeCategories, isMapReady]);
-
-  // ═══ Categorizar POI ═══
-  const categorizePOI = (tags: Record<string, string>): string | null => {
-    if (tags.amenity === 'school' || tags.amenity === 'kindergarten' || tags.amenity === 'university') return 'school';
-    if (tags.shop === 'supermarket' || tags.shop === 'convenience') return 'supermarket';
-    if (tags.amenity === 'clinic' || tags.amenity === 'hospital' || tags.amenity === 'pharmacy') return 'clinic';
-    if (tags.public_transport || tags.highway === 'bus_stop' || tags.railway === 'station') return 'transport';
-    if (tags.amenity === 'police' || tags.amenity === 'fire_station') return 'police';
-    if (tags.leisure === 'park' || tags.leisure === 'garden' || tags.landuse === 'grass') return 'park';
-    return null;
-  };
 
   const toggleCategory = (cat: string) => {
     setActiveCategories(prev => ({ ...prev, [cat]: !prev[cat] }));
@@ -297,8 +219,8 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   };
 
-  // Radio caminable estándar: 800 m (~10 min a pie)
-  const WALKABLE_RADIUS_M = 800;
+  // Radio caminable estándar: 1200 m (~15 min a pie)
+  const WALKABLE_RADIUS_M = 1200;
   const walkableCounts = Object.keys(POI_CATEGORIES).reduce((acc, key) => {
     acc[key] = pois.filter(p => p.category === key && distanceMeters(lat, lng, p.lat, p.lng) <= WALKABLE_RADIUS_M).length;
     return acc;
@@ -323,11 +245,11 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
         )}
       </div>
 
-      {/* Filtros de POIs — íconos con superíndice de cantidad a radio caminable (800 m) */}
+      {/* Filtros de POIs — íconos con superíndice de cantidad a radio caminable (1200 m) */}
       <div className="p-4 border-t border-slate-100">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            Atractivos a 10 min caminando
+            Atractivos a 15 min caminando
           </span>
         </div>
 
@@ -335,12 +257,12 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
           {Object.entries(POI_CATEGORIES).map(([key, cat]) => {
             const walkable = walkableCounts[key] || 0;
             const isActive = activeCategories[key];
-            const Icon = cat.LucideIcon;
+            const Icon = POI_ICONS[key];
             return (
               <button
                 key={key}
                 onClick={() => toggleCategory(key)}
-                title={`${cat.label}: ${walkable} a ${WALKABLE_RADIUS_M} m o menos (clic para ${isActive ? 'ocultar' : 'mostrar'} en el mapa)`}
+                title={`${cat.description}: ${walkable} a ${WALKABLE_RADIUS_M} m o menos (clic para ${isActive ? 'ocultar' : 'mostrar'} en el mapa)`}
                 className="relative flex flex-col items-center justify-center group"
               >
                 <div
