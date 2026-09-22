@@ -400,8 +400,10 @@ export function safetySubtypeFromTags(tags: Record<string, string>): string | nu
   const isPdi = /polic[ií]a\s+de\s+investigaciones|\bPDI\b/i.test(name);
   const isMunicipal =
     /seguridad\s+ciudadana|paz\s+ciudadana|inspecci[oó]n\s+municipal|seguridad\s+municipal|direcci[oó]n\s+de\s+seguridad/i.test(name);
-  const isFire = /bomberos|bombas|cuerpo\s+de\s+bomberos/i.test(name);
-  const isPolice = /carabineros|carabinero|comisar|subcomisar|tenencia|ret[eé]n|prefectura|polic[ií]a/i.test(name);
+  // `\b` para no capturar a "Jardín Infantil Entreteniños" (contiene "reten")
+  const isFire = /\bbomberos?\b|\bbombas?\b|cuerpo\s+de\s+bomberos/i.test(name);
+  const isPolice =
+    /carabinero|comisar[ií]a|subcomisar[ií]a|\btenencia\b|\bret[eé]n\b|prefectura|polic[ií]a/i.test(name);
 
   if (tags.amenity === 'fire_station') return isPdi ? 'pdi' : 'fire_station';
   if (tags.amenity === 'police') {
@@ -413,7 +415,10 @@ export function safetySubtypeFromTags(tags: Record<string, string>): string | nu
   // Sin tag de tipo de seguridad nos apoyamos en el nombre/operador, pero solo
   // si el elemento no pertenece claramente a otra categoría — si no, un
   // "Restaurante La Comisaría" o una "Panadería La Tenencia" caerían acá.
+  // `highway`/`railway`: un paradero o estación llamados "Bomberos" o
+  // "Carabineros" (muy comunes, se nombran por el hito cercano) son transporte
   if (tags.shop || tags.leisure || tags.tourism || tags.craft || tags.healthcare) return null;
+  if (tags.highway || tags.railway) return null;
   if (tags.amenity) return null;
   if (tags.office && !['government', 'police', 'security'].includes(tags.office)) return null;
 

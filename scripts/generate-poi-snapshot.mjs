@@ -37,7 +37,7 @@ const OVERPASS_USER_AGENT =
   'Rix7Inmobiliaria/1.0 (portal inmobiliario; contacto: dev@rix7.cl)';
 
 // ═══ Categorías: espejo mínimo del módulo TS (este script corre en Node puro) ═══
-const CATEGORY_QUERIES = {
+export const CATEGORY_QUERIES = {
   education: ['["amenity"~"school|kindergarten|university|college"]'],
   health: ['["amenity"~"clinic|hospital|pharmacy|doctors"]'],
   transport: ['["railway"~"station|halt"]', '["railway"="subway_entrance"]', '["highway"="bus_stop"]', '["highway"="motorway_junction"]'],
@@ -53,29 +53,33 @@ const CATEGORY_QUERIES = {
   services: ['["amenity"~"bank|atm|townhall|courthouse|post_office"]', '["office"~"government|notary|financial"]'],
 };
 
-// Selectores Overpass → subtipo OSM + categoría (para categorizar sin importar TS)
-const TYPE_INDEX = [];
+// Selectores Overpass → subtipo OSM + categoría (para categorizar sin importar TS).
+// Los selectores vienen entre corchetes (["amenity"~"a|b"]), así que la regex
+// debe contemplarlos; los que llevan modificador ("...",i) no describen un
+// tag concreto y quedan fuera a propósito (se resuelven por nombre más abajo).
+export const TYPE_INDEX = [];
 for (const [category, selectors] of Object.entries(CATEGORY_QUERIES)) {
   for (const sel of selectors) {
-    const m = sel.match(/^"(?:\w+)"~"([^"]+)"$|^"(?:\w+)"="([^"]+)"$/);
+    const m = sel.match(/^\[\s*"([\w:]+)"\s*(?:~|=)\s*"([^"]+)"\s*\]$/);
     if (!m) continue;
-    const values = (m[1] || m[2]).split('|');
-    const key = sel.match(/^"(\w+)"/)[1];
-    for (const v of values) TYPE_INDEX.push({ category, tagKey: key, value: v });
+    const [, key, values] = m;
+    for (const v of values.split('|')) TYPE_INDEX.push({ category, tagKey: key, value: v });
   }
 }
 
 // Espejo de safetySubtypeFromTags (lib/data/poiCategories.ts): la PDI y la
 // seguridad ciudadana municipal casi nunca llevan `amenity`, así que se
 // derivan del nombre/operador.
-function safetySubtype(tags) {
+export function safetySubtype(tags) {
   const name = `${tags.name || ''} ${tags['name:es'] || ''} ${tags.operator || ''} ${tags.official_name || ''}`;
 
   const isPdi = /polic[ií]a\s+de\s+investigaciones|\bPDI\b/i.test(name);
   const isMunicipal =
     /seguridad\s+ciudadana|paz\s+ciudadana|inspecci[oó]n\s+municipal|seguridad\s+municipal|direcci[oó]n\s+de\s+seguridad/i.test(name);
-  const isFire = /bomberos|bombas|cuerpo\s+de\s+bomberos/i.test(name);
-  const isPolice = /carabineros|carabinero|comisar|subcomisar|tenencia|ret[eé]n|prefectura|polic[ií]a/i.test(name);
+  // `\b` para no capturar a "Jardín Infantil Entreteniños" (contiene "reten")
+  const isFire = /\bbomberos?\b|\bbombas?\b|cuerpo\s+de\s+bomberos/i.test(name);
+  const isPolice =
+    /carabinero|comisar[ií]a|subcomisar[ií]a|\btenencia\b|\bret[eé]n\b|prefectura|polic[ií]a/i.test(name);
 
   if (tags.amenity === 'fire_station') return isPdi ? 'pdi' : 'fire_station';
   if (tags.amenity === 'police') {
@@ -83,6 +87,17 @@ function safetySubtype(tags) {
     if (isMunicipal) return 'municipal_security';
     return 'police';
   }
+
+  // Sin tag de tipo de seguridad nos apoyamos en el nombre/operador, pero solo
+  // si el elemento no pertenece claramente a otra categoría (si no, un
+  // "Restaurante La Comisaría" o una "Panadería La Tenencia" caerían acá).
+  // `highway`/`railway`: un paradero o estación llamados "Bomberos" o
+  // "Carabineros" (muy comunes, se nombran por el hito cercano) son transporte
+  if (tags.shop || tags.leisure || tags.tourism || tags.craft || tags.healthcare) return null;
+  if (tags.highway || tags.railway) return null;
+  if (tags.amenity) return null;
+  if (tags.office && !['government', 'police', 'security'].includes(tags.office)) return null;
+
   if (isPdi) return 'pdi';
   if (isMunicipal) return 'municipal_security';
   if (isFire) return 'fire_station';
@@ -90,15 +105,18 @@ function safetySubtype(tags) {
   return null;
 }
 
-function categorize(tags) {
+export function categorize(tags) {
+  // Seguridad primero: puede venir sin tag de tipo (PDI, seguridad ciudadana) o
+  // con uno que otra categoría también usa (`office=government`), y sus propios
+  // guards descartan los lugares que pertenecen a otra categoría.
+  if (safetySubtype(tags)) return 'safety';
   for (const { category, tagKey, value } of TYPE_INDEX) {
     if (tags[tagKey] === value) return category;
   }
-  if (safetySubtype(tags)) return 'safety';
   return null;
 }
 
-function rawType(tags) {
+export function rawType(tags) {
   return (
     tags.amenity ||
     tags.shop ||
@@ -263,7 +281,11 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error('[poi-snapshot] error fatal:', err);
-  process.exit(1);
-});
+// Solo ejecuta el barrido si el script se corre directamente — así los tests
+// pueden importar `categorize`, `rawType` y `TYPE_INDEX` sin lanzar consultas.
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  main().catch((err) => {
+    console.error('[poi-snapshot] error fatal:', err);
+    process.exit(1);
+  });
+}

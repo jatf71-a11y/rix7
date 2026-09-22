@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { POI_CATEGORIES, categorizePOI, derivePoiType, poiImportance, poiSvgMarkup, poiTypeLabel } from '@/lib/data/poiCategories';
-import poiSnapshot from '@/lib/data/poiSnapshot.generated.json';
 
 /**
  * API route `/api/pois` — proxy server-side de Overpass API.
@@ -186,20 +185,28 @@ export async function GET(request: NextRequest) {
   // Si Overpass está caído y no hay nada en caché, servimos los POIs
   // precacheados para esta celda (pueden tener días, pero es mejor que un
   // mapa vacío). El cliente NO los cachea en localStorage.
-  const snapCell = (poiSnapshot as PoiSnapshot).cells[cacheKey];
-  const snapshotPois: PoiResponse[] | null = snapCell
-    ? snapCell.pois.map((p) => ({
-        id: p.id,
-        lat: p.lat,
-        lng: p.lng,
-        name: p.name || POI_CATEGORIES[p.category]?.label || 'POI',
-        type: p.type,
-        typeLabel: poiTypeLabel(p.type),
-        category: p.category,
-        color: POI_CATEGORIES[p.category]?.color || '#64748b',
-        svg: poiSvgMarkup(p.category, POI_CATEGORIES[p.category]?.color || '#64748b', 13),
-      }))
-    : null;
+  //
+  // El import es dinámico a propósito: el snapshot pesa varios MB y solo se
+  // necesita en este último nivel de degradación, así que el caso normal
+  // (Overpass responde o hay caché) no paga su lectura en cada cold start.
+  const snapshotPois = async (): Promise<PoiResponse[] | null> => {
+    const { default: poiSnapshot } = (await import('@/lib/data/poiSnapshot.generated.json')) as {
+      default: PoiSnapshot;
+    };
+    const cell = poiSnapshot.cells[cacheKey];
+    if (!cell) return null;
+    return cell.pois.map((p) => ({
+      id: p.id,
+      lat: p.lat,
+      lng: p.lng,
+      name: p.name || POI_CATEGORIES[p.category]?.label || 'POI',
+      type: p.type,
+      typeLabel: poiTypeLabel(p.type),
+      category: p.category,
+      color: POI_CATEGORIES[p.category]?.color || '#64748b',
+      svg: poiSvgMarkup(p.category, POI_CATEGORIES[p.category]?.color || '#64748b', 13),
+    }));
+  };
 
   // ═══ Miss — consultar Overpass ═══
   // Cada categoría aporta varios selectores; todos se unen en una sola
@@ -278,9 +285,10 @@ export async function GET(request: NextRequest) {
     if (staleCopy && staleCopy.length > 0) {
       return NextResponse.json({ success: true, data: staleCopy, cached: true, stale: true });
     }
-    if (snapshotPois && snapshotPois.length > 0) {
+    const desdeSnapshot = await snapshotPois();
+    if (desdeSnapshot && desdeSnapshot.length > 0) {
       return NextResponse.json(
-        { success: true, data: snapshotPois, cached: true, stale: true, snapshot: true },
+        { success: true, data: desdeSnapshot, cached: true, stale: true, snapshot: true },
         { headers: { 'Cache-Control': 'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800' } }
       );
     }
