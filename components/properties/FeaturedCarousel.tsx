@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Property } from '@/lib/types/property';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
 import { formatArea, getPropertyTypeLabel, getStatusLabel } from '@/lib/utils/formatters';
@@ -87,11 +88,14 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
       >
         {/* Imagen principal */}
         <div className="relative aspect-[21/9] overflow-hidden">
-          <img
+          <Image
             key={current.id}
             src={current.images?.[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80'}
             alt={current.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 60vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-700"
           />
 
           {/* Overlay gradiente */}

@@ -1,8 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import {
-  Search,
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';import { Search,
   X,
   GraduationCap,
   Train,
@@ -19,7 +17,17 @@ import {
   Banknote,
   Dumbbell,
 } from 'lucide-react';
-import { searchPOIs } from '@/lib/data/chilePOIs';
+
+/**
+ * `chilePOIs` (~65 KB de índice de búsqueda) se carga on-demand: solo cuando
+ * el usuario escribe por primera vez en el buscador de POIs. Fuera del
+ * bundle inicial del home.
+ */
+let searchPOIsPromise: Promise<typeof import('@/lib/data/chilePOIs')> | null = null;
+const loadSearchPOIs = () => {
+  searchPOIsPromise ??= import('@/lib/data/chilePOIs');
+  return searchPOIsPromise;
+};
 
 export interface SelectedPoiLocation {
   id: string;
@@ -77,16 +85,24 @@ export function PoiSearchInput({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Módulo de POIs cargado on-demand (null hasta que el usuario enfoca el input)
+  const [localPoiModule, setLocalPoiModule] = useState<Awaited<ReturnType<typeof loadSearchPOIs>> | null>(null);
+  // Precarga al enfocar el buscador (antes de escribir)
+  const handleFocusWithPrefetch = useCallback(() => {
+    setIsOpen(true);
+    loadSearchPOIs().then(setLocalPoiModule).catch(() => {});
+  }, []);
+
   // 1. Sugerencias locales instantáneas (0ms) de PUNTOS DE INTERÉS.
   //    Este buscador es exclusivo para POIs y direcciones: la búsqueda por
   //    comuna vive en su propio campo dentro de PropertyFilters.
   const localSuggestions = useMemo<SuggestionItem[]>(() => {
     const clean = query.trim();
-    if (!clean || clean.length < 2) return [];
+    if (!clean || clean.length < 2 || !localPoiModule) return [];
 
     const items: SuggestionItem[] = [];
 
-    const pois = searchPOIs(clean, 5);
+    const pois = localPoiModule.searchPOIs(clean, 5);
     for (const p of pois) {
       items.push({
         id: `poi-${p.id}`,
@@ -102,7 +118,7 @@ export function PoiSearchInput({
     }
 
     return items.slice(0, 6);
-  }, [query]);
+  }, [query, localPoiModule]);
 
   // 2. Búsqueda remota (Geocoding de direcciones / POIs adicionales)
   const fetchRemoteGeocode = useCallback((searchQuery: string) => {
@@ -312,7 +328,7 @@ export function PoiSearchInput({
             placeholder="Buscar Cerca de..."
             value={query}
             onChange={handleInputChange}
-            onFocus={() => setIsOpen(true)}
+            onFocus={handleFocusWithPrefetch}
             className="w-full pl-9 pr-8 py-1.5 bg-emerald-50 hover:bg-emerald-100 focus:bg-white border border-emerald-200 hover:border-emerald-300 rounded-lg text-xs font-semibold text-emerald-700 placeholder:text-emerald-600/80 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
           />
 

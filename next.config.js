@@ -11,6 +11,8 @@ const nextConfig = {
     ? { workerThreads: true }
     : {},
   images: {
+    // AVIF ~30% más liviano que WebP; Next sirve el formato que el browser soporta
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',

@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, memo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Property } from '@/lib/types/property';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
 import { formatArea, getPropertyTypeLabel, getStatusLabel } from '@/lib/utils/formatters';
@@ -83,14 +84,13 @@ function PropertyCardComponent({ property, isHovered, onMouseEnter, onMouseLeave
         {/* Contenedor de Imagen con Lazy Loading + Fade-in */}
         <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
           {isInView && (
-            <img
-              ref={imgRef}
+            <Image
               src={images[currentImageIndex]}
               alt={property.title}
-              loading="lazy"
-              decoding="async"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               onLoad={() => setImageLoaded(true)}
-              className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ${
+              className={`object-cover group-hover:scale-105 transition-all duration-500 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
             />
