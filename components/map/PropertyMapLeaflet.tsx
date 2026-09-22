@@ -216,7 +216,7 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
     const marker = propertyMarkerRef.current;
     if (!marker) return;
     const summary = buildEducationSummary(pois, lat, lng);
-    marker.setPopupContent(propertyPopupHtml(title, address, summary));
+    marker.setPopupContent(propertyPopupHtml(title, address, null));
   }, [isMapReady, pois, lat, lng, title, address]);
 
 // ═══ Marcadores de POIs en cluster — mismo formato chip de la ficha ═══
@@ -444,8 +444,16 @@ useEffect(() => {
         <p className="text-xs text-slate-500">{address}, {city}</p>
       </div>
 
-      {/* Mapa */}
-      <div className="relative h-72 sm:h-96">
+      {/* Mapa. Cuando hay una tarjeta de categoría abierta, el popup del pin
+          se atenúa para que los dos textos no compitan al superponerse.
+          El `!` es necesario: Leaflet define su propia opacidad para el popup
+          (`.leaflet-fade-anim .leaflet-popup.leaflet-zoom-animated`) con más
+          especificidad, y la transición la aporta esa misma regla. */}
+      <div
+        className={`relative h-72 sm:h-96 ${
+          hoveredChip ? '[&_.leaflet-popup]:!opacity-25' : ''
+        }`}
+      >
         <div ref={mapRef} className="w-full h-full" />
 
         {loadingPois && (
@@ -565,7 +573,7 @@ useEffect(() => {
       <div className="p-4 border-t border-slate-100">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            Atractivos a 15 min caminando
+            A 15 minutos caminando
           </span>
         </div>
 
