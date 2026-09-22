@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { POI_CATEGORIES, categorizePOI, poiSvgMarkup, poiTypeLabel } from '@/lib/data/poiCategories';
+import { POI_CATEGORIES, categorizePOI, poiImportance, poiSvgMarkup, poiTypeLabel } from '@/lib/data/poiCategories';
+import poiSnapshot from '@/lib/data/poiSnapshot.generated.json';
 
 /**
  * API route `/api/pois` — proxy server-side de Overpass API.
@@ -19,10 +20,26 @@ const OVERPASS_ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
   'https://overpass.private.coffee/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+  'https://overpass.osm.jp/api/interpreter',
 ];
+
+/**
+ * Presupuesto total para el failover: prueba espejos mientras quede tiempo.
+ * Así se aprovechan espejos extra cuando los primeros fallan rápido (429,
+ * conexión rechazada) sin pasarnos del maxDuration de 30 s en Vercel.
+ */
+const FAILOVER_BUDGET_MS = 24_000;
 
 /** Radio de búsqueda de POIs en metros (cubre el radio caminable de 15 min con margen). */
 const SEARCH_RADIUS_M = 1500;
+
+/**
+ * Techo de ejecución en Vercel: el peor caso del failover (3 espejos × 10 s)
+ * queda cubierto y la función responde con nuestro 502 limpio + fallback a
+ * caché stale, en vez de ser asesinada por el timeout por defecto (504 edge).
+ */
+export const maxDuration = 30;
 
 /** TTL de la caché de servidor. Los POIs de OSM cambian muy raramente. */
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 horas
@@ -52,6 +69,12 @@ interface PoiResponse {
   svg: string;
 }
 
+/** Forma del JSON generado por scripts/generate-poi-snapshot.mjs */
+interface PoiSnapshot {
+  generated_at: string | null;
+  cells: Record<string, { lat: number; lng: number; pois: Array<{ id: number; lat: number; lng: number; name: string; type: string; category: string }> }>;
+}
+
 /** Limpieza perezosa de buckets de rate limit expirados. */
 function sweepRateBuckets(now: number): void {
   if (rateBuckets.size < 1000) return;
@@ -79,11 +102,13 @@ function isRateLimited(ip: string): boolean {
 /** Consulta Overpass probando los espejos en orden. Lanza si todos fallan. */
 async function fetchFromOverpass(query: string): Promise<any> {
   let lastError: unknown = null;
+  const deadline = Date.now() + FAILOVER_BUDGET_MS;
 
   for (const endpoint of OVERPASS_ENDPOINTS) {
+    if (Date.now() >= deadline) break;
     try {
       // Cap duro de 10s por espejo: si está colgado, cortamos y probamos el
-      // siguiente. Peor caso total ~35s; con espejos sanos responde en <10s.
+      // siguiente. El deadline global acota el peor caso total a ~24s.
       const res = await fetch(endpoint, {
         method: 'POST',
         body: `data=${encodeURIComponent(query)}`,
@@ -144,6 +169,25 @@ export async function GET(request: NextRequest) {
   const staleCopy = cached ? cached.pois : null;
   if (cached) cache.delete(cacheKey);
 
+  // ═══ Fallback de última instancia: snapshot estático del build ═══
+  // Si Overpass está caído y no hay nada en caché, servimos los POIs
+  // precacheados para esta celda (pueden tener días, pero es mejor que un
+  // mapa vacío). El cliente NO los cachea en localStorage.
+  const snapCell = (poiSnapshot as PoiSnapshot).cells[cacheKey];
+  const snapshotPois: PoiResponse[] | null = snapCell
+    ? snapCell.pois.map((p) => ({
+        id: p.id,
+        lat: p.lat,
+        lng: p.lng,
+        name: p.name || POI_CATEGORIES[p.category]?.label || 'POI',
+        type: p.type,
+        typeLabel: poiTypeLabel(p.type),
+        category: p.category,
+        color: POI_CATEGORIES[p.category]?.color || '#64748b',
+        svg: poiSvgMarkup(p.category, POI_CATEGORIES[p.category]?.color || '#64748b', 13),
+      }))
+    : null;
+
   // ═══ Miss — consultar Overpass ═══
   // Cada categoría aporta varios selectores; todos se unen en una sola
   // consulta para minimizar el uso de Overpass.
@@ -195,9 +239,16 @@ export async function GET(request: NextRequest) {
     );
   } catch (err) {
     console.error('Error consultando Overpass:', err);
-    // Degradación elegante: mejor POIs vencidos que ninguno.
+    // Degradación elegante en 3 niveles: caché vencida → snapshot estático →
+    // error 502. Mejor POIs desactualizados que un mapa vacío.
     if (staleCopy && staleCopy.length > 0) {
       return NextResponse.json({ success: true, data: staleCopy, cached: true, stale: true });
+    }
+    if (snapshotPois && snapshotPois.length > 0) {
+      return NextResponse.json(
+        { success: true, data: snapshotPois, cached: true, stale: true, snapshot: true },
+        { headers: { 'Cache-Control': 'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800' } }
+      );
     }
     return NextResponse.json({ success: false, error: 'Servicio de POIs no disponible' }, { status: 502 });
   }

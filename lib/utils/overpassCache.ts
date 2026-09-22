@@ -28,43 +28,51 @@ export function getCacheKey(lat: number, lng: number, radius: number): string {
   return `${CACHE_PREFIX}${rLat}_${rLng}_${radius}`;
 }
 
-/** Obtiene POIs cacheados si existen y no han expirado. */
-export function getCachedPOIs(key: string): POI[] | null {
-  // 1. Memoria
+/** Lee la entrada cruda (memoria o disco) sin aplicar TTL. Uso interno. */
+function readEntryRaw(key: string): { pois: POI[]; ts: number } | null {
   const mem = memoryCache.get(key);
-  if (mem && Date.now() - mem.ts < CACHE_TTL_MS) {
-    return mem.pois;
-  }
-  if (mem) memoryCache.delete(key); // expirado
+  if (mem) return mem;
 
-  // 2. localStorage (solo cliente)
   if (typeof window === 'undefined') return null;
-
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
-
     const entry = JSON.parse(raw) as { pois: POI[]; ts: number };
-    if (!entry?.pois || !entry?.ts) {
-      localStorage.removeItem(key);
-      return null;
-    }
-
-    if (Date.now() - entry.ts >= CACHE_TTL_MS) {
-      localStorage.removeItem(key);
-      return null;
-    }
-
-    // Repoblar memoria desde disco
-    memoryCache.set(key, entry);
-    return entry.pois;
+    if (!entry?.pois || !entry?.ts) return null;
+    return entry;
   } catch {
-    // JSON corrupto o localStorage no disponible — limpiar y continuar
-    try {
-      localStorage.removeItem(key);
-    } catch {}
     return null;
   }
+}
+
+/**
+ * Obtiene POIs cacheados si existen y no han expirado.
+ * Las entradas expiradas NO se borran: `getStalePOIs` las recupera como
+ * respaldo cuando el fetch falla.
+ */
+export function getCachedPOIs(key: string): POI[] | null {
+  const entry = readEntryRaw(key);
+  if (!entry) return null;
+
+  if (Date.now() - entry.ts >= CACHE_TTL_MS) {
+    // Expirada pero conservada en disco: el mapa puede usarla si Overpass
+    // falla (ver getStalePOIs). La limpieza por cuota ya la recicla.
+    return null;
+  }
+
+  return entry.pois;
+}
+
+/**
+ * Respaldo de último recurso en el cliente: devuelve POIs vencidos (TTL
+ * superado) con su antigüedad, para mostrarlos marcados como "posiblemente
+ * desactualizados" cuando Overpass falla. Nunca lanza ni borra.
+ */
+export function getStalePOIs(key: string): { pois: POI[]; ageHours: number } | null {
+  const entry = readEntryRaw(key);
+  if (!entry || entry.pois.length === 0) return null;
+  const ageHours = Math.max(0, Math.round((Date.now() - entry.ts) / (60 * 60 * 1000)));
+  return { pois: entry.pois, ageHours };
 }
 
 /** Guarda POIs en ambas capas de caché. Nunca lanza. */

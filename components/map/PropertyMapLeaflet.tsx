@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { Loader2, GraduationCap, Stethoscope, BusFront, ShoppingCart, Dumbbell, Trees, ShieldCheck, UtensilsCrossed, Landmark } from 'lucide-react';
-import { POI_CATEGORIES } from '@/lib/data/poiCategories';
-import { getCacheKey, getCachedPOIs, setCachedPOIs } from '@/lib/utils/overpassCache';
+import { Loader2, GraduationCap, Stethoscope, BusFront, ShoppingCart, Dumbbell, Trees, ShieldCheck, UtensilsCrossed, Landmark, Map as MapIcon, ChevronDown, AlertTriangle, RotateCw, X, History } from 'lucide-react';
+import { POI_CATEGORIES, poiSvgMarkup, poiImportance, poiMarkerSize } from '@/lib/data/poiCategories';
+import { getCacheKey, getCachedPOIs, getStalePOIs, setCachedPOIs } from '@/lib/utils/overpassCache';
 
 export interface POI {
   id: number;
@@ -42,9 +42,18 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
+  const clusterRef = useRef<any>(null);
+  const [legendOpen, setLegendOpen] = useState(false);
+  // Cantidad de POIs por categoría dentro del área visible del mapa
+  const [viewportCounts, setViewportCounts] = useState<Record<string, number>>({});
   const [isMapReady, setIsMapReady] = useState(false);
   const [pois, setPois] = useState<POI[]>([]);
   const [loadingPois, setLoadingPois] = useState(false);
+  const [poisError, setPoisError] = useState(false);
+  // Respaldo: POIs vencidos de caché local mostrados cuando Overpass falla
+  const [staleInfo, setStaleInfo] = useState<{ ageHours: number } | null>(null);
+  // Permite al botón "Reintentar" relanzar el fetch del efecto
+  const fetchPoisRef = useRef<(() => void) | null>(null);
   const [activeCategories, setActiveCategories] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(Object.keys(POI_CATEGORIES).map((key) => [key, true]))
   );
@@ -111,6 +120,7 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
 
     return () => {
       cancelled = true;
+      clusterRef.current = null;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
@@ -125,6 +135,8 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
 
     const fetchPOIs = async () => {
       setLoadingPois(true);
+      setPoisError(false);
+      setStaleInfo(null);
       const radius = 1500;
 
       // ═══ 1. Revisar caché (memoria + localStorage, TTL 24h) ═══
@@ -148,59 +160,170 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
 
         setPois(parsed);
         // ═══ 3. Guardar en caché para futuras visitas ═══
-        if (parsed.length > 0) {
+        // Las respuestas de snapshot (fallback estático) NO se cachean en
+        // localStorage: están marcadas `snapshot: true` y podrían estar
+        // desactualizadas — no deben considerarse "buenos datos" por 24h.
+        if (parsed.length > 0 && json?.snapshot !== true) {
           setCachedPOIs(cacheKey, parsed);
         }
       } catch (err) {
         console.error('Error fetching POIs:', err);
+        // ═══ 4. Respaldo local: POIs vencidos de caché, si los hay ═══
+        // Si existen, ese es el estado (banner "desactualizados"); el banner
+        // de error queda reservado para cuando no hay nada que mostrar.
+        const stale = getStalePOIs(cacheKey);
+        if (stale) {
+          setPois(stale.pois);
+          setStaleInfo({ ageHours: stale.ageHours });
+        } else {
+          setPoisError(true);
+        }
       } finally {
         setLoadingPois(false);
       }
     };
 
+    fetchPoisRef.current = fetchPOIs;
     fetchPOIs();
   }, [isMapReady, lat, lng]);
 
-  // ═══ Actualizar marcadores en el mapa ═══
-  useEffect(() => {
-    if (!isMapReady || !mapInstanceRef.current) return;
-
-    const L = require('leaflet');
-    const map = mapInstanceRef.current;
-
-    // Limpiar marcadores anteriores (excepto el de la propiedad)
-    markersRef.current.forEach(m => map.removeLayer(m));
-    markersRef.current = [];
-
-    // Agregar marcadores de POIs filtrados — mismo formato que los chips de
-    // la ficha: caja blanca redondeada con borde gris e ícono de la categoría
-    pois.filter(p => activeCategories[p.category]).forEach(poi => {
-      const icon = L.divIcon({
+// ═══ Marcadores de POIs en cluster — mismo formato chip de la ficha ═══
+// Con cientos de POIs (Comercio/Ocio), los marcadores individuales saturan
+// el mapa; markercluster los agrupa por zoom y expande con clic/spiderfy.
+const buildMarkerLayer = (L: any, visible: POI[]) => {
+  const cluster = L.markerClusterGroup({
+    showCoverageOnHover: false,
+    maxClusterRadius: 45,
+    spiderfyOnMaxZoom: true,
+    disableClusteringAtZoom: 17,
+    // Re-render del cluster al cambiar filtros
+    chunkedLoading: true,
+    iconCreateFunction: (cluster: any) => {
+      const count = cluster.getChildCount();
+      const categoryCounts: Record<string, number> = {};
+      let dominantCategory = 'shopping';
+      let maxCount = 0;
+      cluster.getAllChildMarkers().forEach((m: any) => {
+        const c = m.options.poiCategory as string;
+        // Pondera por importancia: una estación de metro pesa más que un
+        // paradero al decidir el ícono del cluster
+        const weight = 1 + (m.options.poiImportance ?? 0);
+        categoryCounts[c] = (categoryCounts[c] || 0) + weight;
+        if (categoryCounts[c] > maxCount) {
+          maxCount = categoryCounts[c];
+          dominantCategory = c;
+        }
+      });
+      const dominant = POI_CATEGORIES[dominantCategory];
+      const svg = poiSvgMarkup(dominantCategory, dominant?.color || '#2563eb', 16);
+      // Caja chip blanca + badge con el total; el ícono refleja la categoría
+      // dominante dentro del cluster
+      return L.divIcon({
         html:
-          `<div style="width:26px;height:26px;background:#ffffff;border:2px solid #e2e8f0;border-radius:9px;` +
-          `box-shadow:0 2px 6px rgba(15,23,42,0.15);display:flex;align-items:center;justify-content:center;">` +
-          poi.svg +
+          `<div style="position:relative;width:38px;height:38px;background:#ffffff;border:2px solid ${dominant?.color || '#e2e8f0'};border-radius:12px;box-shadow:0 2px 8px rgba(15,23,42,0.18);display:flex;align-items:center;justify-content:center;">` +
+          svg +
+          `<span style="position:absolute;top:-7px;right:-7px;min-width:16px;height:16px;padding:0 4px;background:${dominant?.color || '#2563eb'};color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;border-radius:9999px;border:2px solid #fff;">${count}</span>` +
           `</div>`,
         className: '',
-        iconSize: [26, 26],
-        iconAnchor: [13, 13],
+        iconSize: [38, 38],
+        iconAnchor: [19, 19],
       });
+    },
+  });
 
-      const marker = L.marker([poi.lat, poi.lng], { icon })
-        .addTo(map)
-        .bindPopup(
-          `<div style="text-align:center;padding:4px;min-width:140px;">` +
-          `<div style="width:40px;height:40px;margin:0 auto 6px;background:#ffffff;border:2px solid #e2e8f0;border-radius:12px;display:flex;align-items:center;justify-content:center;">` +
-          poi.svg.replace('width="13" height="13"', 'width="18" height="18"') +
-          `</div>` +
-          `<strong style="font-size:12px;">${poi.name}</strong><br/>` +
-          `<span style="font-size:10px;color:#666;">${poi.typeLabel || poi.type}</span>` +
-          `</div>`
-        );
-
-      markersRef.current.push(marker);
+  visible.forEach((poi) => {
+    // Tamaño según importancia del subtipo: estaciones/hospitales/universidades
+    // más grandes que paraderos/farmacias/jardines
+    const size = poiMarkerSize(poi.type);
+    const svgSize = Math.round(size * 0.55);
+    const icon = L.divIcon({
+      html:
+        `<div style="width:${size}px;height:${size}px;background:#ffffff;border:2px solid #e2e8f0;border-radius:${Math.round(size / 3)}px;` +
+        `box-shadow:0 2px 6px rgba(15,23,42,0.15);display:flex;align-items:center;justify-content:center;">` +
+        poi.svg.replace(/width="\d+" height="\d+"/, `width="${svgSize}" height="${svgSize}"`) +
+        `</div>`,
+      className: '',
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
     });
-  }, [pois, activeCategories, isMapReady]);
+
+    const marker = L.marker([poi.lat, poi.lng], {
+      icon,
+      // El cluster lee la categoría desde las opciones del marcador
+      poiCategory: poi.category,
+      // Peso del POI para el ícono del cluster
+      poiImportance: poiImportance(poi.type),
+      // Los marcadores mayores quedan por encima al superponerse
+      zIndexOffset: [0, 400, 800][poiImportance(poi.type)] ?? 0,
+    });
+    marker.bindPopup(
+      `<div style="text-align:center;padding:4px;min-width:140px;">` +
+      `<div style="width:40px;height:40px;margin:0 auto 6px;background:#ffffff;border:2px solid #e2e8f0;border-radius:12px;display:flex;align-items:center;justify-content:center;">` +
+      poi.svg.replace('width="13" height="13"', 'width="18" height="18"') +
+      `</div>` +
+      `<strong style="font-size:12px;">${poi.name}</strong><br/>` +
+      `<span style="font-size:10px;color:#666;">${poi.typeLabel || poi.type}</span>` +
+      `</div>`
+    );
+    cluster.addLayer(marker);
+    markersRef.current.push(marker);
+  });
+
+  return cluster;
+};
+
+// ═══ Actualizar marcadores en el mapa (cluster) ═══
+useEffect(() => {
+  if (!isMapReady || !mapInstanceRef.current) return;
+
+  const map = mapInstanceRef.current;
+
+  // Limpiar cluster y marcadores anteriores
+  if (clusterRef.current) {
+    clusterRef.current.clearLayers();
+    map.removeLayer(clusterRef.current);
+    clusterRef.current = null;
+  }
+  markersRef.current = [];
+
+  const visible = pois.filter((p) => activeCategories[p.category]);
+  if (visible.length === 0) return;
+
+  // Carga del plugin (registra L.markerClusterGroup sobre el mismo L de CJS)
+  const L = require('leaflet');
+  require('leaflet.markercluster');
+
+  const cluster = buildMarkerLayer(L, visible);
+  map.addLayer(cluster);
+  clusterRef.current = cluster;
+}, [pois, activeCategories, isMapReady]);
+
+// ═══ Conteo por categoría dentro del viewport (leyenda) ═══
+// Se recalcula al mover/zoom y al cambiar POIs o filtros.
+useEffect(() => {
+  if (!isMapReady || !mapInstanceRef.current) return;
+  const map = mapInstanceRef.current;
+
+  const updateCounts = () => {
+    const b = map.getBounds();
+    const counts: Record<string, number> = {};
+    pois.forEach((p) => {
+      if (!activeCategories[p.category]) return;
+      if (p.lat >= b.getSouth() && p.lat <= b.getNorth() && p.lng >= b.getWest() && p.lng <= b.getEast()) {
+        counts[p.category] = (counts[p.category] || 0) + 1;
+      }
+    });
+    setViewportCounts(counts);
+  };
+
+  updateCounts();
+  map.on('moveend', updateCounts);
+  map.on('zoomend', updateCounts);
+  return () => {
+    map.off('moveend', updateCounts);
+    map.off('zoomend', updateCounts);
+  };
+}, [pois, activeCategories, isMapReady]);
 
   const toggleCategory = (cat: string) => {
     setActiveCategories(prev => ({ ...prev, [cat]: !prev[cat] }));
@@ -241,6 +364,111 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
           <div className="absolute top-2 right-2 z-[1000] bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-2">
             <Loader2 className="w-3.5 h-3.5 text-blue-600 animate-spin" />
             <span className="text-xs font-medium text-slate-600">Cargando atractivos...</span>
+          </div>
+        )}
+
+        {!loadingPois && staleInfo && (
+          <div className="absolute inset-x-4 top-2 z-[1000] flex justify-center">
+            <div className="bg-white/95 backdrop-blur-sm px-4 py-2.5 rounded-xl shadow-md border border-blue-200 flex items-center gap-3">
+              <History className="w-4 h-4 text-blue-500 shrink-0" />
+              <div className="text-xs text-slate-600">
+                <span className="font-semibold text-slate-800">Posiblemente desactualizados.</span>{' '}
+                <span className="hidden sm:inline">
+                  Mostrando atractivos guardados en tu dispositivo (hace {staleInfo.ageHours === 0 ? 'menos de 1' : staleInfo.ageHours} h).
+                </span>
+              </div>
+              <button
+                onClick={() => fetchPoisRef.current?.()}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors shrink-0"
+              >
+                <RotateCw className="w-3.5 h-3.5" />
+                Actualizar
+              </button>
+              <button
+                onClick={() => setStaleInfo(null)}
+                className="absolute -top-2 -right-1 p-1 bg-white rounded-full shadow border border-slate-200 text-slate-400 hover:text-slate-600"
+                aria-label="Cerrar aviso"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!loadingPois && poisError && (
+          <div className="absolute inset-x-4 top-2 z-[1000] flex justify-center">
+            <div className="bg-white/95 backdrop-blur-sm px-4 py-2.5 rounded-xl shadow-md border border-amber-200 flex items-center gap-3">
+              <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+              <div className="text-xs text-slate-600">
+                <span className="font-semibold text-slate-800">Atractivos no disponibles.</span>{' '}
+                <span className="hidden sm:inline">El servicio de mapas está saturado; el resto de la ficha funciona igual.</span>
+              </div>
+              <button
+                onClick={() => fetchPoisRef.current?.()}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors shrink-0"
+              >
+                <RotateCw className="w-3.5 h-3.5" />
+                Reintentar
+              </button>
+            </div>
+            <button
+              onClick={() => setPoisError(false)}
+              className="absolute -top-2 -right-1 p-1 bg-white rounded-full shadow border border-slate-200 text-slate-400 hover:text-slate-600"
+              aria-label="Cerrar aviso"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Leyenda expandible — cantidades según lo visible en el mapa */}
+      <div className="px-4 py-2.5 border-t border-slate-100">
+        <button
+          onClick={() => setLegendOpen((o) => !o)}
+          className="w-full flex items-center justify-between group"
+          aria-expanded={legendOpen}
+        >
+          <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 group-hover:text-slate-700 transition-colors">
+            <MapIcon className="w-3.5 h-3.5" />
+            Leyenda
+            <span className="font-semibold normal-case text-slate-400">
+              · {Object.values(viewportCounts).reduce((a, b) => a + b, 0)} en vista
+            </span>
+          </span>
+          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${legendOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        {legendOpen && (
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1.5">
+            {Object.entries(POI_CATEGORIES).map(([key, cat]) => {
+              const count = viewportCounts[key] || 0;
+              const isActive = activeCategories[key];
+              const Icon = POI_ICONS[key];
+              return (
+                <div
+                  key={key}
+                  className={`flex items-center gap-2 ${isActive ? '' : 'opacity-40'}`}
+                >
+                  {/* Mini chip con el mismo formato del marcador */}
+                  <div
+                    className="w-6 h-6 shrink-0 rounded-md bg-white border-2 flex items-center justify-center"
+                    style={{ borderColor: cat.color }}
+                  >
+                    <Icon className="w-3.5 h-3.5" style={{ color: cat.color }} />
+                  </div>
+                  <span className="text-xs text-slate-600 flex-1 truncate" title={cat.description}>
+                    {cat.label}
+                  </span>
+                  <span
+                    className={`text-xs font-bold tabular-nums ${count > 0 ? '' : 'text-slate-300'}`}
+                    style={count > 0 ? { color: cat.color } : undefined}
+                  >
+                    {count}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

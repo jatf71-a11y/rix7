@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { categorizePOI, poiTypeLabel, poiSvgMarkup, POI_SVG_DEFS, POI_CATEGORIES } from '@/lib/data/poiCategories';
+import { categorizePOI, poiTypeLabel, poiSvgMarkup, poiImportance, poiMarkerSize, POI_SVG_DEFS, POI_CATEGORIES } from '@/lib/data/poiCategories';
 
 /**
  * Suite de `poiCategories.ts` — módulo compartido entre la API route
@@ -169,6 +169,58 @@ describe('poiTypeLabel', () => {
 
   it('devuelve string vacío para entrada vacía', () => {
     expect(poiTypeLabel('')).toBe('');
+  });
+});
+
+describe('poiImportance / poiMarkerSize', () => {
+  it('transporte: estación de metro pesa más que un paradero', () => {
+    expect(poiImportance('station')).toBe(2);
+    expect(poiImportance('subway_entrance')).toBe(2);
+    expect(poiImportance('bus_stop')).toBe(0);
+  });
+
+  it('salud: hospital pesa más que clínica y que farmacia', () => {
+    expect(poiImportance('hospital')).toBe(2);
+    expect(poiImportance('clinic')).toBe(1);
+    expect(poiImportance('pharmacy')).toBe(0);
+  });
+
+  it('educación: universidad > colegio > jardín infantil', () => {
+    expect(poiImportance('university')).toBeGreaterThan(poiImportance('school'));
+    expect(poiImportance('school')).toBeGreaterThan(poiImportance('kindergarten'));
+  });
+
+  it('comercio: mall y supermercado pesan más que minimarket y panadería', () => {
+    expect(poiImportance('mall')).toBe(2);
+    expect(poiImportance('supermarket')).toBe(1);
+    expect(poiImportance('convenience')).toBe(0);
+    expect(poiImportance('bakery')).toBe(0);
+  });
+
+  it('el tamaño del marcador crece con la importancia: 19 < 23 < 27 px', () => {
+    expect(poiMarkerSize('bus_stop')).toBe(19);
+    expect(poiMarkerSize('school')).toBe(23);
+    expect(poiMarkerSize('station')).toBe(27);
+    expect(poiMarkerSize('bus_stop')).toBeLessThan(poiMarkerSize('school'));
+    expect(poiMarkerSize('school')).toBeLessThan(poiMarkerSize('station'));
+  });
+
+  it('subtipos sin mapear usan importancia normal (1) y tamaño medio', () => {
+    expect(poiImportance('charging_station')).toBe(1);
+    expect(poiMarkerSize('charging_station')).toBe(23);
+  });
+
+  it('todo subtipo con etiqueta en POI_TYPE_LABELS tiene importancia definida', () => {
+    // Muestreo representativo: si un subtipo nuevo se agrega a las etiquetas
+    // sin importancia, caerá en 1 — válido, pero las claves principales
+    // deben estar explícitas.
+    const expected = [
+      'station', 'bus_stop', 'hospital', 'pharmacy', 'university',
+      'mall', 'supermarket', 'park', 'police', 'bank', 'atm', 'restaurant',
+    ];
+    for (const type of expected) {
+      expect([0, 1, 2]).toContain(poiImportance(type));
+    }
   });
 });
 

@@ -111,6 +111,77 @@ const POI_TYPE_LABELS: Record<string, string> = {
   financial: 'Oficina financiera',
 };
 
+/**
+ * Importancia del subtipo para escalar el marcador: los servicios mayores
+ * (estaciones de metro, hospitales, universidades) destacan sobre los
+ * menores (paraderos, farmacias, jardines infantiles).
+ *   2 = mayor (27px) · 1 = normal (23px) · 0 = menor (19px)
+ */
+const POI_TYPE_IMPORTANCE: Record<string, number> = {
+  // Transporte: metro/tren > paradero
+  station: 2,
+  halt: 1,
+  subway_entrance: 2,
+  bus_stop: 0,
+  motorway_junction: 0,
+  // Salud: hospital/clínica > centro médico > farmacia
+  hospital: 2,
+  clinic: 1,
+  doctors: 1,
+  pharmacy: 0,
+  // Educación: universidad > instituto/colegio > jardín
+  university: 2,
+  college: 1,
+  school: 1,
+  kindergarten: 0,
+  // Comercio: mall/supermercado > tienda por departamento > resto
+  mall: 2,
+  department_store: 1,
+  supermarket: 1,
+  convenience: 0,
+  bakery: 0,
+  greengrocer: 0,
+  marketplace: 1,
+  // Deportes: estadio > resto
+  stadium: 2,
+  fitness_centre: 0,
+  sports_centre: 0,
+  sports_club: 0,
+  // Áreas verdes: parque > plaza/jardín de bolsillo
+  park: 2,
+  garden: 0,
+  dog_park: 0,
+  // Seguridad: comisaría > cuartel de bomberos
+  police: 1,
+  fire_station: 0,
+  // Servicios: banco/municipalidad > cajero
+  bank: 1,
+  townhall: 2,
+  courthouse: 2,
+  atm: 0,
+  post_office: 0,
+  notary: 0,
+  financial: 0,
+  government: 0,
+  // Ocio: restaurante > cafetería/fast food
+  restaurant: 1,
+  cafe: 0,
+  fast_food: 0,
+  food_court: 1,
+  arts_centre: 1,
+  community_centre: 0,
+};
+
+/** Nivel de importancia (2 mayor, 1 normal, 0 menor) del subtipo OSM. */
+export function poiImportance(type: string): number {
+  return POI_TYPE_IMPORTANCE[type] ?? 1;
+}
+
+/** Tamaño del marcador (px) según el nivel de importancia. */
+export function poiMarkerSize(type: string): number {
+  return [19, 23, 27][poiImportance(type)] ?? 23;
+}
+
 /** Etiqueta humana del subtipo OSM; humaniza el valor crudo si no está mapeado. */
 export function poiTypeLabel(type: string): string {
   if (!type) return '';

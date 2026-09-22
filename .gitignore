@@ -28,3 +28,4 @@ yarn-error.log*
 
 # Logs locales de desarrollo
 dev-server.log
+*.log
