@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { POI_CATEGORIES, categorizePOI, poiImportance, poiSvgMarkup, poiTypeLabel } from '@/lib/data/poiCategories';
+import { POI_CATEGORIES, categorizePOI, derivePoiType, poiImportance, poiSvgMarkup, poiTypeLabel } from '@/lib/data/poiCategories';
 import poiSnapshot from '@/lib/data/poiSnapshot.generated.json';
 
 /**
@@ -23,6 +23,13 @@ const OVERPASS_ENDPOINTS = [
   'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
   'https://overpass.osm.jp/api/interpreter',
 ];
+
+/**
+ * Overpass responde 406 (Apache) a clientes sin User-Agent identificable; su
+ * política de uso exige identificar la aplicación con un contacto.
+ */
+const OVERPASS_USER_AGENT =
+  'Rix7Inmobiliaria/1.0 (portal inmobiliario; contacto: dev@rix7.cl)';
 
 /**
  * Presupuesto total para el failover: prueba espejos mientras quede tiempo.
@@ -112,7 +119,13 @@ async function fetchFromOverpass(query: string): Promise<any> {
       const res = await fetch(endpoint, {
         method: 'POST',
         body: `data=${encodeURIComponent(query)}`,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        // Overpass rechaza con 406 a los clientes sin User-Agent identificable
+        // (política de uso de OSM). Sin este header todas las consultas fallan
+        // y el mapa queda sin POIs; el identificador debe ser real y con contacto.
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': OVERPASS_USER_AGENT,
+        },
         cache: 'no-store',
         signal: AbortSignal.timeout(10_000),
       });
@@ -191,10 +204,14 @@ export async function GET(request: NextRequest) {
   // ═══ Miss — consultar Overpass ═══
   // Cada categoría aporta varios selectores; todos se unen en una sola
   // consulta para minimizar el uso de Overpass.
-  const queries = Object.entries(POI_CATEGORIES).flatMap(([key, cat]) =>
-    cat.queries.map((q) => `node${q}(around:${SEARCH_RADIUS_M},${lat},${lng});`)
+  // `nwr` = nodos + ways + relations: comisarías, cuarteles, colegios,
+  // malls y hospitales suelen estar mapeados como polígono del edificio, y
+  // con `node` quedaban fuera (Seguridad daba 0 aunque hubiera cuarteles).
+  // `out center` entrega el centroide de esos polígonos.
+  const queries = Object.entries(POI_CATEGORIES).flatMap(([, cat]) =>
+    cat.queries.map((q) => `nwr${q}(around:${SEARCH_RADIUS_M},${lat},${lng});`)
   );
-  const query = `[out:json][timeout:10];(${queries.join('\n')});out body;`;
+  const query = `[out:json][timeout:25];(${queries.join('\n')});out center;`;
 
   try {
     const data = await fetchFromOverpass(query);
@@ -203,24 +220,41 @@ export async function GET(request: NextRequest) {
     for (const element of data.elements || []) {
       if (!element.tags) continue;
       const category = categorizePOI(element.tags);
-      if (category) {
-        const catConfig = POI_CATEGORIES[category];
-        // Subtipo OSM específico del elemento (school, bus_stop, atm...)
-        const rawType = element.tags.amenity || element.tags.shop || element.tags.leisure || element.tags.railway || element.tags.highway || element.tags.office || '';
-        parsed.push({
-          id: element.id,
-          lat: element.lat,
-          lng: element.lon,
-          name: element.tags.name || catConfig.label,
-          type: rawType,
-          typeLabel: poiTypeLabel(rawType),
-          category,
-          color: catConfig.color,
-          // SVG con trazo del color de la categoría — el cliente lo envuelve
-          // en el mismo formato de chip que la ficha (caja blanca + borde).
-          svg: poiSvgMarkup(category, catConfig.color, 13),
-        });
-      }
+      if (!category) continue;
+
+      // Los ways/relations no traen lat/lon: `out center` da el centroide
+      const center = element.center || element;
+      if (typeof center.lat !== 'number' || typeof center.lon !== 'number') continue;
+
+      const catConfig = POI_CATEGORIES[category];
+      const name = element.tags.name || catConfig.label;
+
+      // Un mismo lugar puede venir como nodo y como polígono del edificio
+      // (o duplicado); sin esto el contador lo sumaría dos veces.
+      const duplicate = parsed.some(
+        (p) =>
+          p.category === category &&
+          p.name === name &&
+          Math.abs(p.lat - center.lat) < 0.0004 &&
+          Math.abs(p.lng - center.lon) < 0.0004
+      );
+      if (duplicate) continue;
+
+      // Subtipo derivado: tag de tipo de OSM o, si no hay, el de seguridad
+      const type = derivePoiType(element.tags);
+      parsed.push({
+        id: element.id,
+        lat: center.lat,
+        lng: center.lon,
+        name,
+        type,
+        typeLabel: poiTypeLabel(type),
+        category,
+        color: catConfig.color,
+        // SVG con trazo del color de la categoría — el cliente lo envuelve
+        // en el mismo formato de chip que la ficha (caja blanca + borde).
+        svg: poiSvgMarkup(category, catConfig.color, 13),
+      });
     }
 
     // Guardar en caché solo si hay resultados (evita cachear respuestas vacías

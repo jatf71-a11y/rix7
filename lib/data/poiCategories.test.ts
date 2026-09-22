@@ -88,6 +88,29 @@ describe('categorizePOI', () => {
       expect(categorizePOI({ amenity: 'police' })).toBe('safety');
       expect(categorizePOI({ amenity: 'fire_station' })).toBe('safety');
     });
+
+    it('categoriza comisarías/tenencias por nombre (sin amenity)', () => {
+      expect(categorizePOI({ name: '19 Comisaría Providencia' })).toBe('safety');
+      expect(categorizePOI({ name: 'Tenencia El Salto' })).toBe('safety');
+      expect(categorizePOI({ name: 'Subcomisaría Providencia Sur' })).toBe('safety');
+      expect(categorizePOI({ operator: 'Carabineros de Chile' })).toBe('safety');
+    });
+
+    it('categoriza PDI y seguridad ciudadana municipal', () => {
+      expect(categorizePOI({ name: 'PDI Las Condes' })).toBe('safety');
+      expect(categorizePOI({ name: 'Policía de Investigaciones de Chile' })).toBe('safety');
+      expect(categorizePOI({ name: 'Centro de Seguridad Ciudadana' })).toBe('safety');
+      expect(categorizePOI({ name: 'Paz Ciudadana Providencia' })).toBe('safety');
+      expect(categorizePOI({ office: 'government', name: 'Dirección de Seguridad Municipal' })).toBe('safety');
+    });
+
+    it('no marca como seguridad lugares que solo mencionan la palabra', () => {
+      // Con tag de otra categoría manda el tag, no el nombre
+      expect(categorizePOI({ amenity: 'restaurant', name: 'Restaurante La Comisaría' })).toBe('leisure');
+      expect(categorizePOI({ shop: 'bakery', name: 'Panadería La Tenencia' })).toBe('shopping');
+      expect(categorizePOI({ amenity: 'school', name: 'Colegio Bomberos de Chile' })).toBe('education');
+      expect(categorizePOI({ name: 'Farmacia Policlínica' })).toBeNull();
+    });
   });
 
   describe('ocio', () => {

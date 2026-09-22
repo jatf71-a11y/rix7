@@ -11,6 +11,14 @@
  * `categorizePOI`, que decide a qué grupo pertenece según sus tags.
  */
 
+/**
+ * Radio caminable de referencia: 15 minutos a pie (~1,2 km).
+ * Fuente única para los contadores de los chips, la descripción del sector y
+ * los filtros del mapa — el fetch consulta un radio mayor (1500 m) para
+ * cubrirlo con margen.
+ */
+export const WALKABLE_RADIUS_M = 1200;
+
 export interface PoiCategoryConfig {
   /** Etiqueta corta para los chips de la UI */
   label: string;
@@ -93,8 +101,12 @@ const POI_TYPE_LABELS: Record<string, string> = {
   park: 'Parque',
   garden: 'Jardín',
   dog_park: 'Plaza de mascotas',
-  police: 'Carabineros',
-  fire_station: 'Cuerpo de Bomberos',
+  police: 'Comisaría de Carabineros',
+  fire_station: 'Cuartel de Bomberos',
+  // Subtipos de seguridad que OSM rara vez marca con `amenity`: se derivan
+  // del nombre o del operador (PDI, seguridad municipal)
+  pdi: 'PDI',
+  municipal_security: 'Seguridad Ciudadana municipal',
   restaurant: 'Restaurante',
   cafe: 'Cafetería',
   fast_food: 'Comida rápida',
@@ -110,6 +122,103 @@ const POI_TYPE_LABELS: Record<string, string> = {
   notary: 'Notaría',
   financial: 'Oficina financiera',
 };
+
+/**
+ * Plurales de los subtipos, para las descripciones del sector
+ * ("3 colegios, 4 jardines infantiles y 1 universidad").
+ *
+ * Van explícitos porque en español el plural no siempre se forma agregando
+ * una letra al final de la etiqueta — en "Cajero automático" pluraliza el
+ * sustantivo, no el adjetivo.
+ */
+const POI_TYPE_PLURALS: Record<string, string> = {
+  school: 'colegios',
+  kindergarten: 'jardines infantiles',
+  university: 'universidades',
+  college: 'institutos',
+  clinic: 'clínicas',
+  hospital: 'hospitales',
+  pharmacy: 'farmacias',
+  doctors: 'centros médicos',
+  station: 'estaciones',
+  halt: 'estaciones menores',
+  subway_entrance: 'bocas de Metro',
+  bus_stop: 'paraderos',
+  motorway_junction: 'accesos a autopista',
+  supermarket: 'supermercados',
+  convenience: 'minimarkets',
+  mall: 'malls',
+  department_store: 'tiendas por departamento',
+  bakery: 'panaderías',
+  greengrocer: 'verdulerías',
+  marketplace: 'ferias libres',
+  fitness_centre: 'gimnasios',
+  sports_centre: 'centros deportivos',
+  stadium: 'estadios',
+  sports_club: 'clubes deportivos',
+  park: 'parques',
+  garden: 'jardines',
+  dog_park: 'plazas de mascotas',
+  police: 'comisarías de Carabineros',
+  fire_station: 'cuarteles de bomberos',
+  pdi: 'unidades de la PDI',
+  municipal_security: 'centros de seguridad ciudadana',
+  restaurant: 'restaurantes',
+  cafe: 'cafeterías',
+  fast_food: 'locales de comida rápida',
+  food_court: 'patios de comida',
+  arts_centre: 'centros culturales',
+  community_centre: 'centros comunitarios',
+  bank: 'bancos',
+  atm: 'cajeros automáticos',
+  townhall: 'municipalidades',
+  courthouse: 'tribunales de justicia',
+  post_office: 'sucursales de correos',
+  government: 'instituciones públicas',
+  notary: 'notarías',
+  financial: 'oficinas financieras',
+};
+
+/**
+ * Singulares que no se leen bien al derivarlos de la etiqueta del marcador
+ * (siglas y etiquetas que necesitan una palabra de apoyo).
+ */
+const POI_TYPE_SINGULARS: Record<string, string> = {
+  pdi: 'unidad de la PDI',
+  municipal_security: 'centro de seguridad ciudadana',
+  government: 'institución pública',
+  atm: 'cajero automático',
+};
+
+/**
+ * Etiqueta singular del subtipo para textos descriptivos ("1 unidad de la PDI").
+ */
+export function poiTypeLabelSingular(type: string): string {
+  if (!type) return '';
+  return POI_TYPE_SINGULARS[type] || poiTypeLabel(type).toLowerCase();
+}
+
+/**
+ * Etiqueta plural del subtipo para textos descriptivos.
+ * Subtipos sin plural explícito se pluralizan con una regla simple
+ * (vocal + "s", "z" → "ces", consonante + "es").
+ */
+export function poiTypeLabelPlural(type: string): string {
+  if (!type) return '';
+  if (POI_TYPE_PLURALS[type]) return POI_TYPE_PLURALS[type];
+
+  const label = poiTypeLabel(type).toLowerCase();
+  if (!label) return '';
+  // Pluraliza solo la última palabra del label
+  const words = label.split(' ');
+  const last = words[words.length - 1];
+  const plural = /[aeiouáéíóú]$/.test(last)
+    ? `${last}s`
+    : /z$/.test(last)
+      ? `${last.slice(0, -1)}ces`
+      : `${last}es`;
+  return [...words.slice(0, -1), plural].join(' ');
+}
 
 /**
  * Importancia del subtipo para escalar el marcador: los servicios mayores
@@ -151,9 +260,11 @@ const POI_TYPE_IMPORTANCE: Record<string, number> = {
   park: 2,
   garden: 0,
   dog_park: 0,
-  // Seguridad: comisaría > cuartel de bomberos
+  // Seguridad: comisaría/cuartel > PDI > seguridad ciudadana municipal
   police: 1,
-  fire_station: 0,
+  fire_station: 1,
+  pdi: 1,
+  municipal_security: 0,
   // Servicios: banco/municipalidad > cajero
   bank: 1,
   townhall: 2,
@@ -244,10 +355,16 @@ export const POI_CATEGORIES: Record<string, PoiCategoryConfig> = {
   },
   safety: {
     label: 'Seguridad',
-    description: 'Carabineros, bomberos y centros de seguridad municipal',
+    description: 'Comisarías de Carabineros, cuarteles de bomberos, PDI y seguridad ciudadana',
     color: '#6366f1',
     emoji: '🚔',
-    queries: ['["amenity"~"police|fire_station"]'],
+    queries: [
+      '["amenity"~"police|fire_station"]',
+      // Comisarías, tenencias, PDI y seguridad municipal que OSM mapea sin
+      // `amenity` (o como polígono del edificio) — se detectan por nombre
+      '["name"~"Carabinero|Comisar|Subcomisar|Tenencia|Retén|Bomberos|Policía de Investigaciones|PDI|Seguridad Ciudadana|Paz Ciudadana",i]',
+      '["operator"~"Carabineros|Bomberos|Policía de Investigaciones|Seguridad Ciudadana",i]',
+    ],
   },
   leisure: {
     label: 'Ocio',
@@ -267,6 +384,65 @@ export const POI_CATEGORIES: Record<string, PoiCategoryConfig> = {
     ],
   },
 };
+
+/**
+ * Subtipo de seguridad y emergencias de un elemento OSM.
+ *
+ * `amenity=police|fire_station` no cubre a la PDI ni a los centros de
+ * seguridad ciudadana municipal (Paz Ciudadana, inspectores), que en OSM
+ * suelen venir como `office=government` o directamente sin tag de tipo, con
+ * la institución solo en `name`/`operator`. También cubre el caso frecuente
+ * de comisarías y cuarteles mapeados como polígono del edificio.
+ */
+export function safetySubtypeFromTags(tags: Record<string, string>): string | null {
+  const name = `${tags.name || ''} ${tags['name:es'] || ''} ${tags.operator || ''} ${tags.official_name || ''}`;
+
+  const isPdi = /polic[ií]a\s+de\s+investigaciones|\bPDI\b/i.test(name);
+  const isMunicipal =
+    /seguridad\s+ciudadana|paz\s+ciudadana|inspecci[oó]n\s+municipal|seguridad\s+municipal|direcci[oó]n\s+de\s+seguridad/i.test(name);
+  const isFire = /bomberos|bombas|cuerpo\s+de\s+bomberos/i.test(name);
+  const isPolice = /carabineros|carabinero|comisar|subcomisar|tenencia|ret[eé]n|prefectura|polic[ií]a/i.test(name);
+
+  if (tags.amenity === 'fire_station') return isPdi ? 'pdi' : 'fire_station';
+  if (tags.amenity === 'police') {
+    if (isPdi) return 'pdi';
+    if (isMunicipal) return 'municipal_security';
+    return 'police';
+  }
+
+  // Sin tag de tipo de seguridad nos apoyamos en el nombre/operador, pero solo
+  // si el elemento no pertenece claramente a otra categoría — si no, un
+  // "Restaurante La Comisaría" o una "Panadería La Tenencia" caerían acá.
+  if (tags.shop || tags.leisure || tags.tourism || tags.craft || tags.healthcare) return null;
+  if (tags.amenity) return null;
+  if (tags.office && !['government', 'police', 'security'].includes(tags.office)) return null;
+
+  if (isPdi) return 'pdi';
+  if (isMunicipal) return 'municipal_security';
+  if (isFire) return 'fire_station';
+  if (isPolice) return 'police';
+  return null;
+}
+
+/**
+ * Subtipo visible del POI ("school", "bus_stop", "pdi"...).
+ * Usa el tag de tipo de OSM y, si no existe, el subtipo derivado de seguridad.
+ * Lo usan la API route y el generador de snapshot para popups y tamaños.
+ */
+export function derivePoiType(tags: Record<string, string>): string {
+  return (
+    tags.amenity ||
+    tags.shop ||
+    tags.leisure ||
+    tags.railway ||
+    tags.highway ||
+    // Antes de `office`: una PDI o un centro de seguridad ciudadana suelen
+    // venir como office=government, pero "PDI" describe mucho mejor el lugar
+    safetySubtypeFromTags(tags) ||
+    tags.office ||
+    ''
+  );
+}
 
 /**
  * Categoriza un elemento de Overpass según sus tags de OSM.
@@ -295,8 +471,8 @@ export function categorizePOI(tags: Record<string, string>): string | null {
   if (['park', 'garden', 'dog_park'].includes(tags.leisure)) return 'park';
   if (tags.place === 'square') return 'park';
 
-  // Seguridad y emergencias
-  if (['police', 'fire_station'].includes(tags.amenity)) return 'safety';
+  // Seguridad y emergencias (incluye lo derivado por nombre/operador)
+  if (safetySubtypeFromTags(tags)) return 'safety';
 
   // Ocio
   if (['restaurant', 'cafe', 'fast_food', 'food_court', 'arts_centre', 'community_centre'].includes(tags.amenity)) return 'leisure';

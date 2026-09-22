@@ -32,6 +32,10 @@ const OVERPASS_ENDPOINTS = [
 
 const SEARCH_RADIUS_M = 1500;
 
+// Overpass bloquea clientes anónimos: la política de OSM exige identificarse.
+const OVERPASS_USER_AGENT =
+  'Rix7Inmobiliaria/1.0 (portal inmobiliario; contacto: dev@rix7.cl)';
+
 // ═══ Categorías: espejo mínimo del módulo TS (este script corre en Node puro) ═══
 const CATEGORY_QUERIES = {
   education: ['["amenity"~"school|kindergarten|university|college"]'],
@@ -40,7 +44,11 @@ const CATEGORY_QUERIES = {
   shopping: ['["shop"~"supermarket|convenience|mall|department_store|bakery|greengrocer"]', '["amenity"="marketplace"]'],
   sports: ['["leisure"~"fitness_centre|sports_centre|stadium|sports_club"]'],
   park: ['["leisure"~"park|garden|dog_park"]', '["place"="square"]'],
-  safety: ['["amenity"~"police|fire_station"]'],
+  safety: [
+    '["amenity"~"police|fire_station"]',
+    '["name"~"Carabinero|Comisar|Subcomisar|Tenencia|Retén|Bomberos|Policía de Investigaciones|PDI|Seguridad Ciudadana|Paz Ciudadana",i]',
+    '["operator"~"Carabineros|Bomberos|Policía de Investigaciones|Seguridad Ciudadana",i]',
+  ],
   leisure: ['["amenity"~"restaurant|cafe|fast_food|food_court|arts_centre|community_centre"]'],
   services: ['["amenity"~"bank|atm|townhall|courthouse|post_office"]', '["office"~"government|notary|financial"]'],
 };
@@ -57,15 +65,51 @@ for (const [category, selectors] of Object.entries(CATEGORY_QUERIES)) {
   }
 }
 
+// Espejo de safetySubtypeFromTags (lib/data/poiCategories.ts): la PDI y la
+// seguridad ciudadana municipal casi nunca llevan `amenity`, así que se
+// derivan del nombre/operador.
+function safetySubtype(tags) {
+  const name = `${tags.name || ''} ${tags['name:es'] || ''} ${tags.operator || ''} ${tags.official_name || ''}`;
+
+  const isPdi = /polic[ií]a\s+de\s+investigaciones|\bPDI\b/i.test(name);
+  const isMunicipal =
+    /seguridad\s+ciudadana|paz\s+ciudadana|inspecci[oó]n\s+municipal|seguridad\s+municipal|direcci[oó]n\s+de\s+seguridad/i.test(name);
+  const isFire = /bomberos|bombas|cuerpo\s+de\s+bomberos/i.test(name);
+  const isPolice = /carabineros|carabinero|comisar|subcomisar|tenencia|ret[eé]n|prefectura|polic[ií]a/i.test(name);
+
+  if (tags.amenity === 'fire_station') return isPdi ? 'pdi' : 'fire_station';
+  if (tags.amenity === 'police') {
+    if (isPdi) return 'pdi';
+    if (isMunicipal) return 'municipal_security';
+    return 'police';
+  }
+  if (isPdi) return 'pdi';
+  if (isMunicipal) return 'municipal_security';
+  if (isFire) return 'fire_station';
+  if (isPolice) return 'police';
+  return null;
+}
+
 function categorize(tags) {
   for (const { category, tagKey, value } of TYPE_INDEX) {
     if (tags[tagKey] === value) return category;
   }
+  if (safetySubtype(tags)) return 'safety';
   return null;
 }
 
 function rawType(tags) {
-  return tags.amenity || tags.shop || tags.leisure || tags.railway || tags.highway || tags.office || '';
+  return (
+    tags.amenity ||
+    tags.shop ||
+    tags.leisure ||
+    tags.railway ||
+    tags.highway ||
+    // Antes de `office`: "PDI" describe mejor el lugar que "government"
+    safetySubtype(tags) ||
+    tags.office ||
+    ''
+  );
 }
 
 async function fetchOverpass(query) {
@@ -75,7 +119,11 @@ async function fetchOverpass(query) {
       const res = await fetch(endpoint, {
         method: 'POST',
         body: `data=${encodeURIComponent(query)}`,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          // Overpass rechaza (406) a clientes sin User-Agent identificable
+          'User-Agent': OVERPASS_USER_AGENT,
+        },
         signal: AbortSignal.timeout(15_000),
       });
       if (res.ok) return await res.json();
@@ -90,10 +138,12 @@ async function fetchOverpass(query) {
 }
 
 async function fetchCell(lat, lng) {
+  // `nwr` incluye ways/relations (comisarías, cuarteles y locales suelen ser
+  // polígonos del edificio) y `out center` da su centroide.
   const queries = Object.entries(CATEGORY_QUERIES).flatMap(([key, selectors]) =>
-    selectors.map((q) => `node${q}(around:${SEARCH_RADIUS_M},${lat},${lng});`)
+    selectors.map((q) => `nwr${q}(around:${SEARCH_RADIUS_M},${lat},${lng});`)
   );
-  const query = `[out:json][timeout:15];(${queries.join('\n')});out body;`;
+  const query = `[out:json][timeout:25];(${queries.join('\n')});out center;`;
   const data = await fetchOverpass(query);
   const seen = new Set();
   const pois = [];
@@ -102,11 +152,23 @@ async function fetchCell(lat, lng) {
     seen.add(element.id);
     const category = categorize(element.tags);
     if (!category) continue;
+    const center = element.center || element;
+    if (typeof center.lat !== 'number' || typeof center.lon !== 'number') continue;
+    const name = element.tags.name || '';
+    // Evita contar dos veces el mismo lugar (nodo + polígono del edificio)
+    const duplicate = pois.some(
+      (p) =>
+        p.category === category &&
+        p.name === name &&
+        Math.abs(p.lat - center.lat) < 0.0004 &&
+        Math.abs(p.lng - center.lon) < 0.0004
+    );
+    if (duplicate) continue;
     pois.push({
       id: element.id,
-      lat: element.lat,
-      lng: element.lon,
-      name: element.tags.name || '',
+      lat: center.lat,
+      lng: center.lon,
+      name,
       type: rawType(element.tags),
       category,
     });
@@ -185,8 +247,15 @@ async function main() {
     }
   }
 
-  snapshot.generated_at = new Date().toISOString();
-  writeFileSync(OUT_PATH, JSON.stringify(snapshot, null, 2));
+  // Solo escribir si hubo celdas nuevas: en un job programado (CI) es normal
+  // que Overpass esté caído — reescribir el JSON con un `generated_at` fresco
+  // produciría un commit de ruido diario sin datos.
+  if (ok > 0) {
+    snapshot.generated_at = new Date().toISOString();
+    writeFileSync(OUT_PATH, JSON.stringify(snapshot, null, 2));
+  } else {
+    console.log('[poi-snapshot] sin celdas nuevas: el archivo no se modifica.');
+  }
   console.log(`\n[poi-snapshot] listo: ${ok} nuevas, ${skipped} existentes, ${failed} fallidas → ${OUT_PATH}`);
   if (failed > 0) {
     console.log('[poi-snapshot] re-ejecutar más tarde completa las celdas faltantes (Overpass caído hoy).');

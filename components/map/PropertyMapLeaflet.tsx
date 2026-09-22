@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Loader2, GraduationCap, Stethoscope, BusFront, ShoppingCart, Dumbbell, Trees, ShieldCheck, UtensilsCrossed, Landmark, Map as MapIcon, ChevronDown, AlertTriangle, RotateCw, X, History } from 'lucide-react';
-import { POI_CATEGORIES, poiSvgMarkup, poiImportance, poiMarkerSize } from '@/lib/data/poiCategories';
+import { POI_CATEGORIES, poiSvgMarkup, poiImportance, poiMarkerSize, WALKABLE_RADIUS_M } from '@/lib/data/poiCategories';
 import { getCacheKey, getCachedPOIs, getStalePOIs, setCachedPOIs } from '@/lib/utils/overpassCache';
+import { buildEducationSummary, buildSectorSummaries } from '@/lib/utils/sectorSummary';
 
 export interface POI {
   id: number;
@@ -38,11 +39,29 @@ const POI_ICONS: Record<string, any> = {
   services: Landmark,
 };
 
+// ═══ Popup del pin de la propiedad: título + dirección + descripción educativa ═══
+// `summary` llega cuando los POIs están cargados (null antes del fetch).
+const propertyPopupHtml = (title: string, address: string, summary: string | null) =>
+  `<div style="text-align:center;padding:4px;max-width:240px;">` +
+  `<strong style="font-size:13px;">${title}</strong><br/>` +
+  `<span style="font-size:11px;color:#666;">${address}</span>` +
+  (summary
+    ? `<div style="margin-top:8px;border-top:1px solid #e2e8f0;padding-top:6px;text-align:left;">` +
+      `<div style="font-size:11px;font-weight:700;color:#1d4ed8;display:flex;align-items:center;gap:5px;">` +
+      poiSvgMarkup('education', POI_CATEGORIES.education?.color || '#2563eb', 14) +
+      `Perfil educativo del sector</div>` +
+      `<div style="font-size:10.5px;color:#475569;line-height:1.5;margin-top:3px;">${summary}</div>` +
+      `</div>`
+    : '') +
+  `</div>`;
+
 export default function PropertyMapLeaflet({ lat, lng, title, address, city }: PropertyMapLeafletProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const clusterRef = useRef<any>(null);
+  // Marcador azul de la propiedad: su popup se enriquece al llegar los POIs
+  const propertyMarkerRef = useRef<any>(null);
   const [legendOpen, setLegendOpen] = useState(false);
   // Cantidad de POIs por categoría dentro del área visible del mapa
   const [viewportCounts, setViewportCounts] = useState<Record<string, number>>({});
@@ -106,9 +125,10 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
         iconAnchor: [12, 12],
       });
 
-      L.marker([lat, lng], { icon: propertyIcon })
+      const propertyMarker = L.marker([lat, lng], { icon: propertyIcon })
         .addTo(map)
-        .bindPopup(`<div style="text-align:center;padding:4px;"><strong style="font-size:13px;">${title}</strong><br/><span style="font-size:11px;color:#666;">${address}</span></div>`);
+        .bindPopup(propertyPopupHtml(title, address, null));
+      propertyMarkerRef.current = propertyMarker;
 
       if (!cancelled) {
         mapInstanceRef.current = map;
@@ -160,10 +180,11 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
 
         setPois(parsed);
         // ═══ 3. Guardar en caché para futuras visitas ═══
-        // Las respuestas de snapshot (fallback estático) NO se cachean en
-        // localStorage: están marcadas `snapshot: true` y podrían estar
-        // desactualizadas — no deben considerarse "buenos datos" por 24h.
-        if (parsed.length > 0 && json?.snapshot !== true) {
+        // Las respuestas degradadas NO se cachean en localStorage: vienen
+        // marcadas `stale: true` (caché vencida del servidor) o
+        // `snapshot: true` (fallback estático del build) y podrían quedar
+        // "congeladas" 24 h en el navegador aunque Overpass ya responda.
+        if (parsed.length > 0 && json?.snapshot !== true && json?.stale !== true) {
           setCachedPOIs(cacheKey, parsed);
         }
       } catch (err) {
@@ -186,6 +207,17 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
     fetchPoisRef.current = fetchPOIs;
     fetchPOIs();
   }, [isMapReady, lat, lng]);
+
+  // ═══ Popup de la propiedad: descripción educativa del sector ═══
+  // El bind inicial ocurre antes del fetch (sin summary); cuando llegan los
+  // POIs (fresh, stale o snapshot) se reescribe el contenido con el resumen.
+  useEffect(() => {
+    if (!isMapReady) return;
+    const marker = propertyMarkerRef.current;
+    if (!marker) return;
+    const summary = buildEducationSummary(pois, lat, lng);
+    marker.setPopupContent(propertyPopupHtml(title, address, summary));
+  }, [isMapReady, pois, lat, lng, title, address]);
 
 // ═══ Marcadores de POIs en cluster — mismo formato chip de la ficha ═══
 // Con cientos de POIs (Comercio/Ocio), los marcadores individuales saturan
@@ -342,12 +374,68 @@ useEffect(() => {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   };
 
-  // Radio caminable estándar: 1200 m (~15 min a pie)
-  const WALKABLE_RADIUS_M = 1200;
+  // Radio caminable (1200 m ≈ 15 min a pie) — constante compartida con la
+  // descripción del sector, para que botón y popup siempre coincidan.
   const walkableCounts = Object.keys(POI_CATEGORIES).reduce((acc, key) => {
     acc[key] = pois.filter(p => p.category === key && distanceMeters(lat, lng, p.lat, p.lng) <= WALKABLE_RADIUS_M).length;
     return acc;
   }, {} as Record<string, number>);
+
+  // Descripción del sector por categoría: la misma que usa el popup del pin,
+  // para mostrarla al pasar el mouse (o enfocar con teclado) cada botón.
+  const sectorSummaries = React.useMemo(
+    () => buildSectorSummaries(pois, Object.keys(POI_CATEGORIES), lat, lng),
+    [pois, lat, lng]
+  );
+  // Botón con el resumen desplegado, con su posición en pantalla. Se usa
+  // `fixed` porque el contenedor del mapa recorta (`overflow-hidden`) cualquier
+  // tooltip anclado dentro de la tarjeta.
+  const [hoveredChip, setHoveredChip] = useState<
+    { key: string; x: number; anchorTop: number; anchorBottom: number } | null
+  >(null);
+  const [tipHeight, setTipHeight] = useState(0);
+  const chipTipRef = useRef<HTMLDivElement>(null);
+
+  const CHIP_TIP_WIDTH = 260;
+  const CHIP_TIP_GAP = 12;
+
+  const showChipSummary = (key: string, el: HTMLElement) => {
+    const r = el.getBoundingClientRect();
+    const half = CHIP_TIP_WIDTH / 2;
+    const x = Math.min(Math.max(r.left + r.width / 2, half + 8), window.innerWidth - half - 8);
+    setHoveredChip({ key, x, anchorTop: r.top, anchorBottom: r.bottom });
+  };
+
+  // Mide la tarjeta ya renderizada: sin la altura real no se puede decidir si
+  // cabe arriba del botón
+  React.useLayoutEffect(() => {
+    if (!hoveredChip || !chipTipRef.current) return;
+    setTipHeight(chipTipRef.current.offsetHeight);
+  }, [hoveredChip]);
+
+  // Posición final de la tarjeta: arriba del botón si cabe, si no debajo, y
+  // siempre dentro del viewport (con la altura ya medida).
+  const chipTipStyle = (() => {
+    if (!hoveredChip) return null;
+    const h = tipHeight || 150; // estimación hasta la primera medición
+    const spaceAbove = hoveredChip.anchorTop - CHIP_TIP_GAP;
+    const below = spaceAbove < h + 8;
+    const rawTop = below
+      ? hoveredChip.anchorBottom + CHIP_TIP_GAP
+      : hoveredChip.anchorTop - CHIP_TIP_GAP - h;
+    const maxTop = Math.max(window.innerHeight - h - 8, 8);
+    return { top: Math.min(Math.max(rawTop, 8), maxTop), below };
+  })();
+
+  // La tarjeta se posiciona con `fixed` (dentro de la tarjeta del mapa la
+  // recortaría el `overflow-hidden`), así que al hacer scroll la ocultamos en
+  // vez de dejarla descolgada de su botón.
+  useEffect(() => {
+    if (!hoveredChip) return;
+    const hide = () => setHoveredChip(null);
+    window.addEventListener('scroll', hide, { passive: true });
+    return () => window.removeEventListener('scroll', hide);
+  }, [hoveredChip]);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -490,6 +578,10 @@ useEffect(() => {
               <button
                 key={key}
                 onClick={() => toggleCategory(key)}
+                onMouseEnter={(e) => showChipSummary(key, e.currentTarget)}
+                onMouseLeave={() => setHoveredChip(null)}
+                onFocus={(e) => showChipSummary(key, e.currentTarget)}
+                onBlur={() => setHoveredChip(null)}
                 title={`${cat.description}: ${walkable} a ${WALKABLE_RADIUS_M} m o menos (clic para ${isActive ? 'ocultar' : 'mostrar'} en el mapa)`}
                 className="relative flex flex-col items-center justify-center group"
               >
@@ -522,6 +614,45 @@ useEffect(() => {
             );
           })}
         </div>
+
+        {/* Resumen del sector de la categoría bajo el cursor: mismo texto que
+            usa el popup del pin, con los conteos y el lugar más cercano.
+            Se posiciona dentro del viewport: si no cabe arriba del botón, se
+            voltea hacia abajo (antes se salía de pantalla y no se leía), y el
+            z-index supera los panes de Leaflet (200-1000), que si no lo tapan. */}
+        {hoveredChip && chipTipStyle && (
+          <div
+            ref={chipTipRef}
+            className="fixed z-[1100] -translate-x-1/2 pointer-events-none flex flex-col items-center"
+            style={{ left: hoveredChip.x, top: chipTipStyle.top, width: CHIP_TIP_WIDTH }}
+            role="tooltip"
+          >
+            {chipTipStyle.below && (
+              <div className="w-2.5 h-2.5 bg-white border-l border-t border-slate-200 rotate-45 -mb-[6px]" />
+            )}
+            <div className="w-full bg-white rounded-xl border border-slate-200 shadow-lg p-3 text-left">
+              <div className="flex items-center gap-1.5 mb-1">
+                <span
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: POI_CATEGORIES[hoveredChip.key]?.color }}
+                />
+                <span className="text-[11px] font-bold uppercase tracking-wide text-slate-700">
+                  {POI_CATEGORIES[hoveredChip.key]?.label}
+                </span>
+                <span className="ml-auto text-[10px] font-semibold tabular-nums text-slate-400">
+                  {walkableCounts[hoveredChip.key] || 0} en 15 min
+                </span>
+              </div>
+              <p className="text-[10.5px] leading-relaxed text-slate-600">
+                {sectorSummaries[hoveredChip.key] ||
+                  `Sin lugares de esta categoría a menos de 15 min caminando de ${address}.`}
+              </p>
+            </div>
+            {!chipTipStyle.below && (
+              <div className="w-2.5 h-2.5 bg-white border-r border-b border-slate-200 rotate-45 -mt-[6px]" />
+            )}
+          </div>
+        )}
 
       </div>
     </div>
