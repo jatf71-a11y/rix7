@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "snapshot:pois": "node scripts/generate-poi-snapshot.mjs",
+    "deploy:prod": "node scripts/deploy-prod.mjs",
     "postinstall": "node scripts/sync-maplibre.mjs"
   },
   "dependencies": {
