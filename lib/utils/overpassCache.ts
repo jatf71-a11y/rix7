@@ -106,16 +106,3 @@ export function setCachedPOIs(key: string, pois: POI[]): void {
   }
 }
 
-/** Limpia toda la caché de Overpass (útil para debugging). */
-export function clearOverpassCache(): void {
-  memoryCache.clear();
-  if (typeof window === 'undefined') return;
-  try {
-    const keysToRemove: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k?.startsWith(CACHE_PREFIX)) keysToRemove.push(k);
-    }
-    keysToRemove.forEach((k) => localStorage.removeItem(k));
-  } catch {}
-}

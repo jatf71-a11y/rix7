@@ -3,6 +3,21 @@ import { Property, PropertyType } from '@/lib/types/property';
 import { ALL_PROPERTIES } from '@/lib/data/propertyCatalog';
 import { normalizeForSearch } from '@/lib/utils/text';
 
+// ═══ Caché de borde ═══
+// El catálogo nacional solo cambia con un deploy, pero las propiedades también
+// pueden publicarse en caliente (Supabase), así que la respuesta se sirve desde
+// el CDN con un TTL corto y deliberado. Se usa `s-maxage` (no `max-age`) para que
+// el navegador revalide siempre y un filtro nuevo no quede pegado a una versión
+// vieja; `stale-while-revalidate` hace que nadie espere la revalidación: el
+// primer visitante tras expirar recibe la copia al instante y el borde se
+// actualiza por detrás. Lo que se elimina es el costo de escanear las 4.000
+// propiedades del catálogo en cada búsqueda.
+const CATALOG_CACHE = {
+  headers: {
+    'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=86400',
+  },
+};
+
 // ═══ Parámetros de filtrado (sin la operación, que se evalúa aparte) ═══
 interface BaseFilterParams {
   searchQuery: string;
@@ -175,7 +190,7 @@ export async function GET(request: NextRequest) {
           categoryCounts,
           operationCounts: { for_sale: forSale, for_rent: forRent },
           source: 'supabase',
-        });
+        }, CATALOG_CACHE);
       }
     }
   } catch {
@@ -233,5 +248,5 @@ export async function GET(request: NextRequest) {
     categoryCounts,
     operationCounts,
     source: 'national_catalog',
-  });
+  }, CATALOG_CACHE);
 }

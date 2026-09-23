@@ -57,13 +57,27 @@ interface GeocodeResult {
   source: 'poi_catalog' | 'commune_catalog' | 'nominatim';
 }
 
+// ═══ Caché de borde ═══
+// Esto alimenta un autocompletado: cada tecla dispara una consulta y la misma
+// búsqueda se repite entre usuarios. Geocodificar es determinista y estable, así
+// que se cachea un día entero en el CDN — acelera la respuesta y, sobre todo,
+// aleja las consultas de Nominatim, cuya cuota es de 1 req/s.
+const GEOCODE_CACHE_HEADERS: Record<string, string> = {
+  'Cache-Control': 'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800',
+};
+
+/** Consultas demasiado cortas: se cachean poco para no ensuciar el CDN. */
+const NO_CACHE_HEADERS: Record<string, string> = {
+  'Cache-Control': 'public, max-age=0, s-maxage=60',
+};
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q')?.trim() || '';
 
     if (!query || query.length < 2) {
-      return NextResponse.json({ success: true, results: [] });
+      return NextResponse.json({ success: true, results: [] }, { headers: NO_CACHE_HEADERS });
     }
 
     const results: GeocodeResult[] = [];
@@ -165,11 +179,14 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      query,
-      results: results.slice(0, 10),
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        query,
+        results: results.slice(0, 10),
+      },
+      { headers: GEOCODE_CACHE_HEADERS }
+    );
   } catch (error: any) {
     return NextResponse.json(
       {
