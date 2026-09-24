@@ -2,19 +2,40 @@
 
 import React, { Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '../auth/AuthProvider';
+import { useRegistration } from '../auth/RegistrationProvider';
+import { useFavorites } from '../auth/FavoritesProvider';
 import { useCurrency } from '../currency/CurrencyProvider';
 import { formatNumber } from '@/lib/utils/formatters';
 import { LogOut, PlusCircle, Heart, Menu, X, Settings, Info } from 'lucide-react';
 
+/** Prefijos de rutas sin barra de navegación (se lista, no se esconde después). */
+const STANDALONE_PATHS = ['/compartir'];
+
 function NavbarContent() {
   const { user, openAuthModal, signOut, isAdmin, isAdminDevBypass } = useAuth();
+  // Identidad reconocida: sesión del portal o registro de este dispositivo.
+  const { registration, isChecking, forget } = useRegistration();
+  // Cuántos favoritos tiene: el contador del corazón se lee del mismo estado que
+  // la ficha, así que no puede quedar desfasado.
+  const { ids: favoriteIds } = useFavorites();
+  const favoriteCount = favoriteIds.length;
   const { rates } = useCurrency();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const searchParams = useSearchParams();
   const currentOp = searchParams.get('operation');
   const isRent = currentOp === 'rent';
+  const pathname = usePathname();
+
+  // Páginas que se sirven como piezas sueltas del portal, no como parte de él.
+  // `/compartir/[id]` es lo que las corredoras mandan por WhatsApp: quien la
+  // recibe no llegó a navegar, así que el menú de secciones, el buscador y los
+  // accesos de cuenta sobran y roban alto — pero la marca sí va, para que se
+  // sepa de dónde viene el enlace.
+  if (pathname && STANDALONE_PATHS.some((p) => pathname.startsWith(p))) {
+    return null;
+  }
 
 
   return (
@@ -32,9 +53,6 @@ function NavbarContent() {
           <div>
             <span className="text-2xl font-black tracking-tight text-slate-900">
               Rix<span className="text-blue-600">7</span>
-            </span>
-            <span className="hidden sm:inline-block ml-2 px-1.5 py-0.5 text-[10px] font-bold uppercase bg-blue-50 text-blue-700 rounded-md border border-blue-200">
-              Chile GIS
             </span>
           </div>
         </Link>
@@ -60,28 +78,52 @@ function NavbarContent() {
           <Link href="/?operation=sale" className="text-slate-600 hover:text-slate-900 transition-colors">
             Publicar
           </Link>
-          <Link href="/properties/scl-premium-vitacura#hipoteca" className="text-slate-600 hover:text-slate-900 transition-colors">
+          {/*
+            Apunta a la calculadora de dividendo, que vive al final de una ficha
+            **de venta** (`#hipoteca`; en una de arriendo no se renderiza). La
+            propiedad tiene que existir en el catálogo: con `scl-premium-vitacura`
+            —un id que ya no está— este ítem del menú llevaba a un 404.
+          */}
+          <Link href="/properties/scl-premium-lo-barnechea#hipoteca" className="text-slate-600 hover:text-slate-900 transition-colors">
             Créditos Hipotecarios
           </Link>
         </nav>
 
         {/* Selector de Moneda y Acciones de Usuario Desktop */}
         <div className="hidden md:flex items-center gap-3">
+          {/* Favoritos: era un corazón que no hacía nada, ahora lleva a la lista.
+              Se muestra siempre con cuenta, y sin cuenta solo cuando ya guardó
+              alguno en este dispositivo (ahí la lista tiene algo que mostrarle). */}
+          {(user || favoriteCount > 0) && (
+            <Link
+              href="/favoritos"
+              className="relative p-2 text-slate-500 hover:text-red-500 hover:bg-slate-50 rounded-full transition-colors"
+              title={
+                favoriteCount > 0
+                  ? `Mis favoritos (${favoriteCount})`
+                  : 'Mis favoritos'
+              }
+            >
+              <Heart className={`w-5 h-5 ${favoriteCount > 0 ? 'fill-current text-red-500' : ''}`} />
+              {favoriteCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                  {favoriteCount > 99 ? '99+' : favoriteCount}
+                </span>
+              )}
+            </Link>
+          )}
+
           {user ? (
             <div className="flex items-center gap-3 pl-2 border-l border-slate-200">
-              <button
-                className="p-2 text-slate-500 hover:text-red-500 hover:bg-slate-50 rounded-full transition-colors"
-                title="Favoritos"
-              >
-                <Heart className="w-5 h-5" />
-              </button>
-
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center">
-                  {user.email?.charAt(0).toUpperCase()}
+                  {(registration?.name || user.email || '?').charAt(0).toUpperCase()}
                 </div>
-                <span className="text-xs font-medium text-slate-700 max-w-[120px] truncate">
-                  {user.email}
+                <span
+                  className="text-xs font-medium text-slate-700 max-w-[140px] truncate"
+                  title={registration?.email || user.email || undefined}
+                >
+                  {registration?.name || user.email}
                 </span>
                 <button
                   onClick={() => signOut()}
@@ -100,19 +142,52 @@ function NavbarContent() {
                 <span>Publicar</span>
               </button>
             </div>
-          ) : (
-            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
+          ) : registration ? (
+            /* Identificado por el registro de este dispositivo (sin cuenta del
+               portal): se lo saluda por su nombre y se le ofrece dar el paso a
+               una cuenta, pero no se le ofrecen acciones que requieren sesión
+               real (favoritos, publicar). */
+            <div className="flex items-center gap-3 pl-2 border-l border-slate-200">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs flex items-center justify-center">
+                  {registration.name.charAt(0).toUpperCase()}
+                </div>
+                <span
+                  className="text-xs font-medium text-slate-700 max-w-[140px] truncate"
+                  title={`${registration.email} · identificado en este dispositivo`}
+                >
+                  {registration.name}
+                </span>
+                <button
+                  onClick={forget}
+                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-md transition-colors"
+                  title="Olvidar este dispositivo"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+
               <button
-                onClick={() => openAuthModal('login')}
-                className="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors"
+                onClick={() => openAuthModal()}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-all"
               >
-                Iniciar Sesión
+                <PlusCircle className="w-4 h-4" />
+                <span>Entrar</span>
               </button>
+            </div>
+          ) : isChecking ? (
+            /* Verificación en curso: un bloque del mismo alto evita que las
+               acciones salten cuando se resuelve la identidad. */
+            <div className="h-9 w-44 rounded-lg bg-slate-100 animate-pulse" aria-hidden="true" />
+          ) : (
+            <div className="pl-2 border-l border-slate-200">
+              {/* Una sola puerta de entrada: el enlace mágico registra y entra
+                  en la misma acción, así que no hay dos botones que explicar. */}
               <button
-                onClick={() => openAuthModal('register')}
+                onClick={() => openAuthModal()}
                 className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm shadow-blue-500/20 transition-all"
               >
-                Registrarse
+                Entrar
               </button>
             </div>
           )}
@@ -199,7 +274,9 @@ function NavbarContent() {
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
             {user ? (
               <div className="space-y-2">
-                <div className="text-xs text-slate-500 px-2">Sesión: {user.email}</div>
+                <div className="text-xs text-slate-500 px-2">
+                  Sesión: {registration?.name || user.email}
+                </div>
                 <button
                   onClick={() => signOut()}
                   className="w-full flex items-center justify-center gap-2 py-2 text-sm text-red-600 bg-red-50 rounded-lg font-medium"
@@ -208,27 +285,42 @@ function NavbarContent() {
                   <span>Cerrar Sesión</span>
                 </button>
               </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
+            ) : registration ? (
+              <div className="space-y-2">
+                <div className="text-xs text-slate-500 px-2">
+                  Hola, {registration.name} · identificado en este dispositivo
+                </div>
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    openAuthModal('login');
+                    openAuthModal();
                   }}
-                  className="py-2 text-sm font-semibold border border-slate-200 rounded-lg text-slate-700"
+                  className="w-full flex items-center justify-center gap-2 py-2 text-sm text-white bg-blue-600 rounded-lg font-semibold"
                 >
-                  Entrar
+                  <PlusCircle className="w-4 h-4" />
+                  <span>Entrar</span>
                 </button>
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    openAuthModal('register');
+                    forget();
                   }}
-                  className="py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg"
+                  className="w-full flex items-center justify-center gap-2 py-2 text-sm text-slate-500 bg-slate-100 rounded-lg font-medium"
                 >
-                  Registro
+                  <LogOut className="w-4 h-4" />
+                  <span>Olvidar este dispositivo</span>
                 </button>
               </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  openAuthModal();
+                }}
+                className="w-full py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg"
+              >
+                Entrar
+              </button>
             )}
 
             {/* Badge tipo de cambio (Banco Central de Chile) */}

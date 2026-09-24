@@ -1,8 +1,13 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+// `import type`: son solo tipos. Sin el `type`, el bundler puede conservar la
+// librería entera por si el import tiene efectos.
+import type { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
+import { resolveRole } from '@/lib/utils/roles';
+import { REGISTRATION_KEY, parseStoredRegistration } from '@/lib/utils/registration';
+import { normalizeChilePhone } from '@/lib/utils/phone';
 
 interface AuthContextType {
   user: User | null;
@@ -17,8 +22,24 @@ interface AuthContextType {
   /** true cuando isAdmin viene del bypass de desarrollo y no del rol real */
   isAdminDevBypass: boolean;
   isAuthModalOpen: boolean;
-  authMode: 'login' | 'register';
-  openAuthModal: (mode?: 'login' | 'register') => void;
+  /**
+   * Por qué se pidió entrar ("guardar esta búsqueda", por ejemplo). El modal lo
+   * muestra para que la persona sepa qué gana al identificarse, en vez de ver un
+   * formulario genérico que no pidió.
+   */
+  authReason: string | null;
+  /**
+   * Error con el que se abrió el diálogo (por ejemplo, el que dejó Google al
+   * volver). Vive acá y no en el estado del modal porque el modal limpia su
+   * formulario al montarse, y ese borrado se llevaría el mensaje por delante.
+   */
+  authError: string | null;
+  /**
+   * Abre el diálogo de acceso. Hay **dos** formas de entrar —Google en un clic
+   * y enlace mágico al correo—, así que registrar y entrar siguen siendo la
+   * misma acción y no hace falta elegir modo.
+   */
+  openAuthModal: (reason?: string, error?: string) => void;
   closeAuthModal: () => void;
   signOut: () => Promise<void>;
 }
@@ -30,7 +51,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authReason, setAuthReason] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Un único cliente por montaje: al crearlo en cada render cambiaba de
   // identidad y el efecto de sesión se volvía a suscribir continuamente.
@@ -56,8 +78,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [supabase]);
 
-  // El rol vive en app_metadata (controlado por el servidor, no editable por el usuario).
-  const isAdminByRole = user?.app_metadata?.role === 'admin';
+  // El rol vive en app_metadata (controlado por el servidor, no editable por el
+  // usuario). La resolución es la misma que usa el guard de las rutas de admin.
+  const isAdminByRole = resolveRole(user) === 'admin';
 
   // Bypass de desarrollo: en local no hay proyecto Supabase real (el login es
   // imposible), así que se habilita el acceso al panel para poder ver y probar
@@ -68,8 +91,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isAdmin = isAdminByRole || isAdminDevBypass;
 
-  const openAuthModal = useCallback((mode: 'login' | 'register' = 'login') => {
-    setAuthMode(mode);
+  /**
+   * Pasa a la cuenta los datos que la persona ya había dejado para contactar a
+   * una corredora (nombre y móvil de WhatsApp).
+   *
+   * Es la razón por la que el alta no pide nada más que el correo: lo que ya
+   * sabemos no se vuelve a preguntar. Los guardas evitan reescribir metadatos en
+   * cada refresco de token.
+   */
+  useEffect(() => {
+    if (!user || typeof window === 'undefined') return;
+
+    const stored = parseStoredRegistration(localStorage.getItem(REGISTRATION_KEY));
+    if (!stored) return;
+
+    const metadata = user.user_metadata || {};
+    const phone = stored.phone ? normalizeChilePhone(stored.phone) ?? stored.phone : '';
+    const addName = !metadata.full_name && !!stored.name;
+    const addPhone = !metadata.phone && !!phone;
+
+    if (!addName && !addPhone) return;
+
+    supabase.auth
+      .updateUser({
+        data: {
+          ...(addName ? { full_name: stored.name } : {}),
+          ...(addPhone ? { phone } : {}),
+        },
+      })
+      .catch(() => {
+        // Si falla, la cuenta simplemente queda sin esos datos de perfil.
+      });
+  }, [user, supabase]);
+
+  const openAuthModal = useCallback((reason?: string, error?: string) => {
+    // Se pisan en cada apertura: un mensaje viejo no debe reaparecer cuando el
+    // diálogo se abre por otro motivo.
+    setAuthReason(reason ?? null);
+    setAuthError(error ?? null);
     setIsAuthModalOpen(true);
   }, []);
 
@@ -89,7 +148,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAdmin,
       isAdminDevBypass: isAdminDevBypass && !isAdminByRole,
       isAuthModalOpen,
-      authMode,
+      authReason,
+      authError,
       openAuthModal,
       closeAuthModal,
       signOut,
@@ -102,7 +162,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAdminDevBypass,
       isAdminByRole,
       isAuthModalOpen,
-      authMode,
+      authReason,
+      authError,
       openAuthModal,
       closeAuthModal,
       signOut,

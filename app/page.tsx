@@ -8,8 +8,11 @@ import { PropertyFilters } from '@/components/properties/PropertyFilters';
 import { PropertyGrid } from '@/components/properties/PropertyGrid';
 import { FeaturedCarousel } from '@/components/properties/FeaturedCarousel';
 import { PartnerLogosCarousel } from '@/components/properties/PartnerLogosCarousel';
+import { SaveSearchButton } from '@/components/properties/SaveSearchButton';
 import { PoiSearchInput, SelectedPoiLocation } from '@/components/properties/PoiSearchInput';
 import { findNearestChileLocation } from '@/lib/data/chileLocations';
+import { useRegistration } from '@/components/auth/RegistrationProvider';
+import { firstNameOf } from '@/lib/utils/registration';
 import { Map, List, Loader2 } from 'lucide-react';
 
 // ═══ HAVERSINE: Distancia en km entre dos coordenadas ═══
@@ -33,6 +36,8 @@ const DEFAULT_COUNTS: Record<PropertyType, number> = {
 
 function HomePageContent() {
   const searchParams = useSearchParams();
+  // Reconocimiento del usuario que vuelve: el mismo que ve en el Navbar.
+  const { registration, isChecking } = useRegistration();
   const initialOperation = searchParams.get('operation') === 'rent' ? 'for_rent' : 'for_sale';
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -520,9 +525,40 @@ function HomePageContent() {
                   </span>
                 )}
               </div>
-              <span className="text-xs font-semibold text-slate-500" suppressHydrationWarning>
-                {propertiesFiltered.length} resultados
-              </span>
+              {/* El saludo va dentro de este grupo alineado a la derecha: al
+                  aparecer crece hacia la izquierda y no desplaza ni al título
+                  ni al contador (nada salta de sitio después de hidratar). */}
+              <div className="flex items-center gap-2 shrink-0">
+                {!isChecking && registration && (
+                  <span
+                    className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md"
+                    title={`Sesión de ${registration.email}`}
+                  >
+                    Hola, {firstNameOf(registration.name)}
+                  </span>
+                )}
+                <span className="text-xs font-semibold text-slate-500" suppressHydrationWarning>
+                  {propertiesFiltered.length} resultados
+                </span>
+                {/* Guardar la búsqueda: es lo que le da un motivo real a la
+                    cuenta. Va en este grupo alineado a la derecha para que al
+                    aparecer no desplace el título ni el contador. */}
+                <SaveSearchButton
+                  filters={{
+                    operationType: filters.operationType,
+                    propertyType: filters.propertyType,
+                    newPropertyType: filters.newPropertyType,
+                    searchQuery: filters.searchQuery,
+                    minPrice: filters.minPrice,
+                    maxPrice: filters.maxPrice,
+                    minBedrooms: filters.minBedrooms,
+                    minBathrooms: filters.minBathrooms,
+                    minPrivates: filters.minPrivates,
+                  }}
+                  commune={selectedCommune}
+                  region={selectedRegion}
+                />
+              </div>
             </div>
 
             {/* Vista: Carrusel destacado (sin filtros) o Grid de propiedades (con filtros) */}
