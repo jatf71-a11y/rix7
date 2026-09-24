@@ -1,11 +1,14 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet.markercluster/dist/MarkerCluster.css';
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+// Los estilos de Leaflet viven en `components/map/PropertyMapLeaflet.tsx`, no
+// acá: son ~58 KB que se bajaban en **todas** las páginas —incluido el home y la
+// landing, que no usan Leaflet— y solo hacen falta en la ficha, donde el mapa se
+// carga con `dynamic()`. El CSS viaja con ese chunk.
 import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
 import { AuthProvider } from '@/components/auth/AuthProvider';
+import { RegistrationProvider } from '@/components/auth/RegistrationProvider';
+import { FavoritesProvider } from '@/components/auth/FavoritesProvider';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { CurrencyProvider } from '@/components/currency/CurrencyProvider';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
@@ -66,11 +69,19 @@ export default function RootLayout({
       <body className="font-sans antialiased min-h-screen flex flex-col bg-slate-50">
         <ServiceWorkerRegistration />
         <AuthProvider>
-          <CurrencyProvider>
-            <Navbar />
-            <main className="flex-1 flex flex-col">{children}</main>
-            <AuthModal />
-          </CurrencyProvider>
+          {/* La identidad vive aquí para que el Navbar, el home y la ficha
+              reconozcan al mismo usuario, no solo el formulario de contacto. */}
+          <RegistrationProvider>
+            {/* Los favoritos viven en la cuenta: el proveedor es el único que
+                sabe si la fuente es el servidor o este dispositivo. */}
+            <FavoritesProvider>
+              <CurrencyProvider>
+                <Navbar />
+                <main className="flex-1 flex flex-col">{children}</main>
+                <AuthModal />
+              </CurrencyProvider>
+            </FavoritesProvider>
+          </RegistrationProvider>
         </AuthProvider>
       </body>
     </html>
