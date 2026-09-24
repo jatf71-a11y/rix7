@@ -1,66 +1,101 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Mail, Phone, ShieldCheck } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Mail, Phone, ShieldCheck, X } from 'lucide-react';
 import { Property } from '@/lib/types/property';
-import { getPartnerById } from '@/lib/data/partners';
+import type { Partner } from '@/lib/data/partners';
+import type { LeadChannel } from '@/lib/data/leads';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { useRegistration } from '@/components/auth/RegistrationProvider';
 
 interface ContactAgentFormProps {
   property: Property;
+  /**
+   * Corredora ya resuelta por el servidor. Llega como prop y no se busca acá
+   * porque los datos viven en Supabase, y resolverlos en el cliente obligaría a
+   * un viaje extra y a mostrar el formulario sin ellos.
+   */
+  partner?: Partner;
 }
 
-/** Clave de localStorage para persistir la inscripción (semáforo en verde). */
-const REGISTRATION_KEY = 'rix7_contact_registration';
+/**
+ * Canal de contacto. El dato (teléfono, móvil o correo) NO se muestra en el
+ * botón: se revela en el popup al tocarlo, junto con la acción directa y un
+ * botón para copiarlo.
+ */
+interface ContactChannel {
+  id: 'call' | 'whatsapp' | 'mail';
+  label: string;
+  icon: React.ReactNode;
+  /** Dato de la corredora que se revela en el popup. */
+  value: string;
+  /** Acción directa: `tel:`, `api.whatsapp.com` o `mailto:`. */
+  href: string;
+  title: string;
+  hint: string;
+  actionLabel: string;
+  /** Colores del botón dentro de la fila de tres. */
+  buttonClass: string;
+  /** WhatsApp se abre en otra pestaña. */
+  external?: boolean;
+}
 
 /**
  * Sección de contacto de una propiedad.
  *
  * - La cabecera muestra la corredora (socio estratégico) con su logo.
- * - El botón principal funciona como SEMÁFORO: rojo mientras el usuario
- *   no esté inscrito y verde ("Registro completado") una vez que envía su
- *   registro (nombre + correo + teléfono). La inscripción se persiste en
- *   localStorage para que el semáforo quede en verde al volver a entrar.
- * - Los botones de contacto (Llamar, WhatsApp, Mail) aparecen solo después
- *   de la inscripción y muestran los datos registrados por la corredora
- *   (teléfono/correo del agente en la ficha). Al tocarlos, además de intentar
- *   abrir el canal, aparece un mensaje de respaldo con el número/correo crudo
- *   (copiable) por si el dispositivo no puede conectarse desde la web.
+ * - El botón principal funciona como SEMÁFORO:
+ *     · neutro mientras se verifica el registro,
+ *     · rojo si el usuario no está identificado,
+ *     · verde con el NOMBRE del usuario una vez identificado.
+ * - La identidad NO se resuelve acá: viene de `RegistrationProvider`, que vive en
+ *   el layout. Así el Navbar y el home reconocen exactamente al mismo usuario que
+ *   habilita estos canales (antes el reconocimiento existía solo en esta ficha).
+ * - Los botones de contacto (Llamar, WhatsApp, Mail) solo aparecen cuando el
+ *   usuario está identificado, y se alimentan con los datos que aporta la
+ *   corredora (`partner.contact`), con el detalle de la ficha como respaldo.
+ *   El dato no se muestra en el botón: se revela en el popup, junto con la
+ *   acción directa y un botón para copiarlo.
  */
-export function ContactAgentForm({ property }: ContactAgentFormProps) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
+  const { openAuthModal } = useAuth();
+  // La identidad vive en el layout: el mismo usuario que reconoce el Navbar es
+  // el que habilita los canales de contacto de la ficha.
+  const { registration, isChecking, save, updatePhone } = useRegistration();
+
+  /** Borrador del formulario, solo para quien todavía no está identificado. */
+  const [draftName, setDraftName] = useState('');
+  const [draftEmail, setDraftEmail] = useState('');
+  const [draftPhone, setDraftPhone] = useState('');
   const [loadingMsg, setLoadingMsg] = useState<string | null>(null);
-  /** Semáforo: null = no inscrito (rojo), objeto = inscrito (verde). */
-  const [registered, setRegistered] = useState<{ name: string; email: string; phone: string } | null>(null);
-  /** Mensaje de respaldo de un canal (número/correo visible y copiable). */
-  const [fallback, setFallback] = useState<{ hint: string; value: string } | null>(null);
+  /** Canal abierto en el popup (null = cerrado). */
+  const [channel, setChannel] = useState<ContactChannel | null>(null);
   const [copiedValue, setCopiedValue] = useState<string | null>(null);
+  const [supabaseUrl] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL || '');
+  const hasPortal = !!supabaseUrl && !supabaseUrl.includes('placeholder');
 
-  // Al montar, restaura una inscripción previa: el semáforo queda en verde.
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(REGISTRATION_KEY);
-      if (!raw) return;
-      const data = JSON.parse(raw);
-      if (data?.name && data?.email && data?.phone) {
-        setRegistered(data);
-        setName(data.name);
-        setEmail(data.email);
-        setPhone(data.phone);
-      }
-    } catch {
-      // Sin almacenamiento disponible: la inscripción dura solo esta sesión.
-    }
-  }, []);
+  // Referencias de los campos: el semáforo rojo lleva al que falta.
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
 
-  const partner = property.partner_id ? getPartnerById(property.partner_id) : undefined;
+  // Identidad vigente: la del provider si la hay, y si no el borrador del
+  // formulario. Un solo origen de verdad para los mensajes y los inputs.
+  const name = registration?.name ?? draftName;
+  const email = registration?.email ?? draftEmail;
+  const phone = registration?.phone ?? draftPhone;
+
   const partnerName = partner?.name || (property.partner_id || '').slice(0, 1).toUpperCase() + ' / Portal Rix7';
   const partnerLogo = partner?.logo || null;
 
-  const agentPhoneClean = (property.agent_phone || '').replace(/\D/g, '');
-  const agentPhoneDisplay = property.agent_phone || '';
-  const agentEmail = property.agent_email || 'contacto@' + (partner?.slug || 'rix7') + '.cl';
+  // Datos de contacto que aporta la corredora; el detalle de la ficha queda
+  // como respaldo para propiedades antiguas sin `partner.contact`.
+  const contactPhone = partner?.contact?.phone || property.agent_phone || '';
+  const contactWhatsApp = partner?.contact?.whatsapp || property.agent_phone || '';
+  const contactEmail = partner?.contact?.email || property.agent_email || '';
+
+  const contactPhoneClean = contactPhone.replace(/\D/g, '');
+  const contactWhatsAppClean = contactWhatsApp.replace(/\D/g, '');
 
   const phoneClean = phone.replace(/\D/g, '');
   const fieldsComplete =
@@ -77,20 +112,138 @@ export function ContactAgentForm({ property }: ContactAgentFormProps) {
     const body = encodeURIComponent(
       `Hola ${partnerName},\n\n` +
         `Soy ${name}.\n` +
-        `Teléfono: ${phone}\n` +
+        (phone ? `Teléfono: ${phone}\n` : '') +
         `Me interesa más información sobre la propiedad "${property.title}" (Ref: ${property.id.slice(0, 12)}).\n\nAtentamente,\n${name}`
     );
-    return `mailto:${agentEmail}?subject=${subject}&body=${body}`;
+    return `mailto:${contactEmail}?subject=${subject}&body=${body}`;
   };
 
-  // Al tocar un canal se intenta abrir la app correspondiente (el href del ancla
-  // hace su trabajo); en paralelo aparece un mensaje con el dato crudo por si el
-  // dispositivo del usuario no puede conectarse a WhatsApp/correo/llamada desde la web.
-  const showFallback = (hint: string, value: string) => {
-    if (value) setFallback({ hint, value });
+  /**
+   * Lleva el foco al primer dato que falta.
+   *
+   * El semáforo rojo dice qué pasa; esto lleva a donde hay que arreglarlo, en
+   * lugar de dejar un botón que no responde porque está deshabilitado.
+   */
+  const focusFirstIncompleteField = () => {
+    if (!name.trim()) nameRef.current?.focus();
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) emailRef.current?.focus();
+    else phoneRef.current?.focus();
   };
 
-  const copyFallback = async (value: string) => {
+  /**
+   * El teléfono se puede completar después: un usuario que llega ya logueado
+   * tiene nombre y correo, pero no necesariamente dejó su teléfono en el portal.
+   */
+  const handlePhoneChange = (value: string) => {
+    if (registration) updatePhone(value);
+    else setDraftPhone(value);
+  };
+
+  // Cerrar el popup con Escape (además del botón y del clic en el fondo).
+  useEffect(() => {
+    if (!channel) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setChannel(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [channel]);
+
+  /**
+   * Los tres canales con los datos que aporta la corredora. Se construyen acá y
+   * no en el JSX para que el botón y el popup compartan exactamente el mismo dato.
+   */
+  const channels: ContactChannel[] = [
+    {
+      id: 'call',
+      label: 'Llamar',
+      icon: <Phone className="w-3.5 h-3.5" />,
+      value: contactPhone,
+      href: contactPhoneClean ? `tel:${contactPhoneClean}` : '',
+      title: `Llamar a ${partnerName}`,
+      hint: 'Marca este número desde tu teléfono.',
+      actionLabel: 'Marcar ahora',
+      buttonClass: contactPhoneClean
+        ? 'bg-slate-900 text-white hover:bg-slate-800'
+        : 'bg-slate-100 text-slate-400 cursor-not-allowed',
+    },
+    {
+      id: 'whatsapp',
+      label: 'WhatsApp',
+      icon: (
+        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+        </svg>
+      ),
+      value: contactWhatsApp,
+      href: contactWhatsAppClean
+        ? `https://api.whatsapp.com/send?phone=${contactWhatsAppClean}&text=${waText}`
+        : '',
+      title: `Escribir por WhatsApp a ${partnerName}`,
+      hint: 'Se abre WhatsApp con el mensaje listo para enviar.',
+      actionLabel: 'Abrir WhatsApp',
+      external: true,
+      buttonClass: contactWhatsAppClean
+        ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+        : 'bg-slate-100 text-slate-400 cursor-not-allowed',
+    },
+    {
+      id: 'mail',
+      label: 'Mail',
+      icon: <Mail className="w-3.5 h-3.5" />,
+      value: contactEmail,
+      href: contactEmail ? prepareMailto() : '',
+      title: `Enviar correo a ${partnerName}`,
+      hint: 'Se abre tu correo con el mensaje redactado.',
+      actionLabel: 'Escribir correo',
+      buttonClass: contactEmail
+        ? 'bg-blue-600 text-white hover:bg-blue-700'
+        : 'bg-slate-100 text-slate-400 cursor-not-allowed',
+    },
+  ];
+
+  /**
+   * Contactos ya registrados en esta sesión, para no repetir el mismo canal de
+   * la misma ficha (abrir el popup y usar la acción son el mismo interés).
+   */
+  const recordedLeads = useRef<Set<string>>(new Set());
+
+  /**
+   * Registra el contacto para que el equipo pueda consultarlo y hacerle
+   * seguimiento. Antes, al abrir WhatsApp, el dato se perdía.
+   *
+   * Es "dispara y olvida" a propósito: la acción del usuario (llamar, abrir
+   * WhatsApp) no espera ni falla porque el registro interno no llegue.
+   */
+  const recordLead = useCallback(
+    (channel: LeadChannel, who?: { name: string; email: string; phone: string }) => {
+      const data = who ?? { name, email, phone };
+      if (!data.name.trim() || !data.email.trim() || !data.phone.trim()) return;
+
+      const key = `${property.id}:${channel}`;
+      if (recordedLeads.current.has(key)) return;
+      recordedLeads.current.add(key);
+
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          property_id: property.id,
+          partner_id: partner?.id ?? property.partner_id ?? null,
+          name: data.name.trim(),
+          email: data.email.trim(),
+          phone: data.phone,
+          channel,
+        }),
+      }).catch(() => {
+        // Si el registro interno falla, el contacto del usuario ya se disparó.
+      });
+    },
+    [property.id, property.partner_id, partner?.id, name, email, phone]
+  );
+
+  /** Copia el dato del canal. Si el portapapeles falla, el dato queda visible y seleccionable. */
+  const copyContactData = async (value: string) => {
     let ok = false;
     try {
       await navigator.clipboard.writeText(value);
@@ -117,6 +270,38 @@ export function ContactAgentForm({ property }: ContactAgentFormProps) {
     }
     // Si ambos fallan, el dato ya está visible y seleccionable en el mensaje.
   };
+
+  /**
+   * Estado visual del semáforo.
+   *
+   * El rojo va **siempre sólido**, aunque falten datos: este botón comunica un
+   * estado (falta completar), y atenuarlo cuando falta justamente lo que anuncia
+   * decía lo contrario — parecía deshabilitado en vez de "te falta esto". Por eso
+   * tampoco se deshabilita: si falta algo, al tocarlo lleva al primer campo
+   * vacío, que es lo que la persona necesita hacer a continuación.
+   */
+  const semaphore = isChecking
+    ? {
+        text: 'Verificando tu registro…',
+        className: 'bg-slate-200 text-slate-500 cursor-wait',
+        disabled: true,
+      }
+    : registration
+      ? {
+          // Verde + nombre del usuario: el color ya comunica el estado.
+          text: registration.name,
+          className: 'bg-emerald-600 text-white shadow-emerald-500/20',
+          disabled: false,
+        }
+      : {
+          // Texto corto a propósito: el anterior ("Completa tus datos para
+          // contactar a un Agente") forzaba dos líneas en la columna angosta y
+          // el corte caía a mitad de frase. La instrucción de completar los
+          // campos vive en el aviso de debajo, no en el botón.
+          text: fieldsComplete ? 'Enviar' : 'Contacta a un Agente',
+          className: 'bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-500/25',
+          disabled: false,
+        };
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-24">
@@ -159,188 +344,134 @@ export function ContactAgentForm({ property }: ContactAgentFormProps) {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (!fieldsComplete || registered) return;
-          const data = { name: name.trim(), email: email.trim(), phone };
-          try {
-            localStorage.setItem(REGISTRATION_KEY, JSON.stringify(data));
-          } catch {
-            // Sin almacenamiento: la inscripción dura solo esta sesión.
-          }
-          setRegistered(data);
+          if (!fieldsComplete || registration) return;
+          save({ name: name.trim(), email: email.trim(), phone });
+          // El contacto queda registrado con los mismos datos que se guardan.
+          recordLead('form', { name: name.trim(), email: email.trim(), phone });
         }}
         className="space-y-3 pt-5"
         noValidate
       >
-        {/* Semáforo de inscripción: rojo hasta inscribirse, verde al estar inscrito */}
+        {/* Semáforo de inscripción: neutro al verificar, rojo si falta el registro, verde con el nombre */}
         <button
-          type={registered ? 'button' : 'submit'}
-          disabled={!registered && !fieldsComplete}
-          className={`w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold rounded-xl shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
-            registered
-              ? 'bg-emerald-600 text-white shadow-emerald-500/20'
-              : 'bg-red-600 hover:bg-red-700 text-white shadow-red-500/20'
-          }`}
+          type={registration ? 'button' : 'submit'}
+          disabled={semaphore.disabled}
+          onClick={() => {
+            // Con datos incompletos el botón no envía: lleva al campo que falta.
+            if (!registration && !fieldsComplete) focusFirstIncompleteField();
+          }}
+          title={
+            registration
+              ? 'Registro completado'
+              : fieldsComplete
+                ? 'Enviar tus datos'
+                : 'Falta completar tus datos'
+          }
+          className={`w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold rounded-xl transition-all ${semaphore.className}`}
         >
-          <ShieldCheck className="w-4 h-4" aria-hidden="true" />
-          {registered
-            ? 'Registro completado'
-            : fieldsComplete
-              ? 'Enviar'
-              : 'Completa tus datos para contactar a un Agente'}
+          <ShieldCheck className="w-4 h-4 shrink-0" aria-hidden="true" />
+          {/* En la columna angosta de la ficha y de la landing el texto no cabe
+              en una línea: se recorta con puntos suspensivos y la persona no
+              llega a leer qué le falta. Se prefiere que ocupe dos líneas. */}
+          <span className="text-center leading-tight">{semaphore.text}</span>
         </button>
 
-        <div className="relative">
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Tu nombre completo"
-            readOnly={!!registered}
-            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
-          />
-        </div>
-
-        <div className="relative">
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Tu correo electrónico"
-            readOnly={!!registered}
-            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
-          />
-        </div>
-
-        <div className="relative">
-          <input
-            type="tel"
-            required
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="Tu teléfono"
-            inputMode="numeric"
-            readOnly={!!registered}
-            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
-          />
-        </div>
-
-        {!registered && (
-          <p className="text-[10px] text-slate-400 text-center">
-            Completa tus datos para poder contactar.
+        {registration && (
+          <p className="text-[10px] text-emerald-700 text-center">
+            {registration.source === 'portal'
+              ? 'Registro completado · cuenta del portal verificada'
+              : 'Registro completado · identificado en este dispositivo'}
           </p>
         )}
 
-        {/* Botones de contacto: solo aparecen cuando completó nombre + correo + teléfono,
-            y en ese momento muestran los datos registrados por la corredora
-            (teléfono y correo del agente en la ficha). */}
-        {registered && (
-          <>
-          <div className="grid grid-cols-3 gap-2 mb-4 pb-3">
-            <a
-              href={agentPhoneClean ? `tel:${agentPhoneClean}` : '#'}
-              onClick={(e) => {
-                if (!agentPhoneClean) {
-                  e.preventDefault();
-                  return;
-                }
-                // Respaldo por si el dispositivo no puede abrir la app de llamadas
-                showFallback('¿No se abrió la app de llamadas? Marca desde tu teléfono:', agentPhoneDisplay);
-              }}
-              className={`flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-semibold rounded-xl transition-colors ${
-                agentPhoneClean
-                  ? 'bg-slate-900 text-white hover:bg-slate-800'
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-              }`}
-              aria-disabled={!agentPhoneClean}
-            >
-              <span className="flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5" />
-                Llamar
-              </span>
-              {agentPhoneDisplay && (
-                <span className="text-[10px] font-normal opacity-80">{agentPhoneDisplay}</span>
-              )}
-            </a>
-            <a
-              href={
-                agentPhoneClean
-                  ? `https://api.whatsapp.com/send?phone=${agentPhoneClean}&text=${waText}`
-                  : '#'
-              }
-              onClick={() =>
-                // Respaldo por si no puede abrir WhatsApp desde la web
-                showFallback('¿No se abrió WhatsApp? También puedes escribirnos directo:', agentPhoneDisplay)
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-semibold rounded-xl transition-colors ${
-                agentPhoneClean
-                  ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-              }`}
-              aria-disabled={!agentPhoneClean}
-            >
-              <span className="flex items-center gap-1.5">
-                {/* SVG de WhatsApp */}
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                </svg>
-                WhatsApp
-              </span>
-              {agentPhoneDisplay && (
-                <span className="text-[10px] font-normal opacity-80">{agentPhoneDisplay}</span>
-              )}
-            </a>
-            <a
-              href={fieldsComplete ? prepareMailto() : '#'}
-              onClick={() =>
-                // Respaldo por si el dispositivo no tiene app de correo configurada
-                showFallback('¿No se abrió tu app de correo? Envía un mensaje a:', agentEmail)
-              }
-              className="flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors"
-            >
-              <span className="flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5" />
-                Mail
-              </span>
-              <span className="text-[10px] font-normal opacity-80 truncate max-w-full px-1">
-                {agentEmail}
-              </span>
-            </a>
-          </div>
+        <div className="relative">
+          <input
+            ref={nameRef}
+            type="text"
+            required
+            value={name}
+            onChange={(e) => setDraftName(e.target.value)}
+            placeholder="Tu nombre completo"
+            readOnly={!!registration}
+            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
+          />
+        </div>
 
-          {/* Mensaje de respaldo: el dato crudo (número/correo) aparece como mensaje
-              por si el dispositivo no puede abrir WhatsApp, la llamada o el correo
-              desde nuestra web. Seleccionable + botón de copiar. */}
-          {fallback && (
-            <div
-              role="status"
-              className="mb-4 flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 px-3 py-2.5 text-xs text-slate-600"
-            >
-              <span className="flex-1 leading-relaxed">
-                {fallback.hint}{' '}
-                <span className="font-semibold text-slate-900 select-all">{fallback.value}</span>
-              </span>
+        <div className="relative">
+          <input
+            ref={emailRef}
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setDraftEmail(e.target.value)}
+            placeholder="Tu correo electrónico"
+            readOnly={!!registration}
+            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
+          />
+        </div>
+
+        <div className="relative">
+          <input
+            ref={phoneRef}
+            type="tel"
+            required
+            value={phone}
+            onChange={(e) => handlePhoneChange(e.target.value)}
+            placeholder="Tu teléfono"
+            inputMode="numeric"
+            // Editable si aún no hay teléfono: un usuario ya logueado en el
+            // portal puede no haberlo dejado nunca.
+            readOnly={!!registration && !!registration.phone}
+            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
+          />
+        </div>
+
+        {!registration && !isChecking && (
+          <p className="text-[10px] text-slate-400 text-center">
+            Completa tus datos para poder contactar.{' '}
+            {hasPortal && (
               <button
                 type="button"
-                onClick={() => copyFallback(fallback.value)}
-                className="shrink-0 font-semibold text-blue-600 hover:text-blue-700"
+                onClick={() => openAuthModal()}
+                className="font-semibold text-blue-600 hover:underline"
               >
-                {copiedValue === fallback.value ? '¡Copiado!' : 'Copiar'}
+                ¿Ya tienes cuenta? Inicia sesión
               </button>
-              <button
-                type="button"
-                onClick={() => setFallback(null)}
-                aria-label="Cerrar mensaje"
-                className="shrink-0 text-slate-400 hover:text-slate-700 leading-none"
+            )}
+          </p>
+        )}
+
+        {/* Botones de contacto: se habilitan cuando el usuario está identificado
+            (sesión del portal o registro local) y usan los datos de la corredora.
+            El dato NO se muestra acá: al tocar un canal se abre el popup. */}
+        {registration && (
+          <div className="grid grid-cols-3 gap-2 mb-1">
+            {channels.map((c) => (
+              <a
+                key={c.id}
+                href={c.href || '#'}
+                target={c.external ? '_blank' : undefined}
+                rel={c.external ? 'noopener noreferrer' : undefined}
+                onClick={(e) => {
+                  if (!c.href) {
+                    e.preventDefault();
+                    return;
+                  }
+                  // Se dispara la acción directa (marcar/abrir WhatsApp/escribir)
+                  // y en paralelo se abre el popup con el dato, por si el
+                  // dispositivo no tiene con qué abrir ese canal.
+                  recordLead(c.id);
+                  setChannel(c);
+                }}
+                className={`flex items-center justify-center gap-1.5 py-3 text-xs font-semibold rounded-xl transition-colors ${c.buttonClass}`}
+                aria-disabled={!c.href}
+                aria-haspopup="dialog"
               >
-                ×
-              </button>
-            </div>
-          )}
-          </>
+                {c.icon}
+                {c.label}
+              </a>
+            ))}
+          </div>
         )}
 
         {loadingMsg && (
@@ -349,8 +480,78 @@ export function ContactAgentForm({ property }: ContactAgentFormProps) {
       </form>
 
       <p className="text-[10px] text-slate-400 text-center leading-tight mt-3">
-        La información es remitida a la corredora inmobiliaria.
+        La información se comparte con {partnerName} y queda registrada en Rix7 para su
+        seguimiento.
       </p>
+
+      {/* ─── Popup del canal ───
+          Muestra el dato de la corredora (teléfono / móvil / correo) sin
+          ocupar espacio en los botones, y deja la acción directa a un clic. */}
+      {channel && (
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="contact-channel-title"
+          onClick={() => setChannel(null)}
+        >
+          <div
+            className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3 px-5 pt-5">
+              <div className="min-w-0">
+                <h5 id="contact-channel-title" className="text-sm font-bold text-slate-900">
+                  {channel.title}
+                </h5>
+                <p className="text-[11px] text-slate-500 mt-0.5">{channel.hint}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setChannel(null)}
+                aria-label="Cerrar"
+                className="shrink-0 p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="px-5 py-4">
+              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
+                <span className="flex-1 text-sm font-semibold text-slate-900 select-all break-all">
+                  {channel.value}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => copyContactData(channel.value)}
+                  className="shrink-0 text-xs font-semibold text-blue-600 hover:text-blue-700"
+                >
+                  {copiedValue === channel.value ? '¡Copiado!' : 'Copiar'}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-2 px-5 pb-5">
+              <a
+                href={channel.href}
+                target={channel.external ? '_blank' : undefined}
+                rel={channel.external ? 'noopener noreferrer' : undefined}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+              >
+                {channel.icon}
+                {channel.actionLabel}
+              </a>
+              <button
+                type="button"
+                onClick={() => setChannel(null)}
+                className="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
