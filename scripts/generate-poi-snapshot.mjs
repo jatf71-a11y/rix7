@@ -1,6 +1,8 @@
 /**
  * Genera `lib/data/poiSnapshot.generated.json`: un snapshot estático de POIs
  * para las propiedades del catálogo manual, consultando Overpass por adelantado.
+ * También genera `lib/data/mapSnapshot.generated.json`, con la geometría del
+ * sector (calles, parques y agua) que dibuja el mapa de la landing compartible.
  *
  * Uso:
  *   npm run snapshot:pois                                (solo celdas faltantes)
@@ -21,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_PATH = join(root, 'lib', 'data', 'poiSnapshot.generated.json');
+const MAP_OUT_PATH = join(root, 'lib', 'data', 'mapSnapshot.generated.json');
 const FORCE = process.argv.includes('--force');
 
 const OVERPASS_ENDPOINTS = [
@@ -31,6 +34,143 @@ const OVERPASS_ENDPOINTS = [
 ];
 
 const SEARCH_RADIUS_M = 1500;
+
+// ═══ Geometría del sector para el mapa de la landing ═══
+//
+// La landing no pide nada en línea: dibuja el barrio desde este snapshot.
+// Solo lo que sirve para dibujar — miles de nodos de calle pesan, así que se
+// descarta lo que aporta ruido (vías propuestas, pasos desnivelados, enlaces)
+// y se redondean las coordenadas a 5 decimales (~1 m), que es la precisión que
+// aguanta un anillo de 15 minutos en un lienzo de ~1.200 unidades.
+const KEEP_HIGHWAY = new Set([
+  'motorway', 'trunk', 'primary', 'secondary', 'tertiary',
+  'residential', 'unclassified', 'living_street', 'pedestrian',
+  'footway', 'path', 'cycleway', 'service',
+  'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary_link',
+]);
+
+/** Superficies que hacen que el mapa se lea como un lugar de verdad. */
+const AREA_QUERIES = [
+  { k: 'water', q: '["natural"="water"]' },
+  { k: 'park', q: '["leisure"~"park|garden"]' },
+];
+
+/** Redondeo común de la geometría (≈1 m). */
+const n5 = (v) => Math.round(v * 100000) / 100000;
+
+// ═══ Simplificación y recorte ═══
+//
+// Una celda densa trae ~2.000 vías con miles de nodos: sin filtrar, el SVG de la
+// landing pesaría cientos de KB. Con dos operaciones (offline, sin volver a
+// consultar Overpass) el resultado se ve igual y pesa una fracción:
+//
+// 1. **Recorte al encuadre**: lo que queda fuera del marco del mapa no se paga.
+//    Las vías largas (una avenida que atraviesa la celda) traen nodos kilómetros
+//    más allá de lo que se dibuja. El recorte deja una pequeña holgura porque
+//    el centro visible es el punto difuminado (hasta 230 m de este).
+// 2. **Douglas-Peucker** con tolerancia en metros: elimina nodos cuyo aporte es
+//    invisible a la escala del mapa (~1,8 m por unidad del lienzo).
+//
+// Además cada vía guarda su `name` (cuando lo tiene): es lo que permite rotular
+// las calles en el SVG. Sin él el mapa sale mudo y no hay forma de recuperar los
+// nombres sin volver a consultar Overpass.
+const SIMPLIFY_TOLERANCE_M = 5;
+// Encuadre del mapa (viewBox 800×750; el anillo fija la escala por el lado
+// corto → 1 unidad ≈ 3,58 m): medio ancho visible ≈ 1.434 m, medio alto ≈
+// 1.343 m. El recorte cubre eso más el desplazamiento del punto difuminado
+// (230 m) para que las calles lleguen a los bordes: con el valor anterior
+// (1.080) el contenido se cortaba a ~1,330 m y los laterales del lienzo
+// quedaban en beige, que es lo que hacía que el mapa se viera lejano.
+const VIEW_HALF_M = { x: 1200, y: 1350 };
+const BLUR_MARGIN_M = 250;
+
+/** Distancia perpendicular de un punto a un segmento, en metros. */
+function perpendicularDistance(p, a, b) {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq === 0) return Math.hypot(p[0] - a[0], p[1] - a[1]);
+  let t = ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / lenSq;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dy));
+}
+
+/** Douglas-Peucker iterativo: devuelve los **índices** que se conservan. */
+function simplifyIndices(points, tolerance) {
+  if (points.length <= 2) return points.map((_, i) => i);
+
+  const keep = new Uint8Array(points.length);
+  keep[0] = 1;
+  keep[points.length - 1] = 1;
+
+  const stack = [[0, points.length - 1]];
+  while (stack.length) {
+    const [first, last] = stack.pop();
+    let maxDist = -1;
+    let index = -1;
+    for (let i = first + 1; i < last; i++) {
+      const dist = perpendicularDistance(points[i], points[first], points[last]);
+      if (dist > maxDist) {
+        maxDist = dist;
+        index = i;
+      }
+    }
+    if (maxDist > tolerance && index !== -1) {
+      keep[index] = 1;
+      stack.push([first, index], [index, last]);
+    }
+  }
+
+  const indices = [];
+  for (let i = 0; i < points.length; i++) if (keep[i]) indices.push(i);
+  return indices;
+}
+
+/**
+ * A metros locales (x este, y norte) respecto del centro de la celda.
+ * Corrige por latitud en el eje X para que la escala sea igual en ambos ejes.
+ */
+function toMeters(ring, centerLat, centerLng) {
+  const cos = Math.max(Math.cos((centerLat * Math.PI) / 180), 0.01);
+  return ring.map(([lat, lng]) => [
+    (lng - centerLng) * cos * 111320,
+    (lat - centerLat) * 111320,
+  ]);
+}
+
+/**
+ * Recorta al encuadre del mapa y simplifica. Devuelve **tramos**: una vía que
+ * entra y sale del marco se convierte en varias, que es lo que `groupRoadPaths`
+ * ya espera (subtrazas dentro de un mismo `d`).
+ */
+function clipAndSimplify(ring, centerLat, centerLng) {
+  const meters = toMeters(ring, centerLat, centerLng);
+  const maxX = VIEW_HALF_M.x + BLUR_MARGIN_M;
+  const maxY = VIEW_HALF_M.y + BLUR_MARGIN_M;
+  const inside = (p) => Math.abs(p[0]) <= maxX && Math.abs(p[1]) <= maxY;
+
+  const runs = [];
+  let current = [];
+  for (let i = 0; i < meters.length; i++) {
+    if (inside(meters[i])) {
+      current.push(i);
+    } else if (current.length > 0) {
+      runs.push(current);
+      current = [];
+    }
+  }
+  if (current.length > 0) runs.push(current);
+
+  const out = [];
+  for (const run of runs) {
+    const runPoints = run.map((i) => meters[i]);
+    const kept = simplifyIndices(runPoints, SIMPLIFY_TOLERANCE_M);
+    if (kept.length < 2) continue;
+    out.push(kept.map((k) => ring[run[k]]));
+  }
+
+  return out;
+}
 
 // Overpass bloquea clientes anónimos: la política de OSM exige identificarse.
 const OVERPASS_USER_AGENT =
@@ -155,6 +295,68 @@ async function fetchOverpass(query) {
   throw lastError ?? new Error('Overpass no disponible');
 }
 
+/**
+ * Nombre rotulable de una vía, o `''` si no tiene.
+ *
+ * OSM a veces guarda varias alternativas separadas por `;`
+ * ("Autopista Central;AP"): en el mapa va una sola, la primera.
+ */
+export function streetNameFromTags(tags) {
+  const raw = tags?.name;
+  if (typeof raw !== 'string') return '';
+  return raw.split(';')[0].trim();
+}
+
+async function fetchMapCell(lat, lng) {
+  // Una sola consulta para todo el sector: calles + superficies, con `out geom`
+  // para traer los nodos (sin eso Overpass devuelve solo los ids).
+  const queries = [
+    `way["highway"](around:${SEARCH_RADIUS_M},${lat},${lng});`,
+    ...AREA_QUERIES.map(({ q }) => `way${q}(around:${SEARCH_RADIUS_M},${lat},${lng});`),
+  ];
+  const query = `[out:json][timeout:25];(${queries.join('\n')});out geom;`;
+  const data = await fetchOverpass(query);
+
+  const roads = [];
+  const areas = [];
+
+  for (const element of data.elements || []) {
+    if (element.type !== 'way' || !Array.isArray(element.geometry)) continue;
+
+    const tags = element.tags || {};
+    const nodes = [];
+    let last = null;
+    for (const node of element.geometry) {
+      if (typeof node?.lat !== 'number' || typeof node?.lon !== 'number') continue;
+      const coord = [n5(node.lat), n5(node.lon)];
+      // Dos nodos casi superpuestos no cambian la línea y sí pesan.
+      if (last && Math.abs(last[0] - coord[0]) < 1e-5 && Math.abs(last[1] - coord[1]) < 1e-5) continue;
+      nodes.push(coord);
+      last = coord;
+    }
+    if (nodes.length < 2) continue;
+
+    if (tags.highway && KEEP_HIGHWAY.has(tags.highway)) {
+      // Una vía puede rendir varios tramos al recortarla al encuadre
+      const name = streetNameFromTags(tags);
+      for (const run of clipAndSimplify(nodes, lat, lng)) {
+        roads.push(name ? { c: tags.highway, n: run, name } : { c: tags.highway, n: run });
+      }
+    } else {
+      const area = AREA_QUERIES.find(({ k }) =>
+        k === 'water' ? tags.natural === 'water' : tags.leisure === 'park' || tags.leisure === 'garden'
+      );
+      if (area) {
+        for (const run of clipAndSimplify(nodes, lat, lng)) {
+          areas.push({ k: area.k, n: run });
+        }
+      }
+    }
+  }
+
+  return { roads, areas };
+}
+
 async function fetchCell(lat, lng) {
   // `nwr` incluye ways/relations (comisarías, cuarteles y locales suelen ser
   // polígonos del edificio) y `out center` da su centroide.
@@ -230,38 +432,72 @@ async function main() {
   }
   console.log(`[poi-snapshot] ${cells.size} celdas únicas`);
 
-  // Snapshot previo: conservar celdas ya generadas salvo --force
+  // Snapshots previos: conservar celdas ya generadas salvo --force
   const snapshot = existsSync(OUT_PATH) && !FORCE
     ? JSON.parse(readFileSync(OUT_PATH, 'utf8'))
+    : { generated_at: null, cells: {} };
+  const mapSnapshot = existsSync(MAP_OUT_PATH) && !FORCE
+    ? JSON.parse(readFileSync(MAP_OUT_PATH, 'utf8'))
     : { generated_at: null, cells: {} };
 
   let ok = 0;
   let failed = 0;
   let skipped = 0;
+  let mapOk = 0;
+  let mapFailed = 0;
+
   for (const [key, cell] of cells) {
-    if (snapshot.cells[key]) {
+    const needsPois = !snapshot.cells[key];
+    // `named` marca las celdas guardadas con nombres de calle: las celdas
+    // antiguas se reconsultan una vez para poder rotular el mapa del sector.
+    const needsMap = !mapSnapshot.cells[key] || !mapSnapshot.cells[key].named;
+    if (!needsPois && !needsMap) {
       skipped += 1;
       continue;
     }
+
     process.stdout.write(`[poi-snapshot] celda ${key} (${cell.properties.join(', ')})... `);
-    try {
-      const pois = await fetchCell(cell.lat, cell.lng);
-      // Un espejo degradado puede responder 200 con 0 elementos; guardar esa
-      // celda envenenaría el snapshot con "no hay POIs aquí". Solo guardamos
-      // celdas con datos reales — las vacías cuentan como fallidas.
-      if (pois.length === 0) {
+
+    // POIs
+    if (needsPois) {
+      try {
+        const pois = await fetchCell(cell.lat, cell.lng);
+        // Un espejo degradado puede responder 200 con 0 elementos; guardar esa
+        // celda envenenaría el snapshot con "no hay POIs aquí". Solo guardamos
+        // celdas con datos reales — las vacías cuentan como fallidas.
+        if (pois.length === 0) {
+          failed += 1;
+          console.log('✗ 0 POIs (respuesta no confiable, no se guarda)');
+        } else {
+          snapshot.cells[key] = { lat: cell.lat, lng: cell.lng, pois };
+          ok += 1;
+          console.log(`✓ ${pois.length} POIs`);
+        }
+      } catch (err) {
         failed += 1;
-        console.log('✗ 0 POIs (respuesta no confiable, no se guarda)');
-        continue;
+        console.log(`✗ POIs: ${err.message}`);
       }
-      snapshot.cells[key] = { lat: cell.lat, lng: cell.lng, pois };
-      ok += 1;
-      console.log(`✓ ${pois.length} POIs`);
       // Cortesía con Overpass: pausa entre consultas
       await new Promise((r) => setTimeout(r, 1500));
-    } catch (err) {
-      failed += 1;
-      console.log(`✗ ${err.message}`);
+    }
+
+    // Geometría del mapa (misma celda, otra consulta)
+    if (needsMap) {
+      try {
+        const { roads, areas } = await fetchMapCell(cell.lat, cell.lng);
+        if (roads.length === 0) {
+          mapFailed += 1;
+          console.log('  ✗ 0 calles (respuesta no confiable, no se guarda)');
+        } else {
+          mapSnapshot.cells[key] = { lat: cell.lat, lng: cell.lng, roads, areas, named: true };
+          mapOk += 1;
+          console.log(`  ✓ ${roads.length} vías, ${areas.length} superficies`);
+        }
+      } catch (err) {
+        mapFailed += 1;
+        console.log(`  ✗ mapa: ${err.message}`);
+      }
+      await new Promise((r) => setTimeout(r, 1500));
     }
   }
 
@@ -272,19 +508,76 @@ async function main() {
     snapshot.generated_at = new Date().toISOString();
     writeFileSync(OUT_PATH, JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[poi-snapshot] sin celdas nuevas: el archivo no se modifica.');
+    console.log('[poi-snapshot] sin celdas nuevas de POIs: el archivo no se modifica.');
   }
-  console.log(`\n[poi-snapshot] listo: ${ok} nuevas, ${skipped} existentes, ${failed} fallidas → ${OUT_PATH}`);
-  if (failed > 0) {
+  if (mapOk > 0) {
+    mapSnapshot.generated_at = new Date().toISOString();
+    writeFileSync(MAP_OUT_PATH, JSON.stringify(mapSnapshot));
+  } else {
+    console.log('[poi-snapshot] sin celdas nuevas de mapa: el archivo no se modifica.');
+  }
+
+  console.log(`\n[poi-snapshot] POIs: ${ok} nuevas, ${failed} fallidas → ${OUT_PATH}`);
+  console.log(`[poi-snapshot] mapa: ${mapOk} nuevas, ${mapFailed} fallidas → ${MAP_OUT_PATH}`);
+  console.log(`[poi-snapshot] ${skipped} celdas ya completas`);
+  if (failed > 0 || mapFailed > 0) {
     console.log('[poi-snapshot] re-ejecutar más tarde completa las celdas faltantes (Overpass caído hoy).');
     process.exitCode = 1; // señal útil en CI, no rompe el build local
   }
 }
 
+/**
+ * Modo `--simplify`: recorta y simplifica un snapshot de mapa ya generado,
+ * **sin red**.
+ *
+ * Existe porque la geometría cruda pesa una fracción más de lo razonable para
+ * un HTML que se sirve completo, y aplicarle el filtro no requiere volver a
+ * consultar Overpass: es un transformado local sobre el archivo que ya está.
+ * También permite aplicar una mejora del filtro a todo el snapshot sin gastar
+ * cuota del mirror.
+ */
+async function simplifyExisting() {
+  if (!existsSync(MAP_OUT_PATH)) {
+    console.log('[poi-snapshot] --simplify: no hay snapshot de mapa todavía.');
+    return;
+  }
+
+  const snapshot = JSON.parse(readFileSync(MAP_OUT_PATH, 'utf8'));
+  let beforeNodes = 0;
+  let afterNodes = 0;
+  let cells = 0;
+
+  const transform = (entries, lat, lng) => {
+    const out = [];
+    for (const entry of entries || []) {
+      beforeNodes += entry.n.length;
+      for (const run of clipAndSimplify(entry.n, lat, lng)) {
+        afterNodes += run.length;
+        out.push({ ...entry, n: run });
+      }
+    }
+    return out;
+  };
+
+  for (const key of Object.keys(snapshot.cells)) {
+    const cell = snapshot.cells[key];
+    cells += 1;
+    cell.roads = transform(cell.roads, cell.lat, cell.lng);
+    cell.areas = transform(cell.areas, cell.lat, cell.lng);
+  }
+
+  writeFileSync(MAP_OUT_PATH, JSON.stringify(snapshot));
+  const pct = beforeNodes > 0 ? Math.round((1 - afterNodes / beforeNodes) * 100) : 0;
+  console.log(
+    `[poi-snapshot] --simplify: ${cells} celdas, ${beforeNodes} → ${afterNodes} nodos (-${pct}%)`
+  );
+}
+
 // Solo ejecuta el barrido si el script se corre directamente — así los tests
 // pueden importar `categorize`, `rawType` y `TYPE_INDEX` sin lanzar consultas.
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  main().catch((err) => {
+  const run = process.argv.includes('--simplify') ? simplifyExisting() : main();
+  run.catch((err) => {
     console.error('[poi-snapshot] error fatal:', err);
     process.exit(1);
   });

@@ -48,6 +48,34 @@ function joinWithY(parts: string[]): string {
   return `${parts.slice(0, -1).join(', ')} y ${parts[parts.length - 1]}`;
 }
 
+/** Un lugar con nombre, con su distancia, para destacarlo en la landing. */
+export interface SectorHighlight {
+  name: string;
+  type: string;
+  distanceM: number;
+}
+
+/**
+ * Lectura de una categoría del sector: los números y el texto por separado.
+ *
+ * Existe porque hay dos consumidores con necesidades distintas: el resumen
+ * textual (chips, popup) y la landing compartible, que además quiere el
+ * **conteo** para el superíndice y los lugares con nombre para destacarlos.
+ */
+export interface SectorCategoryInsight {
+  category: string;
+  /** POIs de la categoría dentro del radio caminable */
+  count: number;
+  /** Subtipos distintos presentes */
+  types: number;
+  /** Desglose por subtipo, de más a menos frecuente */
+  byType: { type: string; count: number }[];
+  /** Texto listo para mostrar */
+  text: string;
+  /** Hasta 3 lugares con nombre, del más cercano al más lejano */
+  highlights: SectorHighlight[];
+}
+
 /**
  * Descripción del sector para una categoría, o `null` si no hay POIs de esa
  * categoría dentro del radio caminable.
@@ -62,6 +90,20 @@ export function buildCategorySummary(
   lng: number,
   radiusM: number = WALKABLE_RADIUS_M
 ): string | null {
+  return buildCategoryInsight(pois, category, lat, lng, radiusM)?.text ?? null;
+}
+
+/**
+ * Igual que `buildCategorySummary`, pero devolviendo también los números y los
+ * lugares destacados. Devuelve `null` si la categoría no tiene nada caminable.
+ */
+export function buildCategoryInsight(
+  pois: SectorPOIInput[],
+  category: string,
+  lat: number,
+  lng: number,
+  radiusM: number = WALKABLE_RADIUS_M
+): SectorCategoryInsight | null {
   // Solo lo caminable a 15 min: así el texto coincide con el superíndice del
   // botón (el fetch trae un radio mayor, 1500 m).
   const near = pois
@@ -90,14 +132,50 @@ export function buildCategorySummary(
       ? `${near.length} lugares en ${sorted.length} tipos — ${joinWithY(detallados)}`
       : joinWithY(detallados);
 
+  // Se ordena una sola vez y se reutiliza: el "más cerca" del texto y los
+  // destacados de la landing son la misma lista.
+  const named = near.filter((p) => p.name).sort((a, b) => a.dist - b.dist);
+  const highlights = named.slice(0, 3).map((p) => ({
+    name: p.name,
+    type: p.type,
+    distanceM: Math.round(p.dist),
+  }));
+
   // "Más cerca" (neutro): el hablante sería "la más cercana" para una escuela
   // pero "el más cercano" para un banco — con 9 categorías no hay un género fijo.
-  const named = near.filter((p) => p.name).sort((a, b) => a.dist - b.dist)[0];
-  const cercania = named
-    ? ` Más cerca: ${named.name} (${poiTypeLabel(named.type)}, ${Math.round(named.dist)} m).`
+  const cercania = highlights[0]
+    ? ` Más cerca: ${highlights[0].name} (${poiTypeLabel(highlights[0].type)}, ${highlights[0].distanceM} m).`
     : '';
 
-  return `A menos de 15 min caminando: ${resumen}.${cercania}`;
+  return {
+    category,
+    count: near.length,
+    types: sorted.length,
+    byType: sorted.map(([type, count]) => ({ type, count })),
+    text: `A menos de 15 min caminando: ${resumen}.${cercania}`,
+    highlights,
+  };
+}
+
+/**
+ * Lectura completa del sector: una entrada por categoría con contenido,
+ * ordenadas de la más abastecida a la menos.
+ *
+ * El orden importa para la landing: en un folleto compartido lo primero que se
+ * lee debe ser lo que más caracteriza al barrio, no el orden fijo de las
+ * categorías (que dejaría "Servicios" antes que "Comercio" por casualidad).
+ */
+export function buildSectorOverview(
+  pois: SectorPOIInput[],
+  categories: string[],
+  lat: number,
+  lng: number,
+  radiusM: number = WALKABLE_RADIUS_M
+): SectorCategoryInsight[] {
+  return categories
+    .map((key) => buildCategoryInsight(pois, key, lat, lng, radiusM))
+    .filter((i): i is SectorCategoryInsight => i !== null)
+    .sort((a, b) => b.count - a.count);
 }
 
 /**

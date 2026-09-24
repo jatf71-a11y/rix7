@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { POI_CATEGORIES, categorizePOI, derivePoiType, poiImportance, poiSvgMarkup, poiTypeLabel } from '@/lib/data/poiCategories';
+import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
 
 /**
  * API route `/api/pois` — proxy server-side de Overpass API.
@@ -58,7 +59,9 @@ const RATE_LIMIT_MAX = 30;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minuto
 
 const cache = new Map<string, { pois: PoiResponse[]; ts: number }>();
-const rateBuckets = new Map<string, { count: number; windowStart: number }>();
+
+/** Implementación compartida con `/api/leads` (ver `lib/utils/rateLimit`). */
+const rateLimiter = createRateLimiter({ max: RATE_LIMIT_MAX, windowMs: RATE_LIMIT_WINDOW_MS });
 
 interface PoiResponse {
   id: number;
@@ -79,30 +82,6 @@ interface PoiResponse {
 interface PoiSnapshot {
   generated_at: string | null;
   cells: Record<string, { lat: number; lng: number; pois: Array<{ id: number; lat: number; lng: number; name: string; type: string; category: string }> }>;
-}
-
-/** Limpieza perezosa de buckets de rate limit expirados. */
-function sweepRateBuckets(now: number): void {
-  if (rateBuckets.size < 1000) return;
-  for (const ip of Array.from(rateBuckets.keys())) {
-    const bucket = rateBuckets.get(ip);
-    if (bucket && now - bucket.windowStart >= RATE_LIMIT_WINDOW_MS) rateBuckets.delete(ip);
-  }
-}
-
-/** Rate limit por IP. Retorna true si la solicitud debe rechazarse. */
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  sweepRateBuckets(now);
-
-  const bucket = rateBuckets.get(ip);
-  if (!bucket || now - bucket.windowStart >= RATE_LIMIT_WINDOW_MS) {
-    rateBuckets.set(ip, { count: 1, windowStart: now });
-    return false;
-  }
-
-  bucket.count += 1;
-  return bucket.count > RATE_LIMIT_MAX;
 }
 
 /** Consulta Overpass probando los espejos en orden. Lanza si todos fallan. */
@@ -152,12 +131,7 @@ export async function GET(request: NextRequest) {
   }
 
   // ═══ Rate limit por IP ═══
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown';
-
-  if (isRateLimited(ip)) {
+  if (rateLimiter.isLimited(clientIpFrom(request.headers))) {
     return NextResponse.json(
       { success: false, error: 'Demasiadas solicitudes' },
       { status: 429, headers: { 'Retry-After': '60' } }

@@ -1,5 +1,12 @@
 'use client';
 
+// Estilos de Leaflet y del plugin de clustering. Antes estaban en `app/layout.tsx`
+// y se bajaban en todas las páginas; acá viajan en el chunk de este componente,
+// que la ficha carga con `dynamic()`.
+import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+
 import React, { useEffect, useState, useRef } from 'react';
 import { Loader2, GraduationCap, Stethoscope, BusFront, ShoppingCart, Dumbbell, Trees, ShieldCheck, UtensilsCrossed, Landmark, Map as MapIcon, ChevronDown, AlertTriangle, RotateCw, X, History } from 'lucide-react';
 import { POI_CATEGORIES, poiSvgMarkup, poiImportance, poiMarkerSize, WALKABLE_RADIUS_M } from '@/lib/data/poiCategories';
@@ -97,12 +104,17 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
       const L = (await import('leaflet')).default;
       if (cancelled || !mapRef.current) return;
 
-      // Fix para íconos
+      // El ícono por defecto de Leaflet resuelve sus imágenes desde el bundle,
+      // y eso rompía con el hashing de Next. Se apunta a copias propias en
+      // `/leaflet/` (las deja `scripts/sync-leaflet-icons.mjs` en postinstall):
+      // antes venían de cdnjs, que el CSP bloqueaba en producción.
+      // Ojo: hoy todos los marcadores usan `divIcon`, así que estas imágenes no
+      // se piden; están para que un `L.marker` sin ícono propio funcione igual.
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+        iconRetinaUrl: '/leaflet/marker-icon-2x.png',
+        iconUrl: '/leaflet/marker-icon.png',
+        shadowUrl: '/leaflet/marker-shadow.png',
       });
 
       const map = L.map(mapRef.current!, {

@@ -9,7 +9,14 @@
  * se ejecuta directamente.
  */
 import { describe, it, expect } from 'vitest';
-import { categorize, rawType, safetySubtype, TYPE_INDEX, CATEGORY_QUERIES } from './generate-poi-snapshot.mjs';
+import {
+  categorize,
+  rawType,
+  safetySubtype,
+  streetNameFromTags,
+  TYPE_INDEX,
+  CATEGORY_QUERIES,
+} from './generate-poi-snapshot.mjs';
 
 describe('TYPE_INDEX (selectores Overpass → tags)', () => {
   it('se construye con los selectores entre corchetes', () => {
@@ -78,5 +85,18 @@ describe('safetySubtype', () => {
   it('devuelve null para lugares de otras categorías', () => {
     expect(safetySubtype({ amenity: 'hospital' })).toBeNull();
     expect(safetySubtype({ tourism: 'hotel', name: 'Hotel Bomberos' })).toBeNull();
+  });
+});
+
+describe('streetNameFromTags', () => {
+  it('es lo que permite rotular el mapa: sin esto las calles salen mudas', () => {
+    expect(streetNameFromTags({ name: 'Apoquindo' })).toBe('Apoquindo');
+    // OSM guarda alternativas separadas por `;`: va la primera
+    expect(streetNameFromTags({ name: 'Autopista Central;AP' })).toBe('Autopista Central');
+    expect(streetNameFromTags({ name: '  Los Leones  ' })).toBe('Los Leones');
+    // Sin nombre no hay rótulo, y la vía igual se dibuja
+    expect(streetNameFromTags({})).toBe('');
+    expect(streetNameFromTags(undefined)).toBe('');
+    expect(streetNameFromTags({ name: 42 })).toBe('');
   });
 });
