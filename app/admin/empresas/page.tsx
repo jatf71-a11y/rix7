@@ -24,6 +24,7 @@ const EMPTY_FORM: Omit<Partner, 'id'> = {
   description: '',
   website: '',
   color: '#3B82F6',
+  contact: { phone: '', whatsapp: '', email: '' },
 };
 
 export default function AdminEmpresasPageWrapper() {
@@ -45,6 +46,16 @@ function AdminEmpresasPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  /**
+   * De dónde salió el listado y si los cambios se guardarán de verdad. El panel
+   * tiene que decirlo: un alta que se pierde al reiniciar el servidor no puede
+   * parecer un alta exitosa.
+   */
+  const [storage, setStorage] = useState<{
+    persistent: boolean;
+    emptyTable: boolean;
+    source: string;
+  } | null>(null);
 
   // Open form if ?new=1
   useEffect(() => {
@@ -56,7 +67,14 @@ function AdminEmpresasPage() {
     fetch('/api/admin/partners')
       .then((r) => r.json())
       .then((result) => {
-        if (result.success) setPartners(result.data);
+        if (result.success) {
+          setPartners(result.data);
+          setStorage({
+            persistent: result.persistent !== false,
+            emptyTable: !!result.emptyTable,
+            source: result.source ?? 'catalog',
+          });
+        }
       })
       .finally(() => setLoading(false));
   }, []);
@@ -92,6 +110,7 @@ function AdminEmpresasPage() {
       description: partner.description,
       website: partner.website || '',
       color: partner.color,
+      contact: partner.contact || { phone: '', whatsapp: '', email: '' },
     });
     setShowForm(true);
   };
@@ -119,7 +138,12 @@ function AdminEmpresasPage() {
         });
         const result = await res.json();
         if (result.success) {
-          showToast('success', 'Empresa actualizada correctamente');
+          showToast(
+            'success',
+            result.persisted === false
+              ? 'Actualizada solo en memoria (sin Supabase configurado)'
+              : 'Empresa actualizada correctamente'
+          );
           closeForm();
           loadPartners();
         } else {
@@ -134,7 +158,12 @@ function AdminEmpresasPage() {
         });
         const result = await res.json();
         if (result.success) {
-          showToast('success', 'Empresa creada correctamente');
+          showToast(
+            'success',
+            result.persisted === false
+              ? 'Creada solo en memoria (sin Supabase configurado)'
+              : 'Empresa creada correctamente'
+          );
           closeForm();
           loadPartners();
         } else {
@@ -157,7 +186,12 @@ function AdminEmpresasPage() {
       const res = await fetch(`/api/admin/partners?id=${id}`, { method: 'DELETE' });
       const result = await res.json();
       if (result.success) {
-        showToast('success', 'Empresa eliminada');
+        showToast(
+          'success',
+          result.persisted === false
+            ? 'Eliminada solo en memoria (sin Supabase configurado)'
+            : 'Empresa eliminada'
+        );
         loadPartners();
       } else {
         showToast('error', result.error || 'Error al eliminar');
@@ -171,6 +205,34 @@ function AdminEmpresasPage() {
 
   return (
     <div className="max-w-6xl">
+      {/* Aviso de almacenamiento: sin Supabase, lo que se guarde acá no dura */}
+      {storage && !storage.persistent && (
+        <div className="flex items-start gap-2 px-4 py-3 mb-5 rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-800">
+          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="font-semibold">Modo de prueba: los cambios no se guardan</p>
+            <p className="mt-0.5 text-amber-700">
+              No hay un proyecto Supabase configurado, así que las altas y ediciones viven solo
+              en memoria y se pierden al reiniciar el servidor. Se listan las corredoras del
+              catálogo del código.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {storage?.emptyTable && (
+        <div className="flex items-start gap-2 px-4 py-3 mb-5 rounded-lg border border-blue-200 bg-blue-50 text-sm text-blue-800">
+          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="font-semibold">La tabla de corredoras está vacía</p>
+            <p className="mt-0.5 text-blue-700">
+              Supabase está configurado, pero todavía no tiene las corredoras. Se muestran las del
+              catálogo hasta que ejecutes <code className="font-mono">supabase/seed.sql</code>.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Toast */}
       {toast && (
         <div className="fixed top-20 right-6 z-50 animate-in slide-in-from-right">
@@ -450,6 +512,65 @@ function AdminEmpresasPage() {
                   placeholder="https://www.ejemplo.cl"
                   className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
+              </div>
+
+              {/* Datos de contacto: son los que habilitan los botones
+                  Llamar / WhatsApp / Mail en la ficha de la propiedad. */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                <p className="text-xs font-semibold text-slate-700">
+                  Datos de contacto
+                  <span className="ml-2 font-normal text-[10px] text-slate-400">
+                    Habilitan Llamar / WhatsApp / Mail en la ficha
+                  </span>
+                </p>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">
+                    Teléfono de la corredora
+                  </label>
+                  <input
+                    type="tel"
+                    value={form.contact.phone}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, contact: { ...prev.contact, phone: e.target.value } }))
+                    }
+                    placeholder="+56 2 2000 0000"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">
+                    WhatsApp (móvil)
+                  </label>
+                  <input
+                    type="tel"
+                    value={form.contact.whatsapp}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, contact: { ...prev.contact, whatsapp: e.target.value } }))
+                    }
+                    placeholder="+56 9 0000 0000"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <p className="mt-1 text-[10px] text-slate-400">
+                    Debe ser un móvil: WhatsApp no funciona con números fijos.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">
+                    Correo de contacto
+                  </label>
+                  <input
+                    type="email"
+                    value={form.contact.email}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, contact: { ...prev.contact, email: e.target.value } }))
+                    }
+                    placeholder="contacto@corredora.cl"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
               </div>
 
               {/* Color */}

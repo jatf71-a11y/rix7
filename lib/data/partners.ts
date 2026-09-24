@@ -1,3 +1,13 @@
+export interface PartnerContact {
+  /** Central de la corredora (mesa de ventas). Se usa en "Llamar". */
+  phone: string;
+  /** Móvil con WhatsApp habilitado. Separado del anterior porque un número
+   *  fijo no puede recibir WhatsApp: `api.whatsapp.com` lo rechaza. */
+  whatsapp: string;
+  /** Correo de contacto de la corredora. Se usa en "Mail". */
+  email: string;
+}
+
 export interface Partner {
   id: string;
   slug: string;
@@ -6,6 +16,15 @@ export interface Partner {
   description: string;
   website?: string;
   color: string; // Color principal de la marca
+  /**
+   * Datos de contacto que aporta cada corredora. Son los que habilitan los
+   * botones Llamar / WhatsApp / Mail de la ficha (no los del agente individual).
+   *
+   * ⚠️ PLACEHOLDER: los valores actuales siguen el patrón de relleno del
+   * proyecto (`+56 2 2000 00XX` / `+56 9 0000 00XX`). Reemplazar por los datos
+   * reales que entregue cada corredora antes de publicar.
+   */
+  contact: PartnerContact;
 }
 
 export const partners: Partner[] = [
@@ -16,6 +35,11 @@ export const partners: Partner[] = [
     logo: '/logos/catedral.png',
     description: 'Corredora de propiedades con atención personalizada y trato cercano',
     color: '#3B82F6',
+    contact: {
+      phone: '+56 2 2000 0001',
+      whatsapp: '+56 9 0000 0001',
+      email: 'contacto@catedralpropiedades.cl',
+    },
   },
   {
     id: 'cushman-wakefield',
@@ -25,6 +49,11 @@ export const partners: Partner[] = [
     description: 'Líder mundial en servicios inmobiliarios comerciales',
     website: 'https://www.cushmanwakefield.com',
     color: '#003366',
+    contact: {
+      phone: '+56 2 2000 0002',
+      whatsapp: '+56 9 0000 0002',
+      email: 'contacto@cushmanwakefield.com',
+    },
   },
   {
     id: 'cbre',
@@ -34,6 +63,11 @@ export const partners: Partner[] = [
     description: 'La consultora inmobiliaria más grande del mundo',
     website: 'https://www.cbre.com',
     color: '#0050AA',
+    contact: {
+      phone: '+56 2 2000 0003',
+      whatsapp: '+56 9 0000 0003',
+      email: 'contacto@cbre.com',
+    },
   },
   {
     id: 'colliers',
@@ -43,6 +77,11 @@ export const partners: Partner[] = [
     description: 'Servicios inmobiliarios y de gestión de inversiones',
     website: 'https://www.colliers.com',
     color: '#ED1C24',
+    contact: {
+      phone: '+56 2 2000 0004',
+      whatsapp: '+56 9 0000 0004',
+      email: 'contacto@colliers.com',
+    },
   },
   {
     id: 'jll-chile',
@@ -52,6 +91,11 @@ export const partners: Partner[] = [
     description: 'Consultoría inmobiliaria y gestión de inversiones',
     website: 'https://www.jll.com',
     color: '#CC0000',
+    contact: {
+      phone: '+56 2 2000 0005',
+      whatsapp: '+56 9 0000 0005',
+      email: 'contacto@jll.com',
+    },
   },
   {
     id: 'savills',
@@ -61,6 +105,11 @@ export const partners: Partner[] = [
     description: 'Asesoría inmobiliaria de prestigio internacional',
     website: 'https://www.savills.com',
     color: '#00263A',
+    contact: {
+      phone: '+56 2 2000 0006',
+      whatsapp: '+56 9 0000 0006',
+      email: 'contacto@savills.com',
+    },
   },
   {
     id: 'torre-blanca',
@@ -70,6 +119,11 @@ export const partners: Partner[] = [
     description: 'Desarrolladora inmobiliaria con más de 30 años de trayectoria',
     website: 'https://www.torreblanca.cl',
     color: '#1A5276',
+    contact: {
+      phone: '+56 2 2000 0007',
+      whatsapp: '+56 9 0000 0007',
+      email: 'contacto@torreblanca.cl',
+    },
   },
   {
     id: 'inelbrok',
@@ -79,6 +133,11 @@ export const partners: Partner[] = [
     description: 'Corredora de propiedades con presencia nacional',
     website: 'https://www.inelbrok.cl',
     color: '#E67E22',
+    contact: {
+      phone: '+56 2 2000 0008',
+      whatsapp: '+56 9 0000 0008',
+      email: 'contacto@inelbrok.cl',
+    },
   },
   {
     id: '.portal-inmobiliario',
@@ -88,6 +147,11 @@ export const partners: Partner[] = [
     description: 'El portal líder de propiedades en Chile',
     website: 'https://www.portalinmobiliario.com',
     color: '#FF6600',
+    contact: {
+      phone: '+56 2 2000 0009',
+      whatsapp: '+56 9 0000 0009',
+      email: 'contacto@portalinmobiliario.com',
+    },
   },
   {
     id: 'toctoc',
@@ -97,6 +161,11 @@ export const partners: Partner[] = [
     description: 'Plataforma digital de compra y arriendo de propiedades',
     website: 'https://www.toctoc.com',
     color: '#00C853',
+    contact: {
+      phone: '+56 2 2000 0010',
+      whatsapp: '+56 9 0000 0010',
+      email: 'contacto@toctoc.com',
+    },
   },
   {
     id: 'yapo',
@@ -106,6 +175,11 @@ export const partners: Partner[] = [
     description: 'Portal de clasificados con sección inmobiliaria líder',
     website: 'https://www.yapo.cl',
     color: '#FFC107',
+    contact: {
+      phone: '+56 2 2000 0011',
+      whatsapp: '+56 9 0000 0011',
+      email: 'contacto@yapo.cl',
+    },
   },
 ];
 
