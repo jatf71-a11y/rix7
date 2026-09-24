@@ -389,3 +389,62 @@ INSERT INTO public.properties (
     'camila.undurraga@rix7.cl',
     '+56 9 8765 4321'
 );
+
+-- ==============================================================================
+-- CORREDORAS INSCRITAS (PARTNERS)
+-- ==============================================================================
+-- Migración de las 11 corredoras que antes vivían en memoria en
+-- `lib/data/partners.ts`. Los teléfonos son PLACEHOLDER con el patrón de
+-- relleno del proyecto (+56 2 2000 00XX / +56 9 0000 00XX): reemplazarlos por
+-- los reales de cada corredora desde /admin/empresas.
+--
+-- `ON CONFLICT DO NOTHING` a propósito: la semilla solo crea las que faltan y
+-- nunca pisa lo que el equipo haya editado desde el panel.
+INSERT INTO public.partners (
+    id, slug, name, logo, description, website, color,
+    contact_phone, contact_whatsapp, contact_email, sort_order
+) VALUES
+    ('catedral', 'catedral', 'Catedral Propiedades', '/logos/catedral.png',
+     'Corredora de propiedades con atención personalizada y trato cercano', NULL, '#3B82F6',
+     '+56 2 2000 0001', '+56 9 0000 0001', 'contacto@catedralpropiedades.cl', 0),
+
+    ('cushman-wakefield', 'cushman-wakefield', 'Cushman & Wakefield', '/logos/cushmanwakefield.png',
+     'Líder mundial en servicios inmobiliarios comerciales', 'https://www.cushmanwakefield.com', '#003366',
+     '+56 2 2000 0002', '+56 9 0000 0002', 'contacto@cushmanwakefield.com', 1),
+
+    ('cbre', 'cbre', 'CBRE Chile', '/logos/cbre.png',
+     'La consultora inmobiliaria más grande del mundo', 'https://www.cbre.com', '#0050AA',
+     '+56 2 2000 0003', '+56 9 0000 0003', 'contacto@cbre.com', 2),
+
+    ('colliers', 'colliers', 'Colliers International', '/logos/colliers.png',
+     'Servicios inmobiliarios y de gestión de inversiones', 'https://www.colliers.com', '#ED1C24',
+     '+56 2 2000 0004', '+56 9 0000 0004', 'contacto@colliers.com', 3),
+
+    ('jll-chile', 'jll-chile', 'JLL Chile', '/logos/jll.ico',
+     'Consultoría inmobiliaria y gestión de inversiones', 'https://www.jll.com', '#CC0000',
+     '+56 2 2000 0005', '+56 9 0000 0005', 'contacto@jll.com', 4),
+
+    ('savills', 'savills', 'Savills Chile', '/logos/savills.png',
+     'Asesoría inmobiliaria de prestigio internacional', 'https://www.savills.com', '#00263A',
+     '+56 2 2000 0006', '+56 9 0000 0006', 'contacto@savills.com', 5),
+
+    ('torre-blanca', 'torre-blanca', 'Torre Blanca SpA', '/logos/torreblanca.svg',
+     'Desarrolladora inmobiliaria con más de 30 años de trayectoria', 'https://www.torreblanca.cl', '#1A5276',
+     '+56 2 2000 0007', '+56 9 0000 0007', 'contacto@torreblanca.cl', 6),
+
+    ('inelbrok', 'inelbrok', 'Inelbrok', '/logos/inelbrok.svg',
+     'Corredora de propiedades con presencia nacional', 'https://www.inelbrok.cl', '#E67E22',
+     '+56 2 2000 0008', '+56 9 0000 0008', 'contacto@inelbrok.cl', 7),
+
+    ('.portal-inmobiliario', 'portal-inmobiliario', 'Portal Inmobiliario', '/logos/portalinmobiliario.png',
+     'El portal líder de propiedades en Chile', 'https://www.portalinmobiliario.com', '#FF6600',
+     '+56 2 2000 0009', '+56 9 0000 0009', 'contacto@portalinmobiliario.com', 8),
+
+    ('toctoc', 'toctoc', 'Toctoc.com', '/logos/toctoc.png',
+     'Plataforma digital de compra y arriendo de propiedades', 'https://www.toctoc.com', '#00C853',
+     '+56 2 2000 0010', '+56 9 0000 0010', 'contacto@toctoc.com', 9),
+
+    ('yapo', 'yapo', 'Yapo.cl', '/logos/yapo.png',
+     'Portal de clasificados con sección inmobiliaria líder', 'https://www.yapo.cl', '#FFC107',
+     '+56 2 2000 0011', '+56 9 0000 0011', 'contacto@yapo.cl', 10)
+ON CONFLICT (id) DO NOTHING;

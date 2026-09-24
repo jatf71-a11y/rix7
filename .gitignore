@@ -31,3 +31,9 @@ yarn-error.log*
 # Logs locales de desarrollo
 dev-server.log
 *.log
+
+# Estado local de las herramientas (servidores de preview, run doc)
+.freebuff/
+
+# Copias de verificación al lado del código
+.build-check/

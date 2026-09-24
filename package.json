@@ -10,8 +10,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "snapshot:pois": "node scripts/generate-poi-snapshot.mjs",
+    "check:auth": "node scripts/check-auth-config.mjs",
+    "vitals": "node scripts/measure-vitals.mjs",
     "deploy:prod": "node scripts/deploy-prod.mjs",
-    "postinstall": "node scripts/sync-maplibre.mjs"
+    "postinstall": "node scripts/sync-maplibre.mjs && node scripts/sync-leaflet-icons.mjs && node scripts/patch-next-og.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

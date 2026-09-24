@@ -63,21 +63,46 @@ if (!fs.existsSync(projectFile)) {
 
 console.log('→ Preparando copia sin metadata de git…');
 fs.rmSync(staging, { recursive: true, force: true });
+// El staging se crea acá y no dentro de `copyTree`: esa función solo hace
+// `mkdirSync` cuando copia un directorio, así que si el primer elemento del
+// árbol es un archivo (`.env.example` va primero en orden alfabético) el
+// `copyFileSync` apunta a una carpeta que todavía no existe y falla con ENOENT.
+fs.mkdirSync(staging, { recursive: true });
 copyTree(root, staging);
 fs.mkdirSync(path.join(staging, '.vercel'), { recursive: true });
 fs.copyFileSync(projectFile, path.join(staging, '.vercel', 'project.json'));
 
 // `GIT_CEILING_DIRECTORIES` impide que git ascienda hasta el repositorio real:
 // sin esa metadata, el deployment lo crea la cuenta dueña y no queda bloqueado.
-const result = spawnSync(
-  process.platform === 'win32' ? 'npx.cmd' : 'npx',
-  ['--yes', 'vercel', '--prod', '--yes'],
-  {
-    cwd: staging,
-    stdio: 'inherit',
-    env: { ...process.env, GIT_CEILING_DIRECTORIES: root },
-  }
-);
+// En Windows `npx` es un shim `.cmd`, y desde el parche de CVE-2024-27980 Node no
+// lanza `.cmd`/`.bat` directamente: `spawnSync` falla con EINVAL y deja `status`
+// en `null`. Se pasa por `cmd.exe /c` en vez de `shell: true`, que es la forma
+// explícita de invocar el shim sin que los argumentos pasen por un intérprete.
+const isWindows = process.platform === 'win32';
+const vercel = ['--yes', 'vercel', '--prod', '--yes'];
+const [command, args] = isWindows ? ['cmd.exe', ['/c', 'npx', ...vercel]] : ['npx', vercel];
 
-fs.rmSync(staging, { recursive: true, force: true });
+const result = spawnSync(command, args, {
+  cwd: staging,
+  stdio: 'inherit',
+  env: { ...process.env, GIT_CEILING_DIRECTORIES: root },
+});
+
+// La limpieza no puede tumbar el script: en Windows el CLI puede seguir
+// reteniendo archivos un instante (EPERM) y un fallo acá taparía el error real
+// del deploy, que es lo único que importa cuando algo sale mal.
+try {
+  fs.rmSync(staging, { recursive: true, force: true });
+} catch (err) {
+  console.warn('⚠ No se pudo borrar el staging (queda para revisar):', err.code);
+}
+
+// Un fallo al **lanzar** (no un fallo del deploy) deja `status` en `null`. Sin
+// esto el script salía con 1 y sin imprimir nada, que es lo que lo hacía
+// imposible de diagnosticar.
+if (result.error) {
+  console.error('✖ No se pudo lanzar el CLI de Vercel:', result.error.message);
+  process.exit(1);
+}
+
 process.exit(result.status ?? 1);

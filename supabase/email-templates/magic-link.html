@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="supported-color-schemes" content="light dark" />
+    <title>Tu enlace para entrar a Rix7</title>
+    <!-- Sin clases externas ni imágenes remotas: los clientes de correo
+         bloquean las hojas de estilo y las imágenes por defecto. Todo el
+         diseño va en estilos en línea y el logo es texto. -->
+    <style>
+      @media (prefers-color-scheme: dark) {
+        .rx-body { background: #0f172a !important; }
+        .rx-card { background: #1e293b !important; border-color: #334155 !important; }
+        .rx-title { color: #f1f5f9 !important; }
+        .rx-text { color: #cbd5e1 !important; }
+        .rx-muted { color: #94a3b8 !important; }
+        .rx-link { color: #93c5fd !important; }
+        .rx-rule { background: #334155 !important; }
+      }
+    </style>
+  </head>
+  <body class="rx-body" style="margin:0;padding:24px;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width:560px;margin:0 auto">
+      <tr>
+        <td>
+          <div class="rx-card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;padding:32px 28px">
+            <div style="font-size:13px;font-weight:800;letter-spacing:.08em;color:#1d4ed8;text-transform:uppercase">Rix7</div>
+
+            <h1 class="rx-title" style="margin:10px 0 6px;font-size:22px;line-height:1.3;color:#0f172a">
+              Tu enlace para entrar
+            </h1>
+
+            <p class="rx-text" style="margin:0 0 22px;font-size:15px;line-height:1.6;color:#475569">
+              Hola: toca el botón y quedas dentro. Sin contraseñas, sin trámites.
+            </p>
+
+            <!-- Bulletproof button: tabla + enlace, para clientes que ignoran el padding -->
+            <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+              <tr>
+                <td align="center" style="padding:0 0 22px">
+                  <a href="{{ .ConfirmationURL }}"
+                     style="display:inline-block;background:#1d4ed8;color:#ffffff;font-size:15px;font-weight:700;padding:14px 28px;border-radius:12px;text-decoration:none">
+                    Entrar a Rix7
+                  </a>
+                </td>
+              </tr>
+            </table>
+
+            <hr class="rx-rule" style="border:0;height:1px;background:#e2e8f0;margin:0 0 18px" />
+
+            <p class="rx-muted" style="margin:0 0 14px;font-size:13px;line-height:1.6;color:#64748b">
+              El enlace vence en una hora y sirve una sola vez. Este correo llegó a
+              <strong>{{ .Email }}</strong>.
+            </p>
+
+            <p class="rx-muted" style="margin:0 0 14px;font-size:13px;line-height:1.6;color:#64748b">
+              Si el botón no funciona, copia y pega esta dirección en tu navegador:
+            </p>
+            <p style="margin:0 0 18px;font-size:12px;line-height:1.6;word-break:break-all">
+              <a class="rx-link" href="{{ .ConfirmationURL }}" style="color:#1d4ed8;text-decoration:underline">{{ .ConfirmationURL }}</a>
+            </p>
+
+            <p class="rx-muted" style="margin:0;font-size:12px;line-height:1.6;color:#94a3b8">
+              Si no pediste este enlace, ignora este correo y no pasa nada.
+            </p>
+          </div>
+
+          <p class="rx-muted" style="margin:16px 0 0;font-size:11px;line-height:1.6;color:#94a3b8;text-align:center">
+            Rix7 — Portal inmobiliario inteligente<br />
+            <a class="rx-link" href="{{ .SiteURL }}" style="color:#94a3b8;text-decoration:underline">{{ .SiteURL }}</a>
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
