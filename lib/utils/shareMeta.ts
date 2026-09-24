@@ -210,3 +210,17 @@ export function buildShareMeta(input: ShareMetaInput, partnerName?: string): Sha
     description: buildShareDescription(input, partnerName),
   };
 }
+
+/**
+ * El enlace tal como se **imprime** en la tarjeta descargable: sin protocolo.
+ *
+ * La tarjeta vertical es la única pieza que viaja sin texto que la acompañe, así
+ * que el enlace va escrito sobre la imagen; y ahí `https://` no solo no se puede
+ * tocar, sino que gasta el ancho que necesita el nombre del portal.
+ *
+ * No es una función de formato de URL: no toca mayúsculas, ni `www`, ni el orden
+ * de la ruta. Solo decide qué se ve.
+ */
+export function shareLinkLabel(url: string): string {
+  return url.trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+}

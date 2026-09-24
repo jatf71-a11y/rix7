@@ -6,6 +6,7 @@ import {
   buildShareDescription,
   redactSensitive,
   truncateAtWord,
+  shareLinkLabel,
   SHARE_TITLE_MAX,
   SHARE_DESCRIPTION_MAX,
 } from './shareMeta';
@@ -189,5 +190,28 @@ describe('buildShareMeta', () => {
     expect(meta.description).toContain('Catedral Propiedades');
     expect(meta.title.length).toBeLessThanOrEqual(SHARE_TITLE_MAX);
     expect(meta.description.length).toBeLessThanOrEqual(SHARE_DESCRIPTION_MAX);
+  });
+});
+
+describe('shareLinkLabel', () => {
+  it('quita el protocolo, que en la imagen solo gasta ancho', () => {
+    expect(shareLinkLabel('https://rix7.cl/compartir/scl-depto-marco-polo')).toBe(
+      'rix7.cl/compartir/scl-depto-marco-polo'
+    );
+    expect(shareLinkLabel('http://rix7.cl/compartir/scl-depto-marco-polo')).toBe(
+      'rix7.cl/compartir/scl-depto-marco-polo'
+    );
+  });
+
+  it('saca la barra final para no imprimir una ruta que no existe', () => {
+    expect(shareLinkLabel('https://rix7.cl/compartir/x/')).toBe('rix7.cl/compartir/x');
+  });
+
+  it('deja intacto lo que no trae protocolo', () => {
+    expect(shareLinkLabel('rix7.cl/compartir/x')).toBe('rix7.cl/compartir/x');
+  });
+
+  it('conserva el puerto: en desarrollo el enlace tiene que seguir siendo el real', () => {
+    expect(shareLinkLabel('http://localhost:3000/compartir/x')).toBe('localhost:3000/compartir/x');
   });
 });
