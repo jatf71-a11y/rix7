@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Images, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PartnerLogo } from '@/components/properties/PartnerLogo';
 import { VideoReels } from '@/components/properties/VideoReels';
@@ -13,11 +14,14 @@ interface PropertyGalleryProps {
   partnerColor?: string;
   showPartnerLogo?: boolean;
   videoUrl?: string;
+  videoPoster?: string;
 }
 
-export function PropertyGallery({ images, title, partnerLogo, partnerName, partnerColor = '#64748b', showPartnerLogo, videoUrl }: PropertyGalleryProps) {
+export function PropertyGallery({ images, title, partnerLogo, partnerName, partnerColor = '#64748b', showPartnerLogo, videoUrl, videoPoster }: PropertyGalleryProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+  /** Foto que queda debajo mientras la nueva se pinta (null = ninguna). */
+  const [previousPhotoIndex, setPreviousPhotoIndex] = useState<number | null>(null);
 
   const fallbackImages = [
     'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
@@ -29,18 +33,33 @@ export function PropertyGallery({ images, title, partnerLogo, partnerName, partn
 
   const displayImages = images && images.length > 0 ? images : fallbackImages;
 
+  // `sizes` debe reflejar el ancho real que ocupa la foto: con video comparte la
+  // fila con la ventana de video (2/3), sin video ocupa todo el ancho. Es lo que
+  // evita que el móvil descargue una imagen pensada para escritorio.
+  const photoSizes = videoUrl
+    ? '(max-width: 767px) 100vw, (max-width: 1280px) 66vw, 860px'
+    : '(max-width: 767px) 100vw, (max-width: 1280px) 100vw, 1280px';
+
   const openLightbox = (index: number) => {
     setActivePhotoIndex(index);
     setIsLightboxOpen(true);
   };
 
-  const nextPhoto = () => {
-    setActivePhotoIndex((prev) => (prev + 1) % displayImages.length);
+  const goToPhoto = (next: number) => {
+    const target = (next + displayImages.length) % displayImages.length;
+    if (target === activePhotoIndex) return;
+    setPreviousPhotoIndex(activePhotoIndex);
+    setActivePhotoIndex(target);
   };
 
-  const prevPhoto = () => {
-    setActivePhotoIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length);
-  };
+  const nextPhoto = () => goToPhoto(activePhotoIndex + 1);
+  const prevPhoto = () => goToPhoto(activePhotoIndex - 1);
+
+  // La foto anterior se mantiene montada debajo de la activa: mientras la nueva
+  // se descarga y decodifica, se sigue viendo la anterior en vez de un recuadro
+  // vacío. No depende de `onLoad`, que puede no dispararse si la imagen ya está
+  // en caché, así que no hay carrera posible.
+  const showPreviousLayer = previousPhotoIndex !== null && previousPhotoIndex !== activePhotoIndex;
 
   return (
     <div className="relative">
@@ -51,17 +70,31 @@ export function PropertyGallery({ images, title, partnerLogo, partnerName, partn
           onClick={() => openLightbox(activePhotoIndex)}
           className={`${videoUrl ? 'md:col-span-2' : 'md:col-span-4'} relative aspect-[4/3] md:aspect-auto md:h-[480px] cursor-pointer group overflow-hidden rounded-2xl bg-slate-100`}
         >
-          {/* Todas las fotos apiladas; solo la activa es visible (crossfade) */}
-          {displayImages.map((img, idx) => (
-            <img
-              key={idx}
-              src={img}
-              alt={`${title} - Foto ${idx + 1}`}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-                idx === activePhotoIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'
-              }`}
+          {/* Capa inferior: la foto anterior, visible mientras la nueva se pinta */}
+          {showPreviousLayer && (
+            <Image
+              src={displayImages[previousPhotoIndex]}
+              alt=""
+              aria-hidden="true"
+              fill
+              sizes={photoSizes}
+              className="object-cover"
             />
-          ))}
+          )}
+
+          {/* Foto activa: única imagen que se descarga al abrir la ficha (la
+              primera va con prioridad alta por ser el elemento LCP) */}
+          <Image
+            key={displayImages[activePhotoIndex]}
+            src={displayImages[activePhotoIndex]}
+            alt={`${title} - Foto ${activePhotoIndex + 1}`}
+            fill
+            sizes={photoSizes}
+            // La primera foto es el elemento LCP de la ficha: se precarga y tiene
+            // prioridad alta. Las demás se cargan al navegar, no en el primer render.
+            priority={activePhotoIndex === 0}
+            className="object-cover"
+          />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
 
           {/* Controles de navegación (no propagan el clic al lightbox) */}
@@ -100,7 +133,7 @@ export function PropertyGallery({ images, title, partnerLogo, partnerName, partn
         {/* Ventana de video (solo si la propiedad tiene video) */}
         {videoUrl && (
           <div className="md:col-span-1 min-h-[260px] md:min-h-0">
-            <VideoReels videoUrl={videoUrl} />
+            <VideoReels videoUrl={videoUrl} posterUrl={videoPoster} />
           </div>
         )}
       </div>
@@ -127,20 +160,20 @@ export function PropertyGallery({ images, title, partnerLogo, partnerName, partn
             <X className="w-6 h-6" />
           </button>
 
-          <div className="relative max-w-5xl max-h-[80vh] w-full flex items-center justify-center">
-            <div className="relative">
-              <img
-                src={displayImages[activePhotoIndex]}
-                alt={`${title} - ${activePhotoIndex + 1}`}
-                className="max-h-[75vh] max-w-full object-contain rounded-lg shadow-2xl"
-              />
-              {/* Partner logo badge on lightbox */}
-              {showPartnerLogo && partnerLogo && (
-                <div className="absolute top-4 right-4 h-9">
-                  <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[24px]" />
-                </div>
-              )}
-            </div>
+          <div className="relative w-full max-w-5xl h-[75vh]">
+            <Image
+              src={displayImages[activePhotoIndex]}
+              alt={`${title} - ${activePhotoIndex + 1}`}
+              fill
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              className="object-contain"
+            />
+            {/* Partner logo badge on lightbox */}
+            {showPartnerLogo && partnerLogo && (
+              <div className="absolute top-4 right-4 h-9">
+                <PartnerLogo logo={partnerLogo} name={partnerName || ''} color={partnerColor} className="h-full w-auto min-w-[24px]" />
+              </div>
+            )}
 
             {displayImages.length > 1 && (
               <>

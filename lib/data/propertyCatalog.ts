@@ -36,7 +36,10 @@ export const MANUAL_PROPERTIES: Property[] = [
     created_at: '2026-09-01T10:00:00Z',
     featured: true,
     partner_id: 'catedral',
-    video_url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    // Sin `video_url`: apuntaba al bucket de muestra de Google
+    // (`gtv-videos-bucket`), que hoy responde 403 a cualquier visitante anónimo
+    // —lo cerraron—, así que la ficha mostraba una ventana de video que al darle
+    // play fallaba. La galería omite esa ventana cuando no hay video.
   },
   {
     id: 'inm-depto-concepcion',
@@ -272,6 +275,7 @@ export const MANUAL_PROPERTIES: Property[] = [
     featured: true,
     partner_id: 'catedral',
     video_url: '/videos/promo-marco-polo.mp4',
+    video_poster: '/videos/promo-marco-polo-poster.jpg',
   },
 
   // ─────────────────────────────────────────────────────────────────

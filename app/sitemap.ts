@@ -1,8 +1,9 @@
 import type { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import { SITE_URL } from '@/lib/site';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { ALL_PROPERTIES } from '@/lib/data/propertyCatalog';
-import { partners } from '@/lib/data/partners';
+import { listPartners } from '@/lib/data/partners-store';
 
 export const revalidate = 3600; // regenerar cada hora
 
@@ -18,11 +19,12 @@ interface PropertyRow {
  * usa el catálogo en memoria. Nunca lanza: el sitemap siempre se genera.
  */
 async function getPropertyRows(): Promise<PropertyRow[]> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (url && key && !url.includes('placeholder')) {
+  if (isSupabaseConfigured()) {
     try {
-      const supabase = createClient(url, key);
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+      );
       const { data, error } = await supabase
         .from('properties')
         .select('id, updated_at, created_at');
@@ -36,6 +38,9 @@ async function getPropertyRows(): Promise<PropertyRow[]> {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const properties = await getPropertyRows();
+  // Las corredoras viven en Supabase: una que se dé de alta en el panel entra al
+  // sitemap sin tocar código.
+  const { partners } = await listPartners();
 
   const propertyEntries: MetadataRoute.Sitemap = properties.map((p) => ({
     url: `${SITE_URL}/properties/${p.id}`,

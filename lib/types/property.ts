@@ -40,6 +40,8 @@ export interface Property {
   newPropertyType?: 'proyectos' | 'entrega_inmediata' | null;
   partner_id?: string;
   video_url?: string;
+  /** Fotograma de portada del video: se muestra mientras el video carga. */
+  video_poster?: string;
 }
 
 export type NewPropertyType = 'proyectos' | 'entrega_inmediata' | null;
