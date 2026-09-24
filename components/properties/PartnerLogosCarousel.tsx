@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { partners } from '@/lib/data/partners';
+import { partners as catalogPartners, type Partner } from '@/lib/data/partners';
 import { PartnerLogo } from '@/components/properties/PartnerLogo';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -11,6 +11,10 @@ interface PartnerLogosCarouselProps {
 }
 
 export function PartnerLogosCarousel({ partnerCounts = {} }: PartnerLogosCarouselProps) {
+  // Arranca con el catálogo del código (cero parpadeo: el carrusel se pinta en
+  // el primer render) y se reemplaza por lo que hay en Supabase cuando llega,
+  // para que una edición del panel se vea sin volver a desplegar.
+  const [partnerList, setPartnerList] = useState<Partner[]>(catalogPartners);
   const [isPaused, setIsPaused] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -39,6 +43,25 @@ export function PartnerLogosCarousel({ partnerCounts = {} }: PartnerLogosCarouse
     };
   }, [isPaused]);
 
+  useEffect(() => {
+    let alive = true;
+
+    fetch('/api/partners')
+      .then((r) => r.json())
+      .then((result) => {
+        if (alive && result?.success && Array.isArray(result.data) && result.data.length > 0) {
+          setPartnerList(result.data);
+        }
+      })
+      .catch(() => {
+        // Sin red se queda con el catálogo: el carrusel nunca queda vacío.
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   const scroll = useCallback((direction: 'left' | 'right') => {
     const el = scrollRef.current;
     if (!el) return;
@@ -47,7 +70,7 @@ export function PartnerLogosCarousel({ partnerCounts = {} }: PartnerLogosCarouse
   }, []);
 
   // Duplicar logos para efecto infinite scroll
-  const displayPartners = [...partners, ...partners, ...partners];
+  const displayPartners = [...partnerList, ...partnerList, ...partnerList];
 
   return (
     <div className="mb-4">

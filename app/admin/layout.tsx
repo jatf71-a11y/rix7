@@ -6,6 +6,8 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
+  Inbox,
+  Link2,
   ArrowLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -20,6 +22,16 @@ const sidebarItems = [
     label: 'Empresas / Socios',
     href: '/admin/empresas',
     icon: Users,
+  },
+  {
+    label: 'Contactos',
+    href: '/admin/leads',
+    icon: Inbox,
+  },
+  {
+    label: 'Enlaces compartidos',
+    href: '/admin/landings',
+    icon: Link2,
   },
 ];
 
