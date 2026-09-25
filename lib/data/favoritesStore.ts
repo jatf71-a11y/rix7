@@ -119,20 +119,4 @@ export async function removeFavorite(userId: string, propertyId: string): Promis
   }
 }
 
-/** Cuántos favoritos tiene la cuenta (sin traer la lista completa). */
-export async function countFavorites(userId: string): Promise<number> {
-  if (!isSupabaseConfigured() || !userId) return 0;
 
-  try {
-    const supabase = await sessionClient();
-    const { count, error } = await supabase
-      .from('favorites')
-      .select(FAVORITE_COLUMNS, { count: 'exact', head: true })
-      .eq('user_id', userId);
-
-    if (error) return 0;
-    return count ?? 0;
-  } catch {
-    return 0;
-  }
-}
