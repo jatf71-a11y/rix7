@@ -27,12 +27,17 @@ type Props = { params: { id: string } };
  * que la ubicación real no llega nunca al cliente.
  */
 function toPublishable(property: Property, approx: ApproximatePoint): Property {
-  // La landing es un resumen: la imagen, el precio, el barrio y los datos de
-  // contacto sí viajan (el formulario registra al interesado y asigna el canal
-  // a la corredora). Lo que SÍ queda en el archivo de la propiedad son la
-  // dirección exacta, el número y el piso: se entregan al completar los datos,
-  // y si no, nadie los puede leer con "ver código fuente".
-  return property;
+  return {
+    ...property,
+    address: '',
+    zip_code: undefined,
+    agent_name: undefined,
+    agent_email: undefined,
+    agent_phone: undefined,
+    agent_avatar: undefined,
+    lat: approx.lat,
+    lng: approx.lng,
+  };
 }
 
 // Caché ISR corta, igual que la ficha: un enlace compartido por WhatsApp lo abre
