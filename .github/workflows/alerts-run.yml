@@ -1,0 +1,114 @@
+# Avisos por correo de búsquedas guardadas (Rix7).
+#
+# Llama a la route /api/alerts/run del sitio **desplegado**, no al repo: el job
+# necesita SUPABASE_SERVICE_ROLE_KEY y RESEND_API_KEY para leer las búsquedas de
+# todas las personas y mandar el correo, y esas claves ya viven en Vercel. Así no
+# hay que duplicar secretos en GitHub.
+#
+# Requisitos (una sola vez):
+#
+# - En Vercel: ALERTS_CRON_SECRET (inventa una cadena larga), RESEND_API_KEY,
+#   ALERTS_FROM_EMAIL y SUPABASE_SERVICE_ROLE_KEY.
+# - En GitHub → Settings → Secrets and variables → Actions:
+#     Secret   ALERTS_CRON_SECRET  (el mismo valor que en Vercel)
+#     Variable SITE_URL            (opcional, ej. https://rix7.cl)
+#   Sin SITE_URL se usa el dominio de producción por defecto.
+#
+# El job **no envía correos en su primera corrida** para cada búsqueda: fija la
+# línea base. Es a propósito, para no avisar de propiedades que la persona acaba
+# de ver en pantalla.
+#
+# Nota: GitHub desactiva los schedules tras 60 días sin actividad en el repo.
+
+name: Avisos de búsquedas
+
+on:
+  schedule:
+    # 12:00 UTC = 09:00 América/Santiago (UTC-3). Antes que el snapshot de POIs.
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Simular sin enviar correos (informa qué se enviaría)'
+        type: boolean
+        default: false
+
+# No compite por recursos: si una corrida se atrasa, no se solapan.
+concurrency:
+  group: alerts-run
+  cancel-in-progress: false
+
+jobs:
+  alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Estado del job
+        run: |
+          curl -sS --max-time 30 "${{ vars.SITE_URL || 'https://rix7.cl' }}/api/alerts/run" \
+            | tee estado.json
+          echo "## Estado de configuración" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat estado.json >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Correr las alertas
+        id: run
+        env:
+          SECRET: ${{ secrets.ALERTS_CRON_SECRET }}
+          SITE: ${{ vars.SITE_URL || 'https://rix7.cl' }}
+          DRY: ${{ github.event.inputs.dry_run }}
+        run: |
+          set -o pipefail
+
+          if [ -z "$SECRET" ]; then
+            echo "::error::Falta el secret ALERTS_CRON_SECRET en el repositorio."
+            exit 1
+          fi
+
+          URL="$SITE/api/alerts/run"
+          if [ "$DRY" = "true" ]; then URL="$URL?dry=1"; fi
+
+          # -w para no perder el código de estado: la respuesta se guarda aparte.
+          CODE=$(curl -sS --max-time 120 -o informe.json -w '%{http_code}' \
+            -X POST "$URL" \
+            -H "x-alerts-secret: $SECRET") || { echo "::error::No se pudo contactar $URL"; exit 1; }
+
+          cat informe.json
+
+          {
+            echo "## Avisos de búsquedas"
+            echo ""
+            echo "- Endpoint: \`$URL\`"
+            echo "- HTTP: **$CODE**"
+            echo "- Modo: $([ "$DRY" = "true" ] && echo 'simulación (sin enviar)' || echo 'real')"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$CODE" != "200" ]; then
+            echo "::error::La route respondió $CODE"
+            exit 1
+          fi
+
+          # El detalle por búsqueda, legible en el resumen de la corrida.
+          node -e '
+            const fs = require("fs");
+            const body = JSON.parse(fs.readFileSync("informe.json", "utf8"));
+            const r = body.report;
+            const lines = [
+              "",
+              "| Búsqueda | Resultado | Coincidencias |",
+              "| --- | --- | --- |",
+              ...r.entries.map((e) => `| ${e.label} | ${e.outcome} | ${e.matched} |`),
+              "",
+              `- Propiedades evaluadas desde: **${r.source}**`,
+              `- Búsquedas: **${r.searches}** · Coincidencias: **${r.matched}** · Correos enviados: **${r.sent}**`,
+            ];
+            if (!body.emailConfigured) {
+              lines.push(
+                "",
+                "> ⚠️ Sin proveedor de correo configurado (RESEND_API_KEY): los avisos **no salen**."
+              );
+            }
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
+          '

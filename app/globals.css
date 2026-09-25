@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-blue-500 selection:text-white;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ONDAS EXPANDENTES DESDE "MI UBICACIÓN" (mapa GIS)
+   ═══════════════════════════════════════════════════════════════════ */
+.ping-ring {
+  position: absolute;
+  left: var(--ring-x, 50%);
+  top: var(--ring-y, 50%);
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(220, 38, 38, 0.0);
+  box-shadow: 0 0 12px 2px rgba(220, 38, 38, 0.3), inset 0 0 20px 4px rgba(220, 38, 38, 0.08);
+  transform: translate(-50%, -50%);
+  animation: pingExpand 9s ease-out infinite;
+  pointer-events: none;
+}
+.ping-ring-0 { animation-delay: 0s; }
+.ping-ring-1 { animation-delay: 2.25s; }
+.ping-ring-2 { animation-delay: 4.5s; }
+.ping-ring-3 { animation-delay: 6.75s; }
+
+.ping-glow {
+  position: absolute;
+  left: var(--ring-x, 50%);
+  top: var(--ring-y, 50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,38,38,0.5) 0%, rgba(220,38,38,0.15) 50%, transparent 75%);
+  box-shadow: 0 0 20px 6px rgba(220, 38, 38, 0.25);
+  transform: translate(-50%, -50%);
+  animation: pingPulse 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pingExpand {
+  0% {
+    width: 0;
+    height: 0;
+    border: 2px solid rgba(220, 38, 38, 0.85);
+    box-shadow: 0 0 16px 3px rgba(220, 38, 38, 0.4), inset 0 0 24px 6px rgba(220, 38, 38, 0.12);
+  }
+  50% {
+    border: 2px solid rgba(220, 38, 38, 0.45);
+    box-shadow: 0 0 10px 2px rgba(220, 38, 38, 0.2), inset 0 0 16px 4px rgba(220, 38, 38, 0.06);
+  }
+  100% {
+    width: var(--ring-max-size, 500px);
+    height: var(--ring-max-size, 500px);
+    border: 1px solid rgba(220, 38, 38, 0.08);
+    box-shadow: 0 0 4px 1px rgba(220, 38, 38, 0.05), inset 0 0 8px 2px rgba(220, 38, 38, 0.02);
+  }
+}
+
+@keyframes pingPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+  50% { transform: translate(-50%, -50%) scale(1.8); opacity: 1; }
+}

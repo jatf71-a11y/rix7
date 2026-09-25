@@ -1,0 +1,78 @@
+# Completa el snapshot estático de POIs (lib/data/poiSnapshot.generated.json)
+# cuando Overpass esté disponible. La route /api/pois lo usa como último
+# recurso si Overpass y las cachés fallan en runtime.
+#
+# - Corre una vez al día: si Overpass sigue caído, no cambia nada ni falla
+#   (el script solo escribe cuando logra celdas nuevas).
+# - Cuando el snapshot ya está completo, los re-corridos son instantáneos
+#   (todas las celdas se saltean) y no generan commits.
+#
+# Nota: GitHub desactiva los schedules tras 60 días sin actividad en el repo;
+# los commits de este job cuentan como actividad.
+
+name: Snapshot de POIs
+
+on:
+  schedule:
+    # 13:30 UTC = 10:30 América/Santiago (UTC-3)
+    - cron: '30 13 * * *'
+  workflow_dispatch: # permite lanzarlo manualmente desde la pestaña Actions
+
+permissions:
+  contents: write # necesario para pushear el snapshot actualizado
+
+concurrency:
+  group: snapshot-pois
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Completar celdas faltantes del snapshot
+        id: snapshot
+        # El script sale con código 1 cuando quedan celdas pendientes
+        # (Overpass caído) — es una señal esperada, no un fallo del job.
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          npm run snapshot:pois 2>&1 | tee /tmp/snapshot.log
+
+      - name: Resumen
+        if: always()
+        run: |
+          CELDAS=$(grep -oP '\d+(?= celdas únicas)' /tmp/snapshot.log || echo '?')
+          LOG=$(grep 'listo:' /tmp/snapshot.log || echo 'sin salida del script')
+          {
+            echo "## Snapshot de POIs"
+            echo ""
+            echo "- Celdas del catálogo: **${CELDAS}**"
+            echo "- Resultado: ${LOG}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit y push si hubo celdas nuevas
+        run: |
+          if git diff --quiet lib/data/poiSnapshot.generated.json; then
+            echo "Sin cambios en el snapshot — Overpass caído o ya completo. Nada que commitear."
+            exit 0
+          fi
+          NUEVAS=$(grep -oP 'listo: \K\d+' /tmp/snapshot.log || echo '?')
+          EN_SNAP=$(node -pe "Object.keys(require('./lib/data/poiSnapshot.generated.json').cells).length")
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib/data/poiSnapshot.generated.json
+          git commit -m "chore: snapshot de POIs — +${NUEVAS} celdas (${EN_SNAP} en total)"
+          git push

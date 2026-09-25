@@ -1,0 +1,13 @@
+# Fin de línea: LF en todo el repositorio, también en Windows.
+#
+# No es preferencia de estilo, es un defecto real que se manifestó así: con
+# `core.autocrlf=true` (el valor por defecto de Git para Windows) un checkout
+# escribía CRLF en el disco, y `scripts/check-auth-config.mjs` —que arranca con
+# shebang— dejaba de parsear para Vitest con "SyntaxError: Invalid or unexpected
+# token". Los dos archivos de test que lo importan no llegaban a ejecutarse, así
+# que la suite pasaba de 498 a 466 tests sin que fallara ninguno: la peor forma
+# de romperse, porque no hay rojo que mirar.
+#
+# Con esta regla el checkout es idéntico en cualquier máquina, y `node --check`
+# y Vitest leen lo mismo.
+* text=auto eol=lf
