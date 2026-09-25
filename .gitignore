@@ -37,3 +37,6 @@ dev-server.log
 
 # Copias de verificación al lado del código
 .build-check/
+
+# Auditoria
+_audit/
