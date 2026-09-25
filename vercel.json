@@ -13,7 +13,7 @@
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://images.unsplash.com https://*.supabase.co; font-src 'self' data:; media-src 'self' blob: https://*.supabase.co; connect-src 'self' https://*.tile.openstreetmap.org https://*.supabase.co wss://*.supabase.co; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://*.unsplash.com https://*.supabase.co https://platform-lookaside.fbsbx.com; font-src 'self' data:; media-src 'self' blob: https://*.supabase.co https://*.tile.openstreetmap.org; connect-src 'self' https://*.tile.openstreetmap.org https://*.supabase.co wss://*.supabase.co https://*.unsplash.com https://api.whatsapp.com https://*.facebook.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
         }
       ]
     },
