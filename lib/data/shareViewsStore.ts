@@ -137,7 +137,3 @@ export async function listShareViews(days = 180): Promise<ShareViewListResult> {
   return { views: readDevViews(), source: 'memory', persistent: false };
 }
 
-/** Solo para tests: deja el respaldo de desarrollo en cero. */
-export function resetDevShareViews(): void {
-  devStore.__rix7DevShareViews = [];
-}

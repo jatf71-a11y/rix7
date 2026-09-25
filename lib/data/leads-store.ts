@@ -127,8 +127,3 @@ export async function listLeads(limit = 200): Promise<LeadListResult> {
   return { leads: readDevLeads().slice(0, limit), source: 'memory', persistent: false };
 }
 
-/** Solo para tests: deja el respaldo de desarrollo en cero. */
-export function resetDevLeads(): void {
-  devStore.__rix7DevLeads = [];
-  devStore.__rix7DevLeadCounter = 0;
-}
