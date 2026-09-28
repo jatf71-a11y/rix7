@@ -16,9 +16,11 @@
     "postinstall": "node scripts/sync-maplibre.mjs && node scripts/sync-leaflet-icons.mjs && node scripts/patch-next-og.mjs"
   },
   "dependencies": {
+    "@sentry/nextjs": "^8.55.2",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.48.1",
     "@tanstack/react-virtual": "^3.14.10",
+    "@vercel/analytics": "^1.5.0",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "lucide-react": "^0.475.0",

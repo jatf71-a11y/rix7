@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { Home, RefreshCw, TriangleAlert } from 'lucide-react';
+import { reportError } from '@/lib/monitoring/reportError';
 
 /**
  * Error boundary raíz de la aplicación.
@@ -24,9 +25,9 @@ export default function RootError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // En producción el navegador solo ve el digest; el stack queda en los logs
-    // del servidor. Acá va el punto de enganche futuro para Sentry (#13).
-    console.error('[error-boundary]', error);
+    // reportError siempre registra en consola y, si Sentry está inicializado
+    // (DSN en el entorno), envía además el evento — sin tocar este código.
+    reportError(error, { extra: { from: 'root-error-boundary' } });
   }, [error]);
 
   return (

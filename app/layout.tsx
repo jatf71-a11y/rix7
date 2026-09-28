@@ -13,6 +13,7 @@ import { AuthModal } from '@/components/auth/AuthModal';
 import { CurrencyProvider } from '@/components/currency/CurrencyProvider';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
+import { Analytics } from '@vercel/analytics/react';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -83,6 +84,9 @@ export default function RootLayout({
             </FavoritesProvider>
           </RegistrationProvider>
         </AuthProvider>
+        {/* Web Analytics de Vercel: sin cookies ni PII, se inyecta solo si el
+            proyecto lo tiene activado; no añade peticiones en otros entornos. */}
+        <Analytics />
       </body>
     </html>
   );
