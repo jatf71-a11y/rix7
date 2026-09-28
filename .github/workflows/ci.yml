@@ -1,0 +1,56 @@
+# CI de Rix7 (hallazgo #7 de la fase 2).
+#
+# Antes de este workflow no existía ninguna verificación automática al pushear:
+# un test rojo o un error de tipos llegaba a producción si nadie corría la
+# suite a mano. Acá se ejecuta la misma tríada que en local, de menor a mayor
+# costo: tipos → tests → build.
+#
+# Sin secretos a propósito: el portal está diseñado para degradar a catálogo
+# local cuando Supabase no está configurado, así que el build no necesita
+# claves. Si algún día una variable fuera imprescindible, usar Variables (no
+# secretos) del repo y documentarlo acá — nunca copiar claves reales a GitHub.
+#
+# Node 20 sobre debian: es la línea LTS que corre Vercel para Next 14 y la
+# misma que usa el equipo en local. Con `cache: npm` el lockfile acelera el
+# install; `npm ci` garantiza installs reproducibles.
+
+name: CI
+
+on:
+  push:
+    branches: [main, 'audit/**']
+  pull_request:
+    branches: [main]
+
+# Cancela la corrida anterior de la misma rama: ahorra minutos cuando se
+# empujan correcciones seguidas.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Tipos, tests y build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Types (tsc --noEmit)
+        run: npx tsc --noEmit
+
+      - name: Tests (vitest)
+        run: npx vitest run
+
+      - name: Build (next build)
+        run: npm run build
