@@ -3,6 +3,7 @@ import { currentUserId } from '@/lib/supabase/currentUser';
 import { normalizeSavedSearchFilters } from '@/lib/data/savedSearches';
 import { savedSearchDeleteSchema } from '@/lib/api/schemas';
 import { searchParamsToObject, validateInput } from '@/lib/api/validate';
+import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
 import {
   createSavedSearch,
   deleteSavedSearch,
@@ -23,8 +24,28 @@ const NO_SESSION = {
   error: 'Inicia sesión para guardar búsquedas y recibir avisos.',
 };
 
+/**
+ * Rate limit por IP. Como en favoritos: la sesión se resuelve contra Supabase
+ * antes de tocar datos, así que frenar la ráfaga primero también protege la
+ * verificación de sesión. El cupo da de sobra para el uso real del portal.
+ */
+const RATE_LIMIT_MAX = 60;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+
+const rateLimiter = createRateLimiter({ max: RATE_LIMIT_MAX, windowMs: RATE_LIMIT_WINDOW_MS });
+
+/** Respuesta 429 compartida por los tres métodos. */
+const TOO_MANY_REQUESTS = {
+  body: { success: false, error: 'Demasiadas solicitudes. Intenta de nuevo en un minuto.' },
+  init: { status: 429, headers: { 'Retry-After': '60' } },
+} as const;
+
 // GET /api/saved-searches — las búsquedas propias
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (rateLimiter.isLimited(clientIpFrom(request.headers))) {
+    return NextResponse.json(TOO_MANY_REQUESTS.body, TOO_MANY_REQUESTS.init);
+  }
+
   const userId = await currentUserId();
   if (!userId) return NextResponse.json(NO_SESSION, { status: 401 });
 
@@ -34,6 +55,10 @@ export async function GET() {
 
 // POST /api/saved-searches — guardar la búsqueda actual
 export async function POST(request: NextRequest) {
+  if (rateLimiter.isLimited(clientIpFrom(request.headers))) {
+    return NextResponse.json(TOO_MANY_REQUESTS.body, TOO_MANY_REQUESTS.init);
+  }
+
   const userId = await currentUserId();
   if (!userId) return NextResponse.json(NO_SESSION, { status: 401 });
 
@@ -63,6 +88,10 @@ export async function POST(request: NextRequest) {
 
 // DELETE /api/saved-searches?id=xxx — borrar una propia
 export async function DELETE(request: NextRequest) {
+  if (rateLimiter.isLimited(clientIpFrom(request.headers))) {
+    return NextResponse.json(TOO_MANY_REQUESTS.body, TOO_MANY_REQUESTS.init);
+  }
+
   const userId = await currentUserId();
   if (!userId) return NextResponse.json(NO_SESSION, { status: 401 });
 

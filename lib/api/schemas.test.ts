@@ -65,10 +65,11 @@ describe('lib/api/schemas', () => {
   });
 
   describe('geocodeQuerySchema', () => {
-    it('recorta la consulta y exige el mínimo del autocompletado', () => {
+    it('recorta la consulta y acota el techo; el mínimo lo decide la ruta', () => {
       expect(ok(geocodeQuerySchema, { q: '  providencia  ' }).q).toBe('providencia');
-      expect(fails(geocodeQuerySchema, { q: 'a' })).toBeTruthy();
-      expect(fails(geocodeQuerySchema, { q: '' })).toBeTruthy();
+      // Consultas cortas o ausentes son válidas: la ruta responde 200 vacío.
+      expect(ok(geocodeQuerySchema, { q: '' }).q).toBe('');
+      expect(ok(geocodeQuerySchema, {}).q).toBe('');
       expect(fails(geocodeQuerySchema, { q: 'x'.repeat(121) })).toBeTruthy();
     });
   });
@@ -207,7 +208,7 @@ describe('lib/api/schemas', () => {
       const good = validateInput(geocodeQuerySchema, { q: 'las condes' });
       expect(good.ok).toBe(true);
 
-      const bad = validateInput(geocodeQuerySchema, { q: 'x' });
+      const bad = validateInput(geocodeQuerySchema, { q: 'x'.repeat(121) });
       expect(bad.ok).toBe(false);
       if (!bad.ok) expect(bad.issues.length).toBeGreaterThan(0);
     });

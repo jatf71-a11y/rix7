@@ -32,10 +32,10 @@ vi.mock('@/lib/data/favoritesStore', () => ({
 
 import { GET, POST, DELETE } from './route';
 
-function requestOf(method: string, body?: unknown, query = ''): NextRequest {
+function requestOf(method: string, body?: unknown, query = '', ip = '1.2.3.4'): NextRequest {
   return new NextRequest(`http://localhost:3000/api/favorites${query}`, {
     method,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-forwarded-for': ip },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 }
@@ -52,7 +52,7 @@ describe('sin sesión', () => {
   it('GET responde 401 y no consulta favoritos', async () => {
     getUser.mockResolvedValue({ data: { user: null } });
 
-    const res = await GET();
+    const res = await GET(requestOf('GET'));
 
     expect(res.status).toBe(401);
     expect(listFavoriteIds).not.toHaveBeenCalled();
@@ -70,7 +70,7 @@ describe('sin sesión', () => {
   it('sin Supabase configurado tampoco hay sesión', async () => {
     isSupabaseConfigured.mockReturnValue(false);
 
-    const res = await GET();
+    const res = await GET(requestOf('GET'));
 
     expect(res.status).toBe(401);
   });
@@ -78,13 +78,13 @@ describe('sin sesión', () => {
   it('si la lectura de la sesión revienta no se propaga el error', async () => {
     getUser.mockRejectedValue(new Error('boom'));
 
-    expect((await GET()).status).toBe(401);
+    expect((await GET(requestOf('GET'))).status).toBe(401);
   });
 });
 
 describe('con sesión', () => {
   it('GET devuelve los ids de la sesión y no se puede cachear', async () => {
-    const res = await GET();
+    const res = await GET(requestOf('GET'));
     const body = await res.json();
 
     expect(res.status).toBe(200);
@@ -131,6 +131,28 @@ describe('con sesión', () => {
   it('POST responde 400 si no viene ningún id', async () => {
     expect((await POST(requestOf('POST', {}))).status).toBe(400);
     expect((await POST(requestOf('POST', { propertyIds: [] }))).status).toBe(400);
+  });
+
+  it('corta la ráfaga de una misma IP con 429 y deja de tocar el store', async () => {
+    getUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    addFavorites.mockResolvedValue({ ok: true, ids: ['a'] });
+
+    let limitado = 0;
+    for (let i = 0; i < 120; i++) {
+      const res = await POST(requestOf('POST', { propertyId: 'a' }, '', '9.9.9.9'));
+      if (res.status === 429) limitado += 1;
+    }
+
+    expect(limitado).toBeGreaterThan(0);
+    expect(addFavorites.mock.calls.length).toBeLessThan(120);
+  });
+
+  it('el límite es por IP: una ráfaga no bloquea a los demás', async () => {
+    getUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+
+    const res = await GET(requestOf('GET', undefined, '', '8.8.8.8'));
+
+    expect(res.status).toBe(200);
   });
 
   it('POST responde 400 si el cuerpo no es JSON', async () => {

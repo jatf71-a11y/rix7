@@ -91,9 +91,13 @@ export const savedSearchDeleteSchema = z.object({
 /**
  * Autocompletado: cada tecla dispara una consulta, así que el límite de largo
  * existe para que nadie use el proxy hacia Nominatim como buscador general.
+ *
+ * Las consultas cortas **no** se rechazan: el contrato de la ruta es responder
+ * 200 con lista vacía (el cliente dispara con 0 o 1 caracteres al montar), así
+ * que acá solo se acota el techo y se recorta; el mínimo lo decide la ruta.
  */
 export const geocodeQuerySchema = z.object({
-  q: z.string().trim().min(2).max(120),
+  q: z.string().trim().max(120).default(''),
 });
 
 // ═══ /api/pois ═══
