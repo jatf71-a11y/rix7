@@ -5,6 +5,8 @@ import { getPropertyById } from '@/lib/data/propertyDetail';
 import { getPartnerById } from '@/lib/data/partners-store';
 import { PropertyDetailClient } from '@/components/properties/PropertyDetailClient';
 import { formatArea, getPropertyTypeLabel } from '@/lib/utils/formatters';
+import { propertyJsonLd } from '@/lib/seo/jsonld';
+import { JsonLd } from '@/components/seo/JsonLd';
 
 // La ficha se genera en el servidor (el HTML llega con los datos, sin un segundo
 // viaje del navegador a la API) y se cachea con revalidación corta, para reflejar
@@ -78,5 +80,12 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   // viven en el bundle del cliente, sino en Supabase.
   const partner = property.partner_id ? await getPartnerById(property.partner_id) : undefined;
 
-  return <PropertyDetailClient property={property} partner={partner} />;
+  return (
+    <>
+      {/* Datos estructurados para buscadores: precio, dirección y disponibilidad
+          en el HTML inicial, sin segundo viaje del navegador. */}
+      <JsonLd data={propertyJsonLd(property, partner)} />
+      <PropertyDetailClient property={property} partner={partner} />
+    </>
+  );
 }
