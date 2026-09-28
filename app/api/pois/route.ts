@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { POI_CATEGORIES, categorizePOI, derivePoiType, poiImportance, poiSvgMarkup, poiTypeLabel } from '@/lib/data/poiCategories';
 import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
+import { poisQuerySchema } from '@/lib/api/schemas';
+import { searchParamsToObject, validateInput } from '@/lib/api/validate';
 
 /**
  * API route `/api/pois` — proxy server-side de Overpass API.
@@ -121,14 +123,16 @@ async function fetchFromOverpass(query: string): Promise<any> {
 }
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const lat = parseFloat(searchParams.get('lat') || '');
-  const lng = parseFloat(searchParams.get('lng') || '');
+  const validation = validateInput(
+    poisQuerySchema,
+    searchParamsToObject(new URL(request.url).searchParams)
+  );
 
-  // Validación de coordenadas
-  if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
-    return NextResponse.json({ success: false, error: 'Coordenadas inválidas' }, { status: 400 });
+  if (!validation.ok) {
+    return NextResponse.json({ success: false, error: validation.error }, { status: 400 });
   }
+
+  const { lat, lng } = validation.data;
 
   // ═══ Rate limit por IP ═══
   if (rateLimiter.isLimited(clientIpFrom(request.headers))) {

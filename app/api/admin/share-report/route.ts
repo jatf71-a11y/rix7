@@ -3,6 +3,8 @@ import { listShareViews } from '@/lib/data/shareViewsStore';
 import { listLeads } from '@/lib/data/leads-store';
 import { buildShareReport } from '@/lib/data/shareViews';
 import { requireAdmin } from '@/lib/supabase/auth-guard';
+import { shareReportQuerySchema } from '@/lib/api/schemas';
+import { searchParamsToObject, validateInput } from '@/lib/api/validate';
 
 /**
  * `GET /api/admin/share-report` — aperturas y contactos por corredora.
@@ -23,8 +25,11 @@ export async function GET(request: NextRequest) {
   const guard = await requireAdmin();
   if (!guard.ok) return guard.response;
 
-  const requested = Number(request.nextUrl.searchParams.get('days'));
-  const days = Number.isFinite(requested) && requested >= 1 && requested <= 365 ? Math.floor(requested) : DEFAULT_WINDOW_DAYS;
+  const validation = validateInput(
+    shareReportQuerySchema,
+    searchParamsToObject(new URL(request.url).searchParams)
+  );
+  const days = validation.ok ? validation.data.days : DEFAULT_WINDOW_DAYS;
 
   // La ventana que se pide a la base es más ancha que la que se muestra: el
   // informe necesita el histórico para calcular los totales de cada corredora.

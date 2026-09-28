@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUserId } from '@/lib/supabase/currentUser';
-import { normalizePropertyId, normalizePropertyIds } from '@/lib/data/favorites';
+import { normalizePropertyIds } from '@/lib/data/favorites';
+import { favoritesDeleteSchema, favoritesPostSchema } from '@/lib/api/schemas';
+import { searchParamsToObject, validateInput } from '@/lib/api/validate';
 import { addFavorites, listFavoriteIds, removeFavorite } from '@/lib/data/favoritesStore';
 
 /**
@@ -59,9 +61,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const raw = body as { propertyId?: unknown; propertyIds?: unknown };
+  const validation = validateInput(favoritesPostSchema, body);
+  if (!validation.ok) {
+    return NextResponse.json(
+      { success: false, error: validation.error },
+      { status: 400, headers: NO_STORE }
+    );
+  }
+
+  // Se acepta el cuerpo de varias formas (un id o una lista); se normaliza con
+  // el mismo criterio de siempre y se descarta lo inválido.
   const ids = normalizePropertyIds(
-    raw?.propertyIds ?? (raw?.propertyId === undefined ? [] : [raw.propertyId])
+    validation.data.propertyIds ??
+      (validation.data.propertyId === undefined ? [] : [validation.data.propertyId])
   );
 
   if (ids.length === 0) {
@@ -91,13 +103,18 @@ export async function DELETE(request: NextRequest) {
   const userId = await currentUserId();
   if (!userId) return NextResponse.json(NO_SESSION, { status: 401, headers: NO_STORE });
 
-  const propertyId = normalizePropertyId(request.nextUrl.searchParams.get('propertyId'));
-  if (!propertyId) {
+  const validation = validateInput(
+    favoritesDeleteSchema,
+    searchParamsToObject(new URL(request.url).searchParams)
+  );
+  if (!validation.ok) {
     return NextResponse.json(
       { success: false, error: 'Falta el id de la propiedad.' },
       { status: 400, headers: NO_STORE }
     );
   }
+
+  const propertyId = validation.data.propertyId;
 
   const result = await removeFavorite(userId, propertyId);
 

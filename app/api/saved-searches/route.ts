@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUserId } from '@/lib/supabase/currentUser';
 import { normalizeSavedSearchFilters } from '@/lib/data/savedSearches';
+import { savedSearchDeleteSchema } from '@/lib/api/schemas';
+import { searchParamsToObject, validateInput } from '@/lib/api/validate';
 import {
   createSavedSearch,
   deleteSavedSearch,
@@ -64,10 +66,15 @@ export async function DELETE(request: NextRequest) {
   const userId = await currentUserId();
   if (!userId) return NextResponse.json(NO_SESSION, { status: 401 });
 
-  const id = request.nextUrl.searchParams.get('id');
-  if (!id) {
+  const validation = validateInput(
+    savedSearchDeleteSchema,
+    searchParamsToObject(new URL(request.url).searchParams)
+  );
+  if (!validation.ok) {
     return NextResponse.json({ success: false, error: 'id is required' }, { status: 400 });
   }
+
+  const id = validation.data.id;
 
   const result = await deleteSavedSearch(id, userId);
 

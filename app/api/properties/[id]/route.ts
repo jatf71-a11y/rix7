@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPropertyById } from '@/lib/data/propertyDetail';
+import { propertyIdParamsSchema } from '@/lib/api/schemas';
+import { validateInput } from '@/lib/api/validate';
 
 // El detalle de una ficha cambia poco entre visitas: se sirve desde el CDN y el
 // navegador revalida siempre (`max-age=0`). TTL corto por si la propiedad se
@@ -19,13 +21,15 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params;
-  if (!id) {
+  const validation = validateInput(propertyIdParamsSchema, params);
+  if (!validation.ok) {
     return NextResponse.json(
       { success: false, error: 'Falta el ID de la propiedad' },
       { status: 400 }
     );
   }
+
+  const { id } = validation.data;
 
   const result = await getPropertyById(id);
   if (!result) {

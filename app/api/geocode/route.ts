@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { searchPOIs, POICategory } from '@/lib/data/chilePOIs';
 import { CHILE_REGIONS } from '@/lib/data/chileLocations';
 import { normalizeForSearch } from '@/lib/utils/text';
+import { geocodeQuerySchema } from '@/lib/api/schemas';
+import { searchParamsToObject, validateInput } from '@/lib/api/validate';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,12 +75,19 @@ const NO_CACHE_HEADERS: Record<string, string> = {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q')?.trim() || '';
+    const validation = validateInput(
+      geocodeQuerySchema,
+      searchParamsToObject(new URL(request.url).searchParams)
+    );
 
-    if (!query || query.length < 2) {
-      return NextResponse.json({ success: true, results: [] }, { headers: NO_CACHE_HEADERS });
+    if (!validation.ok) {
+      return NextResponse.json(
+        { success: false, error: validation.error, results: [] },
+        { status: 400, headers: NO_CACHE_HEADERS }
+      );
     }
+
+    const query = validation.data.q;
 
     const results: GeocodeResult[] = [];
     const normQuery = normalizeForSearch(query);
