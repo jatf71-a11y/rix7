@@ -37,6 +37,7 @@ dev-server.log
 
 # Copias de verificación al lado del código
 .build-check/
+.git.backup-*
 
-# Auditoria
-_audit/
+# Auditoria (los informes fase1/fase1b se versionan; los borradores no)
+_audit/to-delete/
