@@ -35,22 +35,22 @@ describe('reportError', () => {
     isInitialized.mockReturnValue(true);
     const error = new Error('ficha caída');
 
-    reportError(error, { extra: { propertyId: 'scl-depto-marco-polo' } });
+    // El retorno es la promesa del envío: esperarla es determinista, sin
+    // sondeos con timeout que en el runner frío del CI podían expirar antes
+    // de que el import dinámico resolviera.
+    await reportError(error, { extra: { propertyId: 'scl-depto-marco-polo' } });
 
-    await vi.waitFor(() => {
-      expect(captureException).toHaveBeenCalledWith(error, {
-        extra: { propertyId: 'scl-depto-marco-polo' },
-      });
+    expect(captureException).toHaveBeenCalledWith(error, {
+      extra: { propertyId: 'scl-depto-marco-polo' },
     });
   });
 
   it('no envía nada a Sentry si el SDK quedó sin inicializar (sin DSN)', async () => {
     isInitialized.mockReturnValue(false);
 
-    reportError(new Error('sin dsn'));
-
-    // Un tick para que el import dinámico resuelva: la promesa es void.
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    // Esperar la promesa devuelta: así no queda ningún callback pendiente
+    // que pueda derramarse al siguiente test.
+    await reportError(new Error('sin dsn'));
 
     expect(captureException).not.toHaveBeenCalled();
     expect(console.error).toHaveBeenCalledTimes(1);

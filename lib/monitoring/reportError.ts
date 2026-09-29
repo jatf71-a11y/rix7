@@ -10,6 +10,11 @@
  * El import de Sentry es dinámico a propósito: en los entornos sin DSN evita
  * levantar el SDK, y en los que lo tienen el chunk se comparte tras el primer
  * uso.
+ *
+ * Devuelve la promesa del intento de envío, con los fallos ya tragados: los
+ * llamadores pueden ignorarla (fire-and-forget) y el test puede esperarla
+ * determinísticamente en vez de sondear con timeouts, que es lo que volvía
+ * intermitente esta prueba en el CI.
  */
 
 export interface ErrorContext {
@@ -17,11 +22,11 @@ export interface ErrorContext {
   extra?: Record<string, unknown>;
 }
 
-export function reportError(error: unknown, context?: ErrorContext): void {
+export function reportError(error: unknown, context?: ErrorContext): Promise<void> {
   // Primero la consola: en producción el digest que ve la persona sale de acá.
   console.error('[monitoring]', error, context?.extra ?? '');
 
-  void import('@sentry/nextjs')
+  return import('@sentry/nextjs')
     .then((Sentry) => {
       if (!Sentry.isInitialized()) return;
       Sentry.captureException(error, context?.extra ? { extra: context.extra } : undefined);
