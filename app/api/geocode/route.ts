@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { searchPOIs, POICategory } from '@/lib/data/chilePOIs';
 import { CHILE_REGIONS } from '@/lib/data/chileLocations';
 import { normalizeForSearch } from '@/lib/utils/text';
+import { geocodeQuerySchema } from '@/lib/api/schemas';
+import { searchParamsToObject, validateInput } from '@/lib/api/validate';
+import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -71,11 +74,45 @@ const NO_CACHE_HEADERS: Record<string, string> = {
   'Cache-Control': 'public, max-age=0, s-maxage=60',
 };
 
+/**
+ * Rate limit por IP. El autocompletado dispara una consulta por tecla, así que
+ * una persona escribe rápido; el enemigo acá es un script que use el proxy como
+ * geocodificador propio y agote la cuota de Nominatim (1 req/s), dejando al
+ * resto del portal sin direcciones. El caché de borde absorbe el uso repetido,
+ * así que el cupo solo paga quien pide cosas distintas.
+ */
+const RATE_LIMIT_MAX = 60;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+
+const rateLimiter = createRateLimiter({ max: RATE_LIMIT_MAX, windowMs: RATE_LIMIT_WINDOW_MS });
+
+/** Respuesta 429 compartida. */
+const TOO_MANY_REQUESTS = {
+  body: { success: false, error: 'Demasiadas solicitudes. Intenta de nuevo en un minuto.', results: [] },
+  init: { status: 429, headers: { 'Retry-After': '60' } },
+} as const;
+
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q')?.trim() || '';
+    if (rateLimiter.isLimited(clientIpFrom(request.headers))) {
+      return NextResponse.json(TOO_MANY_REQUESTS.body, TOO_MANY_REQUESTS.init);
+    }
+    const validation = validateInput(
+      geocodeQuerySchema,
+      searchParamsToObject(new URL(request.url).searchParams)
+    );
 
+    if (!validation.ok) {
+      return NextResponse.json(
+        { success: false, error: validation.error, results: [] },
+        { status: 400, headers: NO_CACHE_HEADERS }
+      );
+    }
+
+    const query = validation.data.q;
+
+    // Consultas cortas: el cliente del autocompletado dispara al montar con 0 o
+    // 1 caracteres; el contrato es 200 con lista vacía, no un error.
     if (!query || query.length < 2) {
       return NextResponse.json({ success: true, results: [] }, { headers: NO_CACHE_HEADERS });
     }

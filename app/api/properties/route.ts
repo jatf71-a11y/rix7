@@ -8,6 +8,8 @@ import {
   filterProperties,
   type PropertyFilterParams,
 } from '@/lib/data/propertyFilters';
+import { OPERATION_ALIASES, propertiesQuerySchema } from '@/lib/api/schemas';
+import { searchParamsToObject, validateInput } from '@/lib/api/validate';
 
 // ═══ Caché de borde ═══
 // El catálogo nacional solo cambia con un deploy, pero las propiedades también
@@ -30,29 +32,35 @@ const CATALOG_CACHE = {
 type BaseFilterParams = PropertyFilterParams;
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+  // ═══ Entrada validada con Zod ═══
+  // La forma y los límites de cada parámetro viven en `propertiesQuerySchema`;
+  // acá solo se traduce al idioma del filtro (`sale` → `for_sale`, nulls).
+  const validation = validateInput(
+    propertiesQuerySchema,
+    searchParamsToObject(new URL(request.url).searchParams)
+  );
 
-  const operation = searchParams.get('operation') || 'all';
-  const propertyType = searchParams.get('propertyType') || 'all';
-  const searchQuery = searchParams.get('search')
-    ? normalizeForSearch(searchParams.get('search')!.trim())
-    : '';
-  const region = searchParams.get('region')
-    ? searchParams.get('region')!.trim().toLowerCase()
-    : '';
-  const commune = searchParams.get('commune')
-    ? searchParams.get('commune')!.trim().toLowerCase()
-    : '';
-  const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : null;
-  const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : null;
-  const minBedrooms = searchParams.get('minBedrooms') ? Number(searchParams.get('minBedrooms')) : null;
-  const minBathrooms = searchParams.get('minBathrooms') ? Number(searchParams.get('minBathrooms')) : null;
-  const minPrivates = searchParams.get('minPrivates') ? Number(searchParams.get('minPrivates')) : null;
-  const newPropertyType = (searchParams.get('newPropertyType') as 'proyectos' | 'entrega_inmediata' | null) || null;
-  const partnerId = searchParams.get('partnerId') || null;
+  if (!validation.ok) {
+    return NextResponse.json({ success: false, error: validation.error }, { status: 400 });
+  }
 
-  const page = Math.max(1, Number(searchParams.get('page')) || 1);
-  const limit = Math.min(2000, Math.max(1, Number(searchParams.get('limit')) || 50));
+  const q = validation.data;
+
+  const operation = OPERATION_ALIASES[q.operation] ?? q.operation;
+  const propertyType = q.propertyType;
+  const searchQuery = q.search ? normalizeForSearch(q.search) : '';
+  const region = q.region.toLowerCase();
+  const commune = q.commune.toLowerCase();
+  const minPrice = q.minPrice ?? null;
+  const maxPrice = q.maxPrice ?? null;
+  const minBedrooms = q.minBedrooms ?? null;
+  const minBathrooms = q.minBathrooms ?? null;
+  const minPrivates = q.minPrivates ?? null;
+  const newPropertyType = q.newPropertyType ?? null;
+  const partnerId = q.partnerId ?? null;
+
+  const page = q.page;
+  const limit = q.limit;
 
   const baseParams: BaseFilterParams = {
     searchQuery,

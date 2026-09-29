@@ -97,7 +97,8 @@ function useShareViewPing(propertyId: string, partnerId?: string) {
  *    punto desplazado ~130-230 m y los canales de contacto viven detrás del
  *    formulario, que es el que registra al interesado y lo asigna a la
  *    corredora. Publicar el dato de contacto convertiría el enlace en un
- *    atajo que deja a Rix7 fuera de la operación.
+ *    atajo que deja a Rix7 fuera de la operación. El **nombre** del agente sí
+ *    se muestra: no es un canal, no permite contactarlo directamente.
  *
  * 2. **El entorno se cuenta desde los POIs** (colegios, salud, transporte,
  *    comercio…) porque es lo que un enlace reenviado tiene que vender: quien lo
@@ -416,6 +417,14 @@ export default function SharePropertyLanding({
               </p>
               {partner?.description && (
                 <p className="text-xs text-slate-500 leading-relaxed mt-2">{partner.description}</p>
+              )}
+              {/* El nombre del agente sí viaja y se muestra: da confianza y no
+                  es un canal de contacto (no hay correo ni teléfono). */}
+              {property.agent_name && (
+                <p className="text-xs text-slate-600 leading-relaxed mt-2">
+                  Contacta a <strong className="text-slate-900">{property.agent_name}</strong> para visitar
+                  esta propiedad.
+                </p>
               )}
               <p className="text-xs text-slate-500 leading-relaxed mt-3 pt-3 border-t border-slate-100">
                 La dirección exacta, el número y el piso se entregan al completar tus datos.

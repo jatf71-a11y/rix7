@@ -6,6 +6,7 @@ import { Inter } from 'next/font/google';
 // carga con `dynamic()`. El CSS viaja con ese chunk.
 import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { RegistrationProvider } from '@/components/auth/RegistrationProvider';
 import { FavoritesProvider } from '@/components/auth/FavoritesProvider';
@@ -13,6 +14,7 @@ import { AuthModal } from '@/components/auth/AuthModal';
 import { CurrencyProvider } from '@/components/currency/CurrencyProvider';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
+import { Analytics } from '@vercel/analytics/react';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -78,11 +80,17 @@ export default function RootLayout({
               <CurrencyProvider>
                 <Navbar />
                 <main className="flex-1 flex flex-col">{children}</main>
+                {/* Footer global (hallazgo #6): desde acá son alcanzables los
+                    textos legales desde cualquier página del portal. */}
+                <Footer />
                 <AuthModal />
               </CurrencyProvider>
             </FavoritesProvider>
           </RegistrationProvider>
         </AuthProvider>
+        {/* Web Analytics de Vercel: sin cookies ni PII, se inyecta solo si el
+            proyecto lo tiene activado; no añade peticiones en otros entornos. */}
+        <Analytics />
       </body>
     </html>
   );

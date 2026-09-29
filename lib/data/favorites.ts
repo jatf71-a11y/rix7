@@ -86,7 +86,7 @@ export function parseLocalFavorites(raw: string | null): string[] {
 }
 
 /** Fila de `public.favorites` → id de propiedad. */
-export function rowToFavoritePropertyId(row: { property_id?: unknown }): string | null {
+function rowToFavoritePropertyId(row: { property_id?: unknown }): string | null {
   return normalizePropertyId(row?.property_id);
 }
 

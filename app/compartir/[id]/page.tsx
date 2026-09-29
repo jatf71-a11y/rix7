@@ -27,11 +27,16 @@ type Props = { params: { id: string } };
  * que la ubicación real no llega nunca al cliente.
  */
 function toPublishable(property: Property, approx: ApproximatePoint): Property {
+  // El nombre del agente SÍ viaja: da confianza y no permite saltarse a la
+  // corredora. Su correo y su teléfono no — el contacto es por el formulario
+  // interno, que registra al interesado y asigna el canal. Tampoco viajan la
+  // dirección exacta ni las coordenadas reales: el mapa se dibuja sobre el
+  // punto difuminado y el número/piso se entregan al completar los datos.
   return {
     ...property,
     address: '',
     zip_code: undefined,
-    agent_name: undefined,
+    agent_name: property.agent_name,
     agent_email: undefined,
     agent_phone: undefined,
     agent_avatar: undefined,

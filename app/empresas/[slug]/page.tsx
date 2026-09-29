@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPartnerBySlug } from '@/lib/data/partners-store';
+import { realEstateAgentJsonLd } from '@/lib/seo/jsonld';
+import { JsonLd } from '@/components/seo/JsonLd';
 import EmpresaDetail from './EmpresaDetail';
 
 // La corredora se resuelve en el servidor desde Supabase: el HTML inicial ya
@@ -49,5 +51,12 @@ export default async function EmpresaPage({ params }: PageProps) {
     notFound();
   }
 
-  return <EmpresaDetail partner={partner} />;
+  return (
+    <>
+      {/* Datos estructurados de la corredora: nombre, logo y contacto público
+          (el mismo de los botones de la ficha, no el del agente individual). */}
+      <JsonLd data={realEstateAgentJsonLd(partner)} />
+      <EmpresaDetail partner={partner} />
+    </>
+  );
 }

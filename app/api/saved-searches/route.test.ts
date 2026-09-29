@@ -33,10 +33,10 @@ vi.mock('@/lib/data/savedSearchesStore', () => ({
 
 import { GET, POST, DELETE } from './route';
 
-function requestOf(method: string, body?: unknown, query = ''): NextRequest {
+function requestOf(method: string, body?: unknown, query = '', ip = '1.2.3.4'): NextRequest {
   return new NextRequest(`http://localhost:3000/api/saved-searches${query}`, {
     method,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-forwarded-for': ip },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 }
@@ -63,7 +63,7 @@ describe('sin sesión', () => {
   it('GET responde 401 y no toca el store', async () => {
     getUser.mockResolvedValue({ data: { user: null } });
 
-    const res = await GET();
+    const res = await GET(requestOf('GET'));
 
     expect(res.status).toBe(401);
     expect(listSavedSearches).not.toHaveBeenCalled();
@@ -90,7 +90,7 @@ describe('sin sesión', () => {
   it('sin Supabase configurado tampoco hay sesión, y se dice', async () => {
     isSupabaseConfigured.mockReturnValue(false);
 
-    const res = await GET();
+    const res = await GET(requestOf('GET'));
     const body = await res.json();
 
     expect(res.status).toBe(401);
@@ -101,7 +101,7 @@ describe('sin sesión', () => {
   it('si la lectura de la sesión revienta, no se propaga el error', async () => {
     getUser.mockRejectedValue(new Error('boom'));
 
-    const res = await GET();
+    const res = await GET(requestOf('GET'));
 
     expect(res.status).toBe(401);
   });
@@ -109,11 +109,28 @@ describe('sin sesión', () => {
 
 describe('con sesión', () => {
   it('GET lista solo con el id de la sesión', async () => {
-    const res = await GET();
+    const res = await GET(requestOf('GET'));
 
     expect(res.status).toBe(200);
     expect(listSavedSearches).toHaveBeenCalledWith('u1');
     expect(res.headers.get('cache-control')).toBeDefined();
+  });
+
+  it('corta la ráfaga de una misma IP con 429 y deja de tocar el store', async () => {
+    let limitado = 0;
+    for (let i = 0; i < 80; i++) {
+      const res = await GET(requestOf('GET', undefined, '', '9.9.9.9'));
+      if (res.status === 429) limitado += 1;
+    }
+
+    expect(limitado).toBeGreaterThan(0);
+    expect(listSavedSearches.mock.calls.length).toBeLessThan(80);
+  });
+
+  it('el límite es por IP: una ráfaga no bloquea a los demás', async () => {
+    const res = await GET(requestOf('GET', undefined, '', '8.8.8.8'));
+
+    expect(res.status).toBe(200);
   });
 
   it('POST guarda con el id de la sesión y no con el del cuerpo', async () => {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SITE_URL } from '@/lib/site';
 import { alertsJobConfigured, runPropertyAlerts } from '@/lib/data/alertsRunner';
 import { isEmailConfigured } from '@/lib/email/sendEmail';
+import { alertsRunQuerySchema } from '@/lib/api/schemas';
+import { searchParamsToObject, validateInput } from '@/lib/api/validate';
 
 /**
  * `/api/alerts/run` — corre el job de alertas de búsquedas guardadas.
@@ -40,9 +42,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const dryRun = ['1', 'true', 'yes'].includes(
-    (request.nextUrl.searchParams.get('dry') || '').toLowerCase()
+  // `dry` conserva el contrato histórico (1/true/yes); la traducción vive en el
+  // esquema para que el handler solo decida qué hacer con el resultado.
+  const validation = validateInput(
+    alertsRunQuerySchema,
+    searchParamsToObject(request.nextUrl.searchParams)
   );
+  const dryRun = validation.ok ? validation.data.dry : false;
 
   const report = await runPropertyAlerts({ dryRun, siteUrl: SITE_URL });
 

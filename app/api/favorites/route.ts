@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUserId } from '@/lib/supabase/currentUser';
-import { normalizePropertyId, normalizePropertyIds } from '@/lib/data/favorites';
+import { normalizePropertyIds } from '@/lib/data/favorites';
+import { favoritesDeleteSchema, favoritesPostSchema } from '@/lib/api/schemas';
+import { searchParamsToObject, validateInput } from '@/lib/api/validate';
+import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
 import { addFavorites, listFavoriteIds, removeFavorite } from '@/lib/data/favoritesStore';
 
 /**
@@ -18,6 +21,17 @@ import { addFavorites, listFavoriteIds, removeFavorite } from '@/lib/data/favori
  * refleja igual.
  */
 
+/**
+ * Rate limit por IP. La ruta exige sesión, así que la ráfaga interesante es la
+ * de un script sin cuenta: cada request le cuesta una verificación a Supabase
+ * antes de llegar a tocar datos. El cupo es holgado (marcar corazones y migrar
+ * los del dispositivo son ráfagas cortas de una persona real).
+ */
+const RATE_LIMIT_MAX = 100;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+
+const rateLimiter = createRateLimiter({ max: RATE_LIMIT_MAX, windowMs: RATE_LIMIT_WINDOW_MS });
+
 const NO_SESSION = {
   success: false,
   error: 'Inicia sesión para guardar tus favoritos en tu cuenta.',
@@ -26,8 +40,18 @@ const NO_SESSION = {
 /** Sin cachear: es por usuario y cambia con cada corazón. */
 const NO_STORE = { 'Cache-Control': 'no-store, max-age=0' };
 
+/** Respuesta 429 compartida por los tres métodos. */
+const TOO_MANY_REQUESTS = {
+  body: { success: false, error: 'Demasiadas solicitudes. Intenta de nuevo en un minuto.' },
+  init: { status: 429, headers: { ...NO_STORE, 'Retry-After': '60' } },
+} as const;
+
 // GET /api/favorites — mis favoritos (ids)
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (rateLimiter.isLimited(clientIpFrom(request.headers))) {
+    return NextResponse.json(TOO_MANY_REQUESTS.body, TOO_MANY_REQUESTS.init);
+  }
+
   const userId = await currentUserId();
   if (!userId) {
     // 200 con lista vacía sería mentir: no es "no tiene favoritos", es "no hay
@@ -46,6 +70,10 @@ export async function GET() {
  * `{ propertyIds: [...] }` para subir los que había en el dispositivo.
  */
 export async function POST(request: NextRequest) {
+  if (rateLimiter.isLimited(clientIpFrom(request.headers))) {
+    return NextResponse.json(TOO_MANY_REQUESTS.body, TOO_MANY_REQUESTS.init);
+  }
+
   const userId = await currentUserId();
   if (!userId) return NextResponse.json(NO_SESSION, { status: 401, headers: NO_STORE });
 
@@ -59,9 +87,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const raw = body as { propertyId?: unknown; propertyIds?: unknown };
+  const validation = validateInput(favoritesPostSchema, body);
+  if (!validation.ok) {
+    return NextResponse.json(
+      { success: false, error: validation.error },
+      { status: 400, headers: NO_STORE }
+    );
+  }
+
+  // Se acepta el cuerpo de varias formas (un id o una lista); se normaliza con
+  // el mismo criterio de siempre y se descarta lo inválido.
   const ids = normalizePropertyIds(
-    raw?.propertyIds ?? (raw?.propertyId === undefined ? [] : [raw.propertyId])
+    validation.data.propertyIds ??
+      (validation.data.propertyId === undefined ? [] : [validation.data.propertyId])
   );
 
   if (ids.length === 0) {
@@ -88,16 +126,25 @@ export async function POST(request: NextRequest) {
 
 // DELETE /api/favorites?propertyId=xxx — quita uno
 export async function DELETE(request: NextRequest) {
+  if (rateLimiter.isLimited(clientIpFrom(request.headers))) {
+    return NextResponse.json(TOO_MANY_REQUESTS.body, TOO_MANY_REQUESTS.init);
+  }
+
   const userId = await currentUserId();
   if (!userId) return NextResponse.json(NO_SESSION, { status: 401, headers: NO_STORE });
 
-  const propertyId = normalizePropertyId(request.nextUrl.searchParams.get('propertyId'));
-  if (!propertyId) {
+  const validation = validateInput(
+    favoritesDeleteSchema,
+    searchParamsToObject(new URL(request.url).searchParams)
+  );
+  if (!validation.ok) {
     return NextResponse.json(
       { success: false, error: 'Falta el id de la propiedad.' },
       { status: 400, headers: NO_STORE }
     );
   }
+
+  const propertyId = validation.data.propertyId;
 
   const result = await removeFavorite(userId, propertyId);
 

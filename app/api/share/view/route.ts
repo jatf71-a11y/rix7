@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { recordShareView } from '@/lib/data/shareViewsStore';
 import { getCatalogPropertyById } from '@/lib/data/propertyCatalog';
 import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
+import { shareViewSchema } from '@/lib/api/schemas';
+import { validateInput } from '@/lib/api/validate';
 
 /**
  * `POST /api/share/view` — una apertura de un enlace compartido.
@@ -28,7 +30,7 @@ const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 
 const rateLimiter = createRateLimiter({ max: RATE_LIMIT_MAX, windowMs: RATE_LIMIT_WINDOW_MS });
 
-const MAX_PROPERTY_ID_LENGTH = 120;
+/** Largo máximo del id del cliente; lo valida `shareViewSchema`. */
 const MAX_PARTNER_ID_LENGTH = 120;
 
 /**
@@ -71,12 +73,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: 'Cuerpo inválido.' }, { status: 400 });
   }
 
-  const payload = (body ?? {}) as { propertyId?: unknown; partnerId?: unknown };
-  const propertyId = typeof payload.propertyId === 'string' ? payload.propertyId.trim() : '';
-
-  if (!propertyId || propertyId.length > MAX_PROPERTY_ID_LENGTH) {
-    return NextResponse.json({ success: false, error: 'Falta la propiedad.' }, { status: 400 });
+  const validation = validateInput(shareViewSchema, body ?? {});
+  if (!validation.ok) {
+    return NextResponse.json({ success: false, error: validation.error }, { status: 400 });
   }
+
+  const payload = validation.data;
+  const propertyId = payload.propertyId;
 
   const partnerId = resolvePartnerId(propertyId, payload.partnerId);
   const result = await recordShareView(propertyId, partnerId);

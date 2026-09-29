@@ -8,6 +8,12 @@ import {
 import { Partner } from '@/lib/data/partners';
 import { slugify } from '@/lib/utils/text';
 import { requireAdmin } from '@/lib/supabase/auth-guard';
+import {
+  partnerDeleteSchema,
+  partnerPostSchema,
+  partnerPutSchema,
+} from '@/lib/api/schemas';
+import { searchParamsToObject, validateInput } from '@/lib/api/validate';
 
 // Todas las operaciones de este recurso dan de alta o modifican corredoras
 // inscritas, así que exigen rol admin (en desarrollo se permite con el bypass
@@ -53,14 +59,18 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, slug, logo, description, website, color, contact } = body;
 
-    if (!name || !slug) {
+    // La forma y los límites del alta los declara `partnerPostSchema`; los
+    // mensajes de error mantienen el contrato que esperaba el panel.
+    const validation = validateInput(partnerPostSchema, body);
+    if (!validation.ok) {
       return NextResponse.json(
-        { success: false, error: 'name and slug are required' },
+        { success: false, error: validation.error },
         { status: 400 }
       );
     }
+
+    const { name, slug, logo, description, website, color, contact } = validation.data;
 
     const newPartner: Partner = {
       id: slugify(slug),
@@ -106,14 +116,16 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { id, ...updates } = body;
 
-    if (!id) {
+    const validation = validateInput(partnerPutSchema, body);
+    if (!validation.ok) {
       return NextResponse.json(
-        { success: false, error: 'id is required' },
+        { success: false, error: validation.error },
         { status: 400 }
       );
     }
+
+    const { id, ...updates } = validation.data;
 
     const result = await updatePartner(id, updates);
     if (!result.ok) {
@@ -141,13 +153,18 @@ export async function DELETE(request: NextRequest) {
   const guard = await requireAdmin();
   if (!guard.ok) return guard.response;
 
-  const id = request.nextUrl.searchParams.get('id');
-  if (!id) {
+  const validation = validateInput(
+    partnerDeleteSchema,
+    searchParamsToObject(new URL(request.url).searchParams)
+  );
+  if (!validation.ok) {
     return NextResponse.json(
       { success: false, error: 'id is required' },
       { status: 400 }
     );
   }
+
+  const { id } = validation.data;
 
   const result = await deletePartner(id);
   if (!result.ok) {

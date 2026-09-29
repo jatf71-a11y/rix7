@@ -3,6 +3,8 @@ import { createLead, listLeads } from '@/lib/data/leads-store';
 import { normalizeLead } from '@/lib/data/leads';
 import { requireAdmin } from '@/lib/supabase/auth-guard';
 import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
+import { leadsPostSchema } from '@/lib/api/schemas';
+import { validateInput } from '@/lib/api/validate';
 
 /**
  * `/api/leads` — contactos de visitas interesadas.
@@ -51,6 +53,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: 'Cuerpo inválido' }, { status: 400 });
   }
 
+  // Primero la forma (Zod): debe ser un objeto con los campos esperados.
+  const shape = validateInput(leadsPostSchema, body);
+  if (!shape.ok) {
+    return NextResponse.json({ success: false, error: shape.error }, { status: 400 });
+  }
+
+  // Después la semántica de dominio: largos, email y canal (misma política RLS).
   const validation = normalizeLead(body);
   if (!validation.ok) {
     return NextResponse.json({ success: false, error: validation.error }, { status: 400 });

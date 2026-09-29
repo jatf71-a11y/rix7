@@ -135,5 +135,3 @@ export function SectorOverview({ insights, title = 'A 15 minutos caminando', cla
     </section>
   );
 }
-
-export default SectorOverview;

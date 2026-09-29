@@ -29,6 +29,11 @@ type Classification = ResourceKind | 'navigation' | 'ignore';
 const RULES: Array<{ kind: Classification | 'unknown'; test: RegExp }> = [
   // No son cargas de red: namespaces de SVG y textos de ayuda en un input.
   { kind: 'ignore', test: /xmlns|placeholder=/i },
+  // Identificadores de vocabulario JSON-LD (`https://schema.org`,
+  // `https://schema.org/...`): son URIs de tipos y propiedades dentro de los
+  // datos estructurados que el HTML lleva embebidos (ver `lib/seo/jsonld.ts`),
+  // no recursos que el navegador pida. Nunca tocan el CSP.
+  { kind: 'ignore', test: /\/\/schema\.org\b/i },
   // Enlaces que abre el usuario, metadatos que lee un crawler y URLs canónicas.
   // Ninguno pasa por el CSP (son navegación o texto, no carga del documento).
   { kind: 'navigation', test: /<a\s|href=|website|canonical|og:|openGraph|twitter:|attribution|whatsapp|wa\.me|SITE_URL|mailto:/i },
