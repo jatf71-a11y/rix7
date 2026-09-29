@@ -9,12 +9,12 @@
 
 ## 1. Resumen ejecutivo
 
-- **9 de 12 hallazgos de fase 2 resueltos** (todos los críticos de código salvo #6), en 9 commits sobre `audit/optimization`.
-- La suite pasó de **498 → 548 tests** (+50, todos de los módulos nuevos).
+- **10 de 12 hallazgos de fase 2 resueltos** (todos los críticos de código), en 13 commits sobre `audit/optimization`.
+- La suite pasó de **498 → 560 tests** (+62, todos de los módulos nuevos).
 - El bundle compartido se mantiene en **89,6 kB** (+1,8 kB por Analytics; el SDK de Sentry queda fuera del bundle mientras no haya DSN).
 - Verificación automática estrenada: **CI en GitHub Actions** (tipos → tests → build) en cada push y PR.
 - Doble respaldo operativo: GitHub (`origin/audit/optimization`) + `BACKUP9.0` en OneDrive verificado por hash de árbol.
-- **Pendiente**: #6 (textos legales), activación de Sentry/Analytics en Vercel (configuración, no código), push de los 3 últimos commits y refresh del backup.
+- **Pendiente**: solo activación de Sentry/Analytics en Vercel (configuración, no código) y fusionar a `main`.
 
 ---
 
@@ -27,7 +27,7 @@
 | 3 | 🔴 Alta | Sin rate limit en `/api/geocode`, `/api/favorites`, `/api/saved-searches` | las 3 rutas + `lib/utils/rateLimit` (reutilizado) | ~2 h ✅ | No | ✅ `8cf2a79` |
 | 4 | 🔴 Alta | Sin validación de entrada (Zod) en ninguna API | `lib/api/schemas.ts`, `lib/api/validate.ts` + 11 rutas | ~6 h ✅ | No | ✅ `79a01ae` |
 | 5 | 🔴 Alta | `toPublishable` exponía contacto del agente y dirección exacta en landing pública | `app/compartir/[id]/page.tsx`, `SharePropertyLanding.tsx` | ~1 h ✅ | No | ✅ `cfb576c` |
-| 6 | 🔴 Alta | Sin textos legales (términos, privacidad, cookies) | `app/legal/` (por crear) | ~3 h | No | ⏳ Pendiente |
+| 6 | 🔴 Alta | Sin textos legales (términos, privacidad, cookies) | `app/legal/`, `lib/legal/`, `components/legal/`, `components/layout/Footer.tsx` | ~3 h | No | ✅ `c0da747`+ |
 | 7 | 🟡 Media | Sin CI: tests/build solo corrían a mano | `.github/workflows/ci.yml` | ~1 h ✅ | No | ✅ `9d39329` |
 | 8 | 🟡 Media | Metadata ausente en home y admin; panel indexable | `app/page.tsx`, `app/HomeClient.tsx`, `app/admin/layout.tsx`, `app/admin/AdminShell.tsx` | ~3 h ✅ | No | ✅ `827dd6a` |
 | 9 | 🟡 Media | Repositorio sin `.git` funcional (historial perdido) | `.git` (recuperación completa) | ~2 h ✅ | No | ✅ Tanda 0 |
@@ -86,7 +86,7 @@ La home era un componente cliente de 618 líneas sin metadata: se extrajo a `app
 2. **Activar Vercel Web Analytics** (toggle en dashboard del proyecto) — el componente ya está en el layout.
 3. **Pushear y fusionar** `audit/optimization` → `main` (despliega todo lo anterior; el push estrena el CI).
 4. **Refresh de `BACKUP9.0`** (robocopy incremental, ~1 min) — está 3 commits atrás (`827dd6a`, `9d39329`, `8c09bec`).
-5. **#6 textos legales** (`/legal/terminos`, `/legal/privacidad` + enlaces en footer): único crítico de código pendiente, ~3 h.
+5. ~~**#6 textos legales**~~ ✅ Hecho: `/legal/terminos` y `/legal/privacidad` prerenderizadas, footer global con enlaces, sitemap actualizado y 12 tests.
 
 ---
 
@@ -95,7 +95,7 @@ La home era un componente cliente de 618 líneas sin metadata: se extrajo a `app
 ### Sprint 1 — Cerrar la fase 2 (semana 1)
 | Tarea | Origen | Esfuerzo |
 |---|---|---|
-| Textos legales + footer (#6) | hallazgo 🔴 | ~3 h |
+| ~~Textos legales + footer (#6)~~ | hallazgo 🔴 | ✅ hecho |
 | Activar Sentry DSN + Web Analytics en Vercel | #13 (config) | ~15 min |
 | Push + PR `audit/optimization` → `main`; revisar primer run del CI | #7 | ~30 min |
 | QA visual de home/admin/fichas en preview de Vercel | #1 #2 #8 | ~1 h |

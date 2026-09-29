@@ -6,6 +6,7 @@ import { Inter } from 'next/font/google';
 // carga con `dynamic()`. El CSS viaja con ese chunk.
 import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { RegistrationProvider } from '@/components/auth/RegistrationProvider';
 import { FavoritesProvider } from '@/components/auth/FavoritesProvider';
@@ -79,6 +80,9 @@ export default function RootLayout({
               <CurrencyProvider>
                 <Navbar />
                 <main className="flex-1 flex flex-col">{children}</main>
+                {/* Footer global (hallazgo #6): desde acá son alcanzables los
+                    textos legales desde cualquier página del portal. */}
+                <Footer />
                 <AuthModal />
               </CurrencyProvider>
             </FavoritesProvider>

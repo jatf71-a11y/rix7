@@ -62,6 +62,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 1,
     },
+    // Las páginas legales son indexables y con canonical propio: entran al
+    // sitemap con prioridad baja — se indexan, pero no compiten con el
+    // catálogo. Rara vez cambian, así que 'yearly'.
+    ...[
+      '/legal/terminos',
+      '/legal/privacidad',
+    ].map((path) => ({
+      url: `${SITE_URL}${path}`,
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
+    })),
     ...propertyEntries,
     ...partnerEntries,
   ];

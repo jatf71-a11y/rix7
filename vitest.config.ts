@@ -2,6 +2,13 @@ import { configDefaults, defineConfig } from 'vitest/config';
 import path from 'node:path';
 
 export default defineConfig({
+  // Runtime JSX automático (importa de react/jsx-runtime sin pedir un React
+  // en scope): es el mismo modo que usa Next en la app, y sin esto el primer
+  // test que importe un módulo .tsx con JSX explota con "React is not
+  // defined" en el transform de esbuild.
+  esbuild: {
+    jsx: 'automatic',
+  },
   test: {
     include: ['**/*.test.ts'],
     /**
