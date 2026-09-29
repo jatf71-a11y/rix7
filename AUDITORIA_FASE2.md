@@ -35,7 +35,7 @@
 | 11 | 🟡 Media | Código muerto; `sampleProperties` 3,8 MB sin usar | — | — | **Sí** | ✅ Resuelto en fase 1 (knip) |
 | 12 | 🟢 Baja | `console.log` residuales | — | — | **Sí** | ✅ Resuelto en fase 1 |
 | 13 | 🟢 Baja | Cero observabilidad (errores solo visibles en consola del navegador) | `lib/monitoring/`, `sentry.*.config.ts`, `app/instrumentation.ts` | ~4 h ✅ | No | ✅ `8c09bec` (activación: pendiente en Vercel) |
-| 14 | 🟢 Baja | Proptech (integraciones portales/CRM) | a definir | ~2–3 días | No | ⏳ Opcional (Tanda 5) |
+| 14 | 🟢 Baja | Proptech (integraciones portales/CRM) | `docs/evaluacion-14-proptech.md` (evaluado) | ~1 día (feed) | No | 📋 Evaluado: alertas ya construidas (falta activar), feed Trovit propuesto, CRM diferido |
 | 15 | 🟢 Baja | Backup OneDrive incompleto (DENY dejaron `BACKUP8.2.d.FICHA` a medias) | `BACKUP9.0` (fuera del repo) | ~1 h ✅ | No | ✅ Operativo |
 
 **Convención**: ✅ = resuelto y verificado · ⏳ = pendiente. «¿Ya en fase 1?» = si el problema ya había sido detectado/corregido en la auditoría anterior.
