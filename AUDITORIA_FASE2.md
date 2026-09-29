@@ -102,6 +102,8 @@ La home era un componente cliente de 618 líneas sin metadata: se extrajo a `app
 | Refresh + verificación de `BACKUP9.0` | #15 | ~10 min |
 
 ### Sprint 2 — SEO y datos (semanas 2–3)
+
+> **Actualización**: el plan vigente de la fase 3 vive en [`docs/plan-fase-3.md`](docs/plan-fase-3.md), que reordena estos sprints (activar lo construido → endurecer → medir → ampliar) e incorpora los hallazgos del cierre: alertas a medio activar, feed ya construido y el riesgo del Service Worker detectado en QA.
 | Tarea | Motivo | Esfuerzo |
 |---|---|---|
 | Sitemap dinámico: incluir propiedades de Supabase, no solo catálogo | SEO: lo publicado en caliente no está en `sitemap.xml` | ~3 h |
