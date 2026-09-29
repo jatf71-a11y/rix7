@@ -22,6 +22,11 @@ export interface PartnerRow {
   contact_whatsapp: string | null;
   contact_email: string | null;
   sort_order?: number | null;
+  /** Feed XML para agregadores (#14): activo o no. */
+  feed_enabled?: boolean | null;
+  /** Hash SHA-256 del token del feed. NUNCA se expone: si se filtrara la tabla,
+   *  el hash no sirve para autenticar (el feed compara hashes). */
+  feed_token_hash?: string | null;
 }
 
 /** Columnas que se escriben en la tabla (sin las de auditoría). */
@@ -37,6 +42,8 @@ export interface PartnerWriteRow {
   contact_whatsapp: string;
   contact_email: string;
   sort_order: number;
+  /** Feed XML para agregadores (#14): activo o no (el hash va aparte). */
+  feed_enabled: boolean;
 }
 
 /** Color por defecto, el mismo que usa el panel al crear una corredora. */
@@ -44,7 +51,7 @@ export const DEFAULT_PARTNER_COLOR = '#3B82F6';
 
 /** Columnas que se piden en cada lectura. */
 export const PARTNER_COLUMNS =
-  'id, slug, name, logo, description, website, color, contact_phone, contact_whatsapp, contact_email, sort_order';
+  'id, slug, name, logo, description, website, color, contact_phone, contact_whatsapp, contact_email, sort_order, feed_enabled, feed_token_hash';
 
 /** Fila de la base → objeto de la app. Los nulos se normalizan, no se propagan. */
 export function rowToPartner(row: PartnerRow): Partner {
@@ -57,12 +64,14 @@ export function rowToPartner(row: PartnerRow): Partner {
     description: row.description ?? '',
     website: row.website ?? undefined,
     color: row.color || DEFAULT_PARTNER_COLOR,
-    contact: {
-      phone: row.contact_phone ?? '',
-      whatsapp: row.contact_whatsapp ?? '',
-      email: row.contact_email ?? '',
-    },
-  };
+  contact: {
+    phone: row.contact_phone ?? '',
+    whatsapp: row.contact_whatsapp ?? '',
+    email: row.contact_email ?? '',
+  },
+  // Estado del feed: sí. El hash del token no viaja jamás al cliente.
+  feedEnabled: row.feed_enabled ?? false,
+};
 }
 
 /** Objeto de la app → fila para insertar. */
@@ -80,6 +89,7 @@ export function partnerToRow(partner: Partner, sortOrder = 0): PartnerWriteRow {
     contact_whatsapp: partner.contact?.whatsapp ?? '',
     contact_email: partner.contact?.email ?? '',
     sort_order: sortOrder,
+    feed_enabled: partner.feedEnabled ?? false,
   };
 }
 
@@ -107,6 +117,10 @@ export function partnerPatchToRow(updates: Partial<Partner>): Partial<PartnerWri
     row.contact_whatsapp = updates.contact.whatsapp ?? '';
     row.contact_email = updates.contact.email ?? '';
   }
+
+  // El estado del feed sí se edita desde el panel; el hash del token no pasa
+  // por acá — se escribe solo desde la ruta de feed, que es quien lo calcula.
+  if (updates.feedEnabled !== undefined) row.feed_enabled = updates.feedEnabled;
 
   return row;
 }

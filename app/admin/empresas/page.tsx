@@ -13,6 +13,9 @@ import {
   Search,
   AlertCircle,
   CheckCircle,
+  Rss,
+  Copy,
+  RefreshCw,
 } from 'lucide-react';
 import { Partner } from '@/lib/data/partners';
 import { slugify } from '@/lib/utils/text';
@@ -47,6 +50,14 @@ function AdminEmpresasPage() {
   const [search, setSearch] = useState('');
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   /**
+   * Estado del feed XML por corredora (hallazgo #14). El token en claro solo
+   * existe en esta pantalla justo después de activar o regenerar: la API no
+   * vuelve a entregarlo jamás (en la base hay un hash).
+   */
+  const [feedState, setFeedState] = useState<Record<string, { feedEnabled: boolean; hasToken: boolean }>>({});
+  const [feedBusy, setFeedBusy] = useState<string | null>(null);
+  const [feedTokenShown, setFeedTokenShown] = useState<{ partnerId: string; token: string; feedUrl: string } | null>(null);
+  /**
    * De dónde salió el listado y si los cambios se guardarán de verdad. El panel
    * tiene que decirlo: un alta que se pierde al reiniciar el servidor no puede
    * parecer un alta exitosa.
@@ -79,9 +90,28 @@ function AdminEmpresasPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  /** Estado del feed de todas las corredoras (sin secretos). */
+  const loadFeedStates = useCallback(() => {
+    fetch('/api/admin/partners')
+      .then((r) => r.json())
+      .then((result) => {
+        if (!result.success) return;
+        // El estado de feed viaja en cada partner (feedEnabled). hasToken lo
+        // confirma la ruta de feed solo si hace falta; con feedEnabled=false
+        // no hay nada que mostrar.
+        const states: Record<string, { feedEnabled: boolean; hasToken: boolean }> = {};
+        for (const partner of result.data as Array<Partner & { feedEnabled?: boolean }>) {
+          states[partner.id] = { feedEnabled: !!partner.feedEnabled, hasToken: true };
+        }
+        setFeedState(states);
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     loadPartners();
-  }, [loadPartners]);
+    loadFeedStates();
+  }, [loadPartners, loadFeedStates]);
 
   const showToast = (type: 'success' | 'error', message: string) => {
     setToast({ type, message });
@@ -179,6 +209,37 @@ function AdminEmpresasPage() {
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
+  };
+
+  /** Activa/desactiva el feed (y rota token si se pide). Muestra el token UNA vez. */
+  const handleFeed = async (partner: Partner, enabled: boolean, rotate = false) => {
+    setFeedBusy(partner.id);
+    try {
+      const res = await fetch('/api/admin/partners/feed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: partner.id, enabled, rotate }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        setFeedState((prev) => ({
+          ...prev,
+          [partner.id]: { feedEnabled: !!result.feedEnabled, hasToken: !!result.feedEnabled },
+        }));
+        if (result.token && result.feedUrl) {
+          setFeedTokenShown({ partnerId: partner.id, token: result.token, feedUrl: `${result.feedUrl}?token=${result.token}` });
+        } else {
+          showToast('success', enabled ? 'Feed activado' : 'Feed desactivado');
+        }
+        loadFeedStates();
+      } else {
+        showToast('error', result.error || 'No se pudo cambiar el feed');
+      }
+    } catch {
+      showToast('error', 'Error de conexión');
+    } finally {
+      setFeedBusy(null);
+    }
   };
 
   const confirmDelete = async (id: string) => {
@@ -338,6 +399,50 @@ function AdminEmpresasPage() {
               {/* Description */}
               <p className="text-xs text-slate-600 mb-4 line-clamp-2">{partner.description}</p>
 
+              {/* Feed XML para agregadores (hallazgo #14) */}
+              {(() => {
+                const feed = feedState[partner.id] ?? { feedEnabled: false, hasToken: false };
+                return (
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 mb-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Rss className={`w-3.5 h-3.5 ${feed.feedEnabled ? 'text-emerald-600' : 'text-slate-400'}`} />
+                        <span className="text-xs font-semibold text-slate-700">Feed XML</span>
+                        <span
+                          className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                            feed.feedEnabled
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-slate-200 text-slate-500'
+                          }`}
+                        >
+                          {feed.feedEnabled ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleFeed(partner, !feed.feedEnabled)}
+                        disabled={feedBusy === partner.id}
+                        className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 disabled:opacity-50"
+                      >
+                        {feedBusy === partner.id ? '…' : feed.feedEnabled ? 'Desactivar' : 'Activar'}
+                      </button>
+                    </div>
+                    {feed.feedEnabled && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <button
+                          onClick={() => handleFeed(partner, true, true)}
+                          disabled={feedBusy === partner.id}
+                          className="flex items-center gap-1 text-[11px] font-medium text-slate-500 hover:text-amber-600 disabled:opacity-50"
+                          title="Genera un token nuevo e invalida el anterior"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                          Regenerar token
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* Color + Website */}
               <div className="flex items-center gap-2 mb-4">
                 <div
@@ -395,6 +500,66 @@ function AdminEmpresasPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal de token mostrado UNA vez (hallazgo #14): la base guarda solo
+          el hash, así que si se cierra sin copiar hay que regenerar. */}
+      {feedTokenShown && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setFeedTokenShown(null)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <h2 className="text-lg font-bold text-slate-900">Feed XML activado</h2>
+              <button
+                onClick={() => setFeedTokenShown(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg border border-amber-200 bg-amber-50 text-xs text-amber-800">
+                <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <p>
+                  Esta es la <strong>única vez</strong> que se muestra el token: en la base solo
+                  queda su hash. Si se pierde, usa «Regenerar token» y se emitirá uno nuevo.
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-700 mb-1.5">
+                  URL para registrar en el agregador (Trovit/Mitula)
+                </p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-mono text-slate-800 break-all">
+                    {feedTokenShown.feedUrl}
+                  </code>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(feedTokenShown.feedUrl);
+                      showToast('success', 'URL copiada');
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-2 text-xs font-semibold text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    Copiar
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(feedTokenShown.feedUrl);
+                  setFeedTokenShown(null);
+                  showToast('success', 'URL copiada');
+                }}
+                className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+              >
+                Entendido, copié la URL
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

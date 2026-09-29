@@ -300,11 +300,24 @@ CREATE TABLE IF NOT EXISTS public.partners (
     -- Orden de aparición en el portal (el carrusel de socios y /admin)
     sort_order INTEGER NOT NULL DEFAULT 0,
 
+    -- Feed XML para agregadores (hallazgo #14): estado y hash del token.
+    -- El token en claro NUNCA se guarda: solo su SHA-256, para que la lectura
+    -- pública de esta tabla no filtre credenciales. Se muestra una vez al
+    -- activar/regenerar desde /api/admin/partners/feed.
+    feed_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    feed_token_hash TEXT,
+
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
 CREATE INDEX IF NOT EXISTS partners_sort_order_idx ON public.partners (sort_order, name);
+
+-- El feed público resuelve la corredora por hash del token: consulta por
+-- igualdad, así que el índice evita el escaneo en cada rastreo del agregador.
+CREATE INDEX IF NOT EXISTS partners_feed_token_hash_idx
+ON public.partners (feed_token_hash)
+WHERE feed_token_hash IS NOT NULL;
 
 -- ==============================================================================
 -- 7.b ROL DE ADMINISTRADOR: helper para las políticas

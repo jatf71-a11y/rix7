@@ -25,6 +25,14 @@ export interface Partner {
    * reales que entregue cada corredora antes de publicar.
    */
   contact: PartnerContact;
+  /**
+   * Feed XML para agregadores (hallazgo #14): solo el **estado** vive acá. El
+   * token se guarda en la base como hash SHA-256 (`feed_token_hash`), así que
+   * el valor en claro se muestra **una vez** al activar o regenerar y después
+   * nunca vuelve del servidor: la lectura pública de la tabla (RLS) no puede
+   * filtrarlo.
+   */
+  feedEnabled?: boolean;
 }
 
 export const partners: Partner[] = [

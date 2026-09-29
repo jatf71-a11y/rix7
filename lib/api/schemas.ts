@@ -289,3 +289,31 @@ export const alertsRunQuerySchema = z.object({
     .optional()
     .transform((v) => ['1', 'true', 'yes'].includes((v ?? '').toLowerCase())),
 });
+
+// ═══ /api/admin/partners/feed (hallazgo #14: feed XML por corredora) ═══
+
+/** Cuerpo para habilitar/deshabilitar/regenerar el feed de una corredora. */
+export const partnerFeedPostSchema = z.object({
+  id: z.string({ required_error: 'id is required' }).trim().min(1).max(120),
+  enabled: z.boolean(),
+  /** true = token nuevo aunque ya exista (rota el anterior). */
+  rotate: z.boolean().optional(),
+});
+
+/** Consulta de estado del feed de una corredora. */
+export const partnerFeedQuerySchema = z.object({
+  id: z.string({ required_error: 'id is required' }).trim().min(1).max(120),
+});
+
+/** Archivo del feed público: `<slug>.xml`, solo minúsculas, dígitos y guiones. */
+export const feedFileSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .regex(/^[a-z0-9-]+\.xml$/, 'archivo de feed inválido');
+
+/** Token del feed en la query: hex de 32. */
+export const feedTokenSchema = z
+  .string()
+  .trim()
+  .regex(/^[0-9a-f]{32}$/, 'token de feed inválido');
