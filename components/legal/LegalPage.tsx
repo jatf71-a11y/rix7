@@ -70,7 +70,14 @@ export function LegalPage({
               <h2 id={`h-${slugify(section.title)}`} className="text-xl font-bold text-slate-900 mb-4">
                 {section.title}
               </h2>
-              <div className="space-y-4 text-slate-600 leading-relaxed">{section.body}</div>
+              {/* Cada ítem del cuerpo va en su propio <p>: los textos son
+                  fragments, y sin el wrapper el HTML los pega corridos
+                  («…las partes.La información…») — visible en producción. */}
+              <div className="space-y-4 text-slate-600 leading-relaxed">
+                {section.body.map((node, i) => (
+                  <p key={i}>{node}</p>
+                ))}
+              </div>
             </section>
           ))}
         </div>

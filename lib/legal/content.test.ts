@@ -72,6 +72,18 @@ describe('Documentos legales', () => {
     expect(html).toContain('href="/"');
   });
 
+  it('cada ítem del cuerpo se renderiza en su propio párrafo (no corrido)', () => {
+    const html = renderLegal(privacidad);
+    // Regresión: sin el <p> envolvente, los fragments del body pegaban los
+    // párrafos corridos en el HTML servido («…rix7.cl.La identificación…»). El
+    // número de <p> debe superar al de secciones porque cada ítem es uno.
+    const parrafos = (html.match(/<p[ >]/g) || []).length;
+    const itemsDeCuerpo = privacidad.sections.reduce((n, s) => n + s.body.length, 0);
+    expect(parrafos).toBeGreaterThanOrEqual(itemsDeCuerpo);
+    expect(html).not.toContain('.La identificación');
+    expect(html).not.toContain('partes.La información');
+  });
+
   it('los títulos de sección generan ids válidos para aria-labelledby', () => {
     const html = renderLegal(terminos);
     // Cada aria-labelledby debe apuntar a un id real con forma de slug
