@@ -41,7 +41,7 @@ Lo más barato y de mayor impacto: todo el código ya está en producción esper
 
 | # | Tarea | Motivo | Esfuerzo |
 |---|---|---|---|
-| 3.1 | **Línea base de CWV** (`npm run vitals -- --base=https://rix7.vercel.app`) y objetivos | Sin números no hay prioridades: LCP de fichas con imágenes remotas es el candidato a problema | ~2 h |
+| 3.1 | ✅ **Hecha** — **Línea base de CWV** medida contra producción (`docs/cwv-baseline.md`): los 5 problemas reales ordenados por impacto — el mayor: CLS de la home 0,46–0,49 (POBRE) y LCP 2–2,7 s por render 100% cliente; fichas y /empresas en verde | Sin números no hay prioridades: LCP de fichas con imágenes remotas era el candidato y resultó sano; el problema real está en la home | ~2 h |
 | 3.2 | **Revisión de Sentry a 2 semanas**: top errores, rutas más lentas (traces al 10%) | Priorizar la fase siguiente con evidencia, no con intuición | ~2 h |
 | 3.3 | **Auditoría de accesibilidad con axe-core** (en CI o al menos barrido manual) | La fase 1 no la cubrió; el portal tiene divs con roles complejos (mapas, carruseles) | ~1 día |
 
