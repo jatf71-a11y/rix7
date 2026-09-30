@@ -35,6 +35,13 @@ CREATE TABLE IF NOT EXISTS public.properties (
     
     -- Auditoría
     user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+
+    -- Corredora dueña de la propiedad (hallazgo #14 / plan fase 3, 2.1): alimenta
+    -- el feed XML por corredora y /empresas/<slug>. Los valores son `partners.id`
+    -- (el mismo `partner_id` del catálogo del código); los leads ya lo guardaban.
+    -- NULL = propiedad del portal, sin corredora asignada.
+    partner_id TEXT REFERENCES public.partners(id),
+
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
@@ -52,6 +59,10 @@ CREATE INDEX IF NOT EXISTS idx_properties_bedrooms ON public.properties (bedroom
 CREATE INDEX IF NOT EXISTS idx_properties_property_type ON public.properties (property_type);
 CREATE INDEX IF NOT EXISTS idx_properties_city ON public.properties (city);
 
+-- Atribución por corredora: el feed público consulta por igualdad en cada
+-- rastreo del agregador y /empresas/<slug> pide las de una sola corredora.
+CREATE INDEX IF NOT EXISTS idx_properties_partner ON public.properties (partner_id);
+
 -- ==============================================================================
 -- 4. FUNCIÓN ALMACENADA RPC: get_properties_filtered
 -- Permite filtrar por Bounding Box (coordenadas del viewport del mapa) y atributos
@@ -65,7 +76,8 @@ CREATE OR REPLACE FUNCTION public.get_properties_filtered(
     max_price NUMERIC DEFAULT NULL,
     min_bedrooms INTEGER DEFAULT NULL,
     prop_type TEXT DEFAULT NULL,
-    search_query TEXT DEFAULT NULL
+    search_query TEXT DEFAULT NULL,
+    p_partner_id TEXT DEFAULT NULL
 )
 RETURNS TABLE (
     id UUID,
@@ -91,6 +103,7 @@ RETURNS TABLE (
     agent_email TEXT,
     agent_phone TEXT,
     agent_avatar TEXT,
+    partner_id TEXT,
     created_at TIMESTAMPTZ
 )
 LANGUAGE plpgsql
@@ -131,6 +144,7 @@ BEGIN
         p.agent_email,
         p.agent_phone,
         p.agent_avatar,
+        p.partner_id,
         p.created_at
     FROM public.properties p
     WHERE 
@@ -147,6 +161,14 @@ BEGIN
             OR p.title ILIKE '%' || search_query || '%' 
             OR p.city ILIKE '%' || search_query || '%' 
             OR p.address ILIKE '%' || search_query || '%'
+        )
+        -- Corredora: NULL/'' = todas (compatibilidad con callers que no envían
+        -- el parámetro; la convención p_* evita chocar con la columna de la
+        -- tabla, igual que en record_share_view).
+        AND (
+            p_partner_id IS NULL
+            OR p_partner_id = ''
+            OR p.partner_id = p_partner_id
         )
     ORDER BY p.created_at DESC;
 END;
@@ -183,6 +205,7 @@ RETURNS TABLE (
     agent_email TEXT,
     agent_phone TEXT,
     agent_avatar TEXT,
+    partner_id TEXT,
     created_at TIMESTAMPTZ
 )
 LANGUAGE plpgsql
@@ -215,6 +238,7 @@ BEGIN
         p.agent_email,
         p.agent_phone,
         p.agent_avatar,
+        p.partner_id,
         p.created_at
     FROM public.properties p
     WHERE p.id::TEXT = property_id
@@ -591,3 +615,20 @@ AS $$
 $$;
 
 GRANT EXECUTE ON FUNCTION public.increment_share_view(TEXT, TEXT) TO anon, authenticated;
+
+-- ==============================================================================
+-- 9. MIGRACIONES PARA BASES CREADAS CON EL ESQUEMA ANTERIOR
+-- ==============================================================================
+-- `CREATE TABLE IF NOT EXISTS` no toca la tabla si ya existe: una base creada
+-- con una versión vieja de este archivo queda sin las columnas nuevas aunque se
+-- re-ejecute entero (fue exactamente lo que pasó con `partners` en la Tanda 0
+-- del plan de fase 3). Cada ampliación de esquema se repite acá con ALTER, de
+-- forma idempotente, para que re-ejecutar este archivo siempre deje la base
+-- al día.
+
+-- Fase 3, 2.1 — atribución de propiedades a corredoras (feed XML, /empresas).
+ALTER TABLE public.properties
+  ADD COLUMN IF NOT EXISTS partner_id TEXT REFERENCES public.partners(id);
+
+CREATE INDEX IF NOT EXISTS idx_properties_partner
+  ON public.properties (partner_id);

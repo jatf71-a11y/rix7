@@ -84,6 +84,11 @@ export async function GET(request: NextRequest) {
         min_price: minPrice, max_price: maxPrice, min_bedrooms: minBedrooms,
         prop_type: propertyType === 'all' ? null : propertyType,
         search_query: searchQuery || null,
+        // Filtra en la base (fase 3, 2.1): antes se ignoraba en esta rama y
+        // ?partnerId= devolvía el portal completo cuando respondía Supabase.
+        // En SQL el parámetro es p_partner_id para no chocar con la columna
+        // que el RPC devuelve.
+        p_partner_id: partnerId ?? null,
       });
 
       if (!error && data && data.length > 0) {

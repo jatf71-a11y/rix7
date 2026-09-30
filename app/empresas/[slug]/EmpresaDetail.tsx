@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Partner } from '@/lib/data/partners';
 import { PartnerLogo } from '@/components/properties/PartnerLogo';
@@ -16,22 +15,16 @@ interface EmpresaDetailProps {
    * logo y descripción.
    */
   partner: Partner;
+  /**
+   * Propiedades de la corredora, resueltas en el servidor (fase 3, 2.1): el
+   * listado va dentro del HTML inicial — lo que ve un crawler sin esperar
+   * JS, y sin el viaje de red que antes hacía este componente.
+   */
+  properties: Property[];
 }
 
-export default function EmpresaDetail({ partner }: EmpresaDetailProps) {
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function EmpresaDetail({ partner, properties }: EmpresaDetailProps) {
   const { format } = useCurrency();
-
-  useEffect(() => {
-    fetch(`/api/properties?partnerId=${partner.id}&limit=500`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success) setProperties(data.data);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [partner.id]);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -79,7 +72,7 @@ export default function EmpresaDetail({ partner }: EmpresaDetailProps) {
           </div>
           <div className="mt-4 pt-4 border-t border-slate-100">
             <span className="text-sm font-semibold text-slate-500">
-              {loading ? 'Cargando...' : `${properties.length} ${properties.length === 1 ? 'propiedad' : 'propiedades'} disponibles`}
+              {`${properties.length} ${properties.length === 1 ? 'propiedad' : 'propiedades'} disponibles`}
             </span>
           </div>
         </div>
@@ -87,20 +80,7 @@ export default function EmpresaDetail({ partner }: EmpresaDetailProps) {
 
       {/* Properties grid */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-200 overflow-hidden animate-pulse">
-                <div className="aspect-[16/10] bg-slate-200" />
-                <div className="p-4 space-y-3">
-                  <div className="h-4 bg-slate-200 rounded w-3/4" />
-                  <div className="h-3 bg-slate-100 rounded w-1/2" />
-                  <div className="h-6 bg-slate-200 rounded w-1/3 mt-2" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : properties.length === 0 ? (
+        {properties.length === 0 ? (
           <div className="text-center py-20">
             <Building2 className="w-16 h-16 text-slate-200 mx-auto mb-4" />
             <p className="text-slate-400 text-lg font-semibold">No hay propiedades disponibles de esta empresa</p>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findPartnerByFeedToken, listPartnerFeedProperties } from '@/lib/feeds/feedStore';
+import { findPartnerByFeedToken } from '@/lib/feeds/feedStore';
+import { listPartnerProperties } from '@/lib/data/partnerProperties';
 import { buildTrovitFeed } from '@/lib/feeds/trovit';
 import { feedFileSchema, feedTokenSchema } from '@/lib/api/schemas';
 import { searchParamsToObject, validateInput } from '@/lib/api/validate';
@@ -55,7 +56,9 @@ export async function GET(
     );
   }
 
-  const { properties, source } = await listPartnerFeedProperties(match.partner.id);
+  // Con `properties.partner_id` (fase 3, 2.1) la atribución sale de la base:
+  // datos en caliente de la corredora + su catálogo, deduplicados.
+  const { properties, source } = await listPartnerProperties(match.partner.id);
 
   const xml = buildTrovitFeed({
     properties,

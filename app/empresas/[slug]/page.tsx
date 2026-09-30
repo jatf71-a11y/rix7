@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPartnerBySlug } from '@/lib/data/partners-store';
+import { listPartnerProperties } from '@/lib/data/partnerProperties';
 import { realEstateAgentJsonLd } from '@/lib/seo/jsonld';
 import { JsonLd } from '@/components/seo/JsonLd';
 import EmpresaDetail from './EmpresaDetail';
@@ -51,12 +52,18 @@ export default async function EmpresaPage({ params }: PageProps) {
     notFound();
   }
 
+  // Propiedades de la corredora resueltas en el servidor (fase 3, 2.1): el
+  // HTML inicial ya trae el listado — lo veía el crawler de un agregador o el
+  // primer render, que antes esperaban un fetch de cliente. Con `revalidate`
+  // de arriba, el listado caliente se refleja cada 5 minutos sin redeploy.
+  const { properties } = await listPartnerProperties(partner.id);
+
   return (
     <>
       {/* Datos estructurados de la corredora: nombre, logo y contacto público
           (el mismo de los botones de la ficha, no el del agente individual). */}
       <JsonLd data={realEstateAgentJsonLd(partner)} />
-      <EmpresaDetail partner={partner} />
+      <EmpresaDetail partner={partner} properties={properties} />
     </>
   );
 }

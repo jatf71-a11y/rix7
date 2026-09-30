@@ -141,44 +141,6 @@ export async function setPartnerFeedEnabled(
 }
 
 /**
- * Propiedades de una corredora para su feed.
- *
- * La tabla `properties` de Supabase no tiene `partner_id` (el vínculo vive en
- * el catálogo del código), así que la fuente real es: catálogo filtrado por
- * `partner_id`, **más** las propiedades de Supabase cuando la corredora las
- * publicó ahí (de momento sin marca de corredora — se documentó en la
- * evaluación #14 como ampliación futura de esquema).
- */
-export async function listPartnerFeedProperties(partnerId: string): Promise<
-  { properties: Property[]; source: 'catalog' | 'supabase' }
-> {
-  const { ALL_PROPERTIES } = await import('@/lib/data/propertyCatalog');
-  const properties = ALL_PROPERTIES.filter((property) => property.partner_id === partnerId);
-
-  // Con Supabase configurado y catálogo vacío para esta corredora, se intenta
-  // la tabla: si algún día `properties` gana `partner_id`, este feed la toma
-  // sin cambiar la ruta.
-  if (properties.length === 0 && isSupabaseConfigured()) {
-    try {
-      const { createPublicClient } = await import('@/lib/supabase/server');
-      const supabase = createPublicClient();
-      const { data, error } = await supabase
-        .from('properties')
-        .select('*')
-        .limit(1000);
-
-      if (!error && data) {
-        return { properties: data as Property[], source: 'supabase' }; // sin partner_id todavía: todas
-      }
-    } catch {
-      // cae al catálogo (posiblemente vacío)
-    }
-  }
-
-  return { properties, source: 'catalog' };
-}
-
-/**
  * Corredora dueña de un token del feed, para la ruta pública.
  *
  * Compara **hashes**: el hash del token presentado contra `feed_token_hash`.
