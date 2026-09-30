@@ -66,7 +66,55 @@ Verificar: tras ~10 min, la pestaña Analytics muestra tráfico.
 
 ---
 
-## Parte 3 — Rollback
+## Parte 3 — Alertas Sentry → correo (ítem 1.4) · tras crear la cuenta
+
+La mitad de código ya está desplegada: el receptor `POST /api/webhooks/sentry`
+(firma HMAC + ventana anti-replay + re-chequeo de severidad) arma y envía el
+correo con Resend. Lo que falta es del dashboard, y son ~5 minutos:
+
+### Paso 1. Crear el webhook interno
+
+**Settings → Integrations → Create Integration** (o Developer Settings → Custom
+Webhook, según el plan): plataforma **Webhook**, nombre `rix7-avisos`, URL
+`https://rix7.vercel.app/api/webhooks/sentry`, eventos **issue** y **error**.
+Copia el **Client Secret** que genera.
+
+### Paso 2. Variables en Vercel
+
+| Variable | Valor | Entornos |
+|---|---|---|
+| `SENTRY_WEBHOOK_SECRET` | el Client Secret del paso 1 | Production |
+| `SENTRY_ALERT_EMAIL` | tu correo de guardia (uno por ahora) | Production |
+
+(`RESEND_API_KEY` ya llega con la Tanda 0. Nota: Resend exige remitente de
+ dominio verificado para mandar fuera de tu propia cuenta — con
+ `onboarding@resend.dev` solo llega a ti; para el equipo, `avisos@rix7.cl`.)
+
+### Paso 3. Regla de alerta en Sentry
+
+**Project → Alerts → Create Alert → Issue**:
+- "An issue is **new**" **o** "The issue is **seen more than N times** in **1h**"
+  (sugerido: nuevo evento con `level:error` o superior).
+- Destino: **Integration → rix7-avisos** (el webhook del paso 1).
+
+### Paso 4. Verificar
+
+1. `GET https://rix7.vercel.app/api/webhooks/sentry` → los tres `true`.
+2. Provoca un error real en producción (o el botón **Send Test** del webhook):
+   debe llegar el correo con asunto `[Sentry:ERROR] production · …`.
+3. Correos de prueba `warning/info`: **no** deben llegar (el receptor
+   re-chequea severidad).
+
+### Rollback de alertas
+
+| Objetivo | Cómo |
+|---|---|
+| Apagar avisos | Desactiva la regla en Sentry (o borra `SENTRY_ALERT_EMAIL` → el receptor queda en `skipped` honesto) |
+| Apagar el endpoint | Borra `SENTRY_WEBHOOK_SECRET` → responde 503 sin procesar nada |
+
+---
+
+## Parte 4 — Rollback
 
 | Objetivo | Cómo |
 |---|---|

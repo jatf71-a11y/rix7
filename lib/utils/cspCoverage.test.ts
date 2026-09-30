@@ -62,6 +62,7 @@ const SCAN_EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs', '.css', '.json', '.svg', 
  */
 const SERVER_ONLY = [
   'lib/email/sendEmail.ts', // API HTTP de Resend, con la clave secreta
+  'lib/email/sentryAlertEmail.ts', // arma el HTML del correo que envía el servidor: el enlace a sentry.io lo abre el cliente de correo del destinatario, no el navegador de la app
   'lib/supabase/server.ts', // cliente de servidor
   'lib/supabase/config.ts', // configuración de servidor
 ];
