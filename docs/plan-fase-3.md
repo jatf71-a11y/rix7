@@ -19,9 +19,9 @@ Lo más barato y de mayor impacto: todo el código ya está en producción esper
 
 | # | Tarea | Motivo | Esfuerzo |
 |---|---|---|---|
-| 1.1 | **Service Worker resistente a deploys**: bump de versión de caché por deploy (o `skipWaiting` + `clients.claim` con aviso de "nueva versión disponible") | El QA de producción lo evidenció: un navegador con la caché `rix7-v2` vieja sirvió recursos muertos (imágenes y tiles fallando) hasta desregistrarlo a mano. Cada deploy vuelve a exponerlo para todos los visitantes recurrentes | ~3 h |
-| 1.2 | **knip + guard CSP como gating del CI** | Ya existen como tests; hacerlos bloqueantes evita regresiones de dependencias muertas y de hosts sin permiso (la CSP ya costó dos sustos: tiles y Sentry) | ~1 h |
-| 1.3 | **Performance budget en el CI**: techo de First Load JS (89,6 kB ±tolerancia) que falle el build si se supera | Proteger las ganancias de fase 1: hoy cualquier dependencia puede inflar el bundle sin que nadie lo note | ~3 h |
+| 1.1 | ✅ **Hecha** — **Service Worker resistente a deploys**: bump de versión de caché por deploy (`?v=<SHA>` → `rix7-runtime-<SHA>`) + `skipWaiting` solo bajo aviso de "nueva versión disponible" | El QA de producción lo evidenció: un navegador con la caché `rix7-v2` vieja sirvió recursos muertos (imágenes y tiles fallando) hasta desregistrarlo a mano. Cada deploy vuelve a exponerlo para todos los visitantes recurrentes | ~3 h |
+| 1.2 | ✅ **Hecha** — **knip + guard CSP como gating del CI** | Ya existen como tests; hacerlos bloqueantes evita regresiones de dependencias muertas y de hosts sin permiso (la CSP ya costó dos sustos: tiles y Sentry) | ~1 h |
+| 1.3 | ✅ **Hecha** — **Performance budget en el CI**: techo de First Load JS (línea base gzip auto-generada + tolerancia 5 kB, fail-closed) que falla el build si se supera | Proteger las ganancias de fase 1: hoy cualquier dependencia puede inflar el bundle sin que nadie lo note | ~3 h |
 | 1.4 | **Alertas de Sentry → correo/Slack** con umbral (p. ej. >10 errores/hora o error nuevo en producción) | Depende de 0.1: que un error avise solo, no que haya que mirar el dashboard | ~2 h |
 
 **Criterio de éxito**: un visitante recurrente no nota jamás un deploy (1.1); el CI bloquea un PR que infle el bundle o introduzca un host sin CSP (1.2–1.3); un error pico despierta a alguien (1.4).
@@ -30,7 +30,7 @@ Lo más barato y de mayor impacto: todo el código ya está en producción esper
 
 | # | Tarea | Motivo | Esfuerzo |
 |---|---|---|---|
-| 2.1 | **`partner_id` en la tabla `properties`** de Supabase (columna + política del RPC `get_properties_filtered`) | La tabla no puede atribuir propiedades a corredoras: el feed solo exporta catálogo, y `/empresas/[slug]` filtra en cliente. Es la ampliación de esquema que la evaluación #14 dejó documentada | ~3 h |
+| 2.1 | ✅ **Hecha** (falta ejecutar `supabase/migracion-partner-id.sql` en el SQL Editor) — **`partner_id` en la tabla `properties`** de Supabase (columna + política del RPC `get_properties_filtered`) | La tabla no puede atribuir propiedades a corredoras: el feed solo exporta catálogo, y `/empresas/[slug]` filtra en cliente. Es la ampliación de esquema que la evaluación #14 dejó documentada | ~3 h |
 | 2.2 | **Sitemap dinámico completo**: propiedades publicadas en caliente dentro del `sitemap.xml` | Lo publicado hoy no se indexa hasta el próximo deploy | ~2 h (el sitemap ya consulta Supabase; falta revisar que el RPC incluya todo) |
 | 2.3 | **`opengraph-image` dinámico por ficha** (reutilizar el share-card de `/compartir`) | CTR en redes para URLs de `/properties/[id]`: hoy comparten tarjeta genérica | ~4 h |
 | 2.4 | **Piloto del feed**: registrar la URL de la corredora piloto en un agregador y confirmar el rastreo | Criterio de negocio del #14: que los avisos aparezcan fuera | ~1 h + espera del rastreo |
