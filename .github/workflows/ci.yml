@@ -101,14 +101,16 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Instalar dependencias
-        run: npm ci
+      # El script solo usa node:fs/zlib: no necesita instalar dependencias.
 
       - name: Bajar la build del job verify
         uses: actions/download-artifact@v4
         with:
           name: next-build
-          path: .
+          # upload-artifact v4 elimina el ancestro común de los paths subidos
+          # (`.next/`): el artifact trae `app-build-manifest.json` y
+          # `static/**` en la raíz. Descargando acá se reconstruye `.next/`.
+          path: .next
 
       - name: Comparar contra scripts/bundle-baseline.json
         run: npm run check:bundle
