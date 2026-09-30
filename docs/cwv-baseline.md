@@ -21,20 +21,45 @@ La ficha y la página de corredora (ambas con datos en el servidor) están en ve
 casi perfecto. Todo el problema concentra en la **home**, que es cliente: `page.tsx`
 solo mete metadata y `HomeClient` renderiza todo tras cargar JS + llamar a la API.
 
+> **Actualización 2026-09-30 — problema 1 resuelto.** Con la instrumentación nueva
+> de `scripts/measure-vitals.mjs` (reporta el elemento, `dy`, `dh` y los rectángulos
+> antes/después de cada `layout-shift`) el CLS de la home bajó de **0,458 a 0,0055**
+> en las tres corridas. El diagnóstico original de este documento era
+> **parcialmente incorrecto**: la corrección está en el problema 1.
+
 ## Los 5 problemas reales más caros
 
-### 1. CLS de la home: 0,46–0,49 — el doble del umbral "pobre" 🔴
+### 1. CLS de la home: 0,46–0,49 — el doble del umbral "pobre" 🟢 **resuelto**
 
-Casi todo el desplazamiento ocurre al pasar del esqueleto (grid de 6 tarjetas
-`animate-pulse` de `PropertyGrid`) al listado real, y con la detección de ciudad
-(`/api/geo` + GPS) que cambia "TU CIUDAD GIS: Santiago" por otra comuna después
-del primer render. Es el salto de contenido más grande que un visitante ve en
-todo el portal — y es medible en cada corrida.
+**Corrección del diagnóstico.** Se instrumentó `scripts/measure-vitals.mjs` para
+que capture el `e.sources` de cada `layout-shift` —elemento (tag + clases), `dy`,
+`dh` y los rectángulos antes/después— y el detalle real no coincidía con la
+primera lectura. Ni el esqueleto→listado ni la detección de ciudad eran el
+problema: los dos grandes eran el **fallback de `Suspense`** y la **fila de chips
+de tipo de propiedad**. Los cuatro desplazamientos medidos, en orden:
 
-**Arreglo (1.1 del informe, ~4 h):** reservar el alto del listado (los skeletons ya
-tienen `aspect-[16/10]`: mantenerlos hasta tener los datos y animar la transición),
-y fijar el alto/etiqueta del chip de ciudad con un placeholder estable. Objetivo:
-**CLS < 0,1**.
+| # | Shift | Elemento | Causa real |
+|---|---|---|---|
+| 1 | `+0,1119` @~550 ms | `footer` | El fallback de `Suspense` (`flex-1` con un texto) medía solo el espacio libre, así que al hidratar el `main` crecía a `100vh-64px` y **el pie de página subía 462 px** |
+| 2 | `+0,0019` @~1.247 ms | `div.hidden.md:flex` (Navbar) | El placeholder `animate-pulse` de `isChecking` resuelve a otra altura |
+| 3 | `+0,3113` @~1.585 ms | `div.flex-1.grid` | `PropertyFilters` filtraba los chips por stock (`count > 0`): con los contadores en 0 la fila tenía **un** chip (98 px) y al llegar `/api/properties` pasaba a **dos líneas** (+74 px), arrastrando todo el layout |
+| 4 | `+0,0329` @~1.636 ms | `div.mb-4` (socios) | El `FeaturedCarousel` devolvía `null` en su primer render por el gate `mounted`: el bloque se colapsaba y al pintar la tarjeta empujaba el carrusel de socios 357 px |
+
+**Arreglo aplicado (3 commits de la tanda, ~2 h):**
+
+1. `HomeClient` — el fallback de `Suspense` reserva `h-[calc(100vh-64px)]`, la misma
+altura que el contenido real: el documento mide lo mismo antes y después de hidratar.
+2. `PropertyFilters` — se pintan **siempre** las 10 categorías, incluso con `count`
+en 0: la fila ya no cambia de una a dos líneas.
+3. `FeaturedCarousel` — se quitó el gate `mounted` (el componente solo se monta en el
+cliente después de tener datos, así que no había riesgo de hidratación) y
+`HomeClient` reserva el hueco del carrusel con un `FeaturedSkeleton` del mismo alto,
+que se muestra mientras carga el catálogo.
+
+**Resultado:** CLS **0,458 → 0,0055** (BUENO) en las tres corridas, con los dos
+shifts que quedan por debajo de 0,006 (placeholder de la Navbar y el ancho del
+botón «Mi Ubicación»). Medido con `npm run build && npm run start` + 3 corridas de
+`npm run vitals`. Objetivo **CLS < 0,1**: cumplido.
 
 ### 2. LCP de la home en desktop: 2,0–2,7 s y con inicio de descarga a 1.706 ms 🔴
 

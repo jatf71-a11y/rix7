@@ -197,6 +197,29 @@ export const leadsPostSchema = z
   })
   .passthrough();
 
+// ═══ /api/registro ═══
+
+/**
+ * Registro de una visita (nombre, correo, teléfono) con sus autorizaciones.
+ *
+ * Igual que en los contactos, acá se valida la **forma** —objeto con los campos
+ * esperados— y `normalizeSignup` aplica la semántica: largos, formato de correo
+ * y las autorizaciones obligatorias. Las casillas viajan anidadas en `consents`,
+ * pero se aceptan también en la raíz para no romper un cliente antiguo.
+ */
+export const signupPostSchema = z
+  .object({
+    name: z.unknown().optional(),
+    email: z.unknown().optional(),
+    phone: z.unknown().optional(),
+    consents: z.unknown().optional(),
+    personal_data: z.unknown().optional(),
+    terms: z.unknown().optional(),
+    marketing: z.unknown().optional(),
+    third_party: z.unknown().optional(),
+  })
+  .passthrough();
+
 // ═══ /api/admin/partners ═══
 
 /**

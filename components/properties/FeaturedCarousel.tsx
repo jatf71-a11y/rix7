@@ -25,21 +25,22 @@ function shuffleArray<T>(arr: T[]): T[] {
 export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [mounted, setMounted] = useState(false);
   const { format } = useCurrency();
 
-  useEffect(() => { setMounted(true); }, []);
-
-  // Nuevas (created_at dentro de 7 días) primero, luego las demás
+  // Sin gate de "mounted": este carrusel solo se monta en el cliente y después
+  // de que llegan las propiedades (nunca se renderiza en el servidor), así que
+  // no hay riesgo de desajuste de hidratación. El gate hacía que el primer
+  // render devolviera null, el bloque se colapsaba y al pintarse la tarjeta
+  // empujaba hacia abajo el carrusel de socios (CLS +0,03).
   const featured = useMemo(() => {
-    if (!mounted || properties.length === 0) return [];
+    if (properties.length === 0) return [];
     const now = Date.now();
     const weekMs = 7 * 24 * 60 * 60 * 1000;
     const newProps = properties.filter((p) => p.created_at && (now - new Date(p.created_at).getTime()) < weekMs);
     const others = properties.filter((p) => !p.created_at || (now - new Date(p.created_at).getTime()) >= weekMs);
     const pool = [...shuffleArray(newProps), ...shuffleArray(others)];
     return pool.slice(0, 6);
-  }, [properties, mounted]);
+  }, [properties]);
 
   // Auto-advance con progreso
   useEffect(() => {
@@ -66,7 +67,7 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
     setProgress(0);
   }, []);
 
-  if (!mounted || featured.length === 0) return null;
+  if (featured.length === 0) return null;
 
   const current = featured[currentIndex];
   const isRent = current.status === 'for_rent';
@@ -177,7 +178,10 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
         {featured.map((_, idx) => (
           <button
             key={idx}
+            type="button"
             onClick={() => goTo(idx)}
+            aria-label={`Ir al destacado ${idx + 1} de ${featured.length}`}
+            aria-current={idx === currentIndex ? 'true' : undefined}
             className="relative flex-1 h-1 rounded-full bg-slate-200 overflow-hidden group"
           >
             <div

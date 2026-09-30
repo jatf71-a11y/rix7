@@ -305,10 +305,12 @@ export function PropertyFilters({
     { id: 'warehouse', label: 'Bodegas', icon: <Warehouse className="w-3.5 h-3.5" /> },
   ];
 
-  // Solo mostrar categorías con stock (count > 0), siempre mostrar "Todos"
-  const propertyTypes = allPropertyTypes.filter(
-    (t) => t.id === 'all' || (categoryCounts[t.id] ?? 0) > 0
-  );
+  // Se pintan SIEMPRE las 10 categorías, incluso las que hoy están en 0.
+  // Filtrarlas por stock hacía que la fila arrancara con un solo chip ("Todos")
+  // y creciera a dos líneas cuando llegaban los contadores de /api/properties:
+  // ese salto de 74 px arrastraba todo el layout del home (CLS +0,31). El
+  // contador 0 es honesto mientras el catálogo carga.
+  const propertyTypes = allPropertyTypes;
 
   const bedroomOptionsDepartamento = [
     { label: 'Any', value: '' },
@@ -566,6 +568,7 @@ export function PropertyFilters({
               <select
                 value={filters.minPrice ?? ''}
                 onChange={(e) => onFilterChange({ ...filters, minPrice: e.target.value ? Number(e.target.value) : null })}
+                aria-label="Precio mínimo"
                 className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-sm"
               >
                 {priceMinOptions.map((opt, i) => (
@@ -576,6 +579,7 @@ export function PropertyFilters({
               <select
                 value={filters.maxPrice ?? ''}
                 onChange={(e) => onFilterChange({ ...filters, maxPrice: e.target.value ? Number(e.target.value) : null })}
+                aria-label="Precio máximo"
                 className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-sm"
               >
                 {priceMaxOptions.map((opt, i) => (

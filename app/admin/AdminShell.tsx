@@ -8,6 +8,7 @@ import {
   Users,
   Inbox,
   Link2,
+  UserPlus,
   ArrowLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -27,6 +28,11 @@ const sidebarItems = [
     label: 'Contactos',
     href: '/admin/leads',
     icon: Inbox,
+  },
+  {
+    label: 'Registros',
+    href: '/admin/registros',
+    icon: UserPlus,
   },
   {
     label: 'Enlaces compartidos',

@@ -11,6 +11,7 @@ import { AuthProvider } from '@/components/auth/AuthProvider';
 import { RegistrationProvider } from '@/components/auth/RegistrationProvider';
 import { FavoritesProvider } from '@/components/auth/FavoritesProvider';
 import { AuthModal } from '@/components/auth/AuthModal';
+import { RegistrationModal } from '@/components/auth/RegistrationModal';
 import { CurrencyProvider } from '@/components/currency/CurrencyProvider';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
@@ -84,6 +85,9 @@ export default function RootLayout({
                     textos legales desde cualquier página del portal. */}
                 <Footer />
                 <AuthModal />
+                {/* El registro vive en el layout por el mismo motivo que el
+                    acceso: es una sola pantalla para todo el portal. */}
+                <RegistrationModal />
               </CurrencyProvider>
             </FavoritesProvider>
           </RegistrationProvider>

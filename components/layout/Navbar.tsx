@@ -16,7 +16,7 @@ const STANDALONE_PATHS = ['/compartir'];
 function NavbarContent() {
   const { user, openAuthModal, signOut, isAdmin, isAdminDevBypass } = useAuth();
   // Identidad reconocida: sesión del portal o registro de este dispositivo.
-  const { registration, isChecking, forget } = useRegistration();
+  const { registration, isChecking, forget, openSignup } = useRegistration();
   // Cuántos favoritos tiene: el contador del corazón se lee del mismo estado que
   // la ficha, así que no puede quedar desfasado.
   const { ids: favoriteIds } = useFavorites();
@@ -181,13 +181,16 @@ function NavbarContent() {
             <div className="h-9 w-44 rounded-lg bg-slate-100 animate-pulse" aria-hidden="true" />
           ) : (
             <div className="pl-2 border-l border-slate-200">
-              {/* Una sola puerta de entrada: el enlace mágico registra y entra
-                  en la misma acción, así que no hay dos botones que explicar. */}
+              {/* La puerta principal es el **registro**: el portal reconoce a
+                  quien deja sus datos, y eso además le ahorra volver a
+                  escribirlos en cada ficha. La cuenta del portal (Google o
+                  enlace mágico) sigue disponible dentro del formulario de
+                  contacto, para quien ya la tenga. */}
               <button
-                onClick={() => openAuthModal()}
+                onClick={() => openSignup()}
                 className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm shadow-blue-500/20 transition-all"
               >
-                Entrar
+                Regístrate
               </button>
             </div>
           )}
@@ -315,11 +318,11 @@ function NavbarContent() {
               <button
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  openAuthModal();
+                  openSignup();
                 }}
                 className="w-full py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg"
               >
-                Entrar
+                Regístrate
               </button>
             )}
 

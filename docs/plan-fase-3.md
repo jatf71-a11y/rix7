@@ -42,8 +42,11 @@ Lo más barato y de mayor impacto: todo el código ya está en producción esper
 | # | Tarea | Motivo | Esfuerzo |
 |---|---|---|---|
 | 3.1 | ✅ **Hecha** — **Línea base de CWV** medida contra producción (`docs/cwv-baseline.md`): los 5 problemas reales ordenados por impacto — el mayor: CLS de la home 0,46–0,49 (POBRE) y LCP 2–2,7 s por render 100% cliente; fichas y /empresas en verde | Sin números no hay prioridades: LCP de fichas con imágenes remotas era el candidato y resultó sano; el problema real está en la home | ~2 h |
+| 3.5 | **Arreglo del CLS de la home** (0,458 → 0,0055, ver `docs/cwv-baseline.md`) | Era el mayor problema medido del portal y el más barato de arreglar: dos de los cuatro desplazamientos aportaban 0,42 del total | ~2 h |
 | 3.2 | **Revisión de Sentry a 2 semanas**: top errores, rutas más lentas (traces al 10%) | Priorizar la fase siguiente con evidencia, no con intuición | ~2 h |
-| 3.3 | **Auditoría de accesibilidad con axe-core** (en CI o al menos barrido manual) | La fase 1 no la cubrió; el portal tiene divs con roles complejos (mapas, carruseles) | ~1 día |
+| 3.4 | ✅ **Hecha** — **Registro de la visita desde el Navbar** (`RegistrationModal`): botón «Regístrate» en lugar de «Entrar», datos de contacto + los cuatro bloques de autorización (dos obligatorios, dos opcionales sin premarcar) y permisos del navegador, con correo de bienvenida vía Resend | El formulario de contacto volvía a pedir nombre, correo y teléfono en cada ficha; registrarse una vez elimina esa fricción y deja rastro de las autorizaciones | ~1 día |
+| 3.3 | ✅ **Hecha** — **Auditoría de accesibilidad con axe-core** (`docs/auditoria-accesibilidad.md`, script `npm run check:a11y`): 5 problemas reales — el mayor crítico: botones del carrusel y selects de precio sin nombre accesible; color-contrast concentra 50 nodos; además destapó que las clases de `lib/legal/content.tsx` no entran al content-scan de Tailwind (enlaces sin subrayado en producción) | La fase 1 no la cubrió; el portal tiene divs con roles complejos (mapas, carruseles). El gating en CI queda para después de los arreglos (mismo patrón que knip/budget) | ~1 día |
+| 3.6 | ✅ **Hecha** (falta ejecutar el bloque de `public.signups` en el SQL Editor) — **Persistencia de los registros y sus autorizaciones**: tabla `public.signups` solo-anexa (INSERT público con el mínimo legal exigido por la propia política, SELECT y DELETE de admin, **sin UPDATE**), alta conectada en `/api/registro` y pantalla `/admin/registros` con las cuatro autorizaciones de cada persona y el resumen de las opcionales | La constancia de consentimiento vivía solo en una línea de log que se pierde en cada deploy: no había forma de responder quién autorizó publicidad o cesión a socios, ni desde cuándo | ~4 h |
 
 **Criterio de éxito**: documento de una página con los 5 problemas reales más caros ordenados por impacto medido — esa lista es el input de la fase 4.
 
@@ -57,7 +60,7 @@ Lo más barato y de mayor impacto: todo el código ya está en producción esper
 
 ## Fuera de alcance de la fase 3 (recordatorios de negocio)
 
-- **Revisión profesional de los textos legales** (DMA / Ley 19.628) antes de operar con datos personales reales — bloqueante comercial, no técnico.
+- **Revisión profesional de los textos legales** (DMA / Ley 19.628) antes de operar con datos personales reales — bloqueante comercial, no técnico. El registro de autorizaciones ya queda en `public.signups` con la versión de los textos aceptados (`CONSENT_VERSION`): lo que falta revisar son los textos, no el mecanismo.
 - **Dominio rix7.cl**: conectarlo cuando esté disponible y actualizar `SITE_URL` (GitHub variable + Vercel) y los redirect URLs de Supabase.
 - Corredoras reales: contactos placeholder del catálogo (`+56 2 2000 00XX`) deben reemplazarse antes de cualquier campaña.
 

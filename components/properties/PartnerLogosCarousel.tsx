@@ -94,13 +94,17 @@ export function PartnerLogosCarousel({ partnerCounts = {} }: PartnerLogosCarouse
       >
         {/* Flechas de navegación */}
         <button
+          type="button"
           onClick={() => scroll('left')}
+          aria-label="Desplazar socios hacia la izquierda"
           className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white/90 border border-slate-200 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-50 hover:border-blue-300"
         >
           <ChevronLeft className="w-3.5 h-3.5 text-slate-600" />
         </button>
         <button
+          type="button"
           onClick={() => scroll('right')}
+          aria-label="Desplazar socios hacia la derecha"
           className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white/90 border border-slate-200 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-50 hover:border-blue-300"
         >
           <ChevronRight className="w-3.5 h-3.5 text-slate-600" />

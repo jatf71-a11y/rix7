@@ -91,6 +91,35 @@ window.__vitals = { lcp: null, cls: 0, fcp: null, ttfb: null, inp: null, interac
           sessionEntries = [e];
         }
         if (sessionValue > maxCls) maxCls = sessionValue;
+        // Detalle de cada shift (nodo + rectángulos): es lo que permite saber
+        // QUÉ se movió y cuánto, no solo el puntaje agregado.
+        try {
+          var srcs = e.sources || [];
+          for (var s = 0; s < srcs.length && s < 4; s++) {
+            var st = srcs[s].node;
+            var desc = st
+              ? (st.nodeType === 1
+                  ? st.tagName.toLowerCase() + (st.className && typeof st.className === 'string' ? '.' + st.className.trim().split(/\s+/).slice(0, 4).join('.') : '')
+                  : '#text')
+              : '?';
+            var pr = srcs[s].previousRect || {};
+            var cr = srcs[s].currentRect || {};
+            v.shifts.push({
+              t: Math.round(e.startTime),
+              v: Math.round(e.value * 10000) / 10000,
+              el: desc.slice(0, 90),
+              dy: Math.round((cr.y || 0) - (pr.y || 0)),
+              dh: Math.round((cr.height || 0) - (pr.height || 0)),
+              px: Math.round(pr.x || 0), py: Math.round(pr.y || 0),
+              pw: Math.round(pr.width || 0), ph: Math.round(pr.height || 0),
+              cw: Math.round(cr.width || 0), ch: Math.round(cr.height || 0),
+              docH: document.documentElement.scrollHeight,
+              scrollY: Math.round(window.scrollY),
+            });
+          }
+        } catch (err) {
+          /* sources no soportado */
+        }
       }
       v.cls = Math.round(maxCls * 10000) / 10000;
     }).observe({ type: 'layout-shift', buffered: true });
@@ -154,6 +183,7 @@ const READ_METRICS = String.raw`
   }
   return JSON.stringify({
     lcp: v.lcp, cls: v.cls, fcp: v.fcp, ttfb: v.ttfb, inp: v.inp, interactions: v.interactions,
+    shifts: (v.shifts || []).slice(0, 40),
     lcpResource: lcpRes,
     images: contentImages.length,
     mapTiles: images.length - contentImages.length,
@@ -482,6 +512,7 @@ async function main() {
         fcp: median(runs.map((r) => r.fcp)),
         ttfb: median(runs.map((r) => r.ttfb)),
         images: runs[runs.length - 1].images,
+        shifts: runs[runs.length - 1].shifts,
         imageBytesKb: runs[runs.length - 1].imageBytesKb,
         imageList: runs[runs.length - 1].imageList,
         mapTiles: runs[runs.length - 1].mapTiles,
@@ -526,6 +557,15 @@ async function main() {
         if (s.lcpResource) console.log(`        recurso: ${s.lcpResource.ms} ms · ${s.lcpResource.kb} KB (arrancó en ${s.lcpResource.startTime} ms)`);
       }
       console.log(`   Imágenes de contenido: ${s.images} · ${s.imageBytesKb} KB   (tiles del mapa aparte: ${s.mapTiles})`);
+      if (s.shifts?.length) {
+        console.log('   Layout-shifts (orden cronológico):');
+        for (const sh of s.shifts.slice(0, 16)) {
+          console.log(
+            `     +${sh.v.toFixed(4)} @${sh.t}ms · ${sh.el}\n` +
+              `        prev [${sh.px},${sh.py} ${sh.pw}x${sh.ph}] → curr [${sh.px},${sh.py + sh.dy} ${sh.cw}x${sh.ch}] dy=${sh.dy} dh=${sh.dh} · docH=${sh.docH} scrollY=${sh.scrollY}`,
+          );
+        }
+      }
       if (s.imageList?.length) console.log(`     ${s.imageList.join(' · ')}`);
       if (s.slowest?.length) {
         console.log('   Recursos más lentos:');

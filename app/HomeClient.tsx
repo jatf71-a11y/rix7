@@ -34,6 +34,31 @@ const DEFAULT_COUNTS: Record<PropertyType, number> = {
   office: 0, land: 0, parking: 0, local: 0, warehouse: 0,
 };
 
+// Esqueleto del bloque destacado: replica el alto exacto del carrusel
+// (título + tarjeta 21/9 + barra de progreso). Antes, mientras cargaba el
+// catálogo se pintaba el esqueleto de la grilla y al llegar los datos el
+// carrusel lo reemplazaba cambiando el alto del bloque: todo lo que venía
+// debajo (el carrusel de socios) saltaba ~357 px (CLS +0,03).
+function FeaturedSkeleton() {
+  return (
+    <div className="mb-5" aria-hidden="true">
+      <div className="flex items-center gap-2 mb-3 px-1">
+        <div className="h-px flex-1 bg-gradient-to-r from-blue-200 to-transparent" />
+        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+          Propiedades Nuevas y Destacadas
+        </span>
+        <div className="h-px flex-1 bg-gradient-to-l from-blue-200 to-transparent" />
+      </div>
+      <div className="relative aspect-[21/9] rounded-2xl border border-slate-200 bg-slate-100 animate-pulse" />
+      <div className="flex items-center gap-3 mt-3 px-1">
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="flex-1 h-1 rounded-full bg-slate-200" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function HomePageContent() {
   const searchParams = useSearchParams();
   // Reconocimiento del usuario que vuelve: el mismo que ve en el Navbar.
@@ -561,11 +586,18 @@ function HomePageContent() {
               </div>
             </div>
 
-            {/* Vista: Carrusel destacado (sin filtros) o Grid de propiedades (con filtros) */}
-            {isDefaultState && !isLoading && propertiesFiltered.length > 0 ? (
-              <FeaturedCarousel
-                properties={propertiesFiltered}
-              />
+            {/* Vista: Carrusel destacado (sin filtros) o Grid de propiedades (con filtros).
+                En estado por defecto el hueco del carrusel se reserva desde el
+                primer render (esqueleto con el mismo alto), también mientras el
+                catálogo carga: así el salto esqueleto→destacadas no empuja nada. */}
+            {isDefaultState && (isLoading || propertiesFiltered.length > 0) ? (
+              !isLoading && propertiesFiltered.length > 0 ? (
+                <FeaturedCarousel
+                  properties={propertiesFiltered}
+                />
+              ) : (
+                <FeaturedSkeleton />
+              )
             ) : (
               <PropertyGrid
                 properties={propertiesFiltered}
@@ -611,7 +643,25 @@ function HomePageContent() {
 
 export default function HomeClient() {
   return (
-    <Suspense fallback={<div className="flex-1 flex items-center justify-center bg-slate-50">Cargando Rix7...</div>}>
+    <Suspense
+      fallback={
+        // El fallback reserva exactamente la misma altura que el contenido real
+        // (100vh menos el navbar). Antes medía "lo que ocupara" su texto con
+        // `flex-1`, así que al hidratar el `main` crecía y empujaba el pie de
+        // página fuera de pantalla: era el mayor layout-shift del home
+        // (CLS +0,11). Con la altura fija el documento mide lo mismo antes y
+        // después de hidratar.
+        <div
+          className="flex flex-col h-[calc(100vh-64px)] overflow-hidden bg-slate-50"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex-1 flex items-center justify-center text-sm font-semibold text-slate-400">
+            Cargando Rix7...
+          </div>
+        </div>
+      }
+    >
       <HomePageContent />
     </Suspense>
   );

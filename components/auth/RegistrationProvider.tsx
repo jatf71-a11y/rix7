@@ -23,6 +23,16 @@ interface RegistrationContextType {
   updatePhone: (phone: string) => void;
   /** Olvida el registro de este dispositivo (no cierra sesión del portal). */
   forget: () => void;
+  /**
+   * Registro abierto como pantalla emergente.
+   *
+   * El estado del diálogo vive acá, junto a la identidad, y no en el Navbar:
+   * así cualquier parte del portal puede pedir el registro —el botón del menú,
+   * una ficha, una landing— y el modal es uno solo, montado en el layout.
+   */
+  isSignupOpen: boolean;
+  openSignup: () => void;
+  closeSignup: () => void;
 }
 
 const RegistrationContext = createContext<RegistrationContextType | undefined>(undefined);
@@ -43,6 +53,7 @@ export function RegistrationProvider({ children }: { children: React.ReactNode }
   /** Registro del dispositivo (independiente de la sesión del portal). */
   const [stored, setStored] = useState<Registration | null>(null);
   const [hasReadStorage, setHasReadStorage] = useState(false);
+  const [isSignupOpen, setIsSignupOpen] = useState(false);
 
   // Lectura inicial del dispositivo.
   useEffect(() => {
@@ -111,6 +122,9 @@ export function RegistrationProvider({ children }: { children: React.ReactNode }
 
   const forget = useCallback(() => write(null), [write]);
 
+  const openSignup = useCallback(() => setIsSignupOpen(true), []);
+  const closeSignup = useCallback(() => setIsSignupOpen(false), []);
+
   // La sesión del portal manda sobre el registro del dispositivo.
   const registration = useMemo(() => resolveRegistration(stored, user), [stored, user]);
 
@@ -121,8 +135,21 @@ export function RegistrationProvider({ children }: { children: React.ReactNode }
       save,
       updatePhone,
       forget,
+      isSignupOpen,
+      openSignup,
+      closeSignup,
     }),
-    [registration, authLoading, hasReadStorage, save, updatePhone, forget]
+    [
+      registration,
+      authLoading,
+      hasReadStorage,
+      save,
+      updatePhone,
+      forget,
+      isSignupOpen,
+      openSignup,
+      closeSignup,
+    ]
   );
 
   return <RegistrationContext.Provider value={value}>{children}</RegistrationContext.Provider>;

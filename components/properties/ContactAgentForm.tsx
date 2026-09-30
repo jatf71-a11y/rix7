@@ -61,7 +61,7 @@ export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
   const { openAuthModal } = useAuth();
   // La identidad vive en el layout: el mismo usuario que reconoce el Navbar es
   // el que habilita los canales de contacto de la ficha.
-  const { registration, isChecking, save, updatePhone } = useRegistration();
+  const { registration, isChecking, save, updatePhone, openSignup } = useRegistration();
 
   /** Borrador del formulario, solo para quien todavía no está identificado. */
   const [draftName, setDraftName] = useState('');
@@ -429,14 +429,24 @@ export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
         {!registration && !isChecking && (
           <p className="text-[10px] text-slate-400 text-center">
             Completa tus datos para poder contactar.{' '}
+            <button
+              type="button"
+              onClick={() => openSignup()}
+              className="font-semibold text-blue-600 hover:underline"
+            >
+              Regístrate una vez y no los vuelvas a escribir
+            </button>
             {hasPortal && (
-              <button
-                type="button"
-                onClick={() => openAuthModal()}
-                className="font-semibold text-blue-600 hover:underline"
-              >
-                ¿Ya tienes cuenta? Inicia sesión
-              </button>
+              <>
+                {' · '}
+                <button
+                  type="button"
+                  onClick={() => openAuthModal()}
+                  className="font-semibold text-blue-600 hover:underline"
+                >
+                  ¿Ya tienes cuenta? Inicia sesión
+                </button>
+              </>
             )}
           </p>
         )}
