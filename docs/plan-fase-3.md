@@ -22,7 +22,7 @@ Lo más barato y de mayor impacto: todo el código ya está en producción esper
 | 1.1 | ✅ **Hecha** — **Service Worker resistente a deploys**: bump de versión de caché por deploy (`?v=<SHA>` → `rix7-runtime-<SHA>`) + `skipWaiting` solo bajo aviso de "nueva versión disponible" | El QA de producción lo evidenció: un navegador con la caché `rix7-v2` vieja sirvió recursos muertos (imágenes y tiles fallando) hasta desregistrarlo a mano. Cada deploy vuelve a exponerlo para todos los visitantes recurrentes | ~3 h |
 | 1.2 | ✅ **Hecha** — **knip + guard CSP como gating del CI** | Ya existen como tests; hacerlos bloqueantes evita regresiones de dependencias muertas y de hosts sin permiso (la CSP ya costó dos sustos: tiles y Sentry) | ~1 h |
 | 1.3 | ✅ **Hecha** — **Performance budget en el CI**: techo de First Load JS (línea base gzip auto-generada + tolerancia 5 kB, fail-closed) que falla el build si se supera | Proteger las ganancias de fase 1: hoy cualquier dependencia puede inflar el bundle sin que nadie lo note | ~3 h |
-| 1.4 | **Alertas de Sentry → correo/Slack** con umbral (p. ej. >10 errores/hora o error nuevo en producción) | Depende de 0.1: que un error avise solo, no que haya que mirar el dashboard | ~2 h |
+| 1.4 | ✅ **Hecha** (receptor desplegado; falta conectar la regla en el dashboard de Sentry cuando exista la cuenta — pasos en `docs/activar-monitoreo-vercel.md`, Parte 3) — **Alertas de Sentry → correo** con umbral de severidad (`error`/`fatal`) | Depende de 0.1: que un error avise solo, no que haya que mirar el dashboard | ~2 h |
 
 **Criterio de éxito**: un visitante recurrente no nota jamás un deploy (1.1); el CI bloquea un PR que infle el bundle o introduzca un host sin CSP (1.2–1.3); un error pico despierta a alguien (1.4).
 
