@@ -158,6 +158,3 @@ export function buildTrovitFeed({ properties, siteUrl, agency }: TrovitFeedInput
   const footer = '</trovit>';
   return [header, ...ads, footer].join('\n');
 }
-
-/** Reexport para la ruta: mantiene un solo lugar que sabe partir CDATA. */
-export { CDATA_BREAK };

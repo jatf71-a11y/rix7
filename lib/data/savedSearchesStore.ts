@@ -132,10 +132,6 @@ export async function deleteSavedSearch(
 // Job de alertas (clave de servicio: lee y escribe por encima de RLS)
 // ═════════════════════════════════════════════════════════════════════════════
 
-export function canRunAlertsJob(): boolean {
-  return isServiceRoleConfigured();
-}
-
 /** Todas las búsquedas activas, de todas las personas. */
 export async function listSearchesToNotify(): Promise<SavedSearch[]> {
   if (!isServiceRoleConfigured()) return [];
@@ -176,13 +172,4 @@ export async function getUserEmail(userId: string): Promise<string | null> {
   } catch {
     return null;
   }
-}
-
-/** Borra los avisos de una búsqueda que quedó inutilizable. Solo para el job. */
-export async function disableSearch(id: string): Promise<boolean> {
-  if (!isServiceRoleConfigured()) return false;
-
-  const supabase = createServiceRoleClient();
-  const { error } = await supabase.from('saved_searches').update({ notify: false }).eq('id', id);
-  return !error;
 }

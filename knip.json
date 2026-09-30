@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "app/**/route.ts",
+    "app/**/page.tsx",
+    "app/**/layout.tsx",
+    "app/**/error.tsx",
+    "app/**/not-found.tsx",
+    "app/instrumentation.ts",
+    "public/sw.js"
+  ],
+  "ignore": [
+    "public/maplibre-gl-worker.mjs",
+    "public/maplibre-gl-shared.mjs"
+  ],
+  "ignoreExportsUsedInFile": true
+}

@@ -1,9 +1,22 @@
-# CI de Rix7 (hallazgo #7 de la fase 2).
+# CI de Rix7 (hallazgo #7 de la fase 2; endurecido en fase 3, ítems 1.2–1.3).
 #
 # Antes de este workflow no existía ninguna verificación automática al pushear:
 # un test rojo o un error de tipos llegaba a producción si nadie corría la
 # suite a mano. Acá se ejecuta la misma tríada que en local, de menor a mayor
-# costo: tipos → tests → build.
+# costo: tipos → tests → knip → build → budget.
+#
+# Ítem 1.2: knip se suma como paso bloqueante. El guard CSP ya corre dentro
+# de `vitest` (`lib/utils/cspCoverage.test.ts`), así que con el paso de tests
+# queda cubierto — si un host sin permiso entra al código, ese test rompe el
+# CI. Lo que este workflow añade es la detección de dependencias, archivos y
+# exports muertos (`npx knip`), que antes solo se corría a mano en auditorías.
+#
+# Ítem 1.3: performance budget. La build deja `.next/` en el workspace del job
+# `verify` y un job separado — `if: always()` — compara el First Load JS real
+# contra `scripts/bundle-baseline.json` (el manifest y los chunks viajan por
+# artifact, porque no comparten workspace). Separado a propósito: si el budget
+# falla, el log del build sigue visible, y un build roto también marca rojo
+# este paso en vez de esconderse.
 #
 # Sin secretos a propósito: el portal está diseñado para degradar a catálogo
 # local cuando Supabase no está configurado, así que el build no necesita
@@ -30,7 +43,7 @@ concurrency:
 
 jobs:
   verify:
-    name: Tipos, tests y build
+    name: Tipos, tests, knip y build
     runs-on: ubuntu-latest
 
     steps:
@@ -49,8 +62,53 @@ jobs:
       - name: Types (tsc --noEmit)
         run: npx tsc --noEmit
 
-      - name: Tests (vitest)
+      - name: Tests (vitest, incluye el guard de CSP)
         run: npx vitest run
+
+      # Ítem 1.2: dependencias, archivos y exports muertos como error — no aviso.
+      # La config vive en knip.json, con los falsos positivos documentados ahí.
+      - name: Código muerto (knip)
+        run: npm run check:knip
 
       - name: Build (next build)
         run: npm run build
+
+      # Solo lo que el budget necesita: el manifest (mapa ruta→chunks) y los
+      # archivos que ese mapa referencia. Los tamaños se miden gzip-eando cada
+      # chunk: exactamente cómo calcula Next la tabla First Load JS.
+      - name: Guardar build para el budget
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: |
+            .next/app-build-manifest.json
+            .next/static/**
+          retention-days: 1
+          if-no-files-found: error
+
+  budget:
+    name: Performance budget (First Load JS)
+    runs-on: ubuntu-latest
+    needs: verify
+    if: always() # corre aunque verify falle: un build roto se ve en ambos lados
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Bajar la build del job verify
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: .
+
+      - name: Comparar contra scripts/bundle-baseline.json
+        run: npm run check:bundle
