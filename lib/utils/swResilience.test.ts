@@ -110,6 +110,17 @@ describe('invariantes del ciclo de vida en sw.js', () => {
     expect(swCode).toContain('x-swr-at');
     expect(swCode).toMatch(/IMAGE_TTL_MS=/);
   });
+
+  it('marca la caché SIN mutar headers de respuestas (bug de producción: mapa sin calles)', () => {
+    // `response.clone().headers.set(…)` lanza TypeError en producción — los
+    // headers de una respuesta de fetch son inmutables — y el TypeError dentro
+    // de respondWith mata el recurso: el mapa se quedó sin tiles. La marca se
+    // guarda copiando los headers a una colección nueva y reconstruyendo la
+    // respuesta sobre el mismo stream.
+    expect(swCode).not.toContain('clone.headers.set(');
+    expect(swCode).toContain('newHeaders(response.headers)');
+    expect(swCode).toContain('newResponse(response.body');
+  });
 });
 
 describe('decisor de recarga (shouldReloadAfterActivate)', () => {

@@ -96,12 +96,22 @@ function cacheFirstTtl(request, cacheName, ttlMs) {
   return caches.open(cacheName).then((cache) =>
     cache.match(request).then((cached) => {
       const fetchPromise = fetch(request).then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          clone.headers.set('x-swr-at', String(Date.now()));
-          cache.put(request, clone);
-        }
-        return response;
+        // Los headers de una respuesta de fetch son INMUTABLES (lanza
+        // "Headers are immutable"): para guardar la marca de tiempo se copian
+        // a una colección nueva y se reconstruye la respuesta sobre el mismo
+        // cuerpo — que solo se puede leer una vez, por eso el clone para la
+        // página se toma ANTES de consumir el stream original.
+        if (!response.ok) return response;
+        const forPage = response.clone();
+        const stampedHeaders = new Headers(response.headers);
+        stampedHeaders.set('x-swr-at', String(Date.now()));
+        const stamped = new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: stampedHeaders,
+        });
+        cache.put(request, stamped);
+        return forPage;
       });
       if (isFresh(cached, ttlMs)) {
         fetchPromise.catch(() => {});
