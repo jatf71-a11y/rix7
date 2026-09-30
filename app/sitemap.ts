@@ -14,11 +14,19 @@ interface PropertyRow {
 }
 
 /**
- * IDs de propiedades para el sitemap.
- * Primero intenta Supabase (catálogo real); si no está configurado o falla,
- * usa el catálogo en memoria. Nunca lanza: el sitemap siempre se genera.
+ * IDs de propiedades para el sitemap (fase 3, 2.2).
+ *
+ * Tabla **y** catálogo, deduplicados por id: lo publicado en caliente entra al
+ * sitemap en la próxima regeneración (cada hora, ver `revalidate`) aunque el
+ * deploy sea anterior — era el punto del hallazgo. Si la tabla falla o no está
+ * configurada, queda el catálogo. Nunca lanza: el sitemap siempre se genera.
  */
 async function getPropertyRows(): Promise<PropertyRow[]> {
+  const catalogRows: PropertyRow[] = ALL_PROPERTIES.map((p) => ({
+    id: p.id,
+    created_at: p.created_at ?? null,
+  }));
+
   if (isSupabaseConfigured()) {
     try {
       const supabase = createClient(
@@ -28,12 +36,18 @@ async function getPropertyRows(): Promise<PropertyRow[]> {
       const { data, error } = await supabase
         .from('properties')
         .select('id, updated_at, created_at');
-      if (!error && data && data.length > 0) return data as PropertyRow[];
+      if (!error && data) {
+        const hot = data as PropertyRow[];
+        const hotIds = new Set(hot.map((p) => p.id));
+        // El catálogo aporta las que aún no existen en la tabla; una propiedad
+        // migrada no aparece dos veces.
+        return [...hot, ...catalogRows.filter((p) => !hotIds.has(p.id))];
+      }
     } catch {
       // fallback abajo
     }
   }
-  return ALL_PROPERTIES.map((p) => ({ id: p.id, created_at: p.created_at ?? null }));
+  return catalogRows;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

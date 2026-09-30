@@ -31,8 +31,8 @@ Lo más barato y de mayor impacto: todo el código ya está en producción esper
 | # | Tarea | Motivo | Esfuerzo |
 |---|---|---|---|
 | 2.1 | ✅ **Hecha** (falta ejecutar `supabase/migracion-partner-id.sql` en el SQL Editor) — **`partner_id` en la tabla `properties`** de Supabase (columna + política del RPC `get_properties_filtered`) | La tabla no puede atribuir propiedades a corredoras: el feed solo exporta catálogo, y `/empresas/[slug]` filtra en cliente. Es la ampliación de esquema que la evaluación #14 dejó documentada | ~3 h |
-| 2.2 | **Sitemap dinámico completo**: propiedades publicadas en caliente dentro del `sitemap.xml` | Lo publicado hoy no se indexa hasta el próximo deploy | ~2 h (el sitemap ya consulta Supabase; falta revisar que el RPC incluya todo) |
-| 2.3 | **`opengraph-image` dinámico por ficha** (reutilizar el share-card de `/compartir`) | CTR en redes para URLs de `/properties/[id]`: hoy comparten tarjeta genérica | ~4 h |
+| 2.2 | ✅ **Hecha** — **Sitemap dinámico completo**: propiedades publicadas en caliente dentro del `sitemap.xml` (tabla + catálogo deduplicados, revalidate 1 h) | Lo publicado hoy no se indexa hasta el próximo deploy | ~2 h |
+| 2.3 | ✅ **Hecha** — **`opengraph-image` dinámico por ficha** (reutiliza `ShareCardLandscape` de `/compartir`) | CTR en redes para URLs de `/properties/[id]`: hoy comparten tarjeta genérica | ~4 h |
 | 2.4 | **Piloto del feed**: registrar la URL de la corredora piloto en un agregador y confirmar el rastreo | Criterio de negocio del #14: que los avisos aparezcan fuera | ~1 h + espera del rastreo |
 
 **Criterio de éxito**: la corredora piloto ve sus avisos en el agregador; una ficha compartida por WhatsApp muestra tarjeta propia; el sitemap incluye propiedades creadas tras el último deploy.

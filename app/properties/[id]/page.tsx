@@ -44,8 +44,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? property.description.slice(0, 155).trim()
     : `${typeLabel} de ${formatArea(property.area_sqm)} en ${location}.`;
 
-  const images = property.images && property.images.length > 0 ? [property.images[0]] : undefined;
-
+  // Sin `images` manual: Next publica la tarjeta Open Graph generada por
+  // opengraph-image.tsx (fase 3, 2.3) — foto, precio y specs de la ficha —
+  // y Twitter hereda la misma tarjeta con summary_large_image.
   return {
     title: `${property.title} | Rix7`,
     description,
@@ -57,13 +58,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: property.title,
       description,
       url: `/properties/${property.id}`,
-      images,
     },
     twitter: {
       card: 'summary_large_image',
       title: property.title,
       description,
-      images,
     },
   };
 }
