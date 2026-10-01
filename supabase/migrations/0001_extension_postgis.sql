@@ -1,0 +1,12 @@
+-- ════════════════════════════════════════════════════════════════════════════
+-- 0001 · Extensión PostGIS para consultas geoespaciales
+-- ════════════════════════════════════════════════════════════════════════════
+-- Toda migración de `supabase/migrations/` es idempotente: aplicarla dos veces
+-- deja la base igual que aplicarla una. `scripts/db-push.test.ts` lo exige
+-- sobre el archivo real (CREATE TABLE/INDEX con IF NOT EXISTS y toda política
+-- precedida de su DROP POLICY IF EXISTS), así que la garantía no depende de que
+-- alguien se acuerde.
+--
+-- PostGIS queda en el esquema `extensions` (el que Supabase usa por defecto);
+-- los RPC declaran `search_path = public, extensions` para encontrarlo.
+CREATE EXTENSION IF NOT EXISTS postgis;

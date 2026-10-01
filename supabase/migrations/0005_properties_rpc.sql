@@ -1,30 +1,11 @@
--- ==============================================================================
--- MIGRACIÓN: partner_id en properties (plan fase 3, ítem 2.1)
--- ==============================================================================
--- Ejecutar en Supabase SQL Editor. Idempotente: puede re-ejecutarse sin daño.
--- ¿Por qué un bloque aparte? CREATE TABLE IF NOT EXISTS no toca la tabla si ya
--- existe: una base creada con el esquema viejo queda sin la columna aunque se
--- re-ejecute el schema.sql completo. Los RPC sí se re-crean con su CREATE OR
--- REPLACE, y ahí vive el nuevo filtro por corredora (p_partner_id).
-
--- -----------------------------------------------------------------------------
--- 1) Columna + índice (lo único destructivo-imposible: no borra nada)
--- -----------------------------------------------------------------------------
-
-ALTER TABLE public.properties
-  ADD COLUMN IF NOT EXISTS partner_id TEXT REFERENCES public.partners(id);
-
-CREATE INDEX IF NOT EXISTS idx_properties_partner
-  ON public.properties (partner_id);
-
--- -----------------------------------------------------------------------------
--- 2) RPCs actualizados (copiados del schema.sql, secciones 4 y 4.b)
--- -----------------------------------------------------------------------------
-
--- ==============================================================================
--- 4. FUNCIÓN ALMACENADA RPC: get_properties_filtered
+-- ════════════════════════════════════════════════════════════════════════════
+-- 0005 · RPC del catálogo: get_properties_filtered y get_property_by_id
+-- ════════════════════════════════════════════════════════════════════════════
+-- Se re-crean con CREATE OR REPLACE en cada aplicación, así que una base vieja
+-- recibe siempre la última versión del filtro —incluido `p_partner_id`— sin
+-- necesidad de borrar nada. Por eso la migración 0011 no repite el cuerpo.
+--
 -- Permite filtrar por Bounding Box (coordenadas del viewport del mapa) y atributos
--- ==============================================================================
 CREATE OR REPLACE FUNCTION public.get_properties_filtered(
     min_lng DOUBLE PRECISION,
     min_lat DOUBLE PRECISION,
@@ -78,7 +59,7 @@ BEGIN
     );
 
     RETURN QUERY
-    SELECT 
+    SELECT
         p.id,
         p.title,
         p.description,
@@ -105,7 +86,7 @@ BEGIN
         p.partner_id,
         p.created_at
     FROM public.properties p
-    WHERE 
+    WHERE
         -- Filtro espacial: el punto está contenido o intersecta con el Bounding Box
         ST_Intersects(p.location::geometry, bbox)
         -- Filtros opcionales de negocio
@@ -114,10 +95,10 @@ BEGIN
         AND (min_bedrooms IS NULL OR p.bedrooms >= min_bedrooms)
         AND (prop_type IS NULL OR prop_type = '' OR prop_type = 'all' OR p.property_type = prop_type)
         AND (
-            search_query IS NULL 
-            OR search_query = '' 
-            OR p.title ILIKE '%' || search_query || '%' 
-            OR p.city ILIKE '%' || search_query || '%' 
+            search_query IS NULL
+            OR search_query = ''
+            OR p.title ILIKE '%' || search_query || '%'
+            OR p.city ILIKE '%' || search_query || '%'
             OR p.address ILIKE '%' || search_query || '%'
         )
         -- Corredora: NULL/'' = todas (compatibilidad con callers que no envían
@@ -132,10 +113,7 @@ BEGIN
 END;
 $$;
 
--- ==============================================================================
--- 4.b FUNCIÓN ALMACENADA RPC: get_property_by_id
--- Detalle de una propiedad individual por ID (usada por /api/properties/[id])
--- ==============================================================================
+-- ── Detalle de una propiedad individual por ID (usada por /api/properties/[id]) ──
 CREATE OR REPLACE FUNCTION public.get_property_by_id(
     property_id TEXT
 )

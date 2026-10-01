@@ -119,9 +119,13 @@ Aperturas de las landings, cruzadas con los contactos que ya guarda `leads`. La 
 
 ## 🗄️ Base de Datos Supabase & PostGIS
 
-1. Ejecuta el archivo [`supabase/schema.sql`](file:///c:/Users/javie/OneDrive/12.%20RIX/supabase/schema.sql) en el **SQL Editor** de tu proyecto Supabase.
-2. Ejecuta [`supabase/seed.sql`](file:///c:/Users/javie/OneDrive/12.%20RIX/supabase/seed.sql) para sembrar propiedades reales en Vitacura, Las Condes, Lo Barnechea, Providencia, Ñuñoa, Peñalolén y Chicureo, y las **11 corredoras inscritas** (`public.partners`).
+1. Aplica las migraciones con `npm run db:push` (numeradas e idempotentes, en [`supabase/migrations/`](supabase/migrations/LEEME.md)). Necesita `SUPABASE_ACCESS_TOKEN`; `npm run db:status` dice qué falta sin tocar nada.
+2. Ejecuta [`supabase/seed.sql`](supabase/seed.sql) en el SQL Editor para sembrar propiedades reales en Vitacura, Las Condes, Lo Barnechea, Providencia, Ñuñoa, Peñalolén y Chicureo, y las **11 corredoras inscritas** (`public.partners`).
 3. Copia tus credenciales en `.env.local` y despliega en Vercel.
+
+Después de desplegar, `npm run smoke:prod` comprueba desde afuera que la portada, `/admin/registros` y `/api/registro` respondan, y con `-- --write --email tu@correo.cl` verifica de punta a punta que el alta **se guarda** (si no, sale con 1 y dice por qué).
+
+Para saber qué quedó configurado en un despliegue —proyecto Supabase, clave de servicio, Resend, secreto del cron, Sentry, URL canónica— hay un solo lugar: `GET /api/health`. Dice qué falta, qué deja de funcionar mientras falte y qué hacer; nunca devuelve ningún valor, solo si está o no.
 
 ### Corredoras inscritas (`public.partners`)
 
