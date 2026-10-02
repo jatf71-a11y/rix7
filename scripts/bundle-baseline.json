@@ -20,11 +20,11 @@
     "/legal/privacidad/page": 95.2,
     "/legal/terminos/page": 95.2,
     "/not-found": 95.2,
-    "/page": 206.2,
+    "/page": 206.3,
     "/properties/[id]/not-found": 95.2,
     "/properties/[id]/page": 184.3
   },
   "toleranceKb": 5,
-  "generatedAt": "2026-09-30",
-  "commit": "10e2e1a"
+  "generatedAt": "2026-10-01",
+  "commit": "70e3d43"
 }

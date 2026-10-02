@@ -88,6 +88,9 @@ export function RegistrationModal() {
   const [sending, setSending] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
+  // Con el buzón local (DEV_EMAIL_OUTBOX=1) el servidor devuelve el id del
+  // correo capturado: el "done" ofrece abrirlo tal como llegaría a la bandeja.
+  const [outboxId, setOutboxId] = useState<string | null>(null);
   // El alta se guarda en el dispositivo igual; esto es sobre la **constancia**
   // de las autorizaciones, que es cosa del servidor. Si no se pudo dejar, se dice.
   const [storedFailed, setStoredFailed] = useState(false);
@@ -115,6 +118,7 @@ export function RegistrationModal() {
     setSending(false);
     setErrorMsg(null);
     setEmailSent(false);
+    setOutboxId(null);
     setStoredFailed(false);
   }, [isSignupOpen]);
 
@@ -261,11 +265,15 @@ export function RegistrationModal() {
       });
       const result = await response.json().catch(() => null);
       setEmailSent(Boolean(result?.success && result?.email?.sent));
+      setOutboxId(
+        typeof result?.email?.outboxId === 'string' ? (result.email.outboxId as string) : null
+      );
       setStoredFailed(result?.stored?.saved !== true);
     } catch {
       // Sin red la identidad ya quedó guardada: la bienvenida se pierde y las
       // autorizaciones no llegaron al servidor. Las dos cosas se dicen.
       setEmailSent(false);
+      setOutboxId(null);
       setStoredFailed(true);
     } finally {
       setSending(false);
@@ -359,6 +367,20 @@ export function RegistrationModal() {
                   un correo.
                 </p>
               </div>
+
+              {outboxId ? (
+                <p className="text-xs text-slate-500 -mt-1">
+                  <a
+                    href={`/api/dev/outbox?id=${encodeURIComponent(outboxId)}&format=html`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-semibold text-blue-600 hover:underline"
+                  >
+                    Ver el correo de bienvenida (buzón local)
+                  </a>{' '}
+                  — en local el buzón guarda una copia; en producción el correo va a tu bandeja.
+                </p>
+              ) : null}
 
               {permissions.location === 'prompt' || permissions.notifications === 'prompt' ? (
                 <p className="text-xs text-slate-500">

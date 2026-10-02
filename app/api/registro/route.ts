@@ -125,7 +125,9 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(
     {
       success: true,
-      email: { sent: result.sent, skipped: result.skipped },
+      // `outboxId` solo aparece en local con DEV_EMAIL_OUTBOX=1: es la llave
+      // para abrir el correo en /api/dev/outbox?...&format=html.
+      email: { sent: result.sent, skipped: result.skipped, outboxId: result.outboxId ?? null },
       // `persistent:false` = desarrollo sin Supabase, el alta se pierde al
       // reiniciar; `saved:false` = no se guardó, aunque el correo haya salido.
       stored: { saved: stored.ok, persistent: stored.persisted },

@@ -17,6 +17,7 @@
     "db:status": "node scripts/db-push.mjs --status",
     "db:check": "node scripts/db-push.mjs --check",
     "smoke:prod": "node scripts/smoke-prod.mjs",
+    "check:health": "node scripts/check-health.mjs",
     "vitals": "node scripts/measure-vitals.mjs",
     "check:a11y": "node scripts/audit-a11y.mjs",
     "deploy:prod": "node scripts/deploy-prod.mjs",
