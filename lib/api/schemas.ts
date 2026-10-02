@@ -161,6 +161,18 @@ export const propertyIdParamsSchema = z.object({
   id: idSchema,
 });
 
+// ═══ /api/properties/[id]/view ═══
+
+/**
+ * Ping de visita de una ficha. `counted` distingue «esta sesión todavía no la
+ * contaba» (true, por defecto) de «solo quiero refrescar el número» (false):
+ * recargar no debe inflar el contador, pero sí conviene ver el total al día.
+ * El id de la propiedad viene en la ruta, no en el cuerpo.
+ */
+export const propertyViewSchema = z.object({
+  counted: z.boolean().optional().default(true),
+});
+
 // ═══ /api/share/view ═══
 
 /**

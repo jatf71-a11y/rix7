@@ -3,6 +3,10 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPropertyById } from '@/lib/data/propertyDetail';
 import { getPartnerById } from '@/lib/data/partners-store';
+import { listCandidateProperties } from '@/lib/data/propertySource';
+import { getPropertyViews } from '@/lib/data/propertyViewsStore';
+import { compareToMarket, type RentInsights } from '@/lib/utils/propertyInsights';
+import type { Property } from '@/lib/types/property';
 import { PropertyDetailClient } from '@/components/properties/PropertyDetailClient';
 import { formatArea, getPropertyTypeLabel } from '@/lib/utils/formatters';
 import { propertyJsonLd } from '@/lib/seo/jsonld';
@@ -26,6 +30,35 @@ export function generateStaticParams() {
 // React `cache` deduplica la consulta entre `generateMetadata` y la página
 // dentro del mismo render.
 const getProperty = cache(getPropertyById);
+
+/**
+ * Resuelve los velocímetros de la ficha en arriendo.
+ *
+ * El precio de mercado se deriva de los comparables del catálogo completo (no de
+ * un campo de la propiedad) y las visitas salen del contador público. Ninguna de
+ * las dos lecturas puede tumbar la ficha: si fallan, se muestra el estado «sin
+ * datos» en vez de un error.
+ */
+async function resolveRentInsights(property: Property): Promise<RentInsights> {
+  let pool: Property[] = [];
+  try {
+    pool = (await listCandidateProperties()).properties;
+  } catch {
+    // Sin catálogo comparable: el velocímetro de precio queda «sin datos».
+  }
+
+  let views = 0;
+  let viewsPersisted = false;
+  try {
+    const count = await getPropertyViews(property.id);
+    views = count.views;
+    viewsPersisted = count.persisted;
+  } catch {
+    // Sin contador: se muestra 0 y el ping del navegador lo completa.
+  }
+
+  return { market: compareToMarket(property, pool), views, viewsPersisted };
+}
 
 interface PageProps {
   params: { id: string };
@@ -79,12 +112,16 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   // viven en el bundle del cliente, sino en Supabase.
   const partner = property.partner_id ? await getPartnerById(property.partner_id) : undefined;
 
+  // Solo las fichas en arriendo llevan velocímetros: en venta la tarjeta es el
+  // simulador hipotecario, que es la pregunta que se hace quien compra.
+  const insights = property.status === 'for_rent' ? await resolveRentInsights(property) : undefined;
+
   return (
     <>
       {/* Datos estructurados para buscadores: precio, dirección y disponibilidad
           en el HTML inicial, sin segundo viaje del navegador. */}
       <JsonLd data={propertyJsonLd(property, partner)} />
-      <PropertyDetailClient property={property} partner={partner} />
+      <PropertyDetailClient property={property} partner={partner} insights={insights} />
     </>
   );
 }
