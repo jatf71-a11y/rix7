@@ -37,6 +37,11 @@
  * Nota: en `next dev` la primera visita compila la ruta; el script precalienta
  * igual que `vitals`. Para el informe de la auditoría medir contra
  * `next start` o contra producción.
+ *
+ * Node: la conexión CDP usa el `WebSocket` **global**, que en Node 20 —la LTS
+ * que fijan CI y Vercel— todavía es experimental. `requireWebSocket()` aborta
+ * con un mensaje claro en vez de morir con «WebSocket is not defined», y el job
+ * `a11y` del CI corre con `--experimental-websocket` (Node 22+ ya lo trae).
  */
 
 import { spawn, spawnSync } from 'node:child_process';
@@ -186,8 +191,24 @@ function freePort() {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * El `WebSocket` global de Node: presente desde Node 22, experimental en Node 20
+ * (`--experimental-websocket`). Sin este chequeo, en CI (Node 20) el script moría
+ * con un «WebSocket is not defined» que no decía ni dónde ni cómo arreglarlo.
+ */
+function requireWebSocket() {
+  if (typeof WebSocket !== 'function') {
+    throw new Error(
+      'Node sin `WebSocket` global. Usa Node 22+, o corre con `--experimental-websocket` ' +
+        '(p. ej. NODE_OPTIONS=--experimental-websocket). El job a11y del CI ya lo hace.'
+    );
+  }
+  return WebSocket;
+}
+
 function connect(wsUrl) {
-  const ws = new WebSocket(wsUrl);
+  const WebSocketImpl = requireWebSocket();
+  const ws = new WebSocketImpl(wsUrl);
   const pending = new Map();
   const listeners = new Set();
   let nextId = 0;

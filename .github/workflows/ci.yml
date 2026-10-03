@@ -160,7 +160,13 @@ jobs:
           # acá reconstruye `.next/` completo, igual que hace el job budget.
           path: .next
 
+      # El `WebSocket` global que usa la conexión CDP es experimental en Node 20
+      # (estable desde Node 22), así que este paso lo habilita. Sin el flag, el
+      # script moría con «WebSocket is not defined» en CI aunque en local (Node
+      # 24) pasara.
       - name: Levantar la build y auditar
+        env:
+          NODE_OPTIONS: --experimental-websocket
         run: |
           npx next start -p 3000 &
           for i in $(seq 1 60); do
