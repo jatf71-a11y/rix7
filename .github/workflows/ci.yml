@@ -92,6 +92,12 @@ jobs:
             !.next/cache/**
           retention-days: 1
           if-no-files-found: error
+          # upload-artifact v4 (desde 4.4) excluye los archivos ocultos por
+          # defecto, y `.next/` empieza con punto: sin esto el paso falla con
+          # «No files were found with the provided path: .next/**» y los jobs
+          # budget y a11y mueren con «Artifact not found», aunque la build
+          # haya terminado bien.
+          include-hidden-files: true
 
   budget:
     name: Performance budget (First Load JS)
