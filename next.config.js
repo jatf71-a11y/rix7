@@ -12,10 +12,36 @@
  * - SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN → subida de sourcemaps.
  * - SENTRY_RELEASE → versión que se reporta (en Vercel lo aporta el build).
  */
+const fs = require('node:fs');
+const path = require('node:path');
 const { withSentryConfig } = require('@sentry/nextjs');
+
+// Un hilo de trabajo, un directorio de artefactos: `scripts/dev.mjs` define
+// NEXT_DIST_DIR con un slot propio por puerto, así que dos `next dev` no se
+// pisan los chunks. El default sigue siendo `.next` porque CI, Vercel y
+// `deploy:prod` lo esperan ahí: sin la variable, nada de esto cambia nada de lo
+// que ya funcionaba. Ver `scripts/next-paths.mjs`.
+const distDir = process.env.NEXT_DIST_DIR || '.next';
+
+// Next agrega la carpeta `types` del distDir a la lista `include` de
+// tsconfig.json cuando ese string exacto no está —y reescribe el archivo entero,
+// reformateado—. Con un slot por hilo eso ensuciaría un archivo versionado en
+// cada arranque y los hilos se pisarían entre sí. Apuntando el typecheck del
+// slot a un tsconfig generado en `.freebuff/` (ignorado por git), ese desorden
+// se queda donde no molesta. Lo escribe `scripts/dev.mjs`; si no existe, se usa
+// el de siempre.
+// El wrapper lo declara explícito; si alguien define NEXT_DIST_DIR a mano (p. ej.
+// para construir en un slot sin tocar `.next`), se busca por convención al lado
+// del distDir: `<distDir>.tsconfig.json`. Si no existe, se usa el de siempre.
+const slotTsconfig = process.env.NEXT_SLOT_TSCONFIG ||
+  (process.env.NEXT_DIST_DIR ? `${distDir}.tsconfig.json` : undefined);
+const useSlotTsconfig =
+  Boolean(slotTsconfig) && fs.existsSync(path.resolve(__dirname, slotTsconfig));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  distDir,
+  typescript: useSlotTsconfig ? { tsconfigPath: slotTsconfig } : undefined,
   // Run Next's internal dev-server workers (e.g. the static-paths
   // jest-worker) inside worker_threads instead of forked child processes.
   // Forked children were dying on this machine (low free RAM / Windows fork

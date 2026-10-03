@@ -14,9 +14,9 @@ import { LogOut, PlusCircle, Heart, Menu, X, Settings, Info } from 'lucide-react
 const STANDALONE_PATHS = ['/compartir'];
 
 function NavbarContent() {
-  const { user, openAuthModal, signOut, isAdmin, isAdminDevBypass } = useAuth();
+  const { user, signOut, isAdmin, isAdminDevBypass } = useAuth();
   // Identidad reconocida: sesión del portal o registro de este dispositivo.
-  const { registration, isChecking, forget } = useRegistration();
+  const { registration, isChecking, forget, openSignup } = useRegistration();
   // Cuántos favoritos tiene: el contador del corazón se lee del mismo estado que
   // la ficha, así que no puede quedar desfasado.
   const { ids: favoriteIds } = useFavorites();
@@ -144,10 +144,13 @@ function NavbarContent() {
             </div>
           ) : registration ? (
             /* Identificado por el registro de este dispositivo (sin cuenta del
-               portal): se lo saluda por su nombre y se le ofrece dar el paso a
-               una cuenta, pero no se le ofrecen acciones que requieren sesión
-               real (favoritos, publicar). */
-            <div className="flex items-center gap-3 pl-2 border-l border-slate-200">
+               portal): se lo saluda por su nombre y no se le ofrece un segundo
+               botón de entrada. La barra tiene **una sola acción de entrada**
+               —«Regístrate», que solo aparece sin identidad—: el paso a cuenta
+               con Google o enlace mágico se ofrece donde hace falta
+               (formulario de contacto, favoritos, guardar búsqueda), no como
+               una puerta paralela. */
+            <div className="pl-2 border-l border-slate-200">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs flex items-center justify-center">
                   {registration.name.charAt(0).toUpperCase()}
@@ -166,14 +169,6 @@ function NavbarContent() {
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
-
-              <button
-                onClick={() => openAuthModal()}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-all"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Entrar</span>
-              </button>
             </div>
           ) : isChecking ? (
             /* Verificación en curso: un bloque del mismo alto evita que las
@@ -181,13 +176,17 @@ function NavbarContent() {
             <div className="h-9 w-44 rounded-lg bg-slate-100 animate-pulse" aria-hidden="true" />
           ) : (
             <div className="pl-2 border-l border-slate-200">
-              {/* Una sola puerta de entrada: el enlace mágico registra y entra
-                  en la misma acción, así que no hay dos botones que explicar. */}
+              {/* Única acción de entrada del Navbar: el portal reconoce a
+                  quien deja sus datos, y eso además le ahorra volver a
+                  escribirlos en cada ficha. No hay un botón «Entrar» paralelo:
+                  la cuenta del portal (Google o enlace mágico) se ofrece donde
+                  hace falta —formulario de contacto, favoritos, guardar
+                  búsqueda—, para quien ya la tenga. */}
               <button
-                onClick={() => openAuthModal()}
+                onClick={() => openSignup()}
                 className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm shadow-blue-500/20 transition-all"
               >
-                Entrar
+                Regístrate
               </button>
             </div>
           )}
@@ -293,16 +292,6 @@ function NavbarContent() {
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    openAuthModal();
-                  }}
-                  className="w-full flex items-center justify-center gap-2 py-2 text-sm text-white bg-blue-600 rounded-lg font-semibold"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                  <span>Entrar</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
                     forget();
                   }}
                   className="w-full flex items-center justify-center gap-2 py-2 text-sm text-slate-500 bg-slate-100 rounded-lg font-medium"
@@ -315,11 +304,11 @@ function NavbarContent() {
               <button
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  openAuthModal();
+                  openSignup();
                 }}
                 className="w-full py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg"
               >
-                Entrar
+                Regístrate
               </button>
             )}
 

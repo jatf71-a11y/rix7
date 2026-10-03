@@ -28,6 +28,20 @@ npm run dev
 ```
 Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
+### Probar el registro de punta a punta (con correo de bienvenida)
+
+Sin Supabase ni Resend configurados, el registro **ya funciona entero en local**: el alta queda en memoria (la respuesta lo dice con `stored.persistent:false`) y el correo se salta (`email.skipped:true`). Para **ver el correo**, enciende el buzón de salida:
+
+```bash
+DEV_EMAIL_OUTBOX=1 npm run dev
+```
+
+1. Navbar → **Regístrate** → rellenar datos + las dos autorizaciones obligatorias → enviar.
+2. Al terminar, el modal ofrece **«Ver el correo de bienvenida (buzón local)»** (también directo en `GET /api/dev/outbox?id=correo-1&format=html`).
+3. El alta se ve en `GET /api/registro` (fuente `memory`) o en `/admin/registros`.
+
+La copia vive solo en memoria (se pierde al reiniciar) y la ruta responde 404 sin la variable o en Vercel: en producción no se guarda ningún correo.
+
 ---
 
 ## 📊 Medición de Core Web Vitals
@@ -119,9 +133,13 @@ Aperturas de las landings, cruzadas con los contactos que ya guarda `leads`. La 
 
 ## 🗄️ Base de Datos Supabase & PostGIS
 
-1. Ejecuta el archivo [`supabase/schema.sql`](file:///c:/Users/javie/OneDrive/12.%20RIX/supabase/schema.sql) en el **SQL Editor** de tu proyecto Supabase.
-2. Ejecuta [`supabase/seed.sql`](file:///c:/Users/javie/OneDrive/12.%20RIX/supabase/seed.sql) para sembrar propiedades reales en Vitacura, Las Condes, Lo Barnechea, Providencia, Ñuñoa, Peñalolén y Chicureo, y las **11 corredoras inscritas** (`public.partners`).
+1. Aplica las migraciones con `npm run db:push` (numeradas e idempotentes, en [`supabase/migrations/`](supabase/migrations/LEEME.md)). Necesita `SUPABASE_ACCESS_TOKEN`; `npm run db:status` dice qué falta sin tocar nada.
+2. Ejecuta [`supabase/seed.sql`](supabase/seed.sql) en el SQL Editor para sembrar propiedades reales en Vitacura, Las Condes, Lo Barnechea, Providencia, Ñuñoa, Peñalolén y Chicureo, y las **11 corredoras inscritas** (`public.partners`).
 3. Copia tus credenciales en `.env.local` y despliega en Vercel.
+
+Después de desplegar, `npm run smoke:prod` comprueba desde afuera que la portada, `/admin/registros` y `/api/registro` respondan, y con `-- --write --email tu@correo.cl` verifica de punta a punta que el alta **se guarda** (si no, sale con 1 y dice por qué).
+
+Para saber qué quedó configurado en un despliegue —proyecto Supabase, clave de servicio, Resend, secreto del cron, Sentry, URL canónica— hay un solo lugar: `GET /api/health`. Dice qué falta, qué deja de funcionar mientras falte y qué hacer; nunca devuelve ningún valor, solo si está o no.
 
 ### Corredoras inscritas (`public.partners`)
 

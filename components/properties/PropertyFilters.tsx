@@ -108,7 +108,7 @@ function PropiedadesNuevasButton({
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
           isActive
             ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-500/20'
-            : 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300'
+            : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300'
         }`}
         title="Inmobiliarias"
       >
@@ -145,7 +145,7 @@ function PropiedadesNuevasButton({
                 <div className="font-bold">Todas</div>
                 <div className="text-[10px] text-slate-400">Sin filtro de novedad</div>
               </div>
-              {!isActive && <span className="ml-auto text-emerald-600">✓</span>}
+              {!isActive && <span className="ml-auto text-emerald-700">✓</span>}
             </button>
 
             {options.map((opt) => (
@@ -162,7 +162,7 @@ function PropiedadesNuevasButton({
                   <div className="font-bold">{opt.label}</div>
                   <div className="text-[10px] text-slate-400">{opt.desc}</div>
                 </div>
-                {value === opt.id && <span className="ml-auto text-emerald-600">✓</span>}
+                {value === opt.id && <span className="ml-auto text-emerald-700">✓</span>}
               </button>
             ))}
           </div>
@@ -305,10 +305,12 @@ export function PropertyFilters({
     { id: 'warehouse', label: 'Bodegas', icon: <Warehouse className="w-3.5 h-3.5" /> },
   ];
 
-  // Solo mostrar categorías con stock (count > 0), siempre mostrar "Todos"
-  const propertyTypes = allPropertyTypes.filter(
-    (t) => t.id === 'all' || (categoryCounts[t.id] ?? 0) > 0
-  );
+  // Se pintan SIEMPRE las 10 categorías, incluso las que hoy están en 0.
+  // Filtrarlas por stock hacía que la fila arrancara con un solo chip ("Todos")
+  // y creciera a dos líneas cuando llegaban los contadores de /api/properties:
+  // ese salto de 74 px arrastraba todo el layout del home (CLS +0,31). El
+  // contador 0 es honesto mientras el catálogo carga.
+  const propertyTypes = allPropertyTypes;
 
   const bedroomOptionsDepartamento = [
     { label: 'Any', value: '' },
@@ -555,7 +557,7 @@ export function PropertyFilters({
                   className={`px-2 py-0.5 text-[10px] font-extrabold rounded-md transition-all ${
                     currency === opt.id
                       ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
+                      : 'text-slate-600 hover:text-slate-700'
                   }`}
                 >
                   {opt.symbol}
@@ -566,6 +568,7 @@ export function PropertyFilters({
               <select
                 value={filters.minPrice ?? ''}
                 onChange={(e) => onFilterChange({ ...filters, minPrice: e.target.value ? Number(e.target.value) : null })}
+                aria-label="Precio mínimo"
                 className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-sm"
               >
                 {priceMinOptions.map((opt, i) => (
@@ -576,6 +579,7 @@ export function PropertyFilters({
               <select
                 value={filters.maxPrice ?? ''}
                 onChange={(e) => onFilterChange({ ...filters, maxPrice: e.target.value ? Number(e.target.value) : null })}
+                aria-label="Precio máximo"
                 className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-sm"
               >
                 {priceMaxOptions.map((opt, i) => (

@@ -8,22 +8,23 @@
     "/admin/layout": 97.1,
     "/admin/leads/page": 98.4,
     "/admin/page": 97.6,
-    "/compartir/[id]/page": 185.8,
+    "/admin/registros/page": 91.7,
+    "/compartir/[id]/page": 185.9,
     "/empresas/[slug]/not-found": 95.2,
-    "/empresas/[slug]/page": 99.3,
+    "/empresas/[slug]/page": 99.1,
     "/error": 96.8,
     "/favoritos/page": 181.2,
     "/global-error": 101.3,
-    "/layout": 183.5,
+    "/layout": 188.5,
     "/legal/layout": 87.8,
     "/legal/privacidad/page": 95.2,
     "/legal/terminos/page": 95.2,
     "/not-found": 95.2,
-    "/page": 206,
+    "/page": 206.3,
     "/properties/[id]/not-found": 95.2,
-    "/properties/[id]/page": 184.2
+    "/properties/[id]/page": 184.3
   },
   "toleranceKb": 5,
-  "generatedAt": "2026-09-30",
-  "commit": "cf90f79"
+  "generatedAt": "2026-10-01",
+  "commit": "70e3d43"
 }

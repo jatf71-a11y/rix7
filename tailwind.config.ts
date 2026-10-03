@@ -5,6 +5,11 @@ const config: Config = {
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
+    // lib también produce clases (los enlaces legales de lib/legal/content.tsx
+    // usan `underline`): fuera de los globs, Tailwind nunca genera ese CSS y
+    // las páginas legales salían sin subrayado en producción (auditoría a11y,
+    // regla link-in-text-block).
+    './lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {

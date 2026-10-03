@@ -32,7 +32,7 @@ export function CurrencySelector({ className = '', size = 'sm' }: CurrencySelect
             className={`flex items-center gap-1 font-extrabold rounded-lg transition-all ${paddingClass} ${
               currency === opt.id
                 ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/60'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
             }`}
           >
             <span>{opt.symbol}</span>

@@ -306,21 +306,24 @@ export const POI_CATEGORIES: Record<string, PoiCategoryConfig> = {
   education: {
     label: 'Educación',
     description: 'Colegios, jardines infantiles, universidades e institutos',
-    color: '#3b82f6',
+    // Tonos 700 de la paleta Tailwind en vez de los 500: estos colores pintan
+    // chips, contadores y clusters con texto blanco de 10px, y los 500 no
+    // llegan al 4,5:1 que exige la auditoría a11y (regla color-contrast).
+    color: '#1d4ed8', // blue-700 (antes #3b82f6 blue-500)
     emoji: '🎓',
     queries: ['["amenity"~"school|kindergarten|university|college"]'],
   },
   health: {
     label: 'Salud',
     description: 'Clínicas, hospitales, centros médicos y farmacias',
-    color: '#ef4444',
+    color: '#b91c1c', // red-700 (antes #ef4444 red-500)
     emoji: '🏥',
     queries: ['["amenity"~"clinic|hospital|pharmacy|doctors"]'],
   },
   transport: {
     label: 'Transporte',
     description: 'Estaciones de Metro, paraderos Red, accesos a autopistas y red de ciclovías',
-    color: '#f59e0b',
+    color: '#b45309', // amber-700 (antes #f59e0b amber-500)
     emoji: '🚌',
     queries: [
       '["railway"~"station|halt"]',
@@ -332,7 +335,7 @@ export const POI_CATEGORIES: Record<string, PoiCategoryConfig> = {
   shopping: {
     label: 'Comercio',
     description: 'Supermercados, malls y shopping centers, strip centers, ferias libres, panaderías y minimarkets',
-    color: '#14b8a6',
+    color: '#0f766e', // teal-700 (antes #14b8a6 teal-500)
     emoji: '🛒',
     queries: [
       '["shop"~"supermarket|convenience|mall|department_store|bakery|greengrocer"]',
@@ -342,21 +345,21 @@ export const POI_CATEGORIES: Record<string, PoiCategoryConfig> = {
   sports: {
     label: 'Deportes',
     description: 'Gimnasios, estadios y clubes deportivos',
-    color: '#f97316',
+    color: '#c2410c', // orange-700 (antes #f97316 orange-500)
     emoji: '⚽',
     queries: ['["leisure"~"fitness_centre|sports_centre|stadium|sports_club"]'],
   },
   park: {
     label: 'Áreas Verdes',
     description: 'Parques, plazas y zonas para mascotas',
-    color: '#22c55e',
+    color: '#15803d', // green-700 (antes #22c55e green-500)
     emoji: '🌳',
     queries: ['["leisure"~"park|garden|dog_park"]', '["place"="square"]'],
   },
   safety: {
     label: 'Seguridad',
     description: 'Comisarías de Carabineros, cuarteles de bomberos, PDI y seguridad ciudadana',
-    color: '#6366f1',
+    color: '#4338ca', // indigo-700 (antes #6366f1 indigo-500)
     emoji: '🚔',
     queries: [
       '["amenity"~"police|fire_station"]',
@@ -369,14 +372,14 @@ export const POI_CATEGORIES: Record<string, PoiCategoryConfig> = {
   leisure: {
     label: 'Ocio',
     description: 'Restaurantes, cafeterías, polos gastronómicos y centros culturales',
-    color: '#ec4899',
+    color: '#be185d', // pink-700 (antes #ec4899 pink-500): contraste con blanco
     emoji: '🍽️',
     queries: ['["amenity"~"restaurant|cafe|fast_food|food_court|arts_centre|community_centre"]'],
   },
   services: {
     label: 'Servicios',
     description: 'Bancos, cajeros automáticos, notarías, Registro Civil, municipalidades e instituciones del estado',
-    color: '#8b5cf6',
+    color: '#6d28d9', // violet-700 (antes #8b5cf6 violet-500): contraste con blanco
     emoji: '🏛️',
     queries: [
       '["amenity"~"bank|atm|townhall|courthouse|post_office"]',

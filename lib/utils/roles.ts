@@ -108,7 +108,9 @@ export function decideAdminAccess({
       : {
           allow: false,
           status: 503,
-          error: 'Supabase no está configurado en este entorno.',
+          // El detalle —qué falta exactamente y qué deja de funcionar— vive en
+          // `/api/health`: acá, un mensaje genérico obligaba a leer el código.
+          error: 'Supabase no está configurado en este entorno. El detalle está en /api/health.',
         };
   }
 

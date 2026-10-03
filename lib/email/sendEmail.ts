@@ -8,7 +8,15 @@
  * Sin `RESEND_API_KEY` configurada **no se finge que se envió**: se devuelve
  * `skipped`, y el job lo reporta. Es la misma regla que en el resto del
  * proyecto: si algo no se guardó o no se envió, se dice.
+ *
+ * En local, además, cada mensaje que pasa por acá queda en el buzón de salida
+ * (`lib/email/outbox`, con `DEV_EMAIL_OUTBOX=1`) para poder abrirlo en el
+ * navegador y probar el registro de punta a punta sin una clave real. El
+ * buzón guarda el resultado tal cual —también el `skipped`—, así que nunca
+ * convierte un envío que no ocurrió en uno que sí.
  */
+
+import { captureOutbox } from './outbox';
 
 export interface EmailInput {
   to: string;
@@ -22,6 +30,8 @@ export interface EmailResult {
   /** true cuando falta configuración: no es un error, pero tampoco un envío. */
   skipped: boolean;
   error?: string;
+  /** id en el buzón local cuando `DEV_EMAIL_OUTBOX=1`; en producción, ausente. */
+  outboxId?: string;
 }
 
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
@@ -35,10 +45,12 @@ export function isEmailConfigured(): boolean {
   return !!process.env.RESEND_API_KEY;
 }
 
-export async function sendEmail({ to, subject, html, text }: EmailInput): Promise<EmailResult> {
+export async function sendEmail(input: EmailInput): Promise<EmailResult> {
+  const { to, subject, html, text } = input;
   const apiKey = process.env.RESEND_API_KEY;
+
   if (!apiKey) {
-    return { sent: false, skipped: true, error: 'Falta RESEND_API_KEY' };
+    return withOutbox(input, { sent: false, skipped: true, error: 'Falta RESEND_API_KEY' });
   }
 
   try {
@@ -53,19 +65,28 @@ export async function sendEmail({ to, subject, html, text }: EmailInput): Promis
 
     if (!response.ok) {
       const detail = await response.text().catch(() => '');
-      return {
+      return withOutbox(input, {
         sent: false,
         skipped: false,
         error: `Resend respondió ${response.status}: ${detail.slice(0, 200)}`,
-      };
+      });
     }
 
-    return { sent: true, skipped: false };
+    return withOutbox(input, { sent: true, skipped: false });
   } catch (error) {
-    return {
+    return withOutbox(input, {
       sent: false,
       skipped: false,
       error: error instanceof Error ? error.message : 'Error inesperado al enviar el correo.',
-    };
+    });
   }
+}
+
+/**
+ * Anota en el buzón local el mensaje **y** cómo terminó el envío. Con el
+ * buzón apagado (producción) es un no-op y el resultado vuelve intacto.
+ */
+function withOutbox(email: EmailInput, result: EmailResult): EmailResult {
+  const outboxId = captureOutbox(email, result);
+  return outboxId ? { ...result, outboxId } : result;
 }

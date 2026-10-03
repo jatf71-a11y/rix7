@@ -7,7 +7,8 @@ Guía operativa para desplegar Rix7 (Next.js 14 + Supabase + MapLibre) en **Verc
 ## 1. Requisitos previos
 
 - Cuenta de [Vercel](https://vercel.com) (plan Hobby funciona: 1 región de funciones es suficiente).
-- Proyecto en [Supabase](https://supabase.com) con PostGIS habilitado (el propio `schema.sql` lo habilita).
+- Proyecto en [Supabase](https://supabase.com) con PostGIS habilitado (lo habilita la migración `0001_extension_postgis.sql`).
+- Token personal de Supabase (`SUPABASE_ACCESS_TOKEN`) para aplicar las migraciones desde la terminal.
 - Repo GitHub: `jatf71-a11y/rix7` (rama `main`).
 
 ---
@@ -28,18 +29,34 @@ Configúralas en **Vercel → Project → Settings → Environment Variables** (
 
 ---
 
-## 3. Base de datos Supabase (orden estricto)
+## 3. Base de datos Supabase
 
-Ejecuta en **Supabase Dashboard → SQL Editor** (o `psql`), en este orden:
+El esquema son **migraciones numeradas e idempotentes** en `supabase/migrations/`
+(detalle y reglas en [`supabase/migrations/LEEME.md`](supabase/migrations/LEEME.md)).
+Se aplican desde la terminal —no hay que pegar nada en el dashboard—
+con un token personal de <https://supabase.com/dashboard/account/tokens>
+en `SUPABASE_ACCESS_TOKEN`:
 
-1. **`supabase/schema.sql`** — completo. Crea:
-   - Extensión `postgis`
-   - Tabla `public.properties` + índices (GiST espacial + B-Tree)
-   - RPC `get_properties_filtered` (listado con bounding box)
-   - RPC `get_property_by_id` (detalle individual, usada por `/api/properties/[id]`)
-   - Políticas RLS (lectura pública, escritura solo autenticados)
-   - Bucket de Storage `properties-media`
-2. **`supabase/seed.sql`** — siembra el catálogo inicial (Vitacura, Las Condes, Lo Barnechea, Providencia, Ñuñoa, Peñalolén, Chicureo).
+```bash
+npm run db:push      # aplica lo que falte (crea desde cero o completa una base vieja)
+npm run db:status    # dice qué está aplicado sin tocar nada
+```
+
+Aplicarlas deja la base con:
+
+- Extensión `postgis`
+- Tabla `public.partners` (corredoras) + `public.properties` + índices (GiST espacial + B-Tree)
+- RPC `get_properties_filtered` (listado con bounding box) y `get_property_by_id` (detalle, usada por `/api/properties/[id]`)
+- Políticas RLS de todas las tablas, bucket de Storage `properties-media`
+- Tablas `leads`, `saved_searches`, `favorites`, `share_views` y `signups`
+
+Si prefieres el **SQL Editor**, aplica los archivos de `supabase/migrations/`
+**en orden y uno por uno**; después `npm run db:status` confirma qué quedó
+registrado.
+
+Luego, la semilla: **`supabase/seed.sql`** siembra el catálogo inicial
+(Vitacura, Las Condes, Lo Barnechea, Providencia, Ñuñoa, Peñalolén, Chicureo) y
+las corredoras inscritas.
 
 Verificación rápida en SQL Editor:
 
@@ -109,10 +126,23 @@ Para revertir código: `git revert <commit>` + push (dispara nuevo deploy).
 
 ## 8. Solución de problemas
 
+**Antes de buscar:** `npm run smoke:prod` comprueba desde afuera que la portada,
+`/admin/registros` y `/api/registro` estén vivas en el despliegue, y con
+`-- --write --email tu@correo.cl` además da un alta de prueba para confirmar que
+el registro **persiste** (una fila de prueba, marcada como tal, en
+`public.signups`). Sale con 1 si algo falla.
+
+**Y `curl https://<tu-dominio>/api/health`.** Informa qué subsistemas
+quedaron sin configurar en ese despliegue —proyecto Supabase, clave de servicio,
+Resend, secreto del cron, Sentry, URL canónica— con qué deja de funcionar cada
+uno y qué hacer. Solo dice si están o no, nunca ningún valor, así que es
+seguro consultarlo desde cualquier lado. Responde `503` únicamente si falta algo
+crítico (sin Supabase real no se guarda nada de lo que hace la gente).
+
 | Síntoma | Causa probable | Solución |
 |---|---|---|
-| `"source":"national_catalog"` cuando esperabas DB | Env vars faltantes/mal escritas en Vercel, o RPC `get_property_by_id` no ejecutada | Revisa Settings → Environment Variables; ejecuta `schema.sql` (sección 3) |
-| Detalle 404 de propiedades que sí existen en DB | RPC `get_property_by_id` no existe en la DB | Ejecuta el bloque 4.b de `supabase/schema.sql` |
+| `"source":"national_catalog"` cuando esperabas DB | Env vars faltantes/mal escritas en Vercel, o RPC `get_property_by_id` no ejecutada | Revisa Settings → Environment Variables; aplica las migraciones (`npm run db:push`, sección 3) |
+| Detalle 404 de propiedades que sí existen en DB | RPC `get_property_by_id` no existe en la DB | Aplica las migraciones: `npm run db:push` (la crea `0005_properties_rpc.sql`) |
 | Mapa en blanco + errores CSP en consola | CSP bloqueando tiles | Verifica que `*.tile.openstreetmap.org` sigue en `img-src` de `vercel.json` |
 | Error de build en Vercel | Type error local no detectado | Corre `npx tsc --noEmit && npm run build` antes de push |
 | Funciones lentas en Chile | DB en región lejana a `gru1` | Aloja la DB en la región más cercana a São Paulo (Supabase ofrece `South America (São Paulo)`) |

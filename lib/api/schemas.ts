@@ -161,6 +161,18 @@ export const propertyIdParamsSchema = z.object({
   id: idSchema,
 });
 
+// ═══ /api/properties/[id]/view ═══
+
+/**
+ * Ping de visita de una ficha. `counted` distingue «esta sesión todavía no la
+ * contaba» (true, por defecto) de «solo quiero refrescar el número» (false):
+ * recargar no debe inflar el contador, pero sí conviene ver el total al día.
+ * El id de la propiedad viene en la ruta, no en el cuerpo.
+ */
+export const propertyViewSchema = z.object({
+  counted: z.boolean().optional().default(true),
+});
+
 // ═══ /api/share/view ═══
 
 /**
@@ -194,6 +206,29 @@ export const leadsPostSchema = z
     phone: z.unknown().optional(),
     channel: z.unknown().optional(),
     message: z.unknown().optional(),
+  })
+  .passthrough();
+
+// ═══ /api/registro ═══
+
+/**
+ * Registro de una visita (nombre, correo, teléfono) con sus autorizaciones.
+ *
+ * Igual que en los contactos, acá se valida la **forma** —objeto con los campos
+ * esperados— y `normalizeSignup` aplica la semántica: largos, formato de correo
+ * y las autorizaciones obligatorias. Las casillas viajan anidadas en `consents`,
+ * pero se aceptan también en la raíz para no romper un cliente antiguo.
+ */
+export const signupPostSchema = z
+  .object({
+    name: z.unknown().optional(),
+    email: z.unknown().optional(),
+    phone: z.unknown().optional(),
+    consents: z.unknown().optional(),
+    personal_data: z.unknown().optional(),
+    terms: z.unknown().optional(),
+    marketing: z.unknown().optional(),
+    third_party: z.unknown().optional(),
   })
   .passthrough();
 

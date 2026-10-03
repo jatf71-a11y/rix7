@@ -30,7 +30,7 @@ export function Footer() {
 
           {/* Navegación */}
           <nav aria-label="Enlaces de pie de página">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
               Explorar
             </p>
             <ul className="space-y-2 text-sm">
@@ -46,7 +46,7 @@ export function Footer() {
               </li>
             </ul>
 
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-6 mb-3">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-3">
               Legal
             </p>
             <ul className="space-y-2 text-sm">
@@ -66,10 +66,10 @@ export function Footer() {
 
         {/* Línea de derechos */}
         <div className="mt-10 pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             © {year} {SITE_NAME}. Todos los derechos reservados.
           </p>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Los avisos publicados son responsabilidad de cada publicante.
           </p>
         </div>

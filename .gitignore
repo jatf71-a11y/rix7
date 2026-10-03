@@ -41,3 +41,6 @@ dev-server.log
 
 # Auditoria (los informes fase1/fase1b se versionan; los borradores no)
 _audit/to-delete/
+
+.vercel
+.env*

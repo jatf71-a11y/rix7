@@ -91,6 +91,9 @@ export default function EmpresaDetail({ partner, properties }: EmpresaDetailProp
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Encabezado de sección para que las tarjetas (h3) no salten de
+                nivel respecto al h1 de la corredora (regla heading-order). */}
+            <h2 className="sr-only">Propiedades disponibles</h2>
             {properties.map((property) => (
               <Link
                 key={property.id}
@@ -107,7 +110,7 @@ export default function EmpresaDetail({ partner, properties }: EmpresaDetailProp
                   />
                   <div className="absolute top-3 left-3 flex gap-2">
                     <span className={`px-2.5 py-1 text-[10px] font-bold rounded-lg ${
-                      property.status === 'for_rent' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'
+                      property.status === 'for_rent' ? 'bg-emerald-700 text-white' : 'bg-blue-600 text-white'
                     }`}>
                       {property.status === 'for_rent' ? 'Arriendo' : 'Venta'}
                     </span>

@@ -195,6 +195,7 @@ export default function SharePropertyLanding({
                     logo={partner.logo}
                     name={partner.name}
                     color={partner.color}
+                    decorative
                     className="h-7 w-auto max-w-[110px] shrink-0"
                   />
                   <span className="text-sm font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
@@ -238,7 +239,7 @@ export default function SharePropertyLanding({
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span
                 className={`px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white rounded-lg ${
-                  isRent ? 'bg-blue-600' : 'bg-emerald-600'
+                  isRent ? 'bg-blue-600' : 'bg-emerald-700'
                 }`}
               >
                 {getStatusLabel(property.status)}
@@ -405,6 +406,7 @@ export default function SharePropertyLanding({
                   logo={partner?.logo}
                   name={partnerName}
                   color={partner?.color || '#3B82F6'}
+                  decorative
                   className="h-9 w-auto max-w-[130px]"
                 />
                 <span className="text-sm font-bold text-slate-900 leading-tight">{partnerName}</span>

@@ -1,0 +1,57 @@
+# Sonda de salud de producción (plan fase 3, ítem 3.7).
+#
+# `/api/health` sabe decir qué subsistemas quedaron sin configurar en un
+# despliegue, pero nadie lo mira por su cuenta. Este workflow lo consulta cada
+# pocas horas y se pone **rojo** cuando falta algo **crítico** —hoy, el proyecto
+# Supabase real—, que es cuando el portal acepta altas pero no guarda nada.
+#
+# Por qué no está dentro de `ci.yml`: `ci.yml` corre en cada push y valida el
+# código del repo; esto vigila un despliegue **ya desplegado**, así que su
+# disparador es el reloj, no el commit. Son dos preguntas distintas.
+#
+# Degradados y opcionales (Resend, clave de servicio, Sentry, URL canónica) NO
+# hacen fallar el job: se reportan en el resumen. Un job que se pone rojo por
+# algo que no rompe nada se aprende a ignorar, y entonces deja de avisar de lo
+# que sí importa.
+#
+# Requisitos: ninguno. `/api/health` es público y no expone valores. Opcional: la
+# variable de repositorio `HEALTH_URL` (Settings → Secrets and variables →
+# Actions → Variables) para apuntar a otro despliegue; sin ella se usa el alias
+# de producción de Vercel.
+#
+# Nota: GitHub desactiva los schedules tras 60 días sin actividad en el repo.
+
+name: Salud de producción
+
+on:
+  schedule:
+    # Cada 6 horas (00, 06, 12 y 18 UTC). Barato: una petición sin dependencias.
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # permite lanzarlo a mano desde la pestaña Actions
+
+concurrency:
+  group: health-check
+  cancel-in-progress: false
+
+jobs:
+  health:
+    name: GET /api/health
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # El script solo usa módulos de Node (fetch, fs): no hace falta `npm ci`.
+      # El resumen de la corrida lo escribe él mismo vía GITHUB_STEP_SUMMARY, y
+      # un fallo deja `::error::` con el primer motivo, para no tener que abrir
+      # el log.
+      - name: Consultar la salud del despliegue
+        env:
+          HEALTH_URL: ${{ vars.HEALTH_URL || 'https://rix7.vercel.app' }}
+        run: node scripts/check-health.mjs

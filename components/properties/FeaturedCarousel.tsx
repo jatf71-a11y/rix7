@@ -25,21 +25,22 @@ function shuffleArray<T>(arr: T[]): T[] {
 export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [mounted, setMounted] = useState(false);
   const { format } = useCurrency();
 
-  useEffect(() => { setMounted(true); }, []);
-
-  // Nuevas (created_at dentro de 7 días) primero, luego las demás
+  // Sin gate de "mounted": este carrusel solo se monta en el cliente y después
+  // de que llegan las propiedades (nunca se renderiza en el servidor), así que
+  // no hay riesgo de desajuste de hidratación. El gate hacía que el primer
+  // render devolviera null, el bloque se colapsaba y al pintarse la tarjeta
+  // empujaba hacia abajo el carrusel de socios (CLS +0,03).
   const featured = useMemo(() => {
-    if (!mounted || properties.length === 0) return [];
+    if (properties.length === 0) return [];
     const now = Date.now();
     const weekMs = 7 * 24 * 60 * 60 * 1000;
     const newProps = properties.filter((p) => p.created_at && (now - new Date(p.created_at).getTime()) < weekMs);
     const others = properties.filter((p) => !p.created_at || (now - new Date(p.created_at).getTime()) >= weekMs);
     const pool = [...shuffleArray(newProps), ...shuffleArray(others)];
     return pool.slice(0, 6);
-  }, [properties, mounted]);
+  }, [properties]);
 
   // Auto-advance con progreso
   useEffect(() => {
@@ -66,7 +67,7 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
     setProgress(0);
   }, []);
 
-  if (!mounted || featured.length === 0) return null;
+  if (featured.length === 0) return null;
 
   const current = featured[currentIndex];
   const isRent = current.status === 'for_rent';
@@ -77,7 +78,7 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
       {/* Título sutil */}
       <div className="flex items-center gap-2 mb-3 px-1">
         <div className="h-px flex-1 bg-gradient-to-r from-blue-200 to-transparent" />
-        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Propiedades Nuevas y Destacadas</span>
+        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Propiedades Nuevas y Destacadas</span>
         <div className="h-px flex-1 bg-gradient-to-l from-blue-200 to-transparent" />
       </div>
 
@@ -112,12 +113,12 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
               {getPropertyTypeLabel(current.property_type)}
             </span>
             {isNew && (
-              <span className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider bg-red-600 text-white rounded-lg backdrop-blur-sm animate-pulse">
+              <span className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider bg-red-700 text-white rounded-lg backdrop-blur-sm">
                 Nueva
               </span>
             )}
             {current.featured && (
-              <span className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider                bg-red-600 text-white rounded-lg backdrop-blur-sm">
+              <span className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider                bg-red-700 text-white rounded-lg backdrop-blur-sm">
                 Destacada
               </span>
             )}
@@ -129,9 +130,9 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
           <div className="absolute bottom-0 left-0 right-0 p-5">
             <div className="flex items-end justify-between gap-4">
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-black text-white drop-shadow-lg truncate group-hover:text-blue-300 transition-colors">
+                <h2 className="text-xl font-black text-white drop-shadow-lg truncate group-hover:text-blue-300 transition-colors">
                   {current.title}
-                </h3>
+                </h2>
                 <div className="flex items-center gap-1.5 mt-1.5">
                   <MapPin className="w-3.5 h-3.5 text-blue-300 flex-shrink-0" />
                   <span className="text-sm text-white/80 truncate">{current.address}, {current.city}</span>
@@ -177,7 +178,10 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
         {featured.map((_, idx) => (
           <button
             key={idx}
+            type="button"
             onClick={() => goTo(idx)}
+            aria-label={`Ir al destacado ${idx + 1} de ${featured.length}`}
+            aria-current={idx === currentIndex ? 'true' : undefined}
             className="relative flex-1 h-1 rounded-full bg-slate-200 overflow-hidden group"
           >
             <div

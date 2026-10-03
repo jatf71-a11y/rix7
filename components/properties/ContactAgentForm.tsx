@@ -7,6 +7,7 @@ import type { Partner } from '@/lib/data/partners';
 import type { LeadChannel } from '@/lib/data/leads';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useRegistration } from '@/components/auth/RegistrationProvider';
+import { reportError } from '@/lib/monitoring/reportError';
 
 interface ContactAgentFormProps {
   property: Property;
@@ -61,7 +62,7 @@ export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
   const { openAuthModal } = useAuth();
   // La identidad vive en el layout: el mismo usuario que reconoce el Navbar es
   // el que habilita los canales de contacto de la ficha.
-  const { registration, isChecking, save, updatePhone } = useRegistration();
+  const { registration, isChecking, save, updatePhone, openSignup } = useRegistration();
 
   /** Borrador del formulario, solo para quien todavía no está identificado. */
   const [draftName, setDraftName] = useState('');
@@ -235,9 +236,24 @@ export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
           phone: data.phone,
           channel,
         }),
-      }).catch(() => {
-        // Si el registro interno falla, el contacto del usuario ya se disparó.
-      });
+        // `keepalive` para que el aviso sobreviva cuando el canal elegido
+        // (tel:/mailto:) haga que el navegador abandone la página.
+        keepalive: true,
+      })
+        .then((res) => {
+          // El registro es "dispara y olvida" para no frenar la acción del
+          // usuario, pero si el servidor no lo guardó eso **no** puede quedar en
+          // silencio: el equipo perdería el contacto sin enterarse. Antes la
+          // respuesta se descartaba entera.
+          if (res.ok) return;
+          void reportError(new Error(`No se pudo registrar el contacto (HTTP ${res.status})`), {
+            extra: { propertyId: property.id, channel },
+          });
+        })
+        .catch((error) => {
+          // Sin red tampoco se pudo registrar: deja rastro para el monitoreo.
+          void reportError(error, { extra: { propertyId: property.id, channel } });
+        });
     },
     [property.id, property.partner_id, partner?.id, name, email, phone]
   );
@@ -283,14 +299,14 @@ export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
   const semaphore = isChecking
     ? {
         text: 'Verificando tu registro…',
-        className: 'bg-slate-200 text-slate-500 cursor-wait',
+        className: 'bg-slate-200 text-slate-700 cursor-wait',
         disabled: true,
       }
     : registration
       ? {
           // Verde + nombre del usuario: el color ya comunica el estado.
           text: registration.name,
-          className: 'bg-emerald-600 text-white shadow-emerald-500/20',
+          className: 'bg-emerald-700 text-white shadow-emerald-500/20',
           disabled: false,
         }
       : {
@@ -299,7 +315,7 @@ export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
           // el corte caía a mitad de frase. La instrucción de completar los
           // campos vive en el aviso de debajo, no en el botón.
           text: fieldsComplete ? 'Enviar' : 'Contacta a un Agente',
-          className: 'bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-500/25',
+          className: 'bg-red-700 hover:bg-red-800 text-white shadow-md shadow-red-500/25',
           disabled: false,
         };
 
@@ -329,7 +345,7 @@ export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
         )}
 
         <div className="flex-1 min-w-0">
-          <h4 className="font-bold text-slate-900 text-sm truncate">{partnerName}</h4>
+          <h3 className="font-bold text-slate-900 text-sm truncate">{partnerName}</h3>
         </div>
 
         {/* Badge verificado */}
@@ -427,16 +443,26 @@ export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
         </div>
 
         {!registration && !isChecking && (
-          <p className="text-[10px] text-slate-400 text-center">
+          <p className="text-[10px] text-slate-500 text-center">
             Completa tus datos para poder contactar.{' '}
+            <button
+              type="button"
+              onClick={() => openSignup()}
+              className="font-semibold text-blue-600 hover:underline"
+            >
+              Regístrate una vez y no los vuelvas a escribir
+            </button>
             {hasPortal && (
-              <button
-                type="button"
-                onClick={() => openAuthModal()}
-                className="font-semibold text-blue-600 hover:underline"
-              >
-                ¿Ya tienes cuenta? Inicia sesión
-              </button>
+              <>
+                {' · '}
+                <button
+                  type="button"
+                  onClick={() => openAuthModal()}
+                  className="font-semibold text-blue-600 hover:underline"
+                >
+                  ¿Ya tienes cuenta? Inicia sesión
+                </button>
+              </>
             )}
           </p>
         )}
@@ -479,7 +505,7 @@ export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
         )}
       </form>
 
-      <p className="text-[10px] text-slate-400 text-center leading-tight mt-3">
+      <p className="text-[10px] text-slate-500 text-center leading-tight mt-3">
         La información se comparte con {partnerName} y queda registrada en Rix7 para su
         seguimiento.
       </p>
