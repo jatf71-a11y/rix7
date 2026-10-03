@@ -41,7 +41,7 @@ ningún error que reparar.
 | Validación | **Zod 3.25** (esquemas de las rutas `/api/*`) |
 | Virtualización | **@tanstack/react-virtual** (listados largos) |
 | Tests | **Vitest 3.2** · **axe-core 4.13** (accesibilidad) · **knip 6.38** (código muerto) |
-| Node | **20.x** fijado en `.nvmrc` y `engines` (misma línea que CI y Vercel) |
+| Node | **24.x** fijado en `.nvmrc` y `engines` (misma línea que CI y Vercel; 20.x quedó discontinuada en Vercel) |
 | Runtime | Node (no Edge: `next/og` pesa 1,05 MB y el plan Hobby limita a 1 MB) |
 | Región | **gru1** (São Paulo, la más cercana a Chile) |
 

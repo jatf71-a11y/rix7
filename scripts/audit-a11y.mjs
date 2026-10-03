@@ -38,10 +38,11 @@
  * igual que `vitals`. Para el informe de la auditoría medir contra
  * `next start` o contra producción.
  *
- * Node: la conexión CDP usa el `WebSocket` **global**, que en Node 20 —la LTS
- * que fijan CI y Vercel— todavía es experimental. `requireWebSocket()` aborta
- * con un mensaje claro en vez de morir con «WebSocket is not defined», y el job
- * `a11y` del CI corre con `--experimental-websocket` (Node 22+ ya lo trae).
+ * Node: la conexión CDP usa el `WebSocket` **global**, estable desde Node 22 y
+ * presente en la línea 24 que fijan CI y Vercel. `requireWebSocket()` aborta con
+ * un mensaje claro en vez de morir con «WebSocket is not defined» si alguna vez
+ * se corre con una major anterior (en Node 20 existe, pero tras
+ * `--experimental-websocket`).
  */
 
 import { spawn, spawnSync } from 'node:child_process';
@@ -192,15 +193,15 @@ function freePort() {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /**
- * El `WebSocket` global de Node: presente desde Node 22, experimental en Node 20
- * (`--experimental-websocket`). Sin este chequeo, en CI (Node 20) el script moría
- * con un «WebSocket is not defined» que no decía ni dónde ni cómo arreglarlo.
+ * El `WebSocket` global de Node: estable desde Node 22, experimental en Node 20
+ * (`--experimental-websocket`). Sin este chequeo, una major anterior moría con
+ * un «WebSocket is not defined» que no decía ni dónde ni cómo arreglarlo.
  */
 function requireWebSocket() {
   if (typeof WebSocket !== 'function') {
     throw new Error(
-      'Node sin `WebSocket` global. Usa Node 22+, o corre con `--experimental-websocket` ' +
-        '(p. ej. NODE_OPTIONS=--experimental-websocket). El job a11y del CI ya lo hace.'
+      'Node sin `WebSocket` global. Usa Node 22+ (el proyecto fija Node 24 en `.nvmrc`), ' +
+        'o corre con `--experimental-websocket` (p. ej. NODE_OPTIONS=--experimental-websocket).'
     );
   }
   return WebSocket;

@@ -2,14 +2,18 @@
 /**
  * La versión de Node a la que se alinea el entorno local, en un solo lugar.
  *
- * El repo corría con la Node que hubiera en la máquina (v24 en el equipo de
- * desarrollo) mientras CI y Vercel fijan la línea LTS 20. Esa diferencia no da
- * la cara en un test: aparece como rarezas de plataforma —los workers internos
- * de `next dev` muriendo con «Jest worker encountered 2 child process
- * exceptions», builds que se comportan distinto— y cuesta atribuirla a la causa
- * real. Por eso la major esperada vive en un archivo versionado (`.nvmrc`, que
- * entienden nvm/fnm) y los wrappers avisan, en vez de fallar, cuando la Node en
- * uso no coincide.
+ * El repo corría con la Node que hubiera en la máquina mientras CI y Vercel
+ * fijaban la línea LTS 20. Esa diferencia no da la cara en un test: aparece como
+ * rarezas de plataforma —los workers internos de `next dev` muriendo con «Jest
+ * worker encountered 2 child process exceptions», builds que se comportan
+ * distinto— y cuesta atribuirla a la causa real. Por eso la major esperada vive
+ * en un archivo versionado (`.nvmrc`, que entienden nvm/fnm) y los wrappers
+ * avisan, en vez de fallar, cuando la Node en uso no coincide.
+ *
+ * La línea es **24**: Vercel discontinuó 20.x y su build falla con «Node.js
+ * Version "20.x" is discontinued and must be upgraded», así que la máquina local,
+ * CI y Vercel corren todos la misma major. (El `WebSocket` global que usa la
+ * auditoría a11y también es estable desde 22.)
  *
  * El aviso es **aviso**: hay una sola copia del repo y a veces conviene correr
  * con otra versión (probar que el proyecto sigue vivo en la siguiente LTS, por
@@ -26,7 +30,7 @@ import { resolve } from 'node:path';
 export const VERSION_RECORD_FILE = '.nvmrc';
 
 /** La major que corren CI y Vercel; respaldo si `.nvmrc` falta o no se entiende. */
-export const DEFAULT_EXPECTED_MAJOR = 20;
+export const DEFAULT_EXPECTED_MAJOR = 24;
 
 /**
  * Extrae la major de una versión de Node.
@@ -47,8 +51,8 @@ export function nodeMajor(version) {
 /**
  * Lee la major de un contenido de `.nvmrc`.
  *
- * Acepta las formas que la gente escribe de verdad: `20`, `v20`, `20.x`,
- * `20.18`, `20.18.1`. La primera línea no vacía manda; cualquier otra cosa (un
+ * Acepta las formas que la gente escribe de verdad: `24`, `v24`, `24.x`,
+ * `24.19`, `24.19.0`. La primera línea no vacía manda; cualquier otra cosa (un
  * alias `lts/*`, una ruta) devuelve `null` para que decida el respaldo.
  *
  * @param {string} text

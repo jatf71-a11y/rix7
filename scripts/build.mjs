@@ -135,7 +135,7 @@ async function main() {
     process.exit(1);
   }
 
-  // Aviso, no candado: CI y Vercel fijan Node 20 (`.nvmrc`) y esta máquina
+  // Aviso, no candado: CI y Vercel fijan Node 24 (`.nvmrc`) y esta máquina
   // puede traer otra major. Un build bajo otra versión no tiene por qué romper,
   // pero el resultado hay que leerlo sabiendo que no es el de producción. Ver
   // `node-version.mjs`.

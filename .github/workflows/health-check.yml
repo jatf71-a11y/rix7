@@ -42,10 +42,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Node 20
+      - name: Node 24
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       # El script solo usa módulos de Node (fetch, fs): no hace falta `npm ci`.
       # El resumen de la corrida lo escribe él mismo vía GITHUB_STEP_SUMMARY, y

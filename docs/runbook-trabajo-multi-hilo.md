@@ -84,34 +84,39 @@ Dos detalles que hacen que el registro no estorbe:
 > o un servidor arrancado antes de esta versión, no se registra: para verlo,
 > reinícialo con `npm run dev`.
 
-### 2.2 Node 20: la misma versión que CI y Vercel
+### 2.2 Node 24: la misma versión que CI y Vercel
 
-El repo fija **Node 20** —la línea LTS que corren CI y Vercel— en dos sitios que
+El repo fija **Node 24** —la línea que corren CI y Vercel— en dos sitios que
 hablan el mismo idioma que las herramientas:
 
-- **`.nvmrc`** (contenido `20`): lo leen `nvm`/`fnm`.
-- **`engines.node`** en `package.json` (`"20.x"`): lo lee Vercel al desplegar.
+- **`.nvmrc`** (contenido `24`): lo leen `nvm`/`fnm`.
+- **`engines.node`** en `package.json` (`"24.x"`): lo lee Vercel al desplegar.
+
+> Vercel **discontinuó Node 20.x**: su build falla con «Node.js Version "20.x" is
+> discontinued and must be upgraded», así que la línea subió a 24 y local, CI y
+> Vercel corren la misma major. De paso, el `WebSocket` global que usa la
+> auditoría a11y es estable desde Node 22.
 
 ```bash
 nvm use      # o `fnm use`; ambos leen .nvmrc
-node -v      # v20.x
+node -v      # v24.x
 ```
 
 Los wrappers (`dev.mjs`, `build.mjs`) **avisan** —no fallan— si la major en uso
-no es la 20:
+no es la 24:
 
 ```
-⚠ Node en uso: v24; el proyecto fija Node 20 (.nvmrc), la misma línea de CI y Vercel.
+⚠ Node en uso: v20; el proyecto fija Node 24 (.nvmrc), la misma línea de CI y Vercel.
   Otra major puede cambiar el comportamiento de los workers de `next dev` y del build.
   Alinea con `nvm use` o `fnm use` (lee .nvmrc) antes de seguir.
 ```
 
 El aviso es a propósito: hay una sola copia del repo y a veces conviene probar
-otra versión. Si no tienes `nvm`/`fnm`, puedes correr puntualmente con la Node 20
+otra versión. Si no tienes `nvm`/`fnm`, puedes correr puntualmente con la Node 24
 sin instalarla:
 
 ```bash
-npx -y node@20 scripts/dev.mjs --port 3111
+npx -y node@24 scripts/dev.mjs --port 3111
 ```
 
 > Por qué importa: un desalineamiento de major no da la cara en un test. Se

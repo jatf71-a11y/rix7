@@ -29,9 +29,10 @@
 # claves. Si algún día una variable fuera imprescindible, usar Variables (no
 # secretos) del repo y documentarlo acá — nunca copiar claves reales a GitHub.
 #
-# Node 20 sobre debian: es la línea LTS que corre Vercel para Next 14 y la
-# misma que usa el equipo en local. Con `cache: npm` el lockfile acelera el
-# install; `npm ci` garantiza installs reproducibles.
+# Node 24 sobre debian: es la línea que corre Vercel (20.x quedó discontinuada
+# y su build falla con «Node.js Version "20.x" is discontinued») y la misma que
+# usa el equipo en local. Con `cache: npm` el lockfile acelera el install;
+# `npm ci` garantiza installs reproducibles.
 
 name: CI
 
@@ -56,10 +57,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Node 20
+      - name: Node 24
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Instalar dependencias
@@ -108,10 +109,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Node 20
+      - name: Node 24
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       # El script solo usa node:fs/zlib: no necesita instalar dependencias.
@@ -143,10 +144,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Node 20
+      - name: Node 24
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Instalar dependencias
@@ -160,13 +161,10 @@ jobs:
           # acá reconstruye `.next/` completo, igual que hace el job budget.
           path: .next
 
-      # El `WebSocket` global que usa la conexión CDP es experimental en Node 20
-      # (estable desde Node 22), así que este paso lo habilita. Sin el flag, el
-      # script moría con «WebSocket is not defined» en CI aunque en local (Node
-      # 24) pasara.
+      # Node 24 ya trae el `WebSocket` global (estable desde 22) que usa la
+      # conexión CDP: no hace falta `--experimental-websocket`. El script avisa
+      # con un mensaje claro si alguna vez se corre con una major anterior.
       - name: Levantar la build y auditar
-        env:
-          NODE_OPTIONS: --experimental-websocket
         run: |
           npx next start -p 3000 &
           for i in $(seq 1 60); do

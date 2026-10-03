@@ -55,7 +55,7 @@ describe('parseVersionRecord', () => {
 
 describe('expectedMajor', () => {
   it('lee la major del .nvmrc versionado', () => {
-    expect(expectedMajor({ root: process.cwd() })).toBe(20);
+    expect(expectedMajor({ root: process.cwd() })).toBe(24);
     expect(VERSION_RECORD_FILE).toBe('.nvmrc');
   });
 
@@ -68,22 +68,22 @@ describe('expectedMajor', () => {
 
 describe('checkNodeVersion', () => {
   it('aprueba cuando la major coincide', () => {
-    const result = checkNodeVersion('v20.11.1', 20);
+    const result = checkNodeVersion('v24.19.0', 24);
     expect(result.ok).toBe(true);
     expect(result.message).toBeNull();
   });
 
   it('avisa cuando la major no coincide, nombrando ambas', () => {
-    const result = checkNodeVersion('v24.19.0', 20);
+    const result = checkNodeVersion('v20.11.1', 24);
     expect(result.ok).toBe(false);
-    expect(result.message).toContain('v24');
-    expect(result.message).toContain('20');
+    expect(result.message).toContain('v20');
+    expect(result.message).toContain('24');
     expect(result.message).toContain('.nvmrc');
   });
 
   it('avisa, no falla: el veredicto es un dato que el wrapper decide', () => {
     // No lanza ni devuelve un código de salida: solo describe.
-    expect(() => checkNodeVersion('v24.19.0', 20)).not.toThrow();
-    expect(checkNodeVersion('lts/*', 20).message).toContain('desconocida');
+    expect(() => checkNodeVersion('v20.11.1', 24)).not.toThrow();
+    expect(checkNodeVersion('lts/*', 24).message).toContain('desconocida');
   });
 });

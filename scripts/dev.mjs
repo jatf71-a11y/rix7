@@ -151,7 +151,7 @@ function main() {
     process.exit(1);
   }
 
-  // Aviso, no candado: CI y Vercel fijan Node 20 (`.nvmrc`) y esta máquina
+  // Aviso, no candado: CI y Vercel fijan Node 24 (`.nvmrc`) y esta máquina
   // puede traer otra major. Un desalineamiento así se manifiesta como rarezas de
   // plataforma —los workers internos de `next dev` cayéndose— que cuesta
   // atribuir a la causa real. Ver `node-version.mjs`.
