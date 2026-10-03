@@ -22,7 +22,9 @@ const DynamicMapContainer = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 text-slate-400 gap-2">
+      /* `slate-600` sobre `slate-100` pasa 4,5:1; con `slate-400` el texto de
+         carga quedaba por debajo (hallazgo serio de la auditoría axe). */
+      <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 text-slate-600 gap-2">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
         <span className="text-xs font-semibold">Cargando mapa geoespacial de Chile...</span>
       </div>

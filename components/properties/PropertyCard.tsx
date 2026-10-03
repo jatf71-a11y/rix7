@@ -107,7 +107,7 @@ function PropertyCardComponent({ property, isHovered, onMouseEnter, onMouseLeave
             <span className={`px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider rounded-lg shadow-sm ${
               isRent
                 ? 'bg-blue-600 text-white'
-                : 'bg-emerald-600 text-white'
+                : 'bg-emerald-700 text-white'
             }`}>
               {getStatusLabel(property.status)}
             </span>

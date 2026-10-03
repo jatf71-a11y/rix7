@@ -18,6 +18,12 @@
 # falla, el log del build sigue visible, y un build roto también marca rojo
 # este paso en vez de esconderse.
 #
+# Ítem 3.3: auditoría de accesibilidad como puerta bloqueante. El job `a11y`
+# levanta la build del PR con `next start` y corre axe-core en un Chrome real
+# contra las rutas que representan cada plantilla, con `--fail-on-serious`:
+# si alguna tiene hallazgos critical/serious, el CI se pone rojo. Mismo
+# patrón que knip/budget — barato de mantener, imposible de esquivar.
+#
 # Sin secretos a propósito: el portal está diseñado para degradar a catálogo
 # local cuando Supabase no está configurado, así que el build no necesita
 # claves. Si algún día una variable fuera imprescindible, usar Variables (no
@@ -73,16 +79,17 @@ jobs:
       - name: Build (next build)
         run: npm run build
 
-      # Solo lo que el budget necesita: el manifest (mapa ruta→chunks) y los
-      # archivos que ese mapa referencia. Los tamaños se miden gzip-eando cada
-      # chunk: exactamente cómo calcula Next la tabla First Load JS.
-      - name: Guardar build para el budget
+      # La build completa para los dos jobs descendientes: el budget solo usa
+      # el manifest + chunks, y el job a11y necesita un `.next/` completo para
+      # `next start` (server files, HTML prerenderizado, rutas). Se excluye
+      # `.next/cache` (webpack): pesa cientos de MB y nadie descendiente lo usa.
+      - name: Guardar build (budget + auditoría a11y)
         uses: actions/upload-artifact@v4
         with:
           name: next-build
           path: |
-            .next/app-build-manifest.json
-            .next/static/**
+            .next/**
+            !.next/cache/**
           retention-days: 1
           if-no-files-found: error
 
@@ -114,3 +121,44 @@ jobs:
 
       - name: Comparar contra scripts/bundle-baseline.json
         run: npm run check:bundle
+
+  # Ítem 3.3 (fase 3): accesibilidad bloqueante, igual que los tipos o el budget.
+  # `ubuntu-latest` trae Chrome estable preinstalado en /usr/bin/google-chrome,
+  # que es el primer candidato de `findChrome` en el script — no hace falta
+  # instalar un navegador. El script precalienta cada ruta antes de inyectar
+  # axe, así que no hay ruido de compilación: contra `next start` mide lo mismo
+  # que verá el usuario.
+  a11y:
+    name: Accesibilidad (axe-core, fail on serious)
+    runs-on: ubuntu-latest
+    needs: verify
+    if: always() # corre aunque verify falle: un build roto se ve en ambos lados
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Bajar la build del job verify
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          # upload-artifact v4 elimina el ancestro común (`.next/`): descargar
+          # acá reconstruye `.next/` completo, igual que hace el job budget.
+          path: .next
+
+      - name: Levantar la build y auditar
+        run: |
+          npx next start -p 3000 &
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://localhost:3000/ && break
+            sleep 1
+          done
+          npm run check:a11y -- --fail-on-serious

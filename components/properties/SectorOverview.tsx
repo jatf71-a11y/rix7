@@ -126,7 +126,7 @@ export function SectorOverview({ insights, title = 'A 15 minutos caminando', cla
         })}
       </div>
 
-      <p className="flex items-start gap-1.5 mt-5 pt-4 border-t border-slate-100 text-[11px] text-slate-400">
+      <p className="flex items-start gap-1.5 mt-5 pt-4 border-t border-slate-100 text-[11px] text-slate-500">
         <Info className="w-3.5 h-3.5 shrink-0 mt-px" />
         <span>
           Conteo de lugares a 15 minutos a pie (~1,2 km), sobre datos abiertos de OpenStreetMap.

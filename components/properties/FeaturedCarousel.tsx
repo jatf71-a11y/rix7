@@ -78,7 +78,7 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
       {/* Título sutil */}
       <div className="flex items-center gap-2 mb-3 px-1">
         <div className="h-px flex-1 bg-gradient-to-r from-blue-200 to-transparent" />
-        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Propiedades Nuevas y Destacadas</span>
+        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Propiedades Nuevas y Destacadas</span>
         <div className="h-px flex-1 bg-gradient-to-l from-blue-200 to-transparent" />
       </div>
 
@@ -113,12 +113,12 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
               {getPropertyTypeLabel(current.property_type)}
             </span>
             {isNew && (
-              <span className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider bg-red-600 text-white rounded-lg backdrop-blur-sm animate-pulse">
+              <span className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider bg-red-700 text-white rounded-lg backdrop-blur-sm">
                 Nueva
               </span>
             )}
             {current.featured && (
-              <span className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider                bg-red-600 text-white rounded-lg backdrop-blur-sm">
+              <span className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider                bg-red-700 text-white rounded-lg backdrop-blur-sm">
                 Destacada
               </span>
             )}
@@ -130,9 +130,9 @@ export function FeaturedCarousel({ properties }: FeaturedCarouselProps) {
           <div className="absolute bottom-0 left-0 right-0 p-5">
             <div className="flex items-end justify-between gap-4">
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-black text-white drop-shadow-lg truncate group-hover:text-blue-300 transition-colors">
+                <h2 className="text-xl font-black text-white drop-shadow-lg truncate group-hover:text-blue-300 transition-colors">
                   {current.title}
-                </h3>
+                </h2>
                 <div className="flex items-center gap-1.5 mt-1.5">
                   <MapPin className="w-3.5 h-3.5 text-blue-300 flex-shrink-0" />
                   <span className="text-sm text-white/80 truncate">{current.address}, {current.city}</span>

@@ -108,7 +108,7 @@ function PropiedadesNuevasButton({
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
           isActive
             ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-500/20'
-            : 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300'
+            : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300'
         }`}
         title="Inmobiliarias"
       >
@@ -145,7 +145,7 @@ function PropiedadesNuevasButton({
                 <div className="font-bold">Todas</div>
                 <div className="text-[10px] text-slate-400">Sin filtro de novedad</div>
               </div>
-              {!isActive && <span className="ml-auto text-emerald-600">✓</span>}
+              {!isActive && <span className="ml-auto text-emerald-700">✓</span>}
             </button>
 
             {options.map((opt) => (
@@ -162,7 +162,7 @@ function PropiedadesNuevasButton({
                   <div className="font-bold">{opt.label}</div>
                   <div className="text-[10px] text-slate-400">{opt.desc}</div>
                 </div>
-                {value === opt.id && <span className="ml-auto text-emerald-600">✓</span>}
+                {value === opt.id && <span className="ml-auto text-emerald-700">✓</span>}
               </button>
             ))}
           </div>
@@ -557,7 +557,7 @@ export function PropertyFilters({
                   className={`px-2 py-0.5 text-[10px] font-extrabold rounded-md transition-all ${
                     currency === opt.id
                       ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
+                      : 'text-slate-600 hover:text-slate-700'
                   }`}
                 >
                   {opt.symbol}

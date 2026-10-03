@@ -77,7 +77,7 @@ export function PartnerLogosCarousel({ partnerCounts = {} }: PartnerLogosCarouse
       {/* Título */}
       <div className="flex items-center gap-2 mb-2 px-1">
         <div className="h-px flex-1 bg-gradient-to-r from-blue-200 to-transparent" />
-        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
           Nuestros Socios Estratégicos
         </span>
         <div className="h-px flex-1 bg-gradient-to-l from-blue-200 to-transparent" />
@@ -140,6 +140,7 @@ export function PartnerLogosCarousel({ partnerCounts = {} }: PartnerLogosCarouse
                   name={partner.name}
                   color={partner.color}
                   className="h-full w-full"
+                  decorative
                 />
               </span>
 

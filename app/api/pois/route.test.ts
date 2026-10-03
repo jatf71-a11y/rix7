@@ -84,8 +84,8 @@ describe('/api/pois', () => {
       expect(school.type).toBe('school');
       expect(school.typeLabel).toBe('Colegio');
       expect(school.category).toBe('education');
-      expect(school.color).toBe('#3b82f6');
-      expect(school.svg).toContain('stroke="#3b82f6"');
+      expect(school.color).toBe('#1d4ed8');
+      expect(school.svg).toContain('stroke="#1d4ed8"');
 
       // Sin nombre → fallback al label de la categoría
       const pharmacy = body.data[1];
@@ -275,10 +275,10 @@ describe('/api/pois', () => {
 
       const station = body.data.find((p: any) => p.id === 11);
       expect(station.typeLabel).toBe('Estación');
-      expect(station.color).toBe('#f59e0b');
+      expect(station.color).toBe('#b45309');
       const pharmacy = body.data.find((p: any) => p.id === 12);
       expect(pharmacy.name).toBe('Salud'); // fallback desde la categoría
-      expect(pharmacy.svg).toContain('stroke="#ef4444"');
+      expect(pharmacy.svg).toContain('stroke="#b91c1c"');
 
       vi.doUnmock('@/lib/data/poiSnapshot.generated.json');
     });

@@ -137,7 +137,11 @@ export default function PropertyMapLeaflet({ lat, lng, title, address, city }: P
         iconAnchor: [12, 12],
       });
 
-      const propertyMarker = L.marker([lat, lng], { icon: propertyIcon })
+      // `title` de Leaflet: pasa al elemento interactivo (role="button",
+      // tabindex 0) que envuelve al divIcon y le da nombre accesible. Sin él,
+      // axe lo marca como aria-command-name y un usuario de teclado/lector de
+      // pantalla enfoca "un botón" sin saber qué es (auditoría a11y, hallazgo 4).
+      const propertyMarker = L.marker([lat, lng], { icon: propertyIcon, title })
         .addTo(map)
         .bindPopup(propertyPopupHtml(title, address, null));
       propertyMarkerRef.current = propertyMarker;
@@ -293,6 +297,9 @@ const buildMarkerLayer = (L: any, visible: POI[]) => {
 
     const marker = L.marker([poi.lat, poi.lng], {
       icon,
+      // Nombre accesible del marcador (misma razón que el marcador de la
+      // propiedad): el divIcon es solo un SVG sin texto.
+      title: poi.name,
       // El cluster lee la categoría desde las opciones del marcador
       poiCategory: poi.category,
       // Peso del POI para el ícono del cluster
@@ -540,7 +547,7 @@ useEffect(() => {
           <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 group-hover:text-slate-700 transition-colors">
             <MapIcon className="w-3.5 h-3.5" />
             Leyenda
-            <span className="font-semibold normal-case text-slate-400">
+            <span className="font-semibold normal-case text-slate-600">
               · {Object.values(viewportCounts).reduce((a, b) => a + b, 0)} en vista
             </span>
           </span>

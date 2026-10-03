@@ -44,7 +44,7 @@ function FeaturedSkeleton() {
     <div className="mb-5" aria-hidden="true">
       <div className="flex items-center gap-2 mb-3 px-1">
         <div className="h-px flex-1 bg-gradient-to-r from-blue-200 to-transparent" />
-        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
           Propiedades Nuevas y Destacadas
         </span>
         <div className="h-px flex-1 bg-gradient-to-l from-blue-200 to-transparent" />
@@ -529,6 +529,19 @@ function HomePageContent() {
         </button>
       </div>
 
+      {/*
+        Título de la página, siempre presente.
+
+        El `h1` visible vive dentro del panel de listado, y en mobile ese panel
+        se oculta (`hidden md:block`) cuando la vista activa es el mapa: el
+        documento quedaba sin ningún `h1` (axe: `page-has-heading-one`). Este va
+        fuera del panel y cubre ese estado; se oculta en `md` para no duplicar
+        el encabezado cuando el panel —y su `h1`— ya está en pantalla.
+      */}
+      <h1 className="sr-only md:hidden">
+        Propiedades en {operationText} en {locationTitle}
+      </h1>
+
       {/* Split Layout: Grid | Mapa */}
       <div className="flex-1 grid grid-rows-[1fr] grid-cols-1 md:grid-cols-12 overflow-hidden relative min-h-0">
         {/* Grid de Propiedades */}
@@ -544,7 +557,7 @@ function HomePageContent() {
                   Propiedades en {operationText} en {locationTitle}
                 </h1>
                 {isLoading && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md animate-pulse">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">
                     <Loader2 className="w-3 h-3 animate-spin" />
                     Cargando...
                   </span>
@@ -656,7 +669,7 @@ export default function HomeClient() {
           role="status"
           aria-live="polite"
         >
-          <div className="flex-1 flex items-center justify-center text-sm font-semibold text-slate-400">
+          <div className="flex-1 flex items-center justify-center text-sm font-semibold text-slate-500">
             Cargando Rix7...
           </div>
         </div>

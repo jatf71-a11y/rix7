@@ -2,8 +2,8 @@
 
 > Barrido automatizado con **axe-core** (el motor WCAG que usan Lighthouse y
 > eslint-plugin-jsx-a11y) inyectado en un Chrome real vía CDP — el mismo criterio
-> de `measure-vitals.mjs`: la app de producción, sin runners pesados. Fecha:
-> 2026-09-30 · build local de producción (`next start`, fase 3 al día), desktop
+> de `measure-vitals.mjs`: la app de producción, sin runners pesados. Última
+> corrida: **2026-10-03** · build local de producción (`next start`), desktop
 > (1280×800) y mobile (390×844), 6 rutas que representan cada plantilla.
 >
 > Comando para reproducir (o re-auditar después de los arreglos):
@@ -22,23 +22,25 @@
 > overlays: exigir landmarks perfectos en cada estado infla el informe sin
 > proteger nada).
 
-## Resultados por ruta
+## Resultados por ruta (2026-10-03, build de producción)
 
-| Ruta | Críticos | Serios | Reglas falladas | Veredicto |
+| Ruta | Críticos | Serios | Moderados | Menores |
 |---|---|---|---|---|
-| `/` (desktop) | **10 nodos · 2 reglas** | 9 | 5 | 🔴 la peor: teclado inutilizable en carrusel y filtros de precio |
-| `/` (mobile) | 2 nodos · 1 regla | 7 | 3 | 🟠 |
-| `/properties/[id]` | — | 9 | 3 | 🟠 |
-| `/empresas/[slug]` | — | 8 | 2 | 🟠 |
-| `/compartir/[id]` | — | 17 | 3 | 🟠 |
-| `/favoritos` | — | 4 | 1 | 🟡 |
-| `/legal/privacidad` | — | 7 | 2 | 🟡 |
+| `/` (desktop) | — | — | — | — |
+| `/` (mobile) | — | — | — | — |
+| `/properties/[id]` | — | — | — | — |
+| `/empresas/[slug]` | — | — | — | — |
+| `/compartir/[id]` | — | — | — | — |
+| `/favoritos` | — | — | — | — |
+| `/legal/privacidad` | — | — | — | — |
 
-**El problema dominante es color-contrast (50 nodos en todo el portal). Los
-críticos de teclado/lector de pantalla (botones y selects sin nombre) quedaron
-arreglados el mismo día de la auditoría — ver «Estado de los arreglos» al pie.**
+**El barrido queda con 0 hallazgos de ningún impacto en las 6 rutas, desktop y
+mobile (`--all --fail-on-serious` sale con 0).** Antes del ciclo de arreglos, el
+problema dominante era `color-contrast` (50 nodos en todo el portal) y `/` tenía
+10 nodos críticos. La auditoría es paso bloqueante del CI (job `a11y` con
+`--fail-on-serious`).
 
-## Los 5 problemas reales más caros (ordenados por impacto)
+## Los problemas reales (ordenados por impacto)
 
 ### 1. ✅ Arreglado — Botones y selects sin nombre accesible — crítico, bloqueaba el uso por teclado/lector 🔴
 
@@ -61,7 +63,7 @@ arreglados el mismo día de la auditoría — ver «Estado de los arreglos» al 
 en los botones del carrusel y `aria-label="Precio mínimo"` / `"Precio máximo"` en
 los selects. Es de los arreglos más baratos y de mayor impacto del portal.
 
-### 2. color-contrast — 50 nodos en todo el portal 🟠
+### 2. ✅ Arreglado — color-contrast: era 50 nodos en todo el portal 🟠
 
 El clúster más grande, con 3 fuentes concretas:
 
@@ -75,7 +77,7 @@ No es un tema de gusto: 10px es el tamaño más usado del portal y justo el que
 más exige contraste. La revisión completa nodo a nodo está en la salida de
 `npm run check:a11y -- --all` (agrupa por regla con selector y HTML de cada nodo).
 
-### 3. Enlaces legales sin subrayado — serio, y evidencia un bug de build 🟠
+### 3. ✅ Arreglado — Enlaces legales sin subrayado — serio, y evidencia un bug de build 🟠
 
 `/legal/privacidad` y `/legal/terminos`: los enlaces del cuerpo
 (`privacidad@rix7.cl`, Vercel, Supabase) violan `link-in-text-block` porque axe
@@ -89,12 +91,11 @@ los ve **sin subrayado y con contraste 1,46:1 contra el texto circundante**
 existe en producción. Enlaza con los sustos previos de CSP/config: contenido
 fuera de los globs = clases muertas silenciosas.
 
-**Arreglo (~15 min):** agregar `'./lib/**/*.{js,ts,jsx,tsx,mdx}'` a
-`content` de Tailwind. Además, el par azul #2563eb sobre #475569 cumple el 3:1
-que `link-in-text-block` exige **solo** si el subrayado está presente — con el
-bug arreglado, la regla queda verde sin tocar colores.
+**Arreglo (hecho 2026-09-30):** se agregó `'./lib/**/*.{js,ts,jsx,tsx,mdx}'` a
+`content` de [tailwind.config.ts](tailwind.config.ts). Re-auditado: `link-in-text-block`
+fuera del informe, `/legal/*` queda sin hallazgos critical/serious.
 
-### 4. Marcador de la ficha sin nombre — serio 🟠
+### 4. ✅ Arreglado — Marcador de la ficha sin nombre — serio 🟠
 
 El `divIcon` principal del mapa de `/properties/[id]`
 ([PropertyMapLeaflet.tsx:133](components/map/PropertyMapLeaflet.tsx#L133)) es un
@@ -102,29 +103,54 @@ El `divIcon` principal del mapa de `/properties/[id]`
 reporta como `aria-command-name`. El usuario de teclado puede enfocarlo pero
 no sabe qué es ("botón" sin más); Enter no hace nada visible sin popup previo.
 
-**Arreglo (~15 min):** construir el HTML del divIcon con
-`aria-label="<título de la propiedad>"` en el div interior (Leaflet copia los
-atributos del html al elemento interactivo). Aplica a los tres divIcon
-(propiedad, POI, cluster): los POI y clusters no aparecieron en el barrido de
-esta ruta pero comparten el mismo patrón.
+**Arreglo (hecho 2026-09-30):** `title` de Leaflet en los marcadores de
+propiedad y POIs ([PropertyMapLeaflet.tsx](components/map/PropertyMapLeaflet.tsx)):
+Leaflet lo copia al elemento interactivo (`role="button"` con `tabindex="0"`)
+que envuelve al divIcon, que es exactamente el nombre accesible que axe exigía —
+y de paso da tooltip nativo. Los clusters no lo necesitan: su ícono ya lleva el
+número como texto. Re-auditado: `aria-command-name` fuera del informe.
 
-### 5. Jerarquía de encabezados y alts redundantes — moderado, pulido 🟡
+### 5. ✅ Arreglado (2026-10-03) — Jerarquía de encabezados y alts redundantes 🟡
 
-- `/compartir/[id]`: un `h4` aparece sin `h2`/`h3` previos (`heading-order`).
-  Revisar [ShareViewClient](components/share) al moverlo a la fase de arreglos.
-- `/compartir/[id]`: el logo del header repite el nombre del sitio en `alt` y
-  en el texto al lado (`image-redundant-alt`) → `alt=""` si el texto ya está.
-- Home (18 nodos, mobile): las imágenes del carrusel repiten el alt en el texto
-  de la tarjeta — mismo arreglo: si el texto visible ya describe la imagen, el
-  alt debe ser vacío o complementario, no duplicado.
+Los tres moderados de la ronda anterior quedaron cerrados:
+
+- **`heading-order` en la home** (un `h3` de la tarjeta destacada saltaba desde
+  `h2`): el título del carrusel destacado pasó de `h3` a `h2`
+  ([FeaturedCarousel.tsx](components/properties/FeaturedCarousel.tsx)) y el título
+  del panel de contacto de la ficha de `h4` a `h3`
+  ([ContactAgentForm.tsx](components/properties/ContactAgentForm.tsx)).
+- **`image-redundant-alt`** (18 nodos en la home y en `/compartir/[id]`): los
+  logos que ya van acompañados del nombre en texto pasan a decorativos con
+  `alt=""` y `aria-hidden` ([PartnerLogo.tsx](components/properties/PartnerLogo.tsx),
+  [PartnerLogosCarousel.tsx](components/properties/PartnerLogosCarousel.tsx),
+  [SharePropertyLanding.tsx](app/compartir/[id]/SharePropertyLanding.tsx)).
+- **`/empresas/[slug]`**: el listado de propiedades va precedido de un `h2`
+  solo-para-lectores que da contexto a la sección
+  ([EmpresaDetail.tsx](app/empresas/[slug]/EmpresaDetail.tsx)).
+
+### 6. ✅ Arreglado (2026-10-03) — La home mobile podía quedar sin `h1` 🟡
+
+Era el último hallazgo del barrido, y solo en **mobile**: `page-has-heading-one`.
+Causa: el `h1` de la home («Propiedades en … en …») vive dentro del panel de
+listado ([HomeClient.tsx:543](app/HomeClient.tsx#L543)), y en mobile ese panel se
+oculta (`hidden md:block`) cuando la vista activa es el mapa. Con el mapa en
+pantalla no había ningún `h1` en el documento.
+
+**Arreglo:** un `h1` solo-para-lectores, **fuera** del panel y siempre presente
+([HomeClient.tsx](app/HomeClient.tsx)), con `sr-only md:hidden`: cubre el estado
+mobile sin panel y se oculta en `md` para no duplicar el encabezado cuando el
+panel —y su `h1` visible— ya está en pantalla. Verificado en el navegador: en
+mobile el `h1` existe siempre; en desktop hay exactamente un `h1` visible.
+Re-auditado: `page-has-heading-one` fuera del informe, en los dos viewports.
 
 ## Qué NO es problema (medido, no asumido)
 
 - **`meta-viewport`**: el zoom no está bloqueado (regla verde en todas las rutas).
 - **Estructura de listas y formularios de contacto**: sin violaciones.
-- **`/favoritos` y `/legal`**: solo contraste; estructura limpia.
-- La brecha desktop/mobile es solo el carrusel (los botones de la barra de
-  progreso no existen en mobile): los problemas de fondo son los mismos.
+- **`/favoritos` y `/legal`**: estructura limpia.
+- **Desktop y mobile dan el mismo informe**: sin hallazgos. Los `color-contrast`
+  y `video-caption` que axe marca como indeterminados quedan para revisión a
+  mano (no son violaciones), igual que antes.
 
 ## Orden sugerido de arreglos (input de la fase de corrección)
 
@@ -135,19 +161,32 @@ esta ruta pero comparten el mismo patrón.
    y en las flechas del carrusel de socios
    ([PartnerLogosCarousel.tsx](components/properties/PartnerLogosCarousel.tsx)).
    Verificado re-auditando contra build de producción: 0 críticos.
-2. **Content-glob de Tailwind + subrayado legal** (problema 3) — 15 min y
-   elimina una clase entera de violación por la raíz.
-3. **Contraste** (problema 2) — ~2 h de barrido: badge emerald → 700, slate-500
-   → 600, revisar los `text-slate-400` caso a caso. Re-auditar con
-   `--fail-on-serious` para fijar línea base.
-4. **divIcon del mapa con aria-label** (problema 4) — 15 min.
-5. **Encabezados y alts redundantes** (problema 5) — 30 min.
+2. ✅ **Hecho (2026-09-30)** — **Content-glob de Tailwind** (problema 3):
+   `lib/` entra al content-scan; los subrayados legales ya se generan.
+3. ✅ **Hecho (2026-09-30)** — **Contraste** (problema 2): toggles de moneda
+   inactivos `slate-500→600` (PropertyFilters y CurrencySelector), badges
+   `emerald-600→700` en tarjetas/fichas/compartir, botón «Nuevas»
+   `emerald-600→700` con checks `emerald-700`, textos informativos
+   `slate-400→500` (footer, «Cargando», formularios de contacto, titulares de
+   sección de la home y nota metodológica de POIs), y la **paleta completa de
+   POIs 500→700** ([poiCategories.ts](lib/data/poiCategories.ts)) — pinta chips,
+   contadores y clusters con blanco a 10px. Re-auditoría completa: 0 serios en
+   5 de 6 rutas; queda el marcador del mapa (4) y los moderados (5).
+4. ✅ **Hecho (2026-09-30)** — **Marcadores del mapa con nombre** (problema 4):
+   `title` de Leaflet en propiedad y POIs; verificado con re-auditoría.
+5. ✅ **Hecho (2026-10-03)** — **Encabezados y alts redundantes** (problema 5):
+   `h3→h2` en el carrusel destacado, `h4→h3` en el contacto de la ficha, logos
+   redundantes a decorativos y `h2` `sr-only` en `/empresas`. Re-auditado: fuera
+   del informe.
+6. ✅ **Hecho (2026-10-03)** — **`h1` de la home siempre presente** (problema 6):
+   un `h1` `sr-only md:hidden` fuera del panel que se oculta en mobile. El barrido
+   queda sin hallazgos de ningún impacto en los dos viewports.
 
-Después del paso 3, sumar `npm run check:a11y -- --fail-on-serious` como paso
-del CI (mismo patrón que knip/budget) para que las regresiones no vuelvan a
-entrar — requiere un servidor corriendo, así que es un job separado con
-`next start` sobre la build del job `verify` (igual que el budget usa su
-artifact).
+✅ **Hecho (2026-09-30)** — paso bloqueante del CI (job `a11y` en
+[ci.yml](../.github/workflows/ci.yml)): levanta la build del PR con `next start`
+y corre `npm run check:a11y -- --fail-on-serious` con el Chrome preinstalado del
+runner. El artifact del job `verify` ahora viaja completo (sin `.next/cache`)
+para que el budget y este job bajen la misma build.
 
 ## Cómo se midió
 
@@ -158,3 +197,18 @@ settle de hidratación (2,5 s), inyecta `axe.min.js` y corre `axe.run` con
 y snippet de cada nodo, y cierra con el ranking "los 5 arreglos más caros".
 Mismo enfoque sin dependencias de runtime pesadas que `measure-vitals.mjs`;
 `axe-core` es devDependency y viaja solo hasta el script.
+
+La corrida del 2026-10-03 se hizo contra la **build de producción** (`next start`)
+en los dos viewports, para que lo medido sea lo que verá el usuario y no el
+resultado de `next dev`:
+
+```
+npm run build
+npx next start -p 3311
+npm run check:a11y -- --base=http://localhost:3311 --all --fail-on-serious
+npm run check:a11y -- --base=http://localhost:3311 --all --device=mobile --fail-on-serious
+```
+
+Los dos barridos salen con código 0 y sin hallazgos de ningún impacto. La
+re-auditoría del problema 6 (el `h1` mobile) se hizo sobre la misma build de
+producción, repitiendo los dos comandos.

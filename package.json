@@ -2,13 +2,20 @@
   "name": "rix7-portal-inmobiliario",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/dev.mjs",
+    "slots": "node scripts/slots.mjs",
+    "clean": "node scripts/clean.mjs",
+    "build": "node scripts/build.mjs",
+    "build:slot": "node scripts/build.mjs --measure",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:integration:nosupabase": "node scripts/integration-nosupabase.mjs",
     "check:knip": "knip",
     "check:bundle": "node scripts/check-bundle-budget.mjs",
     "snapshot:pois": "node scripts/generate-poi-snapshot.mjs",
