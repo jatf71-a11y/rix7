@@ -178,8 +178,31 @@ Dos caminos, ambos válidos:
 | **DNS de Vercel** (`ns1.vercel-dns.com`, `ns2.vercel-dns.com`) | dashboard de Vercel, donde ya estás | el sitio ya vive ahí: una sola pantalla para A, TXT, MX |
 | **Cloudflare** (NS que te da al crear la zona) | panel de Cloudflare | si querés CDN/proxy y control DNS separado de Vercel |
 
-En NIC Chile: **Panel → Mis dominios → `rix7.cl` → Servidores de nombres** y
-pegás los dos NS. La delegación propaga en minutos-horas.
+**En NIC Chile** (camino exacto, el del panel):
+
+1. [nic.cl](https://www.nic.cl) → **Servicios para clientes** → iniciá sesión.
+2. Elegí el dominio **`rix7.cl`** de la lista.
+3. Bajá a la **sección 4 · «Servidores de nombre (DNS)»** y pegá los dos NS:
+   - `ns1.vercel-dns.com`
+   - `ns2.vercel-dns.com`
+4. Dejá **desmarcada** la casilla *«Configurar a NIC Chile como servidor
+   secundario»*: no tiques, apuntaría NS que no gestionan tu zona.
+5. Botón **«Actualizar datos de dominios»**, esquina inferior derecha.
+6. Propagación: **hasta 24 h**.
+
+Antes de nada, en Vercel: **Settings → Domains → `rix7.cl`** para que el
+proyecto ya esté esperando el dominio. No hay registros previos que copiar
+(ninguna zona), así que no se pierde nada.
+
+Verificación de que la delegación llegó:
+
+```bash
+nslookup -querytype=NS rix7.cl
+#  → ns1.vercel-dns.com / ns2.vercel-dns.com
+```
+
+Recién ahí sirve de algo cualquier registro del §8.2: **sin NS delegados no
+existe la zona y no hay dónde pegar nada**.
 
 Mientras tanto, el correo sigue en §4 (`onboarding@resend.dev`). Delegar además
 desbloquea lo demás: `SITE_URL`, los redirect URLs de Supabase y el dominio en
