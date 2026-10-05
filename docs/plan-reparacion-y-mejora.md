@@ -91,8 +91,9 @@ completa. Es la reparación del desorden, no del producto.
 **Punto de control 0** — sobre la rama única, con la build **recompilada con el
 `.env.local` real** (no placeholder):
 
-> **Ejecutado el 2026-10-05** sobre `main` (`b40db9b`). 6 de 7 en verde; el séptimo
-> no está desactualizado por una regresión, sino por la propia Fase 1 (ver abajo).
+> **Ejecutado el 2026-10-05** sobre `main` (`b40db9b`). **7 de 7 en verde.** El
+> séptimo se arregló el mismo día (ver abajo): lo que parecía una regresión era
+> la propia Fase 1.
 
 - [x] `npx tsc --noEmit` limpio
 - [x] `npx vitest run` → **994/994** (la suite creció desde los 955 del plan)
@@ -100,7 +101,7 @@ completa. Es la reparación del desorden, no del producto.
 - [x] `npm run check:bundle` dentro del techo → **87,5 kB**, 21 rutas
 - [x] `npm run build` sin errores
 - [x] `npm run check:a11y -- --all --fail-on-serious` → **0 críticos / 0 serios** en las 6 rutas (2 moderados por ruta: `landmark-one-main` y `meta-viewport`)
-- [ ] `npm run test:integration:nosupabase` → **15/15** — **hoy da 10/15**. No es una regresión: la suite demuestra que el portal «sin Supabase» degrada a memoria, pero desde la Fase 1 el build se compila con `.env.local` real y Next **inlinea** las `NEXT_PUBLIC_SUPABASE_*`, así que la copia aislada que levanta el script sigue conectando. Los 5 fallos son literalmente «persistió cuando esperaba que no» (`leads`, `view` ×2, y la ficha sin el rótulo ámbar). **Hay que re-specificarla**: o se construye en el staging sin esas variables, o pasa a comprobar el camino «con Supabase real».
+- [x] `npm run test:integration:nosupabase` → **15/15** (verificado el 2026-10-05). Estuvo en **10/15** y no era una regresión: desde la Fase 1 el build se compila con `.env.local` real y Next **inlinea** las `NEXT_PUBLIC_SUPABASE_*`, así que la copia aislada del script seguía conectada — `persisted` llegaba `true`, la ficha dejaba de rotular «Conteo de prueba» y **cada corrida daba de alta un contacto y sumaba vistas en la base real**. Arreglo: el runner ya no reusa la `.next` de la raíz; la copia temporal se **compila sin `.env*`**, que es la única manera de que las `NEXT_PUBLIC_*` no acaben en el bundle. Coste: un `next build` más (195 s) por corrida.
 
 > Si la Fase 0 termina con estos 7 en verde, **el código ya está sano**. Lo que
 > falta es activarlo.

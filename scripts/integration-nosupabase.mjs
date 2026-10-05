@@ -44,15 +44,24 @@
  * que devuelva contactos.
  *
  * Por qué el entorno se **sanea** (y no se confía en `.env.local`): para probar
- * «sin Supabase» hay que quitar `NEXT_PUBLIC_SUPABASE_*` del proceso, y eso hay
- * que hacerlo antes de que arranque el servidor. `next start` carga `.env.local`
- * y `.env` encima del entorno heredado, así que apagar la variable no alcanza:
- * hay que apuntar el servidor a un directorio de entorno vacío. El runner copia
- * el repo a una carpeta temporal (sin `.env*` y sin `node_modules`, que se
- * symlinkea) para que ni el `.env.local` de la máquina ni el del repo puedan
- * colarse. Si se corre contra un servidor ya levantado (`--base`), se **avisa**
- * que el entorno de ese proceso no lo controla este script: sirve para iterar
- * rápido, no como prueba limpia.
+ * «sin Supabase» hay que quitar `NEXT_PUBLIC_SUPABASE_*`, y eso hay que hacerlo
+ * **antes de compilar**, no antes de arrancar. `next build` inlinea esas
+ * variables en los bundles: una `.next` hecha con `.env.local` lleva la URL y la
+ * llave escritas dentro del JavaScript, de modo que borrarlas del proceso no
+ * apaga nada — el servidor sigue hablando con Supabase de verdad. Por eso el
+ * runner copia el repo a una carpeta temporal **sin `.env*` y sin `.next`**, y
+ * **compila ahí**: ni el `.env.local` de la máquina ni la build de la raíz
+ * pueden colarse (`node_modules` se symlinkea para no copiar cientos de MB).
+ *
+ * No es teórico: mientras la suite reusaba la build de la raíz, 5 de 15
+ * comprobaciones fallaban porque el portal *sí* estaba conectado — `persisted`
+ * llegaba `true`, la ficha dejaba de rotular «Conteo de prueba» — y, lo peor,
+ * cada corrida daba de alta un contacto y sumaba vistas en la base real. Un test
+ * «sin Supabase» que escribe en producción es peor que no tenerlo.
+ *
+ * Si se corre contra un servidor ya levantado (`--base`), se **avisa** que ni su
+ * build ni su entorno lo controla este script: sirve para iterar rápido, no como
+ * prueba limpia.
  *
  * El núcleo recibe `fetch` inyectado, así que se prueba sin red ni servidor
  * (`scripts/integration-nosupabase.test.ts`).
@@ -342,20 +351,22 @@ function freePort() {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /**
- * Copia lo que `next start` necesita leer, sin `.env*`.
+ * Copia lo que `next build` y `next start` necesitan leer, sin `.env*` y sin
+ * `.next/`.
  *
  * Se copia el **directorio** del proyecto en vez de arrancar el servidor con un
  * `cwd` distinto: `next start` resuelve `distDir` contra el proyecto y Next une
  * el `distDir` a la raíz, así que correr desde otro sitio sin la build completa
- * falla con «Could not find a production build». La copia trae `.next/` **sin
- * `cache/`** (los cientos de MB de webpack que `next start` no usa).
+ * falla con «Could not find a production build».
  *
- * La build se copia sin transformar para no tocar el `.next/` de la raíz: ese lo
- * comparten CI, Vercel y `deploy:prod`.
+ * `.next/` queda fuera deliberadamente: trae las `NEXT_PUBLIC_*` **inlineadas**
+ * de la build de la raíz, que se hizo con `.env.local`. Copiarla sería arrancar
+ * con Supabase conectado. En su lugar se compila dentro de la copia, y eso
+ * deja el `.next/` de la raíz intacto: lo comparten CI, Vercel y `deploy:prod`.
  */
 function stageEnvFreeDir() {
   const dir = mkdtempSync(join(tmpdir(), 'rix7-nosupabase-'));
-  const skip = new Set(['.git', '.freebuff', 'node_modules']);
+  const skip = new Set(['.git', '.freebuff', 'node_modules', '.next']);
 
   for (const entry of readdirSync(PROJECT_ROOT, { withFileTypes: true })) {
     // Ni `.env` ni `.env.local`: es justamente lo que hay que dejar afuera.
@@ -381,6 +392,49 @@ function stageEnvFreeDir() {
   }
 
   return dir;
+}
+
+/**
+ * Compila la copia saneada: es donde las `NEXT_PUBLIC_*` dejan de estar dentro
+ * del bundle. `next build` escribe en el `.next/` de `envDir`, así que la build
+ * de la raíz —la que comparten CI, Vercel y `deploy:prod`— no se toca.
+ *
+ * Si falla, el error se lleva la cola del log: una build rota es el fallo más
+ * común aquí y leerla en frío no sirve de nada.
+ */
+function buildStaged(envDir, env, log) {
+  const nextBin = join(envDir, 'node_modules', 'next', 'dist', 'bin', 'next');
+  const logPath = join(envDir, 'next-build.log');
+  const started = Date.now();
+  log('  · build sin .env* (las NEXT_PUBLIC_* se inlinean al compilar)…');
+
+  return new Promise((resolveBuild, rejectBuild) => {
+    const child = spawn(process.execPath, [nextBin, 'build'], {
+      cwd: envDir,
+      env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    const chunks = [];
+    const capture = (buf) => {
+      chunks.push(buf);
+      writeFileSync(logPath, Buffer.concat(chunks));
+    };
+    child.stdout?.on('data', capture);
+    child.stderr?.on('data', capture);
+    child.on('error', rejectBuild);
+    child.on('exit', (code) => {
+      if (code === 0) {
+        log(`  · build lista en ${((Date.now() - started) / 1000).toFixed(1)} s`);
+        resolveBuild();
+        return;
+      }
+      const tail = existsSync(logPath)
+        ? readFileSync(logPath, 'utf8').split('\n').slice(-25).join('\n')
+        : '(sin salida capturada)';
+      rejectBuild(new Error(`La build sin .env* falló (código ${code}). Últimas líneas:\n${tail}`));
+    });
+  });
 }
 
 /** Espera a que la base responda 200 (o cualquier código: el servidor ya está). */
@@ -430,6 +484,10 @@ export async function startAndRun({ port = DEFAULT_PORT, log = () => {} } = {}) 
   const logPath = join(envDir, 'next-start.log');
   try {
     log(`  · copia sin .env en ${envDir}`);
+    // Compilar aquí es la mitad del truco: sin esto, la `.next` de la raíz trae
+    // la URL de Supabase escrita en el bundle y el portal sigue conectado.
+    await buildStaged(envDir, env, log);
+
     server = spawn(process.execPath, [join(envDir, 'node_modules', 'next', 'dist', 'bin', 'next'), 'start', '-p', String(port)], {
       cwd: envDir,
       env,
@@ -496,8 +554,9 @@ function usage() {
       '  --json         salida JSON en vez del informe de consola',
       '  --help         esto',
       '',
-      'Sin --base levanta su propio `next start` desde una copia del repo SIN .env*,',
-      'sobre una build existente (`.next`): si cambiaste el código, corre `npm run build` antes.',
+      'Sin --base copia el repo SIN .env*, **compila ahí** su propia build (las',
+      'NEXT_PUBLIC_* se inlinean al compilar) y arranca `next start` sobre ella.',
+      'La build de la raíz no se toca; el coste es el de un `next build` más.',
       '',
     ].join('\n')
   );
@@ -515,21 +574,8 @@ async function main() {
     return;
   }
 
-  if (!existsSync(join(PROJECT_ROOT, '.next', 'BUILD_ID'))) {
-    console.error(
-      [
-        '',
-        '✗ No hay build en .next/. Corre `npm run build` antes de esta suite, o pásale',
-        '  --base <url> para reusar un dev server ya levantado.',
-        '',
-      ].join('\n')
-    );
-    process.exitCode = 1;
-    return;
-  }
-
   const port = args.port ?? (await freePort());
-  console.log(`\nLevantando la app con Supabase apagado (puerto ${port})…`);
+  console.log(`\nCompilando y arrancando la app con Supabase apagado (puerto ${port})…`);
   const report = await startAndRun({ port, log: (line) => console.log(line) });
 
   if (args.json) console.log(JSON.stringify(report, null, 2));
