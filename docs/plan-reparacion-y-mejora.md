@@ -126,14 +126,14 @@ Sigue `docs/runbook-supabase-real.md` (ya escrito). Resumen:
 
 **Punto de control 1** — contra producción:
 
-> **Ejecutado el 2026-10-05** contra `https://rix7.vercel.app`. Dos de cinco verificados hoy; los otros tres requieren una acción tuya.
+> **Ejecutado el 2026-10-05** contra `https://rix7.vercel.app`. **Cuatro de cinco verificados**; el quinto (`db:status`) espera un token personal.
 
 - [x] `GET /api/health` → `supabase` **fuera** de críticos → `broken: []`, `supabase: configured true`, `service_role: true`. Sigue `degraded` por `email` y `monitoring`.
 - [x] `GET /api/properties` → `"source":"supabase"` con **14** propiedades
-- [ ] `npm run smoke:prod -- --write --email tu@correo.cl` → **`persisted: true`** — hace falta **tu correo**: `--write` da un alta real y manda la bienvenida. La corrida de solo lectura (`npm run smoke:prod`) sí pasó: `/` y `/admin/registros` en 200, `/api/registro` en 401 esperado.
-- [ ] La fila de prueba aparece en `/admin/registros` — depende del punto anterior.
+- [x] `npm run smoke:prod -- --write --email jatf71@gmail.com` → **`persisted: true`** (2026-10-05, contra producción): `/` y `/admin/registros` en 200, `/api/registro` en 401 esperado, y `POST /api/registro` → **«el alta quedó guardada en Supabase»**. El correo de bienvenida salió **«saltado: falta `RESEND_API_KEY` en este despliegue»** — honesto, no un envío fingido.
+- [x] La fila de prueba está en la tabla que lista el panel — verificada en `public.signups` con `service_role`: **1 fila**, `Prueba de humo (no es una persona)` · `jatf71@gmail.com` · `2026-10-05T17:29:06Z`. El panel a secas responde 200; abrirlo con sesión de admin no se probó desde acá, y la fila es justo lo que su `GET /api/registro` lista.
 - [x] Token personal **revocado** — confirmado el **2026-10-05**: la fila del `sbp_` ya no aparece en <https://supabase.com/dashboard/account/tokens>. El valor se había quitado de `.env.local` antes, y con `git log --all -S 'sbp_'` se verificó que **ningún token real entró nunca en el historial** (solo marcadores de plantilla, docs y fixtures).
-- [ ] Fila de prueba borrada — depende del `smoke:prod --write`, que sigue esperando tu correo.
+- [x] Fila de prueba borrada — `DELETE` de esa misma fila tras verificarla; la tabla quedó en **0 filas** (comprobado después del borrado).
 
 > Aquí el portal deja de ser una demo honesta y pasa a ser un producto que
 > guarda lo que le das.
@@ -154,7 +154,7 @@ migración aplicada.
 **Punto de control 2:**
 
 - [x] `POST /api/properties/[id]/view` → `202` con `persisted: true` en producción → `{"success":true,"views":1,"counted":true,"persisted":true}` (esa llamada dejó el contador de esa ficha en 1)
-- [ ] `db:status` → `0012_property_views` registrada — **no ejecutable hoy**: necesita `SUPABASE_ACCESS_TOKEN`, borrado de `.env.local` a petición del dueño, y `db:*` falla cerrado sin él. Evidencia indirecta: las 12 migraciones estaban aplicadas y `db:status` daba al día antes de quitar el token.
+- [x] `db:status` → **12 archivos / 12 registradas**, con `0012_property_views` entre ellas, y «✓ La base está al día con las migraciones del repositorio» (2026-10-05). Se corrió con un token de cuenta con expiración pasado **por variable de entorno**: no quedó en `.env.local` ni en ningún archivo rastreado, que era justo la razón por la que el anterior se había borrado.
 - [x] La ficha en producción muestra el conteo **real** (sin el aviso ámbar de prueba) → HTTP 200 y **cero** menciones de «Conteo de prueba» en el HTML
 
 ---

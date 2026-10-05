@@ -237,14 +237,14 @@ filtrado se ve en segundos antes de gastar minutos instalando y compilando.
 
 ## 11. Checklist de cierre
 
-- [ ] `npm run check:secrets` sale limpio.
-- [ ] `npm run hooks:install` corre en el clone y el hook corta con secreto
-      plantado.
-- [ ] `npm run dev` y `npm run deploy:prod` abortan con hallazgos y siguen
-      normales sin ellos.
-- [ ] CI verde con el job `secrets` (primero).
-- [ ] `npx tsc --noEmit`, `npm run check:knip` y `npx vitest run` en verde.
-- [ ] Ningún `.env*` salvo `.env.example` en `git status`.
+> **Verificado el 2026-10-05**, con evidencia en lugar de la marca.
+
+- [x] `npm run check:secrets` sale limpio — 332 archivos, 15 omitidos por tamaño o binario.
+- [x] `npm run hooks:install` corre en el clone y el hook corta con secreto plantado — `.git/hooks/pre-commit` instalado por `install-git-hooks.mjs`; con un `sbp_` + 40 hex plantado en un archivo **no ignorado**, `sh .git/hooks/pre-commit` → **exit 1**.
+- [x] `npm run dev` y `npm run deploy:prod` abortan con hallazgos y siguen normales sin ellos — `npm run dev` con ese mismo secreto plantado salió **exit 1** antes de spawnear («no arranco el servidor de desarrollo»), y sin hallazgos corren normal: los commits de esta sesión pasaron por el hook sin quejarse. `deploy:prod` **no** se ejecutó con hallazgos a propósito —desplegaría—, así que su parte se verificó por ruta de código: `assertNoSecrets` está en la línea 72, antes del `vercel --prod` de la 94.
+- [x] CI verde con el job `secrets` (primero) — corrida [#37341950469](https://github.com/jatf71-a11y/rix7/actions/runs/37341950469) sobre `be3471f`, **5/5 jobs en verde**.
+- [x] `npx tsc --noEmit`, `npm run check:knip` y `npx vitest run` en verde — tsc limpio, knip sin hallazgos, **994/994** tests en 67 archivos (2026-10-05).
+- [x] Ningún `.env*` salvo `.env.example` en `git status` — `git status --porcelain | grep '\.env'` → vacío.
 
 ---
 
