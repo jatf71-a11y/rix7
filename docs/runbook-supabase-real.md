@@ -249,4 +249,5 @@ El **build de Vercel** también se puede revertir desde Deployments → menú `�
 - [ ] `/api/health` sin `supabase` crítico.
 - [ ] `/api/properties` → `"source":"supabase"`.
 - [ ] `npm run smoke:prod -- --write --email …` → `persisted: true`.
-- [ ] Fila de prueba borrada y token personal revocado.
+- [x] Token personal revocado (2026-10-05).
+- [ ] Fila de prueba borrada.

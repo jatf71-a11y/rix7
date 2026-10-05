@@ -131,7 +131,8 @@ Sigue `docs/runbook-supabase-real.md` (ya escrito). Resumen:
 - [x] `GET /api/properties` → `"source":"supabase"` con **14** propiedades
 - [ ] `npm run smoke:prod -- --write --email tu@correo.cl` → **`persisted: true`** — hace falta **tu correo**: `--write` da un alta real y manda la bienvenida. La corrida de solo lectura (`npm run smoke:prod`) sí pasó: `/` y `/admin/registros` en 200, `/api/registro` en 401 esperado.
 - [ ] La fila de prueba aparece en `/admin/registros` — depende del punto anterior.
-- [ ] Fila de prueba borrada y token personal **revocado** — el `sbp_` se quitó de `.env.local`, pero **la revocación en el dashboard de Supabase sigue sin confirmar**.
+- [x] Token personal **revocado** — confirmado el **2026-10-05**: la fila del `sbp_` ya no aparece en <https://supabase.com/dashboard/account/tokens>. El valor se había quitado de `.env.local` antes, y con `git log --all -S 'sbp_'` se verificó que **ningún token real entró nunca en el historial** (solo marcadores de plantilla, docs y fixtures).
+- [ ] Fila de prueba borrada — depende del `smoke:prod --write`, que sigue esperando tu correo.
 
 > Aquí el portal deja de ser una demo honesta y pasa a ser un producto que
 > guarda lo que le das.

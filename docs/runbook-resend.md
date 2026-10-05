@@ -255,13 +255,64 @@ Y en Resend, si no avanza, el botón **Restart verification**. La propagación
 puede tardar **hasta 72 h** (normalmente mucho menos); recién pasado eso
 conviene volver a intentar el §7.
 
-### 8.4 Después de verificar
+### 8.4 Checklist del día en que `rix7.cl` quede delegado
 
-1. Cambiá `ALERTS_FROM_EMAIL` a `Rix7 <avisos@rix7.cl>` y redeployá.
-2. Repetí la prueba del §7.
-3. Endurecé el DMARC: `p=none` → `p=quarantine` (una semana de ver logs).
-4. El resto del cambio de dominio (Vercel, `SITE_URL`, Supabase) está en la
-   fase de cierre del [plan de reparación](plan-reparacion-y-mejora.md).
+Valoración hecha el 2026-10-05: canonical, `og:url` y `sitemap.xml` apuntan
+hoy a `https://rix7.vercel.app`, es decir que `NEXT_PUBLIC_SITE_URL` está en el
+dominio temporal, y `vars.SITE_URL` de GitHub también.
+
+**Condiciones de salida**
+
+- [ ] `nslookup -querytype=NS rix7.cl` → `ns1/ns2.vercel-dns.com`
+- [ ] Resend → `rix7.cl` en estado **Verified** (§8.3)
+
+**Vercel — dominio**
+
+- [ ] Settings → Domains: añadir **`rix7.cl`** y **`www.rix7.cl`**
+- [ ] Dominio primario = `rix7.cl`; `www` → redirect 308
+- [ ] Registros: apex → A `76.76.21.21`, `www` → CNAME `cname.vercel-dns.com`
+      (si Vercel gestiona el DNS, los crea al adjuntar el dominio — verificalos)
+- [ ] Certificado TLS en **Active** (DNS-01, automático)
+
+**Vercel — variables**
+
+- [ ] `NEXT_PUBLIC_SITE_URL` → `https://rix7.cl` **sin barra final**, en
+      Production, Preview y Development (hoy: `https://rix7.vercel.app`)
+- [ ] `ALERTS_FROM_EMAIL` → `Rix7 <avisos@rix7.cl>` — **solo si Resend ya
+      está Verified**; si no, queda como está (§4)
+- [ ] `RESEND_API_KEY` presente si todavía no lo está (§5)
+- [ ] **`npm run deploy:prod`** — las `NEXT_PUBLIC_*` se inlinean en build: sin
+      redeploy, el canonical sigue apuntando al dominio temporal
+
+**Supabase — Auth**
+
+- [ ] Authentication → URL Configuration → **Site URL** → `https://rix7.cl`
+- [ ] **Redirect URLs**: añadir `https://rix7.cl/**` y `https://www.rix7.cl/**`
+- [ ] **Conservar** `https://rix7.vercel.app/**` mientras se use: si lo sacás,
+      los enlaces de mágico ya enviados dejan de redirigir
+- [ ] Probar de verdad: confirmación de registro y **recuperación de contraseña**
+      con el dominio nuevo
+- [ ] *(opcional)* Auth → SMTP con el dominio verificado, para que las alertas de
+      autenticación también salgan de `rix7.cl`
+
+**GitHub (si no, el cron se queda con el dominio viejo)**
+
+- [ ] `vars.SITE_URL` → `https://rix7.cl` (hoy `https://rix7.vercel.app`); el
+      workflow usa `vars.SITE_URL || 'https://rix7.cl'`, así que con borrarla
+      también sirve
+
+**Verificación final**
+
+- [ ] `curl -s https://rix7.cl/api/health` → `site_url` sigue `true` y sin notas
+- [ ] canonical, `og:url` y `sitemap.xml` ya dicen `https://rix7.cl`
+- [ ] `npm run smoke:prod -- --url https://rix7.cl`
+- [ ] Repetir §7 (correo de prueba)
+- [ ] Endurecer el DMARC: `p=none` → `p=quarantine` tras una semana de logs
+
+**Queda apuntando al dominio temporal** (cosmético, no bloquea):
+`DEFAULT_HEALTH_URL` en `scripts/check-health.mjs`, `DEFAULT_BASE_URL` en
+`scripts/smoke-prod.mjs` y los `SELF` de los tests de CSP. Se sobreescriben con
+`--base` / `--url`.
 
 Mientras el dominio no esté verificado, **no** cambies a `avisos@rix7.cl`: es
 peor que `onboarding@resend.dev`, porque ni siquiera te llega a ti.
