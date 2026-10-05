@@ -19,6 +19,11 @@
 # de ver en pantalla.
 #
 # Nota: GitHub desactiva los schedules tras 60 días sin actividad en el repo.
+#
+# Mientras el sitio no tenga Supabase real (falta SUPABASE_SERVICE_ROLE_KEY en
+# Vercel), el job **no falla**: avisa «sin configurar» y termina en verde. Un rojo
+# diario que todavía nadie puede arreglar solo enseña a ignorar la CI; el rojo se
+# reserva para cuando SÍ está configurado y algo se rompió.
 
 name: Avisos de búsquedas
 
@@ -42,21 +47,48 @@ jobs:
   alerts:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      SITE: ${{ vars.SITE_URL || 'https://rix7.cl' }}
     steps:
       - name: Estado del job
+        id: status
         run: |
-          curl -sS --max-time 30 "${{ vars.SITE_URL || 'https://rix7.cl' }}/api/alerts/run" \
-            | tee estado.json
+          set -o pipefail
+
+          # Si el estado no responde, se falla: eso es una avería, no «sin
+          # configurar». El GET sí tiene que contestar.
+          curl -sS --max-time 30 "$SITE/api/alerts/run" -o estado.json
+
           echo "## Estado de configuración" >> "$GITHUB_STEP_SUMMARY"
           echo '```json' >> "$GITHUB_STEP_SUMMARY"
           cat estado.json >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
+          # El job está listo solo si el sitio tiene con qué leer las búsquedas
+          # (service_role) y con el secreto del cron. Sin eso, correrlo es un 503.
+          READY=$(node -e '
+            const fs = require("fs");
+            const c = JSON.parse(fs.readFileSync("estado.json", "utf8")).configured ?? {};
+            process.stdout.write(String(c.cronSecret === true && c.serviceRole === true));
+          ')
+          echo "ready=$READY" >> "$GITHUB_OUTPUT"
+
+      - name: Sin configurar (salta sin fallar)
+        if: steps.status.outputs.ready != 'true'
+        run: |
+          echo "::notice::El job de avisos todavía no está configurado (falta SUPABASE_SERVICE_ROLE_KEY o ALERTS_CRON_SECRET en Vercel). Se salta la corrida; no es un fallo."
+          {
+            echo ""
+            echo "> ⏭️ **Saltado: el job no está configurado todavía.**"
+            echo "> Falta \`SUPABASE_SERVICE_ROLE_KEY\` (o \`ALERTS_CRON_SECRET\`) en Vercel."
+            echo "> Cuando el sitio tenga Supabase real, esta corrida empieza a enviar avisos sola."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Correr las alertas
         id: run
+        if: steps.status.outputs.ready == 'true'
         env:
           SECRET: ${{ secrets.ALERTS_CRON_SECRET }}
-          SITE: ${{ vars.SITE_URL || 'https://rix7.cl' }}
           DRY: ${{ github.event.inputs.dry_run }}
         run: |
           set -o pipefail

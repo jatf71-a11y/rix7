@@ -42,7 +42,7 @@ const EXCLUDED = new Set([
 
 function copyTree(from, to) {
   for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
-    if (EXCLUDED.has(entry.name)) continue;
+    if (EXCLUDED.has(entry.name) || entry.name.startsWith(".env")) continue; // los .env* llevan secretos: no viajan al deployment.
     const source = path.join(from, entry.name);
     const target = path.join(to, entry.name);
     if (entry.isDirectory()) {

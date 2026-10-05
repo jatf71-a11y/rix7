@@ -51,10 +51,19 @@ En el dashboard del proyecto → **Project Settings → API**:
 | Valor | Dónde | Va a |
 |---|---|---|
 | **Project URL** | `https://<ref>.supabase.co` | `NEXT_PUBLIC_SUPABASE_URL` (Vercel **y** `.env.local`) |
-| **anon / public** key | API keys → `anon` `public` | `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Vercel **y** `.env.local`) |
-| **service_role** key | API keys → `service_role` (**Reveal**) | `SUPABASE_SERVICE_ROLE_KEY` (**solo** Vercel, sin `NEXT_PUBLIC_`) |
+| **Publishable** key (`sb_publishable_…`) | Settings → **API Keys** | `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Vercel **y** `.env.local`) |
+| **Secret** key (`sb_secret_…`) | Settings → **API Keys** (**Reveal**) | `SUPABASE_SERVICE_ROLE_KEY` (**solo** Vercel, sin `NEXT_PUBLIC_`) |
 
 Anota también la **ref** del proyecto: es el `<ref>` de la URL.
+
+> **Llaves nuevas vs clásicas.** Los proyectos creados hoy **ya no traen** `anon`
+> ni `service_role` (JWT largo que empieza por `eyJ`): Supabase las retiró para
+> proyectos nuevos y las deprecia a fines de 2026. En su lugar hay **publishable**
+> (`sb_publishable_…`, ocupa el lugar de la anon) y **secret** (`sb_secret_…`, el
+> de la service_role). El SDK del proyecto (`@supabase/supabase-js` ≥ 2.115) y el
+> validador de `db:push` ya aceptan las nuevas. Si en el panel todavía aparece la
+> pestaña **Legacy API keys**, esas llaves también sirven. Las variables del
+> proyecto conservan el nombre histórico (`..._ANON_KEY`, `..._SERVICE_ROLE_KEY`).
 
 > La `service_role` **salta RLS**: es la que necesita el job de alertas para leer
 > las búsquedas de todas las personas. Nunca lleva prefijo `NEXT_PUBLIC_` y
@@ -68,17 +77,16 @@ Edita `.env.local` en la raíz:
 
 ```dotenv
 NEXT_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key larga>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_...   # o la anon clásica (eyJ...)
 
 # Token personal, solo para aplicar migraciones. NO va a Vercel.
 SUPABASE_ACCESS_TOKEN=sbp_...
 ```
 
-**Qué NO dejar:** el detector de placeholder de `lib/utils/supabaseEnv.ts` trata
-como inválido cualquier valor que contenga `placeholder`, `tu-proyecto`,
-`tu-clave`, `example` o `changeme`, y exige que la anon key tenga **≥ 30
-caracteres**. Si mezclas pegado y copy-paste, ese chequeo es el que evita que
-producción "parezca configurada" sin estarlo.
+**Qué NO dejar:** el detector de `scripts/check-auth-config.mjs` rechaza
+cualquier URL o llave que contenga `placeholder`, y exige que la llave pública
+empiece por `sb_publishable_` (nueva) o `eyJ` (clásica). Ese chequeo es el que
+evita que producción "parezca configurada" sin estarlo.
 
 ---
 
@@ -135,7 +143,7 @@ a **Production, Preview y Development**:
 | Variable | Obligatoria | Notas |
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | ✅ | El Project URL real |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | La anon key real |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | La **publishable** key (o la anon clásica) |
 | `SUPABASE_SERVICE_ROLE_KEY` | recomendada | Server-only, para el job de alertas |
 | `NEXT_PUBLIC_SITE_URL` | ya está | `https://rix7.cl` |
 
@@ -228,7 +236,7 @@ El **build de Vercel** también se puede revertir desde Deployments → menú `�
 ## 11. Checklist de cierre
 
 - [ ] Proyecto Supabase creado en **São Paulo** y activo.
-- [ ] `.env.local` con URL y anon key reales (sin marcadores de placeholder).
+- [ ] `.env.local` con la URL real y la llave pública (publishable o anon, sin placeholder).
 - [ ] `npm run db:push` sin errores y `npm run db:status` todo aplicado.
 - [ ] `supabase/seed.sql` ejecutado (`properties` y `partners` > 0).
 - [ ] Variables en Vercel en **Production + Preview + Development**.
