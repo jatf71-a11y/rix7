@@ -174,7 +174,7 @@ punto de partida del desarrollo normal.
 **Punto de control 3 (el final claro):**
 
 - [x] `main` contiene todo; no queda ninguna rama con trabajo sin fusionar → solo `main` (en `b40db9b`) y `audit/optimization`, ya fusionada
-- [ ] Los 7 gates corren en CI sobre `main` y están en verde — **CI tiene 7 jobs-gates y todos en verde**, pero no son los 7 de este plan: **falta la suite de integración** y sobra la guardia de secretos (verify = tsc+vitest+knip+build · budget · a11y · secrets). Además esa suite está desactualizada (ver Punto 0).
+- [x] Los 7 gates corren en CI sobre `main` y están en verde — **verificado el 2026-10-05**, corrida [#37341130583](https://github.com/jatf71-a11y/rix7/actions/runs/37341130583) sobre `a495b9a`: **5 jobs, todos en verde**. Los 7 del plan quedan cubiertos así — `verify` aporta cuatro (tsc + vitest + knip + build), `a11y` el quinto, `budget` el sexto (el build medido contra el techo, que es el «bundle» del plan) y el nuevo job `integration` el séptimo: **15/15 en 1,5 min**, con build propia sin `.env*` (58,8 s). El job `secrets` es un **quinto extra, a propósito**: no es un gate del plan, es la guardia de secretos.
 - [x] Producción: datos persistentes, health sin críticos, a11y sin serios → `persisted: true` en `/view`, `broken: []` en health, y 0 críticos / 0 serios en la auditoría
 - [x] Un solo checkout, un solo hilo → `git worktree list` → un único checkout; `npm run slots` → «No hay sesiones locales vivas»
 - [x] El worktree `RIX7-fase3` y los artefactos sueltos están retirados
