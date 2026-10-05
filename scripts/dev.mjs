@@ -28,6 +28,10 @@
  * (`slots.mjs`), para que el siguiente hilo vea qué puerto está ocupado antes de
  * elegir el suyo. Es best-effort: un fallo al escribir estado local nunca impide
  * levantar el servidor.
+ *
+ * Antes de arrancar corre la guardia de secretos (`check-secrets.mjs`): si el
+ * árbol tiene un secreto, no levanta el servidor. Es el mismo chequeo del commit
+ * y del CI, así que un descuido se nota en el primer `npm run dev`.
  */
 import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -35,6 +39,7 @@ import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { assertNoSecrets } from './check-secrets.mjs';
 import {
   DEFAULT_DEV_PORT,
   DEFAULT_DIST_DIR,
@@ -148,6 +153,13 @@ function main() {
   if (plan.help) return usage();
   if (plan.error) {
     console.error(`✖ ${plan.error}`);
+    process.exit(1);
+  }
+
+  // Paso previo: la guardia de secretos. Un secreto en el árbol no debería
+  // circular ni por el servidor de desarrollo, y como el wrapper es el único
+  // camino a `next dev`, acá se corta antes de arrancar nada.
+  if (!assertNoSecrets({ action: 'arranco el servidor de desarrollo' })) {
     process.exit(1);
   }
 
