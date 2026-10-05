@@ -1,0 +1,315 @@
+# 📧 Runbook — el correo de avisos (Resend)
+
+El portal manda **tres** correos y ninguno se finge. Si falta la clave,
+`sendEmail` devuelve `skipped` y quien lo llama lo reporta como tal: el job de
+avisos escribe `email-skipped`, el receptor del webhook de Sentry queda en
+`skipped` honesto, y el alta de registro tampoco se hace pasar por enviada.
+
+Ese es justamente lo que este runbook cierra: **`email-skipped` no es una falla
+que nadie ve**. El sitio responde `degraded` y sigue en verde, el cron sale
+verde, y el correo no sale. Todo este documento existe para cambiar eso con
+tres comandos y un clic.
+
+---
+
+## 1. La regla
+
+| Correo | Quién lo manda | Cuándo |
+|---|---|---|
+| Aviso de búsquedas guardadas | `lib/data/alertsRunner.ts` | cada mañana, vía cron |
+| Alerta de error (Sentry → correo) | `app/api/webhooks/sentry/route.ts` | cuando Sentry ve un `error`/`fatal` |
+| Bienvenida al registrarse | `app/api/registro/route.ts` | cada alta en `/compartir` o el modal |
+
+Los tres pasan por el mismo `lib/email/sendEmail.ts`. **Una sola clave los
+habilita a los tres.**
+
+---
+
+## 2. Estado actual (cómo mirarlo)
+
+```bash
+curl -sS https://rix7.vercel.app/api/health | jq '.subsystems[] | select(.id=="email")'
+#  → configured: false · reason: "Falta RESEND_API_KEY."
+
+curl -sS https://rix7.vercel.app/api/alerts/run | jq .configured
+#  → {"cronSecret":true,"serviceRole":true,"email":false}
+```
+
+Mientras `email` sea `false`, el cron sale verde y **no manda nada**. Eso no es
+un bug: es la regla del proyecto (no se finge un envío). Es un pendiente.
+
+---
+
+## 3. Generar la clave
+
+**URL directa: <https://resend.com/api-keys>** (barra lateral → **API Keys**) →
+**Create API Key**.
+
+| Campo | Qué poner |
+|---|---|
+| **Name** | `rix7-avisos` |
+| **Permissions** | **Sending access** — es la recomendada y alcanza; no hace falta Full Access |
+| **Expiration** | ⚠️ **No expiration**. Con 90 días la clave muere un martes cualquiera y el cron pasa a `email-skipped` sin que nadie se dé cuenta |
+| **Domain** | el que ofrezca la UI; si no verificaste ninguno, `onboarding@resend.dev` |
+
+Al confirmar se muestra **una sola vez** un valor `re_…`. Ahí está la clave: se
+copia ahí mismo, porque después no vuelve a aparecer (regenerarla revoca la
+anterior).
+
+> **No la pegues en ningún archivo rastreado.** La guardia de secretos busca
+> exactamente `re_` + 28 alfanuméricos y te corta el commit. Va a una variable
+> de entorno, nunca al árbol.
+
+---
+
+## 4. El remitente: la mitad que se olvida
+
+`fromAddress()` en `lib/email/sendEmail.ts` es:
+
+```
+ALERTS_FROM_EMAIL  ||  'Rix7 <avisos@rix7.cl>'
+```
+
+Y ahí hay **dos trampas**:
+
+1. **Si `ALERTS_FROM_EMAIL` no existe**, se usa `avisos@rix7.cl`, que sin verificar
+   en Resend se rechaza. La clave sola **no alcanza**: `email` pasaría a `true` y
+   los envíos fallarían igual.
+2. **`Rix7 <onboarding@resend.dev>` solo entrega a la dirección dueña de la
+   cuenta de Resend.** Con cualquier otro destinatario, Resend devuelve 403. Es
+   la opción correcta para probar el pipeline de punta a punta, no para
+   producción con varias personas.
+
+Resumen:
+
+| Remitente | ¿Cuándo sirve | Requiere |
+|---|---|---|
+| `Rix7 <onboarding@resend.dev>` | solo probando, y solo hacia tu correo | nada |
+| `Rix7 <avisos@rix7.cl>` | producción | verificar `rix7.cl` en Resend (§8) |
+
+---
+
+## 5. Variables en Vercel
+
+**Vercel → proyecto `rix7` → Settings → Environment Variables.**
+
+| Variable | Valor | Entornos | Tipo |
+|---|---|---|---|
+| `RESEND_API_KEY` | el `re_…` de §3 | Production, Preview, Development | **Secret** |
+| `ALERTS_FROM_EMAIL` | `Rix7 <onboarding@resend.dev>` (o `Rix7 <avisos@rix7.cl>` tras §8) | Production, Preview, Development | Variable |
+
+Dos reglas: **nunca** con prefijo `NEXT_PUBLIC_` (lo documenta `.env.example`),
+y el valor no se escribe en ningún archivo del repo.
+
+---
+
+## 6. Desplegar y verificar
+
+```bash
+vercel env add RESEND_API_KEY      # o lo hace el dueño en el dashboard
+vercel env add ALERTS_FROM_EMAIL
+npm run deploy:prod                # los env entran en el próximo deploy
+```
+
+Y las tres comprobaciones, en orden:
+
+| Comando | Esperado |
+|---|---|
+| `GET /api/health` | `email: configured true` (sale de `missing.degraded`) |
+| `GET /api/alerts/run` | `emailConfigured: true` |
+| `GET /api/webhooks/sentry` | `emailProvider: true` (con los otros dos en `true`, los tres) |
+
+Si alguna no cambia, el env no llegó al runtime: revisa el entorno correcto y
+redeploya — los variables **no se aplican a un deploy ya construido**.
+
+---
+
+## 7. Prueba de punta a punta
+
+```bash
+npm run smoke:prod -- --write --email TU@correo.cl
+```
+
+Manda la bienvenida real **y** deja una fila de prueba en `public.signups` que
+hay que borrar después (la tabla es solo-anexa: no hay `UPDATE`, solo borrar).
+Ese mismo comando es el **punto de control 1** del
+[plan de reparación](plan-reparacion-y-mejora.md), así que cierra dos cosas de
+una.
+
+Si con `onboarding@resend.dev` el correo **no** te llega, casi siempre es porque
+`TU@correo.cl` no es la dirección dueña de la cuenta (§4).
+
+---
+
+## 8. Verificar `rix7.cl` (cuando quieras salir del modo prueba)
+
+### 8.1 Estado el 2026-10-05: **registrado, pero sin delegar**
+
+Whois del registry (`whois.nic.cl`):
+
+```
+Registrant name: Javier Torres
+Registrar name: NIC Chile
+Creation date:  2026-09-08 19:30:31 CLST
+Expiration date: 2027-09-08 19:30:31 CLST
+                                   ← sin ninguna línea «Name server:»
+```
+
+**El dominio es tuyo** — registrado el 08-09-2026 en NIC Chile, vence el
+08-09-2027 — y **no hace falta comprar nada**. Lo que no tiene son **servidores
+de nombres**: `google.cl` lista sus cuatro NS y `rix7.cl` no lista ninguno. Sin NS
+la zona no entra al DNS de la raíz, y por eso todo lo que se consulta devuelve
+NXDOMAIN:
+
+```bash
+$ nslookup -querytype=NS rix7.cl a.nic.cl
+*** a.nic.cl no encuentra rix7.cl: Non-existent domain
+```
+
+No es que falte un registro: **no hay dónde caer**. (Una lectura apresurada de
+este mismo `nslookup` lleva a concluir que el dominio no está registrado — está
+registrado y sin delegar, que es distinto. El whois es lo que despeja la duda.)
+
+**Paso 0: delegar el dominio**, es decir, poner los NS en el panel de NIC Chile.
+Dos caminos, ambos válidos:
+
+| Opción | Dónde caen los registros | Cuándo conviene |
+|---|---|---|
+| **DNS de Vercel** (`ns1.vercel-dns.com`, `ns2.vercel-dns.com`) | dashboard de Vercel, donde ya estás | el sitio ya vive ahí: una sola pantalla para A, TXT, MX |
+| **Cloudflare** (NS que te da al crear la zona) | panel de Cloudflare | si querés CDN/proxy y control DNS separado de Vercel |
+
+En NIC Chile: **Panel → Mis dominios → `rix7.cl` → Servidores de nombres** y
+pegás los dos NS. La delegación propaga en minutos-horas.
+
+Mientras tanto, el correo sigue en §4 (`onboarding@resend.dev`). Delegar además
+desbloquea lo demás: `SITE_URL`, los redirect URLs de Supabase y el dominio en
+Vercel.
+
+### 8.2 Los registros (una vez delegado)
+
+Los registros van en el proveedor DNS que elegiste en §8.1. Para obtenerlos:
+**Resend → Domains → Add Domain** → `rix7.cl`. La pestaña *Records* genera
+valores **únicos por dominio** —una clave DKIM y un token de verificación—, así
+que **los valores se copian de ahí y de ningún otro sitio**. Lo que sigue es la
+estructura exacta y el host donde va cada uno, que es donde se falla.
+
+| # | Tipo | Host (en el panel DNS) | Valor | Cuándo va |
+|---|---|---|---|---|
+| 1 | **TXT** (SPF) | `send` → `send.rix7.cl` | el que Resend muestra (cierra en `~all`) | si la UI muestra TXT |
+| 2 | **MX** | `send` → `send.rix7.cl` | `feedback-smtp.<región>.amazonses.com.` | si la UI muestra TXT (va junto al 1) |
+| 3 | **CNAME** ×2 | los que Resend indique | los hosts que Resend genera | si la UI muestra CNAME — dominios creados **desde agosto de 2026** |
+| 4 | **TXT** (DKIM) | `resend._domainkey` | la clave pública que Resend genera, **entera** | siempre |
+| 5 | **TXT** (DMARC) | `_dmarc` → `_dmarc.rix7.cl` | `v=DMARC1; p=none;` | ⭕ recomendado |
+
+Resend usa **dos formas distintas** de SPF según cuándo se creó el dominio
+(TXT+MX, o dos CNAME) — mirá la pestaña *Records* y replicá exactamente lo que
+muestre, sin mezclarlas.
+
+**Los cinco errores típicos:**
+
+1. **Pegar los registros en la raíz.** El SPF y el MX van en el subdominio
+   `send`, no en `@`. Es el fallo nº1 según la propia base de conocimiento.
+2. **MX sin punto final.** El valor `feedback-smtp.…amazonses.com` debe ir con
+   **punto final**: si no, algunos proveedores lo reescriben a
+   `…amazonses.com.rix7.cl` y no verifica.
+3. **Región que no coincide.** El MX apunta a una región (`us-east-1`,
+   `eu-west-1`, `ap-northeast-1` o `sa-east-1`); tiene que ser la que muestra
+   Resend. Una región distinta da error `region-mismatch`, y dos regiones
+   distintas, `multiple-regions`.
+4. **CNAME proxio.** En Cloudflare el nube debe estar **gris (DNS only)**: un
+   CNAME con proxy no resuelve como CNAME y la verificación nunca termina.
+5. **DKIM truncado o con comillas.** Se copia **entero**, sin agregar nada.
+
+### 8.3 Verificación
+
+```bash
+nslookup -querytype=TXT resend._domainkey.rix7.cl   # la clave DKIM, visible
+nslookup -querytype=TXT send.rix7.cl                 # el SPF, en el subdominio
+nslookup -querytype=TXT _dmarc.rix7.cl               # si pusiste DMARC
+```
+
+Y en Resend, si no avanza, el botón **Restart verification**. La propagación
+puede tardar **hasta 72 h** (normalmente mucho menos); recién pasado eso
+conviene volver a intentar el §7.
+
+### 8.4 Después de verificar
+
+1. Cambiá `ALERTS_FROM_EMAIL` a `Rix7 <avisos@rix7.cl>` y redeployá.
+2. Repetí la prueba del §7.
+3. Endurecé el DMARC: `p=none` → `p=quarantine` (una semana de ver logs).
+4. El resto del cambio de dominio (Vercel, `SITE_URL`, Supabase) está en la
+   fase de cierre del [plan de reparación](plan-reparacion-y-mejora.md).
+
+Mientras el dominio no esté verificado, **no** cambies a `avisos@rix7.cl`: es
+peor que `onboarding@resend.dev`, porque ni siquiera te llega a ti.
+
+---
+
+## 9. Probar en local sin clave
+
+Con `DEV_EMAIL_OUTBOX=1`, cada mensaje que pasa por `sendEmail` queda en el
+buzón de salida (`lib/email/outbox`) y se abre en el navegador: sirve para
+probar el registro de punta a punta con una clave falsa. El buzón guarda el
+resultado **tal cual** — también el `skipped` — así que nunca convierte un envío
+que no ocurrió en uno que sí.
+
+---
+
+## 10. Si algo falla
+
+| Síntoma | Causa probable | Arreglo |
+|---|---|---|
+| `email: false`, `reason: "Falta RESEND_API_KEY."` | no existe el env | §5 + `deploy:prod` |
+| `email: true` pero `sent: false`, `skipped: false` | rechazo de Resend (4xx) | mirá el `error` crudo que devuelve `sendEmail`; los dos casos típicos abajo |
+| 403 | remitente `onboarding@resend.dev` hacia un tercero | §4 — o verificá el dominio |
+| error de dominio no verificado | `ALERTS_FROM_EMAIL` apunta a `rix7.cl` sin verificar | volvé a `onboarding@resend.dev` o hacé §8 |
+| clave inválida (401) | se regeneró o expiró | crear una nueva con **No expiration** |
+| llegó a `true` y un día dejó de mandar | clave expirada por timeout | §3, elegir **No expiration** |
+| `email-skipped` en el cron | lo mismo, visto desde el job | idem |
+
+---
+
+## 11. Apagar
+
+| Objetivo | Cómo |
+|---|---|
+| Cortar los tres correos | borra `RESEND_API_KEY` → `isEmailConfigured()` es `false`, todo `skipped` |
+| Cortar solo los avisos de búsqueda | borrá `ALERTS_FROM_EMAIL` y… mejor: desactivá el cron en `.github/workflows/alerts-run.yml` |
+| Cortar solo las alertas de Sentry | borrá `SENTRY_WEBHOOK_SECRET` → el receptor responde 503 sin procesar |
+| Prueba local sin tocar nada | `DEV_EMAIL_OUTBOX=1` |
+
+---
+
+## 12. Checklist de cierre
+
+- [ ] Cuenta de Resend creada y clave con **Sending access** + **No expiration**
+- [ ] `RESEND_API_KEY` en los tres entornos de Vercel, como Secret
+- [ ] `ALERTS_FROM_EMAIL` definido (no el default de `.env.example`)
+- [ ] `npm run deploy:prod` corrido **después** de los env
+- [ ] `/api/health` → `email: configured true`
+- [ ] `/api/alerts/run` → `emailConfigured: true`
+- [ ] `/api/webhooks/sentry` → los tres `true`
+- [ ] Correo de prueba recibido (`smoke:prod --write`)
+- [ ] Fila de prueba borrada de `public.signups`
+- [ ] *(opcional)* `rix7.cl` verificado → `avisos@rix7.cl`
+
+---
+
+## 13. Lo que esto no cambia
+
+- **No valida el contenido.** El asunto, el HTML y el texto los siguen mandando
+  `alertEmail`, `sentryAlertEmail` y `welcomeEmail`; esto solo enciende la línea.
+- **No reemplaza al cron.** El envío depende de la clave *y* de que el job corra.
+- **No mide entrega.** Si Resend acepta el mensaje, este runbook da por bueno el
+  trabajo: abrir, clics y spam son otra capa.
+- **No guarda secretos en el repo.** Nunca, por ninguna razón.
+
+---
+
+**Archivos:** [lib/email/sendEmail.ts](../lib/email/sendEmail.ts) (envío) ·
+[lib/email/outbox.ts](../lib/email/outbox.ts) (buzón local) ·
+[lib/data/alertsRunner.ts](../lib/data/alertsRunner.ts) (avisos) ·
+[app/api/webhooks/sentry/route.ts](../app/api/webhooks/sentry/route.ts)
+(alertas) · [app/api/registro/route.ts](../app/api/registro/route.ts) (bienvenida)
+· [docs/runbook-supabase-real.md](runbook-supabase-real.md) ·
+[docs/runbook-guardia-de-secretos.md](runbook-guardia-de-secretos.md)
