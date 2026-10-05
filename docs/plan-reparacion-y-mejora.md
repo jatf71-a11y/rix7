@@ -91,13 +91,16 @@ completa. Es la reparación del desorden, no del producto.
 **Punto de control 0** — sobre la rama única, con la build **recompilada con el
 `.env.local` real** (no placeholder):
 
-- [ ] `npx tsc --noEmit` limpio
-- [ ] `npx vitest run` → **955/955**
-- [ ] `npm run check:knip` limpio
-- [ ] `npm run check:bundle` dentro del techo
-- [ ] `npm run build` sin errores
-- [ ] `npm run check:a11y -- --all --fail-on-serious` → 0 críticos/0 serios
-- [ ] `npm run test:integration:nosupabase` → **15/15**
+> **Ejecutado el 2026-10-05** sobre `main` (`b40db9b`). 6 de 7 en verde; el séptimo
+> no está desactualizado por una regresión, sino por la propia Fase 1 (ver abajo).
+
+- [x] `npx tsc --noEmit` limpio
+- [x] `npx vitest run` → **994/994** (la suite creció desde los 955 del plan)
+- [x] `npm run check:knip` limpio
+- [x] `npm run check:bundle` dentro del techo → **87,5 kB**, 21 rutas
+- [x] `npm run build` sin errores
+- [x] `npm run check:a11y -- --all --fail-on-serious` → **0 críticos / 0 serios** en las 6 rutas (2 moderados por ruta: `landmark-one-main` y `meta-viewport`)
+- [ ] `npm run test:integration:nosupabase` → **15/15** — **hoy da 10/15**. No es una regresión: la suite demuestra que el portal «sin Supabase» degrada a memoria, pero desde la Fase 1 el build se compila con `.env.local` real y Next **inlinea** las `NEXT_PUBLIC_SUPABASE_*`, así que la copia aislada que levanta el script sigue conectando. Los 5 fallos son literalmente «persistió cuando esperaba que no» (`leads`, `view` ×2, y la ficha sin el rótulo ámbar). **Hay que re-specificarla**: o se construye en el staging sin esas variables, o pasa a comprobar el camino «con Supabase real».
 
 > Si la Fase 0 termina con estos 7 en verde, **el código ya está sano**. Lo que
 > falta es activarlo.
@@ -122,11 +125,13 @@ Sigue `docs/runbook-supabase-real.md` (ya escrito). Resumen:
 
 **Punto de control 1** — contra producción:
 
-- [ ] `GET /api/health` → `supabase` **fuera** de críticos
-- [ ] `GET /api/properties` → `"source":"supabase"`
-- [ ] `npm run smoke:prod -- --write --email tu@correo.cl` → **`persisted: true`**
-- [ ] La fila de prueba aparece en `/admin/registros`
-- [ ] Fila de prueba borrada y token personal **revocado**
+> **Ejecutado el 2026-10-05** contra `https://rix7.vercel.app`. Dos de cinco verificados hoy; los otros tres requieren una acción tuya.
+
+- [x] `GET /api/health` → `supabase` **fuera** de críticos → `broken: []`, `supabase: configured true`, `service_role: true`. Sigue `degraded` por `email` y `monitoring`.
+- [x] `GET /api/properties` → `"source":"supabase"` con **14** propiedades
+- [ ] `npm run smoke:prod -- --write --email tu@correo.cl` → **`persisted: true`** — hace falta **tu correo**: `--write` da un alta real y manda la bienvenida. La corrida de solo lectura (`npm run smoke:prod`) sí pasó: `/` y `/admin/registros` en 200, `/api/registro` en 401 esperado.
+- [ ] La fila de prueba aparece en `/admin/registros` — depende del punto anterior.
+- [ ] Fila de prueba borrada y token personal **revocado** — el `sbp_` se quitó de `.env.local`, pero **la revocación en el dashboard de Supabase sigue sin confirmar**.
 
 > Aquí el portal deja de ser una demo honesta y pasa a ser un producto que
 > guarda lo que le das.
@@ -146,9 +151,9 @@ migración aplicada.
 
 **Punto de control 2:**
 
-- [ ] `POST /api/properties/[id]/view` → `202` con `persisted: true` en producción
-- [ ] `db:status` → `0012_property_views` registrada
-- [ ] La ficha en producción muestra el conteo **real** (sin el aviso ámbar de prueba)
+- [x] `POST /api/properties/[id]/view` → `202` con `persisted: true` en producción → `{"success":true,"views":1,"counted":true,"persisted":true}` (esa llamada dejó el contador de esa ficha en 1)
+- [ ] `db:status` → `0012_property_views` registrada — **no ejecutable hoy**: necesita `SUPABASE_ACCESS_TOKEN`, borrado de `.env.local` a petición del dueño, y `db:*` falla cerrado sin él. Evidencia indirecta: las 12 migraciones estaban aplicadas y `db:status` daba al día antes de quitar el token.
+- [x] La ficha en producción muestra el conteo **real** (sin el aviso ámbar de prueba) → HTTP 200 y **cero** menciones de «Conteo de prueba» en el HTML
 
 ---
 
@@ -166,11 +171,11 @@ punto de partida del desarrollo normal.
 
 **Punto de control 3 (el final claro):**
 
-- [ ] `main` contiene todo; no queda ninguna rama con trabajo sin fusionar
-- [ ] Los 7 gates corren en CI sobre `main` y están en verde
-- [ ] Producción: datos persistentes, health sin críticos, a11y sin serios
-- [ ] Un solo checkout, un solo hilo
-- [ ] El worktree `RIX7-fase3` y los artefactos sueltos están retirados
+- [x] `main` contiene todo; no queda ninguna rama con trabajo sin fusionar → solo `main` (en `b40db9b`) y `audit/optimization`, ya fusionada
+- [ ] Los 7 gates corren en CI sobre `main` y están en verde — **CI tiene 7 jobs-gates y todos en verde**, pero no son los 7 de este plan: **falta la suite de integración** y sobra la guardia de secretos (verify = tsc+vitest+knip+build · budget · a11y · secrets). Además esa suite está desactualizada (ver Punto 0).
+- [x] Producción: datos persistentes, health sin críticos, a11y sin serios → `persisted: true` en `/view`, `broken: []` en health, y 0 críticos / 0 serios en la auditoría
+- [x] Un solo checkout, un solo hilo → `git worktree list` → un único checkout; `npm run slots` → «No hay sesiones locales vivas»
+- [x] El worktree `RIX7-fase3` y los artefactos sueltos están retirados
 
 > **Cuando esto se cumple, Rix7 v1 es real y el desarrollo normal puede
 > empezar.** No es el final del producto: es el final de la etapa de reparación.
