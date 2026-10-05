@@ -16,7 +16,7 @@ La mitad de alertas no estaba «pendiente»: es infraestructura previa a la fase
 
 El código completo ya vive en el repo:
 
-- `.github/workflows/alerts-run.yml` — cron diario a las 09:00 Chile (12:00 UTC), con `workflow_dispatch` y modo simulación.
+- `.github/workflows/alerts-run.yml` — cron diario a las 09:17 Chile (12:17 UTC, fuera del minuto 0 por la carga del scheduler de GitHub), con `workflow_dispatch` y modo simulación.
 - `app/api/alerts/run` — POST protegido por `x-alerts-secret`, GET de estado, validación Zod, `?dry=1`.
 - `lib/data/alertsRunner.ts` — recorre búsquedas activas, filtra novedades desde el último aviso, **primera corrida = línea base sin envío**, si el correo falla no avanza la fecha (reintento), máx. 20 propiedades por correo, informe detallado sin excepciones.
 - `lib/email/alertEmail.ts` + `sendEmail.ts` — correo HTML/texto con escape, vía Resend.

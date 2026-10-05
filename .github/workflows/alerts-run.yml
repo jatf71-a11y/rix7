@@ -20,17 +20,31 @@
 #
 # Nota: GitHub desactiva los schedules tras 60 días sin actividad en el repo.
 #
-# Mientras el sitio no tenga Supabase real (falta SUPABASE_SERVICE_ROLE_KEY en
-# Vercel), el job **no falla**: avisa «sin configurar» y termina en verde. Un rojo
-# diario que todavía nadie puede arreglar solo enseña a ignorar la CI; el rojo se
-# reserva para cuando SÍ está configurado y algo se rompió.
+# Mientras al sitio le falte configuración (SUPABASE_SERVICE_ROLE_KEY o
+# ALERTS_CRON_SECRET en Vercel), el job **no falla**: escribe en el resumen de la
+# corrida *qué* falta, con nombre, y termina en verde. Un rojo diario que todavía
+# nadie puede arreglar solo enseña a ignorar la CI; el rojo se reserva para cuando
+# SÍ esté configurado y algo se rompió. Si el sitio no contesta, eso sí es avería
+# y también deja su nota en el resumen.
 
 name: Avisos de búsquedas
 
 on:
   schedule:
-    # 12:00 UTC = 09:00 América/Santiago (UTC-3). Antes que el snapshot de POIs.
-    - cron: '0 12 * * *'
+    # 12:17 UTC = 09:17 América/Santiago (UTC-3). Antes que el snapshot de POIs
+    # (13:30 UTC) y, sobre todo, **sin caer en el minuto 0**: GitHub documenta que
+    # el inicio de la hora es el momento de mayor carga de Actions y que ahí las
+    # corridas encoladas se retrasan o directamente se descartan.
+    #
+    # Expectativa honesta: mover el minuto es barato y cumple con esa
+    # recomendación, pero en este repo el atraso no es solo del minuto 0. Retraso
+    # real (hora real menos hora programada) de las últimas corridas:
+    #   alerts-run    0 12 * * *    +3:31 a +7:03  (7 corridas)
+    #   snapshot-pois 30 13 * * *   +3:58 a +5:27  (6 corridas)
+    #   health-check  0 */6 * * *   +2:56 a +5:52
+    # El scheduler de GitHub va horas atrasado para este repo: cambiar de minuto
+    # baja el riesgo de descarte, no garantiza puntualidad.
+    - cron: '17 12 * * *'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -73,15 +87,48 @@ jobs:
           ')
           echo "ready=$READY" >> "$GITHUB_OUTPUT"
 
-      - name: Sin configurar (salta sin fallar)
-        if: steps.status.outputs.ready != 'true'
+          # Qué falta, con nombre. Sin esto el resumen diría «falta X **o** Y» y
+          # a las 9 de la mañana te toca adivinar; con esto dice cuál de los dos.
+          MISSING=$(node -e '
+            const fs = require("fs");
+            const c = JSON.parse(fs.readFileSync("estado.json", "utf8")).configured ?? {};
+            const falta = [];
+            if (c.cronSecret !== true) falta.push("ALERTS_CRON_SECRET");
+            if (c.serviceRole !== true) falta.push("SUPABASE_SERVICE_ROLE_KEY");
+            process.stdout.write(falta.join(" + "));
+          ')
+          echo "missing=$MISSING" >> "$GITHUB_OUTPUT"
+
+      # Si el sitio no contesta no se puede saber si está configurado: eso es
+      # avería, no «sin configurar». Igual se escribe el resumen, porque una
+      # corrida en rojo con el resumen vacío es lo peor de los dos mundos.
+      - name: Estado del sitio no disponible
+        if: failure() && steps.status.outcome == 'failure'
         run: |
-          echo "::notice::El job de avisos todavía no está configurado (falta SUPABASE_SERVICE_ROLE_KEY o ALERTS_CRON_SECRET en Vercel). Se salta la corrida; no es un fallo."
           {
             echo ""
-            echo "> ⏭️ **Saltado: el job no está configurado todavía.**"
-            echo "> Falta \`SUPABASE_SERVICE_ROLE_KEY\` (o \`ALERTS_CRON_SECRET\`) en Vercel."
-            echo "> Cuando el sitio tenga Supabase real, esta corrida empieza a enviar avisos sola."
+            echo "> ❌ **No pude leer $SITE/api/alerts/run.**"
+            echo ">"
+            echo "> Esto **no** es «sin configurar»: es una avería, y la corrida termina en rojo."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Sin configurar (salta sin fallar)
+        if: steps.status.outputs.ready != 'true'
+        env:
+          # Pasado por env y no interpolado: un valor de $GITHUB_OUTPUT no debe
+          # meterse en el texto del script, aunque sea fijo.
+          MISSING: ${{ steps.status.outputs.missing }}
+        run: |
+          echo "::notice::El job de avisos se salta: falta $MISSING en Vercel. No es un fallo."
+          {
+            echo ""
+            echo "> ⏭️ **Saltado por falta de configuración (no es una avería).**"
+            echo ">"
+            echo "> Falta en Vercel: \`$MISSING\`"
+            echo ">"
+            echo "> El estado completo está arriba, en «Estado de configuración»."
+            echo "> El rojo queda reservado para cuando esté configurado y algo se rompa;"
+            echo "> por eso esta corrida termina en verde."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Correr las alertas
