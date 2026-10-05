@@ -68,6 +68,11 @@ Anota también la **ref** del proyecto: es el `<ref>` de la URL.
 > La `service_role` **salta RLS**: es la que necesita el job de alertas para leer
 > las búsquedas de todas las personas. Nunca lleva prefijo `NEXT_PUBLIC_` y
 > nunca se comitea.
+>
+> Quien impide que se comite es la **guardia de secretos**: corre sola antes de
+> cada `git commit`, antes de `npm run dev` y antes de `npm run deploy:prod`, y
+> también es el primer job de CI. Se llama a mano con `npm run check:secrets`.
+> Detalle en [runbook-guardia-de-secretos.md](runbook-guardia-de-secretos.md).
 
 ---
 
