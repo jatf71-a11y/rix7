@@ -24,6 +24,13 @@
 # si alguna tiene hallazgos critical/serious, el CI se pone rojo. Mismo
 # patrón que knip/budget — barato de mantener, imposible de esquivar.
 #
+# Guardia de secretos: un job propio, sin dependencias y primero, que falla si
+# un `.env*` (salvo `.env.example`) quedó versionado o si el árbol contiene un
+# token de Supabase (`sbp_`, `sb_secret_`, un JWT `service_role`), de Resend, de
+# GitHub, de Stripe, de Google o de Sentry, o un bloque de clave privada PEM.
+# Nació de la puesta en marcha de Supabase real: convierte en regla que un
+# secreto no llegue al repositorio, en vez de depender de no equivocarse.
+#
 # Sin secretos a propósito: el portal está diseñado para degradar a catálogo
 # local cuando Supabase no está configurado, así que el build no necesita
 # claves. Si algún día una variable fuera imprescindible, usar Variables (no
@@ -49,6 +56,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Primero y sin dependencias (solo node + git): un token filtrado se ve en
+  # segundos, antes de gastar minutos instalando y compilando.
+  secrets:
+    name: Sin secretos en el árbol
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Buscar secretos
+        run: npm run check:secrets
+
   verify:
     name: Tipos, tests, knip y build
     runs-on: ubuntu-latest

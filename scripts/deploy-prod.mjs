@@ -17,12 +17,18 @@
  * desde ahí. El deployment queda atribuido a la cuenta dueña —que sí tiene
  * permiso— y Vercel lo promueve a producción automáticamente.
  *
+ * Antes de copiar nada corre la guardia de secretos (`check-secrets.mjs`). Los
+ * `.env*` ya quedan fuera de la copia, pero un secreto suelto en un archivo
+ * normal viajaría igual: mejor cortarlo antes de subir un deployment.
+ *
  * Uso: npm run deploy:prod
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { assertNoSecrets } from './check-secrets.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const staging = path.join(root, '.deploy-staging');
@@ -58,6 +64,12 @@ function copyTree(from, to) {
 const projectFile = path.join(root, '.vercel', 'project.json');
 if (!fs.existsSync(projectFile)) {
   console.error('✖ No se encontró .vercel/project.json — ejecuta `npx vercel link` primero.');
+  process.exit(1);
+}
+
+// Paso previo: la guardia de secretos. Corre sobre el árbol de trabajo, que es
+// justo lo que se va a copiar al staging.
+if (!assertNoSecrets({ action: 'despliego a producción' })) {
   process.exit(1);
 }
 
