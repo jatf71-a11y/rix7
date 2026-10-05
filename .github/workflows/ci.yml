@@ -31,6 +31,19 @@
 # Nació de la puesta en marcha de Supabase real: convierte en regla que un
 # secreto no llegue al repositorio, en vez de depender de no equivocarse.
 #
+# Integración sin Supabase: la única puerta que mide **comportamiento** y no
+# código. `npm run test:integration:nosupabase` copia el repo a una carpeta
+# temporal sin `.env*`, **compila ahí** su propia build y arranca `next start`
+# con las `NEXT_PUBLIC_SUPABASE_*` fuera de los bundles, para que el portal
+# degrade de verdad en vez de simularlo. 15 comprobaciones de punta a punta
+# (salud, favoritos, búsquedas guardadas, contactos, visitas de ficha) con
+# criterio fail-closed: un 200 con datos sin sesión hace fallar el job.
+#
+# Es un job **independiente** —sin `needs` y sin artifact— y construye lo suyo
+# a propósito: bajar la `.next` del job `verify` sería volver al bug que este
+# gate arregló, porque esa build trae las `NEXT_PUBLIC_*` inlineadas y el
+# portal seguiría conectado. Su coste es un `next build` (~3 min) más el install.
+#
 # Sin secretos a propósito: el portal está diseñado para degradar a catálogo
 # local cuando Supabase no está configurado, así que el build no necesita
 # claves. Si algún día una variable fuera imprescindible, usar Variables (no
@@ -196,3 +209,29 @@ jobs:
             sleep 1
           done
           npm run check:a11y -- --fail-on-serious
+
+  # Comportamiento, no solo tipos: ¿qué ve una persona cuando el portal no tiene
+  # Supabase? Sin `needs` ni artifact: la suite compila su propia build sin
+  # `.env*` (ver cabecera), que es justo lo que hay que probar, y no pide un
+  # `npm run build` previo — la build de la raíz sería la equivocada.
+  integration:
+    name: Integración sin Supabase (degrada sin filtrar datos)
+    runs-on: ubuntu-latest
+    # Un `next build` colgado no debería quemar horas de Actions: la suite ya
+    # espera 120 s a que el servidor escuche, el techo es para la compilación.
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Suite sin Supabase (compila en su copia temporal)
+        run: npm run test:integration:nosupabase
