@@ -1,0 +1,105 @@
+'use client';
+
+import React from 'react';
+import { Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import Link from 'next/link';
+import { Property } from '@/lib/types/property';
+import { useCurrency } from '@/components/currency/CurrencyProvider';
+import { formatPrice, formatArea, getStatusLabel } from '@/lib/utils/formatters';
+import { Bed, Bath, ArrowRight } from 'lucide-react';
+
+interface PropertyMarkerProps {
+  property: Property;
+  isSelected?: boolean;
+  onSelect?: (property: Property) => void;
+}
+
+export function PropertyMarker({ property, isSelected, onSelect }: PropertyMarkerProps) {
+  const { currency } = useCurrency();
+  const isRent = property.status === 'for_rent';
+  const formattedPrice = formatPrice(property.price, currency, 'es-CL', isRent);
+  
+  const customIcon = L.divIcon({
+    className: 'custom-leaflet-marker',
+    html: `
+      <div class="property-map-pin ${isSelected ? 'selected' : ''} ${isRent ? 'pin-rent' : ''}">
+        <span class="price-text">${formattedPrice}</span>
+      </div>
+    `,
+    iconSize: [isRent ? 108 : 96, 32],
+    iconAnchor: [isRent ? 54 : 48, 16],
+    popupAnchor: [0, -18],
+  });
+
+  return (
+    <Marker
+      position={[property.lat, property.lng]}
+      icon={customIcon}
+      eventHandlers={{
+        click: () => {
+          if (onSelect) onSelect(property);
+        },
+      }}
+    >
+      <Popup className="property-map-popup" closeButton={false}>
+        <div className="w-64 bg-white rounded-xl overflow-hidden shadow-lg -m-3">
+          <div className="relative h-32 w-full bg-slate-100">
+            {property.images && property.images.length > 0 ? (
+              <img
+                src={property.images[0]}
+                alt={property.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">
+                Sin imagen
+              </div>
+            )}
+            <div className={`absolute top-2 left-2 px-2 py-0.5 text-white text-[11px] font-bold rounded-md shadow-sm ${
+              isRent ? 'bg-blue-600' : 'bg-emerald-600'
+            }`}>
+              {formattedPrice}
+            </div>
+            <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/60 backdrop-blur-xs text-white text-[10px] font-semibold rounded-md">
+              {getStatusLabel(property.status)}
+            </div>
+          </div>
+
+          <div className="p-3">
+            <h4 className="font-bold text-slate-900 text-sm line-clamp-1">
+              {property.title}
+            </h4>
+            <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">
+              {property.address}, {property.city}
+            </p>
+
+            <div className="flex items-center gap-3 mt-2 pt-2 border-t border-slate-100 text-xs text-slate-600 font-medium">
+              {property.bedrooms > 0 && (
+                <span className="flex items-center gap-1">
+                  <Bed className="w-3.5 h-3.5 text-slate-400" />
+                  {property.bedrooms} dorm.
+                </span>
+              )}
+              {property.bathrooms > 0 && (
+                <span className="flex items-center gap-1">
+                  <Bath className="w-3.5 h-3.5 text-slate-400" />
+                  {property.bathrooms} bñ
+                </span>
+              )}
+              <span>{formatArea(property.area_sqm)}</span>
+            </div>
+
+            <Link
+              href={`/properties/${property.id}`}
+              className="mt-3 flex items-center justify-center gap-1 w-full py-1.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-semibold rounded-lg transition-colors"
+            >
+              <span>Ver detalles</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </Popup>
+    </Marker>
+  );
+}
