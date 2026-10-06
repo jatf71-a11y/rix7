@@ -1,0 +1,13 @@
+# Unifica la identidad de autor del historial de rix7.
+# Formato: https://git-scm.com/docs/gitmailmap
+#
+#   nombre canonico <correo del commit>                 -> cambia el nombre
+#   nombre canonico <correo bueno> <correo del commit>  -> cambia nombre y correo
+#
+# Resultado: los 104 commits humanos se leen como jatf71-a11y
+# <313025432+jatf71-a11y@users.noreply.github.com>, la misma identidad con la
+# que se firman los commits nuevos. github-actions[bot] queda fuera a proposito.
+
+jatf71-a11y <313025432+jatf71-a11y@users.noreply.github.com>
+jatf71-a11y <313025432+jatf71-a11y@users.noreply.github.com> <jtorres@catedralpropiedades.com>
+jatf71-a11y <313025432+jatf71-a11y@users.noreply.github.com> <jatf71@gmail.com>
