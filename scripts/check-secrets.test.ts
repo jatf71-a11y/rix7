@@ -22,6 +22,8 @@ import {
 const PAT = `sbp_${'a1b2c3d4'.repeat(5)}`; // 40 hex
 const SUPABASE_SECRET = `sb_secret_${'Ab1'.repeat(10)}`;
 const RESEND_KEY = `re_${'A1b2C3d4'.repeat(4)}`;
+// El formato real de Resend trae guiones bajos y guiones: `re_Ab1Cd2Ef_3Gh…`.
+const RESEND_KEY_CON_GUION_BAJO = `re_${'A1b2C3d4'.repeat(3)}_x${'Ef5Gh6Ij'}`;
 const GITHUB_TOKEN = `ghp_${'Ab1Cc2Dd3'.repeat(4)}`; // 36 alfanuméricos
 const GITHUB_FINE_TOKEN = `github_pat_${'aB1_'.repeat(15)}`;
 const STRIPE_SECRET = `sk_live_${'Ab1cD2eF'.repeat(3)}`; // 24 alfanuméricos
@@ -60,6 +62,11 @@ describe('findSecretsInText', () => {
 
   it('detecta la clave de Resend (re_)', () => {
     const findings = findSecretsInText(`RESEND_API_KEY=${RESEND_KEY}`);
+    expect(findings.some((f) => f.id === 'resend-key')).toBe(true);
+  });
+
+  it('detecta la clave de Resend con guion bajo, el formato real', () => {
+    const findings = findSecretsInText(`RESEND_API_KEY=${RESEND_KEY_CON_GUION_BAJO}`);
     expect(findings.some((f) => f.id === 'resend-key')).toBe(true);
   });
 

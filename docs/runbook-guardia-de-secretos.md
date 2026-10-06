@@ -72,7 +72,7 @@ alfabeto reales, así que un marcador no coincide.
 |---|---|---|---|
 | `supabase-pat` | token personal de Supabase | `sbp_` + ≥32 hex | `sbp_tu_token` |
 | `supabase-secret` | service_role de Supabase | `sb_secret_` + ≥28 | la anon |
-| `resend-key` | API key de Resend | `re_` + ≥28 alfanuméricos | `share_views`, `fire_station` |
+| `resend-key` | API key de Resend | `re_` + ≥28 de `[A-Za-z0-9_-]` | `share_views`, `fire_station` |
 | JWT | clave de servicio | payload con `role: "service_role"` | la anon (es pública) |
 | `github-token` | tokens clásicos | `gh[pousr]_` + 36 | cualquier string corto |
 | `github-fine-grained-token` | token fino | `github_pat_` + ≥22 | — |

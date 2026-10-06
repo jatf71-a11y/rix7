@@ -74,7 +74,9 @@ export const SECRET_PATTERNS = [
     id: 'resend-key',
     label: 'Clave de Resend (re_)',
     // `\b` evita que `share_views` o `fire_station` cuenten como `re_…`.
-    regex: /\bre_[A-Za-z0-9]{28,}/,
+    // Se admiten `_` y `-` porque las claves reales de Resend los traen
+    // (`re_Ab1Cd2Ef_3Gh…`); sin ellos la clave de producción no era hallazgo.
+    regex: /\bre_[A-Za-z0-9_-]{28,}/,
   },
   {
     id: 'github-token',
