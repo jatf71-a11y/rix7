@@ -26,6 +26,7 @@
     "db:status": "node scripts/db-push.mjs --status",
     "db:check": "node scripts/db-push.mjs --check",
     "smoke:prod": "node scripts/smoke-prod.mjs",
+    "alerts:e2e": "node scripts/alerts-e2e.mjs",
     "check:health": "node scripts/check-health.mjs",
     "vitals": "node scripts/measure-vitals.mjs",
     "check:a11y": "node scripts/audit-a11y.mjs",
