@@ -255,59 +255,131 @@ Y en Resend, si no avanza, el botón **Restart verification**. La propagación
 puede tardar **hasta 72 h** (normalmente mucho menos); recién pasado eso
 conviene volver a intentar el §7.
 
-### 8.4 Checklist del día en que `rix7.cl` quede delegado
+### 8.4 Plan de ejecución del día del dominio (orden, dependencias, verificación)
 
 Valoración hecha el 2026-10-05: canonical, `og:url` y `sitemap.xml` apuntan
 hoy a `https://rix7.vercel.app`, es decir que `NEXT_PUBLIC_SITE_URL` está en el
 dominio temporal, y `vars.SITE_URL` de GitHub también.
 
-**Condiciones de salida**
+El plan arranca con `rix7.cl` registrado y sin delegar (§8.1); si la delegación
+ya propagó, entrá directo al paso 2, y si Resend ya está **Verified**, al paso 3.
+Cada paso dice **de qué depende**, **qué hacer** y **cómo verificarlo** — no se
+avanza sin que la verificación anterior dé. Orden real:
 
-- [ ] `nslookup -querytype=NS rix7.cl` → `ns1/ns2.vercel-dns.com`
-- [ ] Resend → `rix7.cl` en estado **Verified** (§8.3)
+```
+1 → (2 ∥ 3) → (4 ∥ 5 ∥ 6) → 7 → 8 → 9
+```
 
-**Vercel — dominio**
+Dos esperas mandan el día: la propagación de los NS del paso 1 (≤ 24 h) y la
+verificación de Resend del paso 2 (≤ 72 h); el resto son minutos.
 
-- [ ] Settings → Domains: añadir **`rix7.cl`** y **`www.rix7.cl`**
-- [ ] Dominio primario = `rix7.cl`; `www` → redirect 308
-- [ ] Registros: apex → A `76.76.21.21`, `www` → CNAME `cname.vercel-dns.com`
-      (si Vercel gestiona el DNS, los crea al adjuntar el dominio — verificalos)
-- [ ] Certificado TLS en **Active** (DNS-01, automático)
+| Paso | Depende de | Desbloquea |
+|---|---|---|
+| 1 · Delegación NS | dominio registrado (§8.1) | 2, 3 |
+| 2 · Resend **Verified** | 1 | 4b (remitente del correo del paso 8) |
+| 3 · Dominio + TLS en Vercel | 1 | 4, 5, 6, 7 |
+| 4 · Variables en Vercel | 3 · **4b** además exige 2 | 7 |
+| 5 · Supabase Auth URLs | 3 | 8 |
+| 6 · GitHub `vars.SITE_URL` | 3 | 8 |
+| 7 · `npm run deploy:prod` | 3 + 4 | 8 |
+| 8 · Verificación final | 5, 6, 7 | 9 |
+| 9 · DMARC `p=quarantine` | 2 con ≥ 7 días de logs | — (no bloquea) |
 
-**Vercel — variables**
+**Paso 1 · Delegar el dominio** (el «paso 0» del §8.1)
 
-- [ ] `NEXT_PUBLIC_SITE_URL` → `https://rix7.cl` **sin barra final**, en
-      Production, Preview y Development (hoy: `https://rix7.vercel.app`)
-- [ ] `ALERTS_FROM_EMAIL` → `Rix7 <avisos@rix7.cl>` — **solo si Resend ya
-      está Verified**; si no, queda como está (§4)
-- [ ] `RESEND_API_KEY` presente si todavía no lo está (§5)
-- [ ] **`npm run deploy:prod`** — las `NEXT_PUBLIC_*` se inlinean en build: sin
-      redeploy, el canonical sigue apuntando al dominio temporal
+- **Depende de:** nada — `rix7.cl` ya está registrado (§8.1).
+- **Hacer:** (a) Vercel → Settings → Domains → añadir `rix7.cl` para que el
+  proyecto quede esperándolo; (b) NIC Chile → sección 4 · *Servidores de
+  nombre* → pegar `ns1.vercel-dns.com` y `ns2.vercel-dns.com`, casilla
+  *secundario* **desmarcada**, botón *Actualizar datos de dominios*.
+- **Verificar:** `nslookup -querytype=NS rix7.cl` → `ns1.vercel-dns.com` y
+  `ns2.vercel-dns.com` (hasta 24 h). Sin esto no hay zona: los pasos 2–8 no
+  tienen dónde apoyarse.
 
-**Supabase — Auth**
+**Paso 2 · Verificar `rix7.cl` en Resend** *(corre en paralelo con el 3)*
 
-- [ ] Authentication → URL Configuration → **Site URL** → `https://rix7.cl`
-- [ ] **Redirect URLs**: añadir `https://rix7.cl/**` y `https://www.rix7.cl/**`
-- [ ] **Conservar** `https://rix7.vercel.app/**` mientras se use: si lo sacás,
-      los enlaces de mágico ya enviados dejan de redirigir
-- [ ] Probar de verdad: confirmación de registro y **recuperación de contraseña**
-      con el dominio nuevo
-- [ ] *(opcional)* Auth → SMTP con el dominio verificado, para que las alertas de
-      autenticación también salgan de `rix7.cl`
+- **Depende de:** 1 — con los NS delegados recién resuelven los registros.
+- **Hacer:** Resend → Domains → Add `rix7.cl`; copiar de la pestaña *Records*
+  los valores **únicos** (clave DKIM y token) al proveedor DNS del §8.1 — SPF y
+  MX en el subdominio `send`, DKIM en `resend._domainkey`, DMARC en `_dmarc`.
+  Replicá la forma exacta que muestre la UI (TXT+MX o CNAME×2) y esquivá los
+  **cinco errores típicos** del §8.2.
+- **Verificar:** los tres `nslookup` del §8.3 responden y Resend muestra
+  **Verified** (≤ 72 h; *Restart verification* si se queda). Hasta entonces el
+  paso **4b no se toca**.
 
-**GitHub (si no, el cron se queda con el dominio viejo)**
+**Paso 3 · Dominio activo en Vercel** *(corre en paralelo con el 2)*
 
-- [ ] `vars.SITE_URL` → `https://rix7.cl` (hoy `https://rix7.vercel.app`); el
-      workflow usa `vars.SITE_URL || 'https://rix7.cl'`, así que con borrarla
-      también sirve
+- **Depende de:** 1.
+- **Hacer:** en Settings → Domains, añadir `www.rix7.cl` si falta, dejar
+  `rix7.cl` como **primario** y `www` con redirect **308**; revisar registros
+  (apex → A `76.76.21.21`, `www` → CNAME `cname.vercel-dns.com` — si Vercel
+  gestiona el DNS los crea al adjuntar el dominio, verificalos igual; si no,
+  pegalos en el proveedor elegido en §8.1).
+- **Verificar:** certificado **TLS Active** en el panel (DNS-01, automático,
+  minutos) y `curl -sI https://rix7.cl | head -1` → `HTTP/2 200`; además
+  `curl -sI https://www.rix7.cl | head -1` → `308`. Ya sirve el dominio, pero el
+  contenido sigue siendo el del temporal: el canonical cambia en el paso 7.
 
-**Verificación final**
+**Paso 4 · Variables en Vercel**
 
-- [ ] `curl -s https://rix7.cl/api/health` → `site_url` sigue `true` y sin notas
-- [ ] canonical, `og:url` y `sitemap.xml` ya dicen `https://rix7.cl`
-- [ ] `npm run smoke:prod -- --url https://rix7.cl`
-- [ ] Repetir §7 (correo de prueba)
-- [ ] Endurecer el DMARC: `p=none` → `p=quarantine` tras una semana de logs
+- **Depende de:** 3 (nada apunta todavía a un dominio caído); **4b** depende
+  además de 2 en **Verified**.
+- **Hacer:**
+  - **4a** `NEXT_PUBLIC_SITE_URL` = `https://rix7.cl` **sin barra final**, en
+    Production, Preview y Development (hoy `https://rix7.vercel.app`).
+  - **4b** `ALERTS_FROM_EMAIL` = `Rix7 <avisos@rix7.cl>` — solo si el paso 2
+    está **Verified**; si no, se queda como está (§4).
+  - **4c** `RESEND_API_KEY` presente como Secret en los tres entornos (§5).
+- **Verificar:** las tres variables con ese valor en los tres entornos en el
+  panel. **Ninguna surte efecto todavía**: entran en build, en el paso 7.
+
+**Paso 5 · Supabase — URL de Auth** *(paralelo con el 4 y el 6)*
+
+- **Depende de:** 3.
+- **Hacer:** Authentication → URL Configuration → Site URL `https://rix7.cl`;
+  en Redirect URLs añadir `https://rix7.cl/**` y `https://www.rix7.cl/**` y
+  **conservar** `https://rix7.vercel.app/**` mientras se use (si lo sacás, los
+  enlaces mágicos ya enviados dejan de redirigir). *(opcional)* Auth → SMTP con
+  el dominio verificado.
+- **Verificar:** un login real por enlace mágico — el correo llega con un
+  enlace `https://rix7.cl/...` y abre la sesión — e igual la recuperación de
+  contraseña; las tres URLs figuran en Redirect URLs.
+
+**Paso 6 · GitHub — `vars.SITE_URL`** *(paralelo)*
+
+- **Depende de:** 3 — el workflow usa `vars.SITE_URL || 'https://rix7.cl'`:
+  cambiarlo antes de que el dominio sirva haría que la próxima corrida del cron
+  enlace un sitio caído.
+- **Hacer:** `gh variable set SITE_URL --body "https://rix7.cl"` (borrarla
+  también sirve: el fallback ya es `rix7.cl`).
+- **Verificar:** `gh variable list | grep SITE_URL` → `https://rix7.cl`.
+
+**Paso 7 · Desplegar**
+
+- **Depende de:** 3 + 4 (4a es la que exige redeploy: las `NEXT_PUBLIC_*` se
+  inlinean en build).
+- **Hacer:** `npm run deploy:prod`.
+- **Verificar:** deploy **Ready** en el panel y
+  `curl -s -o /dev/null -w '%{http_code}\n' https://rix7.cl/` → `200`. Sin este
+  paso, canonical, `og:url` y `sitemap.xml` siguen en `rix7.vercel.app`.
+
+**Paso 8 · Verificación final**
+
+- **Depende de:** 5, 6 y 7.
+- **Verificar:**
+  - **Salud:** `curl -s https://rix7.cl/api/health` → `site_url` sigue `true` y sin notas.
+  - **Canonical:** `curl -s https://rix7.cl | grep -o '<link rel="canonical" href="[^"]*"'` → contiene `https://rix7.cl/`; `og:url`, lo mismo.
+  - **Sitemap:** `curl -s https://rix7.cl/sitemap.xml | grep -c rix7.vercel.app` → `0`.
+  - **Humo:** `npm run smoke:prod -- --url https://rix7.cl` → verde.
+  - **Correo:** repetir §7 (`--write --email TU@correo.cl`) — sale desde `avisos@rix7.cl` si se hizo 4b — y **borrar la fila** de `public.signups`.
+
+**Paso 9 · Endurecer el DMARC** *(no bloquea)*
+
+- **Depende de:** 2 con **≥ 7 días** de logs.
+- **Hacer:** en `_dmarc.rix7.cl`, `v=DMARC1; p=none;` → `p=quarantine;`.
+- **Verificar:** `nslookup -querytype=TXT _dmarc.rix7.cl` → `p=quarantine` y una
+  semana más de envíos en verde (health `ok`, §7 sin fallos).
 
 **Queda apuntando al dominio temporal** (cosmético, no bloquea):
 `DEFAULT_HEALTH_URL` en `scripts/check-health.mjs`, `DEFAULT_BASE_URL` en

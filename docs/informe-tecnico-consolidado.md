@@ -1,7 +1,7 @@
 # Informe técnico consolidado — Rix7
 
 > Documento único de referencia: qué compone el proyecto, qué servicios usa, con
-> qué cuentas, y dónde vive cada credencial. Fecha: **2026-10-03**.
+> qué cuentas, y dónde vive cada credencial. Fecha: **2026-10-03** · actualizado: **2026-10-06**.
 >
 > **Sobre las contraseñas:** este informe **no incluye ningún valor secreto** —ni
 > contraseñas, ni tokens, ni claves— y no debería: el repositorio es la peor caja
@@ -12,10 +12,16 @@
 
 ## 1. Estado de la consolidación
 
-El árbol de trabajo tiene **58 archivos** sin commitear (modificados y nuevos)
+El árbol de trabajo **tenía** 58 archivos sin commitear (modificados y nuevos)
 acumulados por dos conversaciones en paralelo sobre el mismo checkout. Este
 informe cierra esa etapa: la verificación completa quedó **en verde** y no queda
 ningún error que reparar.
+
+> **Actualización 2026-10-06**: el árbol está **limpio** — todo commiteado y
+> empujado en `main` con el CI en verde (5/5 jobs), y `audit/optimization`
+> fusionada y borrada. La identidad de git quedó unificada (§4.1), los avisos
+> por correo se verificaron de punta a punta con `npm run alerts:e2e` y el esquema
+> está en 12/12 migraciones aplicadas.
 
 | Comprobación | Comando | Resultado |
 |---|---|---|
@@ -57,7 +63,7 @@ utilidades, integraciones), `scripts/` (dev, build, deploy, migraciones, auditor
 |---|---|
 | Repositorio | `github.com/jatf71-a11y/rix7` |
 | Remoto | `origin` (HTTPS) |
-| Rama de trabajo | `audit/optimization` |
+| Rama de trabajo | `main` (la `audit/optimization` se fusionó y borró el 2026-10-06) |
 | Workflows | `ci.yml`, `health-check.yml`, `alerts-run.yml`, `snapshot-pois.yml` |
 
 El CI (`.github/workflows/ci.yml`) corre en cada push a `main`/`audit/**`:
@@ -75,9 +81,11 @@ tipos → tests → knip → build → **performance budget** → **accesibilida
 | Cabeceras | `vercel.json` (CSP, HSTS, X-Frame-Options, cache de `_next/static`) |
 
 **Limitación clave del plan Hobby**: solo el **dueño de la cuenta** puede crear
-deployments. Por eso `git push` **no despliega** (los commits van firmados por un
-autor que no es miembro y Vercel los marca `BLOCKED`): se publica con
-`npm run deploy:prod`, que sube el árbol **sin metadata de git**.
+deployments, así que `git push` **no despliega**: se publica con
+`npm run deploy:prod`, que sube el árbol **sin metadata de git**. (Antes los
+commits además venían de una identidad que no era la dueña y Vercel los marcaba
+`BLOCKED`; desde el 2026-10-06 el autor es la cuenta dueña y el flujo oficial no
+cambió.)
 
 ### 3.3 Supabase — base de datos y autenticación
 
@@ -110,15 +118,22 @@ Todos los hosts que el navegador toca están declarados en la **CSP** de
 
 ### 4.1 Identidades de Git
 
+**Unificada el 2026-10-06.** Hoy hay una sola identidad:
+
 | Identidad | Correo | Dónde se usa |
 |---|---|---|
-| `jtorres-ops` | `jtorres@catedralpropiedades.com` | Autor de los commits (config global) |
-| `jatf71-a11y` | `313025432+jatf71-a11y@users.noreply.github.com` | Cuenta de GitHub / dueña de Vercel |
+| `jatf71-a11y` | `313025432+jatf71-a11y@users.noreply.github.com` (noreply) | Autor de los commits (`git config --global` y `--local`) y cuenta de GitHub dueña de Vercel |
+| `jatf71-a11y` | `jtorres@catedralpropiedades.com` (verificado en la cuenta) | Solo atribución: vincula los **81 commits** históricos (0 sin vincular) |
 
-> `npm run deploy:prod` existe justamente por la brecha entre estas dos: los
-> commits los firma `jtorres-ops`, pero el deployment lo tiene que crear la cuenta
-> dueña (`jatf71-a11y`). **Pendiente de higiene**: unificar el autor de los commits
-> con la cuenta de GitHub (o invitar a `jtorres-ops` como miembro del equipo).
+> Cómo quedó: la cuenta fantasma `jtorres-ops` fue **eliminada** junto con su
+> repo espejo privado; `user.email` (global y local) apunta al correo noreply de
+> `jatf71-a11y` («Mantén mis direcciones privadas» está activo); un `.mailmap` de
+> 3 líneas unifica la historia (`git shortlog -sn` pasa de 6 firmas a 2); y
+> `jtorres@catedralpropiedades.com` quedó verificado en la cuenta, así que los
+> commits viejos siguen atribuidos sin migrar nada.
+>
+> `npm run deploy:prod` sigue siendo el camino oficial de despliegue: en plan
+> Hobby solo el dueño crea deployments y `git push` no despliega.
 
 ### 4.2 Dónde vive cada credencial (nunca el valor)
 
@@ -135,22 +150,28 @@ Todos los hosts que el navegador toca están declarados en la **CSP** de
 | `ALERTS_CRON_SECRET` | propio | — | se genera; vive en **Vercel + secrets de GitHub** |
 | `SENTRY_*` | Sentry | organización del equipo | sentry.io → Settings → Auth Tokens |
 
+> **2026-10-06**: el `SUPABASE_ACCESS_TOKEN` vigente quedó **revocado**; para
+> `npm run db:push`/`db:status` hay que generar uno nuevo en el enlace de la tabla.
+
 **Regla**: los valores de `.env.local` son solo para la máquina local y **nunca**
 se commitean (`.env.local` está en `.gitignore`). En producción, cada variable se
 define en **Vercel → Project → Settings → Environment Variables**. La referencia
 completa de qué variable va dónde está en el `README.md` (§Variables) y en
 `.env.example`.
 
-### 4.3 Qué falta configurar en producción
+### 4.3 Estado de la configuración en producción
 
-Para que el portal guarde datos de verdad (hoy degrada a memoria, que es honesto
-pero no persistente):
+Actualizado **2026-10-06**: `GET /api/health` → `status: ok`, `broken: []`,
+`degraded: []` y solo `monitoring` como opcional.
 
-1. `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` del proyecto real.
-2. `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `ALERTS_FROM_EMAIL`,
-   `ALERTS_CRON_SECRET` (este último también en los secrets de GitHub).
-3. `npm run db:push` para aplicar las migraciones.
-4. Opcional: Sentry (DSN) y activar Web Analytics.
+1. ✅ `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` del proyecto real.
+2. ✅ `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `ALERTS_FROM_EMAIL`,
+   `ALERTS_CRON_SECRET` (este último también en los secrets de GitHub) —
+   probados hoy: registro de punta a punta con correo real y `npm run alerts:e2e`
+   en verde (incluida la regla de no-reenvío).
+3. ✅ `npm run db:push` — **12/12 migraciones aplicadas**.
+4. ⏳ Opcional: Sentry (DSN) y activar Web Analytics — el único hueco que queda
+   (Tanda 0.1/0.2 del plan de fase 3).
 
 `GET /api/health` dice en una sola respuesta qué subsistema falta y qué deja de
 funcionar mientras falte. `npm run check:health` lo vigila solo desde el CI.
@@ -166,6 +187,7 @@ npm run check:bundle             # performance budget
 npm run check:a11y -- --all      # accesibilidad (axe-core)
 npm run test:integration:nosupabase   # integración sin Supabase
 npm run smoke:prod               # prueba de humo contra producción
+npm run alerts:e2e               # E2E del job de avisos (setup/dry/baseline/backdate/send/resend/cleanup)
 npm run check:health             # sonda de configuración
 npm run db:push / db:status      # migraciones de Supabase
 npm run deploy:prod              # publicar a producción
@@ -198,7 +220,8 @@ checkout**. La consolidación se hace una vez, en este orden:
 
 - Supabase local sin configurar → el portal degrada a memoria (por diseño, y lo
   informa en `/api/health` y en los paneles con el aviso ámbar).
-- Autor de commits (`jtorres-ops`) distinto del dueño de Vercel (`jatf71-a11y`).
+- Clave muerta `user.mail` en la config global de git (git solo lee
+  `user.email`); sin efecto, se limpia con `git config --global --unset user.mail`.
 - Dominio `rix7.cl` aún no apuntado; `SITE_URL` cae al default `https://rix7.cl`.
 - Turbopack no es viable (MapLibre + Sentry no lo soportan).
 - Favoritos y búsquedas exigen sesión; sin Supabase real responden 401 (correcto).
