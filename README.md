@@ -1,12 +1,44 @@
-# Rix7 - Portal Inmobiliario Inteligente (Chile)
+# Rix7 — Portal inmobiliario inteligente de Chile
 
-Plataforma inmobiliaria moderna de alto rendimiento para el mercado de **Chile completo**, construida **100% con herramientas de código abierto y capas gratuitas** (sin APIs de pago de Google Maps o Mapbox).
+[![CI](https://github.com/jatf71-a11y/rix7/actions/workflows/ci.yml/badge.svg)](https://github.com/jatf71-a11y/rix7/actions/workflows/ci.yml)
+[![versión](https://img.shields.io/github/v/release/jatf71-a11y/rix7)](https://github.com/jatf71-a11y/rix7/releases)
+![en producción](https://img.shields.io/badge/estado-en%20producción-brightgreen)
+![node](https://img.shields.io/badge/node-24.x-339933)
+![next.js](https://img.shields.io/badge/next.js-14-000000)
 
-### ✨ Novedades v7
-- Heatmap de densidad por precio en el mapa
-- Selector de monedas CLP/UF/USD con tasas oficiales del Banco Central
-- Selector de 16 regiones + comunas integrado al GIS
-- Catálogo nacional de propiedades en 8 regiones
+**Rix7** es un portal inmobiliario para Chile, construido **100 % con herramientas de código abierto y capas gratuitas** (sin APIs de pago de Google Maps ni Mapbox). Busca sobre un mapa GIS, compara con los **velociómetros de precio y demanda**, guarda favoritos en tu cuenta y recibe un correo cuando aparezca una propiedad que encaje con tu búsqueda.
+
+🌐 **En producción:** [rix7.vercel.app](https://rix7.vercel.app) · 📦 Última versión: [v10.0.0](https://github.com/jatf71-a11y/rix7/releases/tag/v10.0.0)
+
+### ✨ Qué lo distingue
+
+- **Mapa GIS propio**: MapLibre GL sobre teselas de OpenStreetMap, heatmap de densidad por precio, 16 regiones con comunas y filtrado por cercanía — todo sin API key de mapas de pago.
+- **Velociómetros de precio y demanda** en cada ficha, con selector CLP/UF/USD y tasas oficiales del Banco Central.
+- **Alertas por correo**: guardas una búsqueda y, cuando entra una propiedad que coincide, llega el aviso — un correo, una vez, con línea base en la primera corrida.
+- **Landing compartible** (`/compartir/[id]`): resumen para quien no conoce la propiedad, tarjeta vertical 4:5 descargable para WhatsApp y sector dibujado en SVG sin iframes, con la dirección exacta protegida.
+- **Dos puertas y ninguna contraseña**: Google o enlace mágico, con favoritos y búsquedas guardadas que viajan con la cuenta.
+
+### 🛠️ Puesta en marcha local
+
+```bash
+npm install
+npm run dev
+```
+
+Abre [http://localhost:3000](http://localhost:3000). El registro funciona de punta a punta incluso sin Supabase ni Resend: ver *[Probar el registro de punta a punta](#probar-el-registro-de-punta-a-punta-con-correo-de-bienvenida)*. Para ver qué tiene configurado un despliegue, `GET /api/health` informa qué falta, qué deja de funcionar mientras falte y cómo arreglarlo (nunca devuelve valores, solo si está o no).
+
+### 📚 Índice de la documentación técnica
+
+| Sección | Qué resuelve |
+|---|---|
+| [Guía de ejecución local](#️-guía-de-ejecución-local) | Arranque, buzón local de correo y medición de vitals |
+| [Cuentas de usuario](#cuentas-de-usuario-google-o-enlace-mágico) | Google y enlace mágico, SMTP, URLs de redirección, plantillas |
+| [Búsquedas guardadas y avisos](#búsquedas-guardadas-y-avisos-por-correo-publicsaved_searches) | El job diario, sus secretos y cómo probarlo sin enviar |
+| [Favoritos de la cuenta](#favoritos-de-la-cuenta-publicfavorites) | Migración desde el dispositivo, RLS y topes |
+| [Corredoras](#corredoras-inscritas-publicpartners) y [contactos](#contactos-de-visitas-interesadas-publicleads) | Tablas `partners`/`leads`, permisos del panel y rate limit |
+| [Landing compartible](#landing-compartible-compartirid) | Tarjetas, privacidad de la dirección y métricas de aperturas |
+| [Medición de Core Web Vitals](#medición-de-core-web-vitals) | Cómo se miden LCP/CLS/INP con Chrome real y sin dependencias |
+| [CSP y recursos externos](#️-csp-y-recursos-externos) | Cómo se clasifica cada host y cómo se audita el conjunto |
 
 ---
 
