@@ -29,14 +29,22 @@ habilita a los tres.**
 
 ```bash
 curl -sS https://rix7.vercel.app/api/health | jq '.subsystems[] | select(.id=="email")'
-#  → configured: false · reason: "Falta RESEND_API_KEY."
+#  → configured: true · reason: null · notes: []
 
 curl -sS https://rix7.vercel.app/api/alerts/run | jq .configured
-#  → {"cronSecret":true,"serviceRole":true,"email":false}
+#  → {"cronSecret":true,"serviceRole":true,"email":true}
 ```
 
-Mientras `email` sea `false`, el cron sale verde y **no manda nada**. Eso no es
-un bug: es la regla del proyecto (no se finge un envío). Es un pendiente.
+En producción (verificado el 2026-10-07) los tres vienen en `true` y `/api/health`
+responde `status: ok` con `monitoring` (Sentry) como único opcional: el pipeline
+está entero — clave presente, remitente aplicado (§4–§6) y probado de punta a
+punta (§7 + `npm run alerts:e2e`).
+
+Si alguna vez `email` baja a `false`, el cron sale verde y **no manda nada**: eso
+no es un bug, es la regla del proyecto (no se finge un envío) — pero sí es un
+pendiente. Casi siempre es `RESEND_API_KEY` ausente (el `reason` lo dice, §5) o
+un env que no llegó al runtime: las variables no se aplican a un build ya
+echo, así que toca redeployar (§6).
 
 ---
 
@@ -272,6 +280,12 @@ avanza sin que la verificación anterior dé. Orden real:
 
 Dos esperas mandan el día: la propagación de los NS del paso 1 (≤ 24 h) y la
 verificación de Resend del paso 2 (≤ 72 h); el resto son minutos.
+
+Los nueve pasos se pueden comprobar de una sola con `npm run check:domain`:
+recorre el plan en orden, imprime ✓/✖/○ por control y al final dice **en qué
+paso se queda** (sale con 1 si el plan sigue pendiente). Solo lee — con
+`--email` además reproduce el correo de escritura del §7, y con `--no-smoke`
+saltea el `smoke:prod`. Lo que sigue es lo que hay que **hacer** a mano.
 
 | Paso | Depende de | Desbloquea |
 |---|---|---|
