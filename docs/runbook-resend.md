@@ -283,9 +283,18 @@ verificación de Resend del paso 2 (≤ 72 h); el resto son minutos.
 
 Los nueve pasos se pueden comprobar de una sola con `npm run check:domain`:
 recorre el plan en orden, imprime ✓/✖/○ por control y al final dice **en qué
-paso se queda** (sale con 1 si el plan sigue pendiente). Solo lee — con
-`--email` además reproduce el correo de escritura del §7, y con `--no-smoke`
-saltea el `smoke:prod`. Lo que sigue es lo que hay que **hacer** a mano.
+paso se queda** (sale con 1 si el plan sigue pendiente, y con 2 si el script
+falla). Solo lee — con `--email` además reproduce el correo de escritura del
+§7, con `--no-smoke` saltea el `smoke:prod` y con `--no-env` saltea las
+lecturas de variables de Vercel.
+
+El CI lo corre **en cada corrida** (job *Estado del dominio* de `ci.yml`, con
+`--no-env`: en GitHub no hay sesión de Vercel y la regla del repo es no copiar
+claves allá). El informe completo queda en el **resumen de la corrida** y el
+paso en el que se queda sale como anotación `::warning::` en la lista de la
+corrida. **No bloquea**: un plan pendiente es una acción manual, no un error
+del código — en rojo solo si el script falla. Lo que sigue es lo que hay que
+**hacer** a mano.
 
 | Paso | Depende de | Desbloquea |
 |---|---|---|

@@ -26,7 +26,14 @@
  * no cortan el plan: se listan aparte.
  *
  * Salida del proceso: `0` si ningún paso 1–8 queda pendiente (los ○ no
- * cuentan), `1` si el plan se queda en alguno.
+ * cuentan), `1` si el plan se queda en alguno y `2` si el script falla por
+ * algo inesperado — el CI distingue con eso «plan pendiente» (aviso, no rompe
+ * la corrida) de «script roto» (rojo).
+ *
+ * En GitHub Actions el informe además se escribe en `GITHUB_STEP_SUMMARY`
+ * (una fila por control) y, si el plan está pendiente, se emite una anotación
+ * `::warning::` con el paso bloqueante: el estado se ve en la corrida sin
+ * abrir el log. El job de CI corre con `--no-env`.
  *
  * No escribe nada en ningún sitio: todo es lectura (DNS, HTTP, pulls de
  * variables, `gh`). La **única** excepción es `--email`, que reproduce el §7
@@ -36,18 +43,22 @@
  * ## Requisitos
  *
  * - Red saliente (DNS por HTTPS y producción).
- * - `npx vercel` autenticado para los pasos 2 (API) y 4; sin él, esos
- *   controles salen como ○ con el motivo.
+ * - `npx vercel` autenticado para los pasos 2 (API) y 4; sin sesión (p. ej.
+ *   en un runner de CI) usá `--no-env`, que deja esos controles como ○ de
+ *   revisión manual en vez de pendientes.
  * - `gh` autenticado para el paso 6.
  *
  * ## Uso
  *
  *   npm run check:domain
  *   npm run check:domain -- --no-smoke
+ *   npm run check:domain -- --no-env              # CI: sin pulls de Vercel
  *   npm run check:domain -- --email tu@correo.cl
  *
  * Banderas: `--email <dir>` (agrega la prueba de correo del §7, con escritura),
- * `--no-smoke` (saltea el `smoke:prod` del paso 8) y `--help`.
+ * `--no-smoke` (saltea el `smoke:prod` del paso 8), `--no-env` (saltea los
+ * `vercel env pull` de los pasos 2 y 4: sin sesión de Vercel no pueden
+ * funcionar) y `--help`.
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -79,14 +90,16 @@ const PASOS = [
 ];
 
 if (hasFlag('--help') || hasFlag('-h')) {
-  console.log('Uso: npm run check:domain [-- --email dir@correo.cl] [--no-smoke]');
+  console.log('Uso: npm run check:domain [-- --email dir@correo.cl] [--no-smoke] [--no-env]');
   console.log('Verifica los 9 pasos del plan del dominio (runbook-resend.md §8.4) y');
-  console.log('dice en cuál se queda. Sale con 1 si algún paso 1–8 queda pendiente.');
+  console.log('dice en cuál se queda. Sale con 0 si pasa hasta el paso 8, con 1 si');
+  console.log('algún paso 1–8 queda pendiente y con 2 si el script falla.');
   process.exit(0);
 }
 
 const EMAIL = readFlag('--email') ?? null;
 const NO_SMOKE = hasFlag('--no-smoke');
+const NO_ENV = hasFlag('--no-env'); // CI: sin sesión de Vercel los pulls fallan siempre
 
 const steps = PASOS.map((title, n) => ({ n: n + 1, title, checks: [] }));
 let envs = null;
@@ -202,6 +215,10 @@ function parseEnv(text) {
 
 /** Un solo pull por entorno, en un temporal de `os.tmpdir()` borrado al tiro. */
 function pullEnvs() {
+  if (NO_ENV) {
+    envsWhy = 'omitido con --no-env';
+    return null;
+  }
   if (envs) return envs;
   const out = Object.create(null);
   const files = [];
@@ -230,7 +247,10 @@ function pullEnvs() {
 async function resendStatus() {
   const key = process.env.RESEND_API_KEY ?? envs?.development?.RESEND_API_KEY ?? null;
   if (!key || key === '[SENSITIVE]') {
-    return { status: null, why: 'sin API key legible (el pull la esconde como [SENSITIVE])' };
+    return {
+      status: null,
+      why: NO_ENV ? 'sin API key: --no-env no lee las variables de Vercel' : 'sin API key legible (el pull la esconde como [SENSITIVE])',
+    };
   }
   try {
     const res = await fetch('https://api.resend.com/domains', {
@@ -322,7 +342,8 @@ async function step2() {
 
   // El estado «Verified» del panel: con API si hay key, si no queda manual.
   const pulled = pullEnvs();
-  if (!pulled) console.log(`  · Vercel no deja leer las variables (${envsWhy}) — el estado en Resend queda manual.`);
+  if (NO_ENV) console.log('  · --no-env: sin pulls de variables de Vercel — el estado en Resend queda manual.');
+  else if (!pulled) console.log(`  · Vercel no deja leer las variables (${envsWhy}) — el estado en Resend queda manual.`);
   const rs = await resendStatus();
   if (rs.status !== null) {
     if (rs.status.includes('verified')) {
@@ -371,6 +392,15 @@ async function step3() {
 }
 
 async function step4() {
+  if (NO_ENV) {
+    manual(
+      4,
+      'Variables en Vercel',
+      'omitido con --no-env: un runner de CI no tiene sesión de Vercel',
+      '§8.4 paso 4: corré `npm run check:domain` sin `--no-env` con `npx vercel login` para leer las tres variables',
+    );
+    return printStep(4);
+  }
   if (!envs) {
     pend(
       4,
@@ -549,6 +579,9 @@ function verdict() {
     if (step.n === 1) {
       console.log('   (hasta que exista la zona, los pasos 2, 3, 7 y 8 no tienen dónde responder; el 4 y el 6 tocan Vercel y GitHub igual)');
     }
+    if (process.env.GITHUB_ACTIONS === 'true') {
+      console.log(`::warning title=Plan del dominio · rix7.cl::El plan se queda en el PASO ${step.n} · ${step.title} — ${first.label}: ${first.detail}`);
+    }
     process.exitCode = 1;
   } else {
     console.log('✓ El plan pasa hasta el paso 8 (todo lo verificable por CLI).');
@@ -560,6 +593,57 @@ function verdict() {
   if (manuales.length) {
     console.log('\nRevisión manual pendiente (no corta el plan):');
     for (const { step, c } of manuales) console.log(`  ○ paso ${step.n} · ${c.label} — ${c.detail}`);
+  }
+}
+
+// ------------------------------------------------- resumen de GitHub Actions
+
+const statusIcon = (status) => (status === 'ok' ? '✓' : status === 'pendiente' ? '✖' : '○');
+const escapeCell = (text) => String(text ?? '').replace(/\|/g, '\\|');
+
+/**
+ * El informe en Markdown para `GITHUB_STEP_SUMMARY`: arriba el veredicto (con
+ * el arreglo del primer paso bloqueante) y abajo una fila por control, para
+ * que la corrida responda «¿en qué paso va el dominio?» de un vistazo.
+ */
+function summaryMarkdown() {
+  const bloqueantes = steps.slice(0, 8).filter((step) => step.checks.some((c) => c.status === 'pendiente'));
+  const lines = ['## 🌐 Estado del dominio · rix7.cl', ''];
+
+  if (bloqueantes.length) {
+    const step = bloqueantes[0];
+    const first = step.checks.find((c) => c.status === 'pendiente');
+    lines.push(`**✖ El plan se queda en el PASO ${step.n} · ${step.title}**`, '', `> ${first.label} — ${first.detail}`);
+    if (first.hint) lines.push(`> ↳ ${first.hint}`);
+    if (bloqueantes.length > 1) lines.push(`> También pendientes: pasos ${bloqueantes.slice(1).map((s) => s.n).join(', ')}.`);
+  } else {
+    lines.push('**✓ El plan pasa hasta el paso 8** (todo lo verificable por CLI).');
+    const d9 = steps[8].checks.find((c) => c.status === 'pendiente');
+    if (d9) lines.push(`> ○ Paso 9 pendiente, no bloquea — ${d9.detail}`);
+  }
+
+  lines.push('', '| Paso | Control | Estado | Detalle |', '|---|---|---|---|');
+  for (const step of steps) {
+    for (const check of step.checks) {
+      lines.push(`| ${step.n} · ${escapeCell(step.title)} | ${escapeCell(check.label)} | ${statusIcon(check.status)} | ${escapeCell(check.detail)} |`);
+    }
+  }
+  lines.push('');
+  return lines.join('\n');
+}
+
+/**
+ * Lo escribe solo si `GITHUB_STEP_SUMMARY` está definido (Actions); localmente
+ * no hace nada. En try/catch: no poder escribir el resumen no puede tumbar la
+ * verificación, que es la que decide el código de salida.
+ */
+function appendSummary() {
+  const target = process.env.GITHUB_STEP_SUMMARY;
+  if (!target) return;
+  try {
+    fs.appendFileSync(target, summaryMarkdown());
+  } catch (e) {
+    console.warn(`⚠ No se pudo escribir el resumen de la corrida: ${e.message}`);
   }
 }
 
@@ -578,9 +662,12 @@ async function main() {
   await step8();
   await step9();
   verdict();
+  appendSummary();
 }
 
 main().catch((error) => {
+  // 2 y no 1: en el CI el 1 significa «el plan sigue pendiente» (esperado, no
+  // rompe la corrida) y no debe confundirse con «el script se rompió».
   console.error(`\nError inesperado: ${error.stack ?? error.message}`);
-  process.exitCode = 1;
+  process.exitCode = 2;
 });

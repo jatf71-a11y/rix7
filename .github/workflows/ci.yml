@@ -49,6 +49,17 @@
 # claves. Si algún día una variable fuera imprescindible, usar Variables (no
 # secretos) del repo y documentarlo acá — nunca copiar claves reales a GitHub.
 #
+# Estado del dominio: `npm run check:domain` en un job propio, en cada
+# corrida. Deja los nueve pasos del plan de rix7.cl (§8.4 del runbook de
+# Resend) en el resumen de la corrida y el paso en el que se queda como
+# anotación `::warning::`. Informativo: mientras el plan siga pendiente
+# —hoy, delegar los NS en NIC Chile— el exit 1 es el estado esperado, no un
+# fallo del código, así que el job solo se pone rojo si el script falla
+# (exit ≥ 2). Misma regla que la sonda de salud: un CI rojo por algo que no
+# rompe nada se aprende a ignorar. Corre sin `npm ci` (el script solo usa
+# módulos de Node) y con `--no-env`: en CI no hay sesión de Vercel y la
+# regla del repo es no copiar claves allá.
+#
 # Node 24 sobre debian: es la línea que corre Vercel (20.x quedó discontinuada
 # y su build falla con «Node.js Version "20.x" is discontinued») y la misma que
 # usa el equipo en local. Con `cache: npm` el lockfile acelera el install;
@@ -235,3 +246,43 @@ jobs:
 
       - name: Suite sin Supabase (compila en su copia temporal)
         run: npm run test:integration:nosupabase
+
+  # El estado del dominio no puede poner el CI en rojo mientras el plan siga
+  # pendiente: el exit 1 significa «quedan pasos manuales», no «algo se rompió».
+  # Por eso el paso mapea 1 → 0 (el aviso ya lo imprime el propio script como
+  # `::warning::` y el detalle queda en el resumen de la corrida) y solo deja
+  # pasar el ≥2, que sí es un fallo del script. Cuando el plan esté completo
+  # (todas las corridas den 0), el mapeo se puede quitar para convertirlo en
+  # gate: cualquier regresión —NS caídos, canonical viejo— ahí sí rompe.
+  domain:
+    name: Estado del dominio (check:domain)
+    runs-on: ubuntu-latest
+    # El script tiene sus propios timeouts (DNS 10 s, HTTP 12 s, smoke 240 s):
+    # el techo es para que una corrida colgada no quemar horas de Actions.
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # Sin `npm ci`: ni el script ni el `smoke:prod` que invoca usan
+      # dependencias externas, y `gh` viene en el runner. `GH_TOKEN` con el
+      # token de la corrida es lo que lee `vars.SITE_URL` (paso 6); si los
+      # permisos no alcanzan, ese control sale como ○ manual sin tumbar nada.
+      - name: Recorrer los 9 pasos del plan del dominio (§8.4)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          code=0
+          npm run check:domain -- --no-env || code=$?
+          # exit 1 = «el plan sigue pendiente» (estado esperado mientras queden
+          # pasos manuales): no rompe la corrida. exit ≥2 = el script falló.
+          if [ "$code" -ge 2 ]; then
+            echo "::error::check:domain falló (exit ${code}) — es el script, no el plan"
+            exit "$code"
+          fi
+          echo "Plan del dominio: exit ${code} (0 = al día, 1 = pendiente) — detalle en el resumen de la corrida"

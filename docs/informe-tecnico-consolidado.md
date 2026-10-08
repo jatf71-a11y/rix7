@@ -69,6 +69,9 @@ utilidades, integraciones), `scripts/` (dev, build, deploy, migraciones, auditor
 El CI (`.github/workflows/ci.yml`) corre en cada push a `main`/`audit/**`:
 tipos → tests → knip → build → **performance budget** → **accesibilidad**
 (`--fail-on-serious`). Los jobs `budget` y `a11y` bajan el artifact de la build.
+Además, el job `domain` corre `npm run check:domain` en cada corrida y deja el
+**estado del plan del dominio** (§8.4 del runbook de Resend) en el resumen: es
+informativo — no bloquea — y en rojo solo si el script falla.
 
 ### 3.2 Vercel — hosting y producción
 
