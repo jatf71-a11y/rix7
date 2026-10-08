@@ -368,6 +368,14 @@ del código — en rojo solo si el script falla. Lo que sigue es lo que hay que
 - **Verificar:** un login real por enlace mágico — el correo llega con un
   enlace `https://rix7.cl/...` y abre la sesión — e igual la recuperación de
   contraseña; las tres URLs figuran en Redirect URLs.
+- **Hecho (2026-10-08):** cerrado a mano en el dashboard — Site URL
+  `https://rix7.cl` y Redirect URLs con `https://rix7.cl/**`,
+  `https://www.rix7.cl/**` y `https://rix7.vercel.app/**`. Queda como prueba
+  definitiva el login por enlace mágico del paso 8. ⚠️ Cuenta de Supabase: el
+  proyecto `wcxpkfmevrbjrjlbayba` **no** es el de la cuenta GitHub
+  `jatf71-a11y` (solo ve `rix7-portal`, otro ref, pausado) — entrar con la
+  cuenta email que lo creó. Sin `SUPABASE_ACCESS_TOKEN` (revocado) el
+  `check:domain` no puede leerlo: queda como chequeo manual ○.
 
 **Paso 6 · GitHub — `vars.SITE_URL`** *(paralelo)*
 
