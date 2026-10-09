@@ -56,8 +56,16 @@ const TYPE_KEYS: PropertyType[] = [
  * proceso, en lugar de normalizar en cada request) y ahora se llena por
  * propiedad: así una propiedad que venga de Supabase también participa de la
  * búsqueda por texto, en vez de quedar fuera por no estar en el catálogo.
+ *
+ * El caché vive por aislante y crece con cada id que pasa por el RPC (una
+ * publicación nueva = un id nuevo), así que lleva techo: al llegar se vacía
+ * entero — reconstruir una entrada es un par de `normalizeForSearch`, más
+ * barato que mantener una LRU con su bookkeeping en cada request.
  */
 const searchCache = new Map<string, string>();
+
+/** Techo del índice de texto (ver comentario de `searchCache`). */
+const SEARCH_CACHE_MAX = 10_000;
 
 export function searchHaystack(property: Property): string {
   const cached = searchCache.get(property.id);
@@ -68,6 +76,7 @@ export function searchHaystack(property: Property): string {
       .filter(Boolean)
       .join(' \u0001 ')
   );
+  if (searchCache.size >= SEARCH_CACHE_MAX) searchCache.clear();
   searchCache.set(property.id, haystack);
   return haystack;
 }
