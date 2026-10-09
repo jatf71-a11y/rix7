@@ -71,6 +71,11 @@ function HomePageContent() {
   const [serverProperties, setServerProperties] = useState<Property[]>([]);
   const [serverCategoryCounts, setServerCategoryCounts] = useState<Record<PropertyType, number>>(DEFAULT_COUNTS);
   const [serverOperationCounts, setServerOperationCounts] = useState({ for_sale: 0, for_rent: 0 });
+  // Conteo por comuna calculado en el servidor SIN el filtro de ubicación:
+  // así el dropdown del selector muestra el stock real de cada comuna aunque
+  // ya haya una elegida (si se calculara sobre `serverProperties`, que ya
+  // viene filtrado por la comuna elegida, todas las demás quedarian en 0).
+  const [serverCommuneCounts, setServerCommuneCounts] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   // Filtros UI
@@ -223,6 +228,7 @@ function HomePageContent() {
           setServerProperties(result.data);
           setServerCategoryCounts(result.categoryCounts || DEFAULT_COUNTS);
           setServerOperationCounts(result.operationCounts || { for_sale: 0, for_rent: 0 });
+          setServerCommuneCounts(result.communeCounts || {});
         }
       })
       .catch((err) => {
@@ -291,13 +297,17 @@ function HomePageContent() {
   }, [serverOperationCounts, propertiesFiltered, nearbyActive, userLocation, activePoi]);
 
   // 4. Conteo por comuna (para LocationSelector dropdown)
+  // El servidor lo manda ya descontando la ubicación seleccionada; si la
+  // respuesta no lo trae (caché de una versión anterior) se recalcula como
+  // antes, desde el set filtrado.
   const communeCounts = useMemo(() => {
+    if (Object.keys(serverCommuneCounts).length > 0) return serverCommuneCounts;
     const counts: Record<string, number> = {};
     for (const p of serverProperties) {
       if (p.city) counts[p.city] = (counts[p.city] || 0) + 1;
     }
     return counts;
-  }, [serverProperties]);
+  }, [serverCommuneCounts, serverProperties]);
 
   // 5. Conteo de propiedades nuevas (year_built > currentYear)
   const currentYear = new Date().getFullYear();

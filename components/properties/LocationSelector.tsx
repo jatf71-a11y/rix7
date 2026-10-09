@@ -95,6 +95,16 @@ export function LocationSelector({
     return counts;
   }, [communeCounts]);
 
+  // Contador de la selección actual: lo que el botón debe mostrar junto al
+  // nombre. Antes solo se mostraba el total nacional cuando NO había
+  // selección, así que al elegir una comuna el chip quedaba sin número y no
+  // había forma de ver cuánto había en lo seleccionado.
+  const selectedCount = selectedCommune
+    ? communeCounts[selectedCommune] || 0
+    : selectedRegion
+    ? regionCounts[selectedRegion] || 0
+    : totalAllProperties;
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Botón de Activación */}
@@ -109,9 +119,14 @@ export function LocationSelector({
       >
         <MapPin className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
         <span className="max-w-[150px] truncate">{label}</span>
-        {!hasSelection && totalAllProperties > 0 && (
-          <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full" suppressHydrationWarning>
-            {totalAllProperties}
+        {selectedCount > 0 && (
+          <span
+            className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+              hasSelection ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700'
+            }`}
+            suppressHydrationWarning
+          >
+            {selectedCount}
           </span>
         )}
         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
