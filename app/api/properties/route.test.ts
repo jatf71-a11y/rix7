@@ -7,8 +7,8 @@
  * era la rama con menos cobertura y más defectos: ignoraba región y comuna
  * (el selector de ubicación movía el mapa pero no filtraba nada), contaba la
  * operación no activa como 0 ("Arrendar 0" con 2 arriendos reales), perdía
- * el tipo `vip` de la base fuera de los chips de la UI, y cualquier filtro
- * sin resultados caía al catálogo demo con 4.186 propiedades inventadas.
+ * los tipos que la UI no reconoce, y cualquier filtro sin resultados caía al
+ * catálogo demo con 4.186 propiedades inventadas.
  *
  * Los tests fijan el contrato que la UI asume: mismas reglas que el catálogo
  * del build, contadores honestos y respuesta vacía sin caer al demo.
@@ -53,19 +53,20 @@ function row(overrides: Record<string, unknown>): Record<string, unknown> {
   };
 }
 
-// Catálogo simulado con los mismos patrones que la base real: tipos vip,
-// varias regiones y ambas operaciones.
+// Catálogo simulado con los mismos patrones que la base real: varios tipos
+// (incluido premium, alineado por la migración 0013), varias regiones y
+// ambas operaciones.
 const CATALOG = [
-  row({ id: 'rm-vip-1', property_type: 'vip', city: 'Vitacura', price: '890000000' }),
+  row({ id: 'rm-premium-1', property_type: 'premium', city: 'Vitacura', price: '890000000' }),
   row({ id: 'rm-apt-1', city: 'Las Condes', price: '650000000' }),
   row({ id: 'rm-house-1', property_type: 'house', city: 'Lo Barnechea', price: '1200000000' }),
   row({ id: 'rm-parcel-1', property_type: 'parcel', city: 'Colina', price: '185000000' }),
   row({ id: 'rm-apt-2', city: 'Providencia', status: 'for_rent', price: '650000' }),
   row({ id: 'v-apt-1', city: 'Viña del Mar', state: 'Valparaíso', price: '420000000' }),
-  row({ id: 'v-vip-1', property_type: 'vip', city: 'Zapallar', state: 'Valparaíso', price: '980000000' }),
+  row({ id: 'v-premium-1', property_type: 'premium', city: 'Zapallar', state: 'Valparaíso', price: '980000000' }),
   row({ id: 'v-parcel-1', property_type: 'parcel', city: 'Olmué', state: 'Valparaíso', price: '210000000' }),
   row({ id: 'c-apt-1', city: 'La Serena', state: 'Coquimbo', price: '300000000' }),
-  row({ id: 'ar-vip-1', property_type: 'vip', city: 'Pucón', state: 'La Araucanía', price: '750000000' }),
+  row({ id: 'ar-premium-1', property_type: 'premium', city: 'Pucón', state: 'La Araucanía', price: '750000000' }),
   row({ id: 'l-parcel-1', property_type: 'parcel', city: 'Puerto Varas', state: 'Los Lagos', price: '250000000' }),
   row({ id: 'a-apt-1', city: 'Antofagasta', state: 'Antofagasta', status: 'for_rent', price: '450000' }),
 ];
@@ -144,18 +145,19 @@ describe('GET /api/properties · rama Supabase', () => {
     expect(body.operationCounts).toEqual({ for_sale: 3, for_rent: 0 });
   });
 
-  it('traduce el tipo vip de la base al chip Premium de la UI', async () => {
+  it('filtra por premium con el tipo que la base ya alineó (migración 0013)', async () => {
     const res = await get('operation=all&propertyType=premium');
     const body = await res.json();
 
-    // La base guarda "vip"; la UI filtra por "premium". Antes el filtro no
-    // matcheaba nada y la respuesta caía al catálogo demo.
+    // La base y la UI comparten el vocabulario desde la migración 0013, que
+    // convirtió los vip históricos en premium: el chip y el filtro vuelven a
+    // señalar las mismas propiedades.
     expect(body.source).toBe('supabase');
     expect(body.total).toBe(3);
     expect(body.data.every((p: { property_type: string }) => p.property_type === 'premium')).toBe(true);
   });
 
-  it('los contadores de categoría no pierden el tipo vip', async () => {
+  it('los contadores de categoría reflejan el vocabulario de la base', async () => {
     const res = await get('operation=all&propertyType=all');
     const body = await res.json();
 

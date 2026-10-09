@@ -104,9 +104,8 @@ export async function GET(request: NextRequest) {
       const { data, error } = await supabase.rpc('get_properties_filtered', CHILE_BOUNDS);
 
       if (!error && data) {
-        // vip → premium y NUMERIC → number: sin esto las propiedades vip no
-        // caían en ningún chip y los precios string rompían el orden de los
-        // filtros de rango.
+        // NUMERIC → number: sin esto los precios string rompían el orden de
+        // los filtros de rango ("90000000" > "100000000").
         const rows = normalizeProperties(data as Record<string, unknown>[]);
 
         // Filas = la base tiene propiedades en Chile (con o sin filtros).

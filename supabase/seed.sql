@@ -25,12 +25,12 @@ INSERT INTO public.properties (
     agent_email,
     agent_phone
 ) VALUES
--- 1. Vitacura (VIP)
+-- 1. Vitacura (Premium)
 (
     'Exclusiva Residencia VIP con Terraza Panorámica en Nueva Costanera',
     'Impresionante residencia VIP en Nueva Costanera con vista despejada a la cordillera y Parque Bicentenario. Finas terminaciones, piso de madera de ingeniería, cocina italiana con isla de cuarzo y terraza privada con quincho integrado.',
     890000000,
-    'vip',
+    'premium',
     'for_sale',
     3,
     3.5,
@@ -155,12 +155,12 @@ INSERT INTO public.properties (
     'camila.undurraga@rix7.cl',
     '+56 9 8765 4321'
 ),
--- 6. Zapallar (VIP)
+-- 6. Zapallar (Premium)
 (
     'Exclusiva Casa de Playa con Vista a la Bahía en Zapallar',
     'Residencia en lomaje de Zapallar con arquitectura en piedra y maderas nobles. Senderos privados, jardines costeros y terraza con vista a la bahía.',
     1450000000,
-    'vip',
+    'premium',
     'for_sale',
     5,
     5.0,
@@ -233,12 +233,12 @@ INSERT INTO public.properties (
     'ignacio.valdes@rix7.cl',
     '+56 9 7654 3210'
 ),
--- 9. Pucón (VIP)
+-- 9. Pucón (Premium)
 (
     'Casa VIP a Orillas del Lago Villarrica con Muelle Privado en Pucón',
     'Maravillosa casa construida en ciprés y piedra volcánica a orillas del Lago Villarrica. Muelle para embarcaciones, playa privada y vista despejada al Volcán.',
     980000000,
-    'vip',
+    'premium',
     'for_sale',
     4,
     4.0,
@@ -311,12 +311,12 @@ INSERT INTO public.properties (
     'matias.larrain@rix7.cl',
     '+56 9 9123 4567'
 ),
--- 12. Valdivia (VIP)
+-- 12. Valdivia (Premium)
 (
     'Casona Ribereña con Muelle en Isla Teja / Valdivia',
     'Impresionante propiedad en Isla Teja con 60 metros de orilla de río y muelle privado para kayak y lanchas. Bosque de arrayanes y calefacción a leña con radiadores.',
     680000000,
-    'vip',
+    'premium',
     'for_sale',
     5,
     4.0,
