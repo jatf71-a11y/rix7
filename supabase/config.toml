@@ -1,0 +1,19 @@
+# Configuración del stack local de Supabase (`supabase start`).
+#
+# Es mínima a propósito: solo se fija el project_id y el CLI completa el resto
+# con sus defaults, que son exactamente lo que necesita esta base (API en
+# 54321, Postgres en 54322, PostGIS disponible en la imagen oficial). Un
+# config completo versionado se desalinea con cada actualización de la CLI y
+# nadie lo revisa; el mínimo no se rompe.
+#
+# Con este archivo el stack local corre sin pasos previos:
+#
+#   supabase start                       # aplica supabase/migrations al iniciar
+#   supabase status --output env         # imprime API_URL, ANON_KEY, SERVICE_ROLE_KEY
+#   SUPABASE_TEST_URL=… SUPABASE_TEST_ANON_KEY=… SUPABASE_TEST_SERVICE_KEY=… \
+#     npm run test:integration:supabase  # la suite contra la base real local
+#
+# Es también lo que usa el CI (job `integration-supabase` de ci.yml): en
+# ubuntu-latest hay Docker, así que la ruta se prueba contra una base real en
+# cada push aunque en esta máquina de desarrollo no quepa.
+project_id = 'rix7'

@@ -49,6 +49,16 @@
 # claves. Si algún día una variable fuera imprescindible, usar Variables (no
 # secretos) del repo y documentarlo acá — nunca copiar claves reales a GitHub.
 #
+# Integración con Supabase (job `integration-supabase`): el complemento de la
+# anterior. La suite de `app/api/properties/route.integration.test.ts` habla
+# con una base Supabase **real** —el cliente, la red, PostgREST y el RPC no se
+# mockean— y donde no hay Docker se salta con exit 0, así que en local a veces
+# no corre nunca. ubuntu-latest trae Docker: `supabase start` (con el
+# `supabase/config.toml` versionado) levanta un stack efímero, aplica la cadena
+# completa de `supabase/migrations` —la primera validación real de que crea una
+# base nueva de cero— y el job ejecuta la suite contra él. Sin secretos: el
+# stack vive y muere en el runner. Su coste es el pull de imágenes (~2 min).
+#
 # Estado del dominio: `npm run check:domain` en un job propio, en cada
 # corrida. Deja los nueve pasos del plan de rix7.cl (§8.4 del runbook de
 # Resend) en el resumen de la corrida y el paso en el que se queda como
@@ -246,6 +256,53 @@ jobs:
 
       - name: Suite sin Supabase (compila en su copia temporal)
         run: npm run test:integration:nosupabase
+
+  # Comportamiento contra una base Supabase real (ver cabecera: el complemento
+  # del job `integration`). La suite se salta con exit 0 si no recibe las tres
+  # variables, así que el paso las exige ANTES de correrla: un CI verde que no
+  # probó nada sería peor que no tener el job.
+  integration-supabase:
+    name: Integración con Supabase (stack local, ruta contra base real)
+    runs-on: ubuntu-latest
+    # `supabase start` tira imágenes de Docker en cada corrida: el techo es
+    # para que una descarga colgada no queme horas de Actions.
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: CLI de Supabase
+        uses: supabase/setup-supabase@v1
+
+      # `supabase start` aplica `supabase/migrations` al inicializar la base.
+      # `seed.sql` NO corre (solo lo hace `db reset`), así que el catálogo
+      # sembrado no contamina el fixture del test.
+      - name: Levantar el stack local (aplica las migraciones)
+        run: supabase start
+
+      - name: Suite contra la base local
+        run: |
+          # `--output env` imprime KEY="valor" del stack propio (son las
+          # claves locales descartables, no secretos del proyecto). El comando
+          # se captura en eval: nada se imprime al log.
+          eval "$(supabase status --output env)"
+          export SUPABASE_TEST_URL="$API_URL"
+          export SUPABASE_TEST_ANON_KEY="$ANON_KEY"
+          export SUPABASE_TEST_SERVICE_KEY="$SERVICE_ROLE_KEY"
+          if [ -z "$SUPABASE_TEST_URL" ] || [ -z "$SUPABASE_TEST_ANON_KEY" ] || [ -z "$SUPABASE_TEST_SERVICE_KEY" ]; then
+            echo "::error::supabase status --output env no expuso API_URL / ANON_KEY / SERVICE_ROLE_KEY (¿cambió el formato en la CLI?)"
+            exit 1
+          fi
+          npm run test:integration:supabase
 
   # El estado del dominio no puede poner el CI en rojo mientras el plan siga
   # pendiente: el exit 1 significa «quedan pasos manuales», no «algo se rompió».
