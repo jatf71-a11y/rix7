@@ -280,8 +280,12 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      # El paquete npm `supabase` es la distribución oficial de la CLI (baja
+      # el binario de la plataforma vía optionalDependencies). Sin action de
+      # terceros: `supabase/setup-supabase` no existe como repo y la primera
+      # corrida del job falló con «repository not found» en «Set up job».
       - name: CLI de Supabase
-        uses: supabase/setup-supabase@v1
+        run: npm install -g supabase
 
       # `supabase start` aplica `supabase/migrations` al inicializar la base.
       # `seed.sql` NO corre (solo lo hace `db reset`), así que el catálogo
