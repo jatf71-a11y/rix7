@@ -145,6 +145,34 @@ describe('GET /api/properties · rama Supabase', () => {
     expect(body.operationCounts).toEqual({ for_sale: 3, for_rent: 0 });
   });
 
+  it('con partnerId, todos los contadores acotan a la corredora', async () => {
+    // Lo descubrió la suite de integración contra un stack local: `total`
+    // acotaba por corredora pero operación y categoría se contaban sobre
+    // toda la base, así que la página de una empresa mostraba los
+    // contadores globales del portal («Venta 15» con 3 propiedades reales).
+    rpc.mockResolvedValue({
+      data: [
+        row({ id: 'cat-sale', partner_id: 'catedral' }),
+        row({ id: 'cat-rent', status: 'for_rent', partner_id: 'catedral' }),
+        row({ id: 'otra-sale', partner_id: 'otra' }),
+        row({ id: 'otra-rent', status: 'for_rent', partner_id: 'otra' }),
+        row({ id: 'sin-socio', partner_id: null }),
+      ],
+    });
+
+    const res = await get('operation=for_sale&propertyType=all&partnerId=catedral');
+    const body = await res.json();
+
+    expect(body.total).toBe(1);
+    // El chip inactivo muestra el stock real de la corredora (1 en renta),
+    // no el del portal (2).
+    expect(body.operationCounts).toEqual({ for_sale: 1, for_rent: 1 });
+    // Categorías y comuna se cuentan dentro de la operación activa —por eso
+    // hay 1 y no 2—, y también acotan a la corredora.
+    expect(body.categoryCounts.all).toBe(1);
+    expect(body.communeCounts).toEqual({ Providencia: 1 });
+  });
+
   it('filtra por premium con el tipo que la base ya alineó (migración 0013)', async () => {
     const res = await get('operation=all&propertyType=premium');
     const body = await res.json();

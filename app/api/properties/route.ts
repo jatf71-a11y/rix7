@@ -113,10 +113,14 @@ export async function GET(request: NextRequest) {
         // propiedades es peor que uno con el catálogo del build.
         if (rows.length > 0) {
           // Contadores por operación: mismo set que el base (con ubicación,
-          // precio, dormitorios…) pero SIN la operación, que es el filtro que
-          // está activo. Antes se contaba sobre el set ya filtrado por
-          // operación, así que el chip que no estaba activo mostraba siempre 0.
-          const operationCounts = countOperations(baseParams, rows);
+          // precio, dormitorios… y la corredora, si vino) pero SIN la
+          // operación, que es el filtro que está activo. Antes se contaba
+          // sobre el set ya filtrado por operación, así que el chip que no
+          // estaba activo mostraba siempre 0. La corredora también acota:
+          // sin ella, la página de una empresa mostraba los contadores
+          // globales del portal —lo descubrió la suite de integración con un
+          // stack local—.
+          const operationCounts = countOperations({ ...baseParams, partnerId }, rows);
 
           // Conteo por comuna SIN la ubicación seleccionada: el dropdown debe
           // mostrar el stock real de cada comuna aunque ya haya una elegida
@@ -136,18 +140,18 @@ export async function GET(request: NextRequest) {
 
           // Set base: los mismos criterios que aplica el catálogo local,
           // incluida la operación (los chips de categoría se cuentan dentro de
-          // la operación activa).
-          const base = filterProperties(rows, { ...baseParams, operation });
+          // la operación activa) y la corredora, para que todos los
+          // contadores midan el stock que la persona realmente ve.
+          const base = filterProperties(rows, { ...baseParams, operation, partnerId });
 
           // Contadores por categoría del set base (ignora el tipo, que es el
           // filtro): `countByCategory` solo reconoce los tipos de la UI, así
           // que un tipo nuevo de la base no rompe los superíndices.
           const categoryCounts = countByCategory(base);
 
-          // Resultado final: sobre el set base, tipo + proyecto/entrega +
-          // corredora (los dos últimos ya aplicados en `unlocated` para los
-          // contadores; acá se aplican sobre el set ubicado).
-          const filtered = filterProperties(base, { propertyType, newPropertyType, partnerId });
+          // Resultado final: sobre el set base, tipo + proyecto/entrega (la
+          // corredora ya acota el set base desde arriba).
+          const filtered = filterProperties(base, { propertyType, newPropertyType });
 
           const start = (page - 1) * limit;
 
@@ -175,15 +179,17 @@ export async function GET(request: NextRequest) {
   // ═══ Filtro local del catálogo nacional ═══
 
   // 1. Set base: operación + ubicación + texto + precio + dormitorios + baños
-  const base = filterProperties(ALL_PROPERTIES, { ...baseParams, operation });
+  // + corredora (los contadores de abajo se cuentan sobre este set: deben
+  // medir el stock que la persona realmente ve, no el portal entero)
+  const base = filterProperties(ALL_PROPERTIES, { ...baseParams, operation, partnerId });
 
   // 2. Contadores por categoría del set base (ignora el tipo, que es el filtro)
   const categoryCounts = countByCategory(base);
 
-  // 3. Contadores por operación: mismo set base (con ubicación) pero sin la
-  // operación, que es el filtro activo; así el chip inactivo muestra su real
-  // stock en vez de 0.
-  const operationCounts = countOperations(baseParams);
+  // 3. Contadores por operación: mismo set base (con ubicación y corredora)
+  // pero sin la operación, que es el filtro activo; así el chip inactivo
+  // muestra su real stock en vez de 0.
+  const operationCounts = countOperations({ ...baseParams, partnerId });
 
   // 3b. Conteo por comuna sin la ubicación seleccionada, para que el dropdown
   // del selector muestre el stock real de cada comuna aunque ya haya una
@@ -200,8 +206,9 @@ export async function GET(request: NextRequest) {
     if (p.city) communeCounts[p.city] = (communeCounts[p.city] || 0) + 1;
   }
 
-  // 4. Resultado final: sobre el set base, tipo + proyecto/entrega + corredora
-  const filtered = filterProperties(base, { propertyType, newPropertyType, partnerId });
+  // 4. Resultado final: sobre el set base, tipo + proyecto/entrega (la
+  // corredora ya acota el set base desde el paso 1)
+  const filtered = filterProperties(base, { propertyType, newPropertyType });
 
   const start = (page - 1) * limit;
   const paged = filtered.slice(start, start + limit);

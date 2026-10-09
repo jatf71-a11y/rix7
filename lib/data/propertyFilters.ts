@@ -183,15 +183,25 @@ export function countByCategory(properties: Property[]): Record<string, number> 
   return counts;
 }
 
-/** Contadores de venta y arriendo del set base, en una sola pasada. */
+/**
+ * Contadores de venta y arriendo del set base, en una sola pasada.
+ *
+ * La corredora acota aquí también: la página de una empresa debe mostrar el
+ * stock de esa empresa, no el del portal entero. `matchesBase` no evalúa el
+ * socio (es criterio de `filterProperties`), así que se aplica aparte — sin
+ * esto, `total` acotaba pero los chips de operación contaban toda la base,
+ * defecto que descubrió la suite de integración contra un stack local.
+ */
 export function countOperations(
   params: PropertyFilterParams,
   properties: Property[] = ALL_PROPERTIES
 ): { for_sale: number; for_rent: number } {
+  const partnerId = params.partnerId ?? null;
   let for_sale = 0;
   let for_rent = 0;
 
   for (const p of properties) {
+    if (partnerId && p.partner_id !== partnerId) continue;
     if (matchesBase(p, 'for_sale', params)) for_sale++;
     else if (matchesBase(p, 'for_rent', params)) for_rent++;
   }
