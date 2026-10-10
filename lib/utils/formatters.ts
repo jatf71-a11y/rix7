@@ -87,6 +87,8 @@ export function getStatusLabel(status: string): string {
     for_sale: 'En Venta',
     for_rent: 'En Arriendo',
     sold: 'Vendido',
+    // Arriendo concretado: el análogo de `sold` para la operación de arriendo.
+    rented: 'Arrendado',
   };
   return statuses[status] || status;
 }

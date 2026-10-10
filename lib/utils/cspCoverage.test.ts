@@ -36,7 +36,15 @@ const RULES: Array<{ kind: Classification | 'unknown'; test: RegExp }> = [
   { kind: 'ignore', test: /\/\/schema\.org\b/i },
   // Enlaces que abre el usuario, metadatos que lee un crawler y URLs canónicas.
   // Ninguno pasa por el CSP (son navegación o texto, no carga del documento).
-  { kind: 'navigation', test: /<a\s|href=|website|canonical|og:|openGraph|twitter:|attribution|whatsapp|wa\.me|SITE_URL|mailto:/i },
+  // Incluye los endpoints de compartir por red del panel (`ShareDialog`): son
+  // `<a target="_blank"` y `window.open`, no recursos que el documento pida —
+  // por eso NO se agregan a `vercel.json`: meterlos en una directiva sería
+  // exactamente el "relajar el CSP para que pase" que prohíbe este guard.
+  {
+    kind: 'navigation',
+    test:
+      /<a\s|href=|website|canonical|og:|openGraph|twitter:|attribution|whatsapp|wa\.me|SITE_URL|mailto:|facebook\.com\/sharer|twitter\.com\/intent|t\.me\/share|linkedin\.com\/sharing|instagram\.com\/?['"]/i,
+  },
   // MapLibre pide las teselas con fetch, así que van por `connect-src` — y esta
   // regla tiene que ir **antes** que la de imagen, porque su URL igual termina
   // en `.png` y se clasificaría mal. Es el error que este guard debe atrapar:

@@ -14,10 +14,13 @@
  * usuario no puede editarlo desde el cliente). Es el mismo mecanismo que ya
  * usaba el guard de admin, extendido para reconocer a los miembros.
  *
- * Estado actual: `member` se reconoce pero **todavía no habilita nada** — el
- * portal del cliente, el vínculo con su corredora y el flujo de publicar están
- * pendientes. Lo único que este módulo gobierna hoy es quién entra a las rutas
- * de administración, donde visita y miembro responden igual (403).
+ * El vínculo con la corredora vive en `app_metadata.partner_id`: es lo que
+ * permite que una cuenta administre el stock de su empresa en
+ * `/socio` (ver `decideMemberAccess` y la migración 0014). Como el rol, solo
+ * el servidor puede escribirlo, así que nadie se asigna una corredora a mano.
+ *
+ * Este módulo gobierna dos puertas: las rutas de administración (solo admin)
+ * y las del panel del socio (admin o member vinculado).
  *
  * Este módulo es puro a propósito: lo consumen el `AuthProvider` (cliente),
  * las rutas de API (servidor) y los tests, sin arrastrar dependencias.
@@ -65,6 +68,37 @@ export function resolveRole(user: RoleUserLike | null | undefined): AccountRole 
 
   if (typeof raw !== 'string') return 'visitor';
   return ROLE_ALIASES[raw.trim().toLowerCase()] ?? 'visitor';
+}
+
+/**
+ * Longitud máxima aceptada para `app_metadata.partner_id`. Los ids del
+ * catálogo caben holgadamente; el tope evita que un registro corrupto viaje
+ * a las políticas RLS y a las consultas filtradas.
+ */
+const MAX_PARTNER_ID_LENGTH = 120;
+
+/**
+ * La corredora a la que está vinculada la cuenta, o `null`.
+ *
+ * Lee `app_metadata.partner_id` — el mismo claim que usa la función SQL
+ * `rix7_partner_id()` de la migración 0014— con la misma desconfianza que
+ * `resolveRole`: solo cadena limpia y con forma de id; cualquier otra cosa
+ * (nulo, número, basura) es «sin corredora» y no abre puertas.
+ */
+export function resolvePartnerId(user: RoleUserLike | null | undefined): string | null {
+  const metadata = user?.app_metadata;
+  const raw =
+    metadata && typeof metadata === 'object'
+      ? (metadata as { partner_id?: unknown }).partner_id
+      : undefined;
+
+  if (typeof raw !== 'string') return null;
+  const trimmed = raw.trim();
+  if (!trimmed || trimmed.length > MAX_PARTNER_ID_LENGTH) return null;
+  // Mismo alfabeto que `idSchema` (lib/api/schemas.ts): los ids de
+  // `partners.id` son legibles y acotados.
+  if (!/^[A-Za-z0-9._-]+$/.test(trimmed)) return null;
+  return trimmed;
 }
 
 export interface AdminAccessInput {
@@ -120,6 +154,58 @@ export function decideAdminAccess({
 
   if (role !== 'admin') {
     return { allow: false, status: 403, error: 'Se requiere rol admin.' };
+  }
+
+  return { allow: true, status: null, error: null };
+}
+
+export interface MemberAccessInput {
+  /** ¿Hay un proyecto Supabase real configurado (no el placeholder)? */
+  configured: boolean;
+  /** ¿La petición trae una sesión válida? */
+  authenticated: boolean;
+  /** Rol resuelto del usuario autenticado. */
+  role: AccountRole;
+  /** Bypass de desarrollo (mismo criterio que `requireAdmin`). */
+  devBypass: boolean;
+}
+
+/**
+ * Decide el acceso al panel del socio (`/socio` y `/api/partner/*`).
+ *
+ * Misma estructura y semántica que `decideAdminAccess` —el orden de las
+ * ramas importa igual: sin proyecto configurado solo entra el bypass de
+ * desarrollo—, con dos diferencias:
+ *
+ * - Admin **y** member entran: el equipo de Rix7 administra las mismas
+ *   publicaciones que un socio, así que no hace falta vincular una corredora
+ *   a la cuenta del equipo para poder entrar.
+ * - La vinculación con la corredora (tener `partner_id`) **no** se juzga acá:
+ *   es un dato, no un rol. La resuelve `requireMember`, que es quien sabe
+ *   si la petición vino del bypass (sin sesión real) o de una cuenta.
+ */
+export function decideMemberAccess({
+  configured,
+  authenticated,
+  role,
+  devBypass,
+}: MemberAccessInput): AccessDecision {
+  if (!configured) {
+    return devBypass
+      ? { allow: true, status: null, error: null }
+      : {
+          allow: false,
+          status: 503,
+          error: 'Supabase no está configurado en este entorno. El detalle está en /api/health.',
+        };
+  }
+
+  if (!authenticated) {
+    return { allow: false, status: 401, error: 'Inicia sesión para continuar.' };
+  }
+
+  if (role !== 'admin' && role !== 'member') {
+    return { allow: false, status: 403, error: 'Se requiere rol de socio.' };
   }
 
   return { allow: true, status: null, error: null };

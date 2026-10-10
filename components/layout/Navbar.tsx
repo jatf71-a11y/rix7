@@ -8,13 +8,13 @@ import { useRegistration } from '../auth/RegistrationProvider';
 import { useFavorites } from '../auth/FavoritesProvider';
 import { useCurrency } from '../currency/CurrencyProvider';
 import { formatNumber } from '@/lib/utils/formatters';
-import { LogOut, PlusCircle, Heart, Menu, X, Settings, Info } from 'lucide-react';
+import { LogOut, PlusCircle, Heart, Menu, X, Settings, Info, Building2 } from 'lucide-react';
 
 /** Prefijos de rutas sin barra de navegación (se lista, no se esconde después). */
 const STANDALONE_PATHS = ['/compartir'];
 
 function NavbarContent() {
-  const { user, signOut, isAdmin, isAdminDevBypass } = useAuth();
+  const { user, signOut, isAdmin, isAdminDevBypass, isMember } = useAuth();
   // Identidad reconocida: sesión del portal o registro de este dispositivo.
   const { registration, isChecking, forget, openSignup } = useRegistration();
   // Cuántos favoritos tiene: el contador del corazón se lee del mismo estado que
@@ -204,6 +204,19 @@ function NavbarContent() {
             </span>
           </div>
 
+          {/* Panel del socio — al final de la línea de acciones, solo para
+              cuentas con rol member/admin (o bypass de desarrollo) */}
+          {isMember && (
+            <Link
+              href="/socio"
+              className="flex items-center gap-1.5 pl-3 border-l border-slate-200 text-slate-500 hover:text-blue-600 transition-colors shrink-0"
+              title="Panel de socios"
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span className="text-xs font-semibold">Mis publicaciones</span>
+            </Link>
+          )}
+
           {/* Acceso al Panel Admin — al final de la línea de acciones, solo para administradores */}
           {isAdmin && (
             <Link
@@ -258,6 +271,16 @@ function NavbarContent() {
             >
               Publicar
             </Link>
+            {isMember && (
+              <Link
+                href="/socio"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 rounded-lg hover:bg-slate-50 flex items-center gap-2"
+              >
+                <Building2 className="w-4 h-4 text-slate-400" />
+                <span>Mis publicaciones</span>
+              </Link>
+            )}
             {isAdmin && (
               <Link
                 href="/admin"

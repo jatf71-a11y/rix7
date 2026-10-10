@@ -305,6 +305,131 @@ export const partnerDeleteSchema = z.object({
   id: z.string({ required_error: 'id is required' }).trim().min(1).max(120),
 });
 
+// ═══ /api/partner/properties (panel del socio) ═══
+
+/**
+ * Vocabulario de publicación: el mismo que la migración 0013 deja documentado
+ * en la columna `property_type`. `all` no está porque es valor del filtro del
+ * buscador, no de una fila.
+ */
+const PUBLICATION_TYPES = [
+  'apartment',
+  'house',
+  'premium',
+  'parcel',
+  'office',
+  'land',
+  'parking',
+  'local',
+  'warehouse',
+] as const;
+
+const PUBLICATION_STATUS = ['for_sale', 'for_rent', 'sold', 'rented'] as const;
+
+/**
+ * Imagen: URL absoluta o ruta local que empieza con `/`.
+ * Sin este filtro cualquier cadena pegable terminaría como `src` de la ficha
+ * pública (y con `javascript:` sería además un vector de XSS en el navegador).
+ */
+const publicationImageSchema = z
+  .string()
+  .trim()
+  .max(500)
+  .refine((v) => v.startsWith('http://') || v.startsWith('https://') || v.startsWith('/'), {
+    message: 'La imagen debe ser una URL (http/https) o una ruta que empiece con "/".',
+  });
+
+/**
+ * ROL de propiedad (SII): forma tolerante — dígito inicial y luego dígitos,
+ * letras, guiones, puntos, barras o espacios (la notación varía por
+ * circunscripción: `15234-67`, `13-15234-67`, con destino `15234-67D`).
+ * No se exige guión para no rechazar variantes válidas; lo que se evita es
+ * basura arbitraria en un campo que se guarda como identificación.
+ */
+const rolSchema = z
+  .string()
+  .trim()
+  .min(4, 'ROL demasiado corto.')
+  .max(40)
+  .refine((v) => /^\d[\dA-Za-z\-/ .]{3,39}$/.test(v), {
+    message: 'ROL inválido (ej: 15234-67).',
+  });
+
+/**
+ * URL de media: http(s) o ruta local. Se acepta la cadena vacía como
+ * «sin video»: la edición la manda para poder **quitar** el video, y el
+ * store la convierte en NULL (sin eso, un campo opcional no se podría
+ * borrar desde el formulario).
+ */
+const mediaUrlSchema = z
+  .string()
+  .trim()
+  .max(500)
+  .refine((v) => v === '' || v.startsWith('http://') || v.startsWith('https://') || v.startsWith('/'), {
+    message: 'La URL debe ser http/https o una ruta que empiece con "/".',
+  });
+
+/**
+ * Campos de una publicación.
+ *
+ * Los límites reflejan las columnas (`price NUMERIC(14,2)`, `bedrooms
+ * INTEGER`, textos acotados) y el número viaja con `coerce` porque llega desde
+ * un formulario HTML: los inputs dan cadena, no número.
+ */
+const publicationFields = {
+  title: z
+    .string({ required_error: 'El título es obligatorio.' })
+    .trim()
+    .min(3, 'El título es demasiado corto.')
+    .max(140),
+  description: z.string().trim().max(4000).default(''),
+  price: z.coerce.number().finite().min(0).max(1_000_000_000, 'Precio fuera de rango.'),
+  property_type: z.enum(PUBLICATION_TYPES),
+  status: z.enum(PUBLICATION_STATUS),
+  bedrooms: z.coerce.number().int().min(0).max(50),
+  bathrooms: z.coerce.number().min(0).max(50),
+  area_sqm: z.coerce.number().min(1).max(1_000_000),
+  parking_spots: z.coerce.number().int().min(0).max(50),
+  year_built: z.coerce.number().int().min(1800).max(2100).optional(),
+  address: z.string().trim().min(3, 'La dirección es obligatoria.').max(300),
+  city: z.string().trim().min(1, 'La comuna es obligatoria.').max(120),
+  state: z.string().trim().max(120).optional(),
+  zip_code: z.string().trim().max(20).optional(),
+  // Identificación interna (SII): solo el panel la lee/establece; los RPC
+  // públicos no la seleccionan, así que jamás llega a la ficha.
+  rol: rolSchema.or(z.literal('')).optional(),
+  // Video de la ficha: URL o archivo subido a Storage. Vacío = sin video.
+  video_url: mediaUrlSchema.optional(),
+  images: z.array(publicationImageSchema).max(30).default([]),
+  features: z.array(z.string().trim().min(1).max(80)).max(40).default([]),
+  // `location` es NOT NULL en la base: sin par no hay fila posible.
+  lat: z.coerce.number().finite().min(-90).max(90),
+  lng: z.coerce.number().finite().min(-180).max(180),
+  agent_name: z.string().trim().max(120).optional(),
+  agent_email: z.string().trim().max(200).optional(),
+  agent_phone: z.string().trim().max(40).optional(),
+};
+
+/** Alta de publicación desde `/socio/publicar`. */
+export const publicationPostSchema = z.object(publicationFields);
+
+/**
+ * Edición desde `/socio/publicaciones/[id]`: mismos campos, todos opcionales
+ * (el store solo escribe los que lleguen) e `id` obligatorio en la raíz.
+ *
+ * Latitud y longitud viajan juntas: `inputToRow` solo recalcula `location`
+ * cuando llegan las dos, así que una sola a medias se descartaría en silencio
+ * y el formulario mostraría unas coordenadas que la ficha no tiene.
+ */
+export const publicationPutSchema = z
+  .object(publicationFields)
+  .partial()
+  .extend({ id: idSchema })
+  .refine((body) => (body.lat === undefined) === (body.lng === undefined), {
+    message: 'Latitud y longitud viajan juntas.',
+    path: ['lat'],
+  });
+
 // ═══ /api/admin/share-report ═══
 
 /** Ventana del informe, en días. */

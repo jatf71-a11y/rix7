@@ -97,6 +97,24 @@ describe('listPartnerProperties', () => {
     expect(ids).toContain('db-2');
   });
 
+  it('el ROL (0015) no sale hacia lo público: la fila lo trae, el resultado no', async () => {
+    // Este listado alimenta /empresas y los feeds XML, que serializan la
+    // propiedad entera: si el ROL sobreviviera al mapeo, terminaría en el
+    // HTML público — que es justamente lo que la migración prohíbe.
+    isSupabaseConfigured.mockReturnValue(true);
+    const { client } = fakeClient(() => ({
+      data: [{ ...PROPIEDAD_DB, rol: '15234-67' }],
+      error: null,
+    }));
+    createPublicClient.mockReturnValue(client);
+
+    const result = await listPartnerProperties('test-partner');
+
+    expect(result.properties).toHaveLength(1);
+    expect(result.properties[0]).not.toHaveProperty('rol');
+    expect(JSON.stringify(result)).not.toContain('15234-67');
+  });
+
   it('si la base falla cae al catálogo en vez de romper', async () => {
     isSupabaseConfigured.mockReturnValue(true);
     const { client } = fakeClient(() => ({ data: null, error: { message: 'boom' } }));

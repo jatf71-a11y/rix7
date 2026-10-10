@@ -74,6 +74,15 @@ describe('lib/seo/jsonld', () => {
       expect(data.offers.availability).toBe('https://schema.org/SoldOut');
     });
 
+    it('usa SoldOut también para una propiedad arrendada (estado cerrado)', () => {
+      const data = propertyJsonLd({
+        ...propertyBase,
+        status: 'rented',
+      }) as Record<string, any>;
+
+      expect(data.offers.availability).toBe('https://schema.org/SoldOut');
+    });
+
     it('atribuye a la corredora cuando la ficha tiene partner', () => {
       const data = propertyJsonLd(propertyBase, partnerBase) as Record<string, any>;
 

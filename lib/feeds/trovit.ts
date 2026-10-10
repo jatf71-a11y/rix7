@@ -141,10 +141,16 @@ function adXml(property: Property, siteUrl: string): string {
   return `${lines.join('\n')}\n</ad>`;
 }
 
-/** Feed completo. Los vendidos no viajan: el agregador no los lista. */
+/**
+ * Feed completo. Los estados cerrados no viajan —vendidos **ni arrendados**—:
+ * el agregador no debe listar una propiedad que ya no está disponible.
+ */
 export function buildTrovitFeed({ properties, siteUrl, agency }: TrovitFeedInput): string {
   const publishable = properties.filter(
-    (property) => property.status !== 'sold' && mapToTrovitType(property.property_type)
+    (property) =>
+      property.status !== 'sold' &&
+      property.status !== 'rented' &&
+      mapToTrovitType(property.property_type)
   );
 
   const ads = publishable.map((property) => adXml(property, siteUrl)).filter(Boolean);

@@ -21,6 +21,13 @@ interface AuthContextType {
   isAdmin: boolean;
   /** true cuando isAdmin viene del bypass de desarrollo y no del rol real */
   isAdminDevBypass: boolean;
+  /**
+   * true si la cuenta puede administrar publicaciones (rol member **o** admin,
+   * o bypass de desarrollo): es el que ve el enlace a `/socio`. En desarrollo
+   * vale true aunque no haya sesión, igual que `isAdmin`, porque sin Supabase
+   * el login es imposible y el panel quedaría inaccesible para probarlo.
+   */
+  isMember: boolean;
   isAuthModalOpen: boolean;
   /**
    * Por qué se pidió entrar ("guardar esta búsqueda", por ejemplo). El modal lo
@@ -79,8 +86,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase]);
 
   // El rol vive en app_metadata (controlado por el servidor, no editable por el
-  // usuario). La resolución es la misma que usa el guard de las rutas de admin.
-  const isAdminByRole = resolveRole(user) === 'admin';
+  // usuario). La resolución es la misma que usa el guard de las rutas de admin
+  // y el de /socio.
+  const role = resolveRole(user);
+  const isAdminByRole = role === 'admin';
+  // member o admin: los dos administran publicaciones desde /socio.
+  const isMemberByRole = role === 'member' || role === 'admin';
 
   // Bypass de desarrollo: en local no hay proyecto Supabase real (el login es
   // imposible), así que se habilita el acceso al panel para poder ver y probar
@@ -90,6 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     process.env.NEXT_PUBLIC_SHOW_ADMIN_ENV === '1' || process.env.NODE_ENV !== 'production';
 
   const isAdmin = isAdminByRole || isAdminDevBypass;
+  const isMember = isMemberByRole || isAdminDevBypass;
 
   /**
    * Pasa a la cuenta los datos que la persona ya había dejado para contactar a
@@ -147,6 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       isAdmin,
       isAdminDevBypass: isAdminDevBypass && !isAdminByRole,
+      isMember,
       isAuthModalOpen,
       authReason,
       authError,
@@ -161,6 +174,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAdmin,
       isAdminDevBypass,
       isAdminByRole,
+      isMember,
+      isMemberByRole,
       isAuthModalOpen,
       authReason,
       authError,

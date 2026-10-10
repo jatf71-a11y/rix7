@@ -174,11 +174,12 @@ describe('feed completo', () => {
 });
 
 describe('reglas de publicación', () => {
-  it('omite las vendidas y los tipos sin equivalente', () => {
+  it('omite las vendidas, las arrendadas y los tipos sin equivalente', () => {
     const xml = buildTrovitFeed({
       properties: [
         makeProperty({ id: 'venta' }),
         makeProperty({ id: 'vendida', status: 'sold' }),
+        makeProperty({ id: 'arrendada', status: 'rented' }),
         makeProperty({ id: 'raro', property_type: 'all' }),
       ],
       siteUrl: SITE,
@@ -186,6 +187,7 @@ describe('reglas de publicación', () => {
     });
     expect(xml).toContain('<id>venta</id>');
     expect(xml).not.toContain('<id>vendida</id>');
+    expect(xml).not.toContain('<id>arrendada</id>');
     expect(xml).not.toContain('<id>raro</id>');
   });
 

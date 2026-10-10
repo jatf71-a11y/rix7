@@ -16,7 +16,10 @@ export interface Property {
   description: string;
   price: number;
   property_type: PropertyType;
-  status: 'for_sale' | 'for_rent' | 'sold';
+  // `sold` = venta concretada, `rented` = arriendo concretado (0015): el
+  // portal los trata igual — fuera de los filtros de operación, visibles con
+  // su etiqueta en la ficha y en el panel.
+  status: 'for_sale' | 'for_rent' | 'sold' | 'rented';
   bedrooms: number;
   bathrooms: number;
   privates?: number;

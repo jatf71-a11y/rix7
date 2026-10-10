@@ -45,7 +45,10 @@ function postalAddress(property: Property): JsonLdObject | undefined {
 
 /** Disponibilidad schema.org según el estado de la publicación. */
 function availabilityFor(status: Property['status']): string {
-  return status === 'sold'
+  // Estados cerrados: vendido **o arrendado** — la propiedad ya no está
+  // disponible. schema.org no tiene «RentedOut»: SoldOut es el valor que
+  // comunica «no disponible» y evita que el anuncio aparezca como ofertable.
+  return status === 'sold' || status === 'rented'
     ? 'https://schema.org/SoldOut'
     : 'https://schema.org/InStock';
 }

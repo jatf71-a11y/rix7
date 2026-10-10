@@ -142,6 +142,8 @@ RETURNS TABLE (
     agent_phone TEXT,
     agent_avatar TEXT,
     partner_id TEXT,
+    video_url TEXT,
+    video_poster TEXT,
     created_at TIMESTAMPTZ
 )
 LANGUAGE plpgsql
@@ -175,6 +177,10 @@ BEGIN
         p.agent_phone,
         p.agent_avatar,
         p.partner_id,
+        -- 0015: el video de la ficha. El ROL va a propósito AUSENTE: es
+        -- identificación interna y este RPC es la puerta pública al detalle.
+        p.video_url,
+        p.video_poster,
         p.created_at
     FROM public.properties p
     WHERE p.id::TEXT = property_id

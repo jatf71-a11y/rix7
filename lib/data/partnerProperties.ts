@@ -46,7 +46,14 @@ export async function listPartnerProperties(
         .limit(1000);
 
       if (!error && data) {
-        const hot = data as Property[];
+        // El ROL (0015) no sale de la base: es identificación interna y este
+        // listado alimenta lo público (/empresas y los feeds XML, que serializan
+        // la propiedad entera al HTML). Los RPC del portal ya lo excluyen con
+        // sus columnas explícitas; acá, que se lee con `select('*')`, se quita
+        // en el límite.
+        const hot = (data as Record<string, unknown>[]).map(
+          ({ rol: _rol, ...row }) => row as unknown as Property
+        );
         const catalogIds = new Set(catalogProperties.map((property) => property.id));
         const merged = [...hot.filter((property) => !catalogIds.has(property.id)), ...catalogProperties];
         return {

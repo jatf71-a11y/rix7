@@ -10,6 +10,8 @@ import {
   partnerPostSchema,
   partnerPutSchema,
   poisQuerySchema,
+  publicationPostSchema,
+  publicationPutSchema,
   propertiesQuerySchema,
   savedSearchDeleteSchema,
   shareReportQuerySchema,
@@ -200,6 +202,144 @@ describe('lib/api/schemas', () => {
       expect(ok(alertsRunQuerySchema, { dry: 'yes' }).dry).toBe(true);
       expect(ok(alertsRunQuerySchema, {}).dry).toBe(false);
       expect(ok(alertsRunQuerySchema, { dry: '0' }).dry).toBe(false);
+    });
+  });
+
+  describe('publicationPostSchema / publicationPutSchema', () => {
+    const valid = {
+      title: 'Departamento en Providencia',
+      description: 'Calle tranquila.',
+      price: '85000000',
+      property_type: 'apartment',
+      status: 'for_sale',
+      bedrooms: '2',
+      bathrooms: '2',
+      area_sqm: '68',
+      parking_spots: '1',
+      year_built: '2019',
+      address: 'Av. Providencia 1234',
+      city: 'Providencia',
+      images: ['https://images.unsplash.com/photo-1'],
+      features: ['Balcón'],
+      lat: '-33.42',
+      lng: '-70.61',
+    };
+
+    it('acepta el formulario con números llegados como cadena', () => {
+      const result = publicationPostSchema.safeParse(valid);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.price).toBe(85_000_000);
+        expect(result.data.bedrooms).toBe(2);
+        expect(result.data.lat).toBe(-33.42);
+        expect(result.data.images).toHaveLength(1);
+      }
+    });
+
+    it('exige título, precio, tipo, estado y ubicación', () => {
+      for (const field of [
+        'title',
+        'price',
+        'property_type',
+        'status',
+        'address',
+        'city',
+        'lat',
+        'lng',
+      ]) {
+        const partial = { ...valid } as Record<string, unknown>;
+        delete partial[field];
+        const result = publicationPostSchema.safeParse(partial);
+        expect(result.success, `falta ${field}`).toBe(false);
+      }
+    });
+
+    it('rechaza vocabulario fuera del catálogo', () => {
+      expect(
+        publicationPostSchema.safeParse({ ...valid, property_type: 'villa' }).success
+      ).toBe(false);
+      // 'all' es valor del filtro del buscador, no de una fila.
+      expect(publicationPostSchema.safeParse({ ...valid, property_type: 'all' }).success).toBe(
+        false
+      );
+      expect(publicationPostSchema.safeParse({ ...valid, status: 'all' }).success).toBe(false);
+    });
+
+    it('acepta los cuatro estados, incluido rented (arriendo concretado)', () => {
+      for (const status of ['for_sale', 'for_rent', 'sold', 'rented']) {
+        expect(
+          publicationPostSchema.safeParse({ ...valid, status }).success,
+          `estado ${status}`
+        ).toBe(true);
+      }
+      expect(publicationPostSchema.safeParse({ ...valid, status: 'alquilado' }).success).toBe(
+        false
+      );
+    });
+
+    it('valida el ROL del SII: forma, tope y nada de basura', () => {
+      for (const rol of ['15234-67', '13-15234-67', '15234-67D']) {
+        expect(publicationPostSchema.safeParse({ ...valid, rol }).success, rol).toBe(true);
+      }
+      // No empieza por dígito, muy corto, demasiado largo o caracteres raros.
+      expect(publicationPostSchema.safeParse({ ...valid, rol: 'sin-rol' }).success).toBe(false);
+      expect(publicationPostSchema.safeParse({ ...valid, rol: '12-' }).success).toBe(false);
+      expect(publicationPostSchema.safeParse({ ...valid, rol: `1${'5'.repeat(40)}` }).success).toBe(
+        false
+      );
+      expect(
+        publicationPostSchema.safeParse({ ...valid, rol: '15234; DROP TABLE x' }).success
+      ).toBe(false);
+      // Cadena vacía = «sin ROL» (así la edición lo puede borrar).
+      expect(publicationPostSchema.safeParse({ ...valid, rol: '' }).success).toBe(true);
+    });
+
+    it('el video acepta URL http/ruta y la cadena vacía, no cualquier esquema', () => {
+      expect(
+        publicationPostSchema.safeParse({
+          ...valid,
+          video_url: 'https://storage.supabase.co/video-promo.mp4',
+        }).success
+      ).toBe(true);
+      expect(
+        publicationPostSchema.safeParse({ ...valid, video_url: '/videos/promo.mp4' }).success
+      ).toBe(true);
+      // Vacío = quitar el video.
+      expect(publicationPostSchema.safeParse({ ...valid, video_url: '' }).success).toBe(true);
+      expect(
+        publicationPostSchema.safeParse({ ...valid, video_url: 'javascript:alert(1)' }).success
+      ).toBe(false);
+      expect(
+        publicationPostSchema.safeParse({ ...valid, video_url: 'ftp://x/y.mp4' }).success
+      ).toBe(false);
+    });
+
+    it('rechaza imágenes que no sean URL o ruta local', () => {
+      expect(
+        publicationPostSchema.safeParse({ ...valid, images: ['javascript:alert(1)'] }).success
+      ).toBe(false);
+      expect(
+        publicationPostSchema.safeParse({ ...valid, images: ['/brand-logo.png'] }).success
+      ).toBe(true);
+      expect(publicationPostSchema.safeParse({ ...valid, images: [] }).success).toBe(true);
+    });
+
+    it('la edición es parcial pero el id es obligatorio', () => {
+      const patch = publicationPutSchema.safeParse({ id: 'p1', price: 100 });
+      expect(patch.success).toBe(true);
+
+      const noId = publicationPutSchema.safeParse({ price: 100 });
+      expect(noId.success).toBe(false);
+
+      const empty = publicationPutSchema.safeParse({ id: 'p1' });
+      expect(empty.success).toBe(true);
+    });
+
+    it('no admite una coordenada sin la otra', () => {
+      const half = publicationPutSchema.safeParse({ id: 'p1', lat: -33.4 });
+      expect(half.success).toBe(false);
+      const both = publicationPutSchema.safeParse({ id: 'p1', lat: -33.4, lng: -70.6 });
+      expect(both.success).toBe(true);
     });
   });
 
