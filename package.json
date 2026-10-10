@@ -9,6 +9,7 @@
     "dev": "node scripts/dev.mjs",
     "slots": "node scripts/slots.mjs",
     "clean": "node scripts/clean.mjs",
+    "backup": "node scripts/backup.mjs",
     "build": "node scripts/build.mjs",
     "build:slot": "node scripts/build.mjs --measure",
     "start": "next start",
