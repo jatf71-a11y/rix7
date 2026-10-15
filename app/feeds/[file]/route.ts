@@ -56,8 +56,9 @@ export async function GET(
     );
   }
 
-  // Con `properties.partner_id` (fase 3, 2.1) la atribución sale de la base:
-  // datos en caliente de la corredora + su catálogo, deduplicados.
+  // Con `properties.partner_id` (fase 3, 2.1) la atribución sale de la base: el
+  // feed publica lo que la corredora tiene cargado, no una copia del build (el
+  // catálogo solo entra si la base no puede contestar o ella no tiene filas).
   const { properties, source } = await listPartnerProperties(match.partner.id);
 
   const xml = buildTrovitFeed({
