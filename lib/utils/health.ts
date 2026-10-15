@@ -19,9 +19,11 @@
  * `/api/alerts/run`.
  */
 import { describeAnonKeyProblem, describeSupabaseUrlProblem } from './supabaseEnv';
+import { DEFAULT_OWNER_PROJECT_REF, judgeProjectOwnership } from './supabaseOwner';
 
 export type SubsystemId =
   | 'supabase'
+  | 'supabase_owner'
   | 'service_role'
   | 'email'
   | 'alerts_cron'
@@ -46,6 +48,13 @@ export interface SubsystemInput {
   supabaseUrl: string | null;
   supabaseAnonKey: string | null;
   supabaseServiceRoleKey: string | null;
+  /**
+   * Proyecto de la cuenta dueña contra el que se coteja la base
+   * (`lib/utils/supabaseOwner`). Se lee de `SUPABASE_OWNER_PROJECT_REF` y, si no
+   * está, vale `DEFAULT_OWNER_PROJECT_REF`: el valor por defecto está en el
+   * código porque es el dato que el chequeo defiende.
+   */
+  ownerProjectRef: string | null;
   resendApiKey: string | null;
   alertsFromEmail: string | null;
   alertsCronSecret: string | null;
@@ -85,6 +94,8 @@ const DEFAULT_FROM = 'Rix7 <avisos@rix7.cl>';
 const MISSING = {
   supabase:
     'Ni cuentas ni favoritos ni altas con autorizaciones ni panel: sin un proyecto real, todo eso cae al respaldo en memoria del servidor o falla cerrado.',
+  supabaseOwner:
+    'El portal está guardando sobre una base que no es la de la cuenta dueña del proyecto: el día que esa cuenta se suspenda, cambie de manos o se pierda su ingreso —lo que pasó el 2026-10-13— queda una base viva que nadie puede administrar, sin migraciones, sin claves nuevas y sin poder recuperar las cuentas.',
   serviceRole:
     'El job de alertas no puede leer las búsquedas de todas las personas: `/api/alerts/run` responde 503 y los avisos no salen.',
   email:
@@ -100,6 +111,8 @@ const MISSING = {
 const FIXES = {
   supabase:
     'Pon NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY del proyecto real (Project Settings » API) en .env.local y en Vercel.',
+  supabaseOwner:
+    'Usá las credenciales del proyecto de la cuenta dueña (Project Settings » API) y cortá con `npm run corte:supabase`, que las comprueba contra la base antes de escribirlas en Vercel. Si este despliegue usa otro proyecto a propósito, definí SUPABASE_OWNER_PROJECT_REF con su referencia.',
   serviceRole:
     'Pon SUPABASE_SERVICE_ROLE_KEY (Project Settings » API » service_role) en Vercel. No lleva prefijo NEXT_PUBLIC_ a propósito: nunca debe llegar al navegador.',
   email:
@@ -127,6 +140,7 @@ export function subsystemEnvFrom(
     supabaseUrl: read('NEXT_PUBLIC_SUPABASE_URL'),
     supabaseAnonKey: read('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
     supabaseServiceRoleKey: read('SUPABASE_SERVICE_ROLE_KEY'),
+    ownerProjectRef: read('SUPABASE_OWNER_PROJECT_REF') ?? DEFAULT_OWNER_PROJECT_REF,
     resendApiKey: read('RESEND_API_KEY'),
     alertsFromEmail: read('ALERTS_FROM_EMAIL'),
     alertsCronSecret: read('ALERTS_CRON_SECRET'),
@@ -144,6 +158,16 @@ export function describeSubsystems(input: SubsystemInput): SubsystemStatus[] {
     describeSupabaseUrlProblem(input.supabaseUrl),
     describeAnonKeyProblem(input.supabaseAnonKey),
   ].filter((problem): problem is string => problem !== null);
+
+  // De quién es la base. Es una pregunta distinta de «¿hay proyecto?» y por eso
+  // es un subsistema aparte: el portal puede estar entero y perfecto sobre una
+  // base ajena, que es justo el estado en el que el incidente pasó inadvertido.
+  const ownership = judgeProjectOwnership({
+    url: input.supabaseUrl,
+    anonKey: input.supabaseAnonKey,
+    serviceRoleKey: input.supabaseServiceRoleKey,
+    ownerProjectRef: input.ownerProjectRef,
+  });
 
   const hasResend = Boolean(input.resendApiKey);
   const emailNotes = hasResend
@@ -164,6 +188,16 @@ export function describeSubsystems(input: SubsystemInput): SubsystemStatus[] {
       notes: [],
       impact: MISSING.supabase,
       fix: FIXES.supabase,
+    },
+    {
+      id: 'supabase_owner',
+      label: 'Base de la cuenta dueña del proyecto',
+      severity: 'critical',
+      configured: ownership.ok,
+      reason: ownership.reason,
+      notes: ownership.notes,
+      impact: MISSING.supabaseOwner,
+      fix: FIXES.supabaseOwner,
     },
     {
       id: 'service_role',

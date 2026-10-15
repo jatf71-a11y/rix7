@@ -16,11 +16,18 @@ import {
   type SubsystemInput,
   type SubsystemStatus,
 } from './health';
+import { DEFAULT_OWNER_PROJECT_REF } from './supabaseOwner';
+
+/** El proyecto de la cuenta dueña: la base contra la que tiene que apuntar todo. */
+const OWNER_REF = DEFAULT_OWNER_PROJECT_REF;
+/** El proyecto de la otra cuenta (el que quedó sin dueño accesible el 2026-10-13). */
+const OTHER_REF = 'wcxpkfmevrbjrjlbayba';
 
 const COMPLETE: SubsystemInput = {
-  supabaseUrl: 'https://abcdefghijkl.supabase.co',
+  supabaseUrl: `https://${OWNER_REF}.supabase.co`,
   supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.abcdefghijklmnopqrstuvwxyz',
   supabaseServiceRoleKey: 'clave-de-servicio-abcdefghijklmnopqrstuvwxyz',
+  ownerProjectRef: OWNER_REF,
   resendApiKey: 're_abcdefghijklmnopqrstuvwxyz',
   alertsFromEmail: 'Rix7 <avisos@rix7.cl>',
   alertsCronSecret: 'un-secreto-largo-y-aleatorio',
@@ -43,7 +50,7 @@ const find = (subsystems: SubsystemStatus[], id: SubsystemId): SubsystemStatus =
 describe('subsystemEnvFrom', () => {
   it('lee las variables del proyecto, incluidas las dos formas del DSN de Sentry', () => {
     const env = subsystemEnvFrom({
-      NEXT_PUBLIC_SUPABASE_URL: 'https://abc.supabase.co',
+      NEXT_PUBLIC_SUPABASE_URL: `https://${OWNER_REF}.supabase.co`,
       NEXT_PUBLIC_SUPABASE_ANON_KEY: 'clave',
       SUPABASE_SERVICE_ROLE_KEY: 'servicio',
       RESEND_API_KEY: 're_123',
@@ -53,9 +60,17 @@ describe('subsystemEnvFrom', () => {
       NEXT_PUBLIC_SITE_URL: 'https://rix7.cl',
     });
 
-    expect(env.supabaseUrl).toBe('https://abc.supabase.co');
+    expect(env.supabaseUrl).toBe(`https://${OWNER_REF}.supabase.co`);
     expect(env.sentryDsn).toBe('https://srv.ingest.sentry.io/1');
     expect(env.siteUrl).toBe('https://rix7.cl');
+  });
+
+  it('la base esperada es la de la cuenta dueña, y el entorno puede declarar otra', () => {
+    // El valor por defecto está en el código —es el dato que este chequeo
+    // defiende—, pero un despliegue que usa otro proyecto a propósito puede
+    // decirlo: queda explícito y lo anuncia el propio informe.
+    expect(subsystemEnvFrom({}).ownerProjectRef).toBe(OWNER_REF);
+    expect(subsystemEnvFrom({ SUPABASE_OWNER_PROJECT_REF: OTHER_REF }).ownerProjectRef).toBe(OTHER_REF);
   });
 
   it('prefiere el DSN público y cae al del servidor', () => {
@@ -75,11 +90,12 @@ describe('subsystemEnvFrom', () => {
     expect(subsystemEnvFrom({ RESEND_API_KEY: '  re_123  ' }).resendApiKey).toBe('re_123');
   });
 
-  it('sin nada definido devuelve todo vacío', () => {
+  it('sin nada definido devuelve todo vacío (menos la base esperada, que va en el código)', () => {
     expect(subsystemEnvFrom()).toEqual({
       supabaseUrl: null,
       supabaseAnonKey: null,
       supabaseServiceRoleKey: null,
+      ownerProjectRef: OWNER_REF,
       resendApiKey: null,
       alertsFromEmail: null,
       alertsCronSecret: null,
@@ -166,8 +182,55 @@ describe('buildHealthReport', () => {
   it('cuenta cuántos de cuántos faltan, por gravedad', () => {
     const report = buildHealthReport(without('supabaseServiceRoleKey', 'resendApiKey'));
 
-    expect(report.summary).toContain('2 de 6');
+    expect(report.summary).toContain('2 de 7');
     expect(report.summary).toContain('degradados: service_role, email');
+  });
+
+  it('la base de otra cuenta es crítica, aunque el portal ande perfecto', () => {
+    // Es el estado que pasó inadvertido el 2026-10-13: todo respondía porque la
+    // base funcionaba. Lo que estaba mal era de quién era.
+    const report = buildHealthReport({ ...COMPLETE, supabaseUrl: `https://${OTHER_REF}.supabase.co` });
+
+    expect(report.status).toBe('broken');
+    expect(report.broken).toEqual(['supabase_owner']);
+    expect(httpStatus(report)).toBe(503);
+
+    const owner = find(report.subsystems, 'supabase_owner');
+    expect(owner.configured).toBe(false);
+    expect(owner.reason).toContain(OTHER_REF);
+    expect(owner.impact).toContain('2026-10-13');
+    expect(owner.fix).toContain('corte:supabase');
+  });
+
+  it('una clave de otro proyecto también es crítica', () => {
+    const foreign = `eyJhbGciOiJIUzI1NiJ9.${Buffer.from(JSON.stringify({ role: 'anon', ref: OTHER_REF })).toString('base64url')}.firma`;
+    const report = buildHealthReport({ ...COMPLETE, supabaseAnonKey: foreign });
+
+    expect(report.broken).toEqual(['supabase_owner']);
+    expect(find(report.subsystems, 'supabase_owner').reason).toContain('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  });
+
+  it('con las claves nuevas no falla, pero avisa que no las pudo cotejar', () => {
+    // Las `sb_publishable_…` / `sb_secret_…` no llevan la referencia en su
+    // cuerpo: el informe no las da por buenas, dice que no las comprobó.
+    const report = buildHealthReport({
+      ...COMPLETE,
+      supabaseAnonKey: `sb_publishable_${'a'.repeat(30)}`,
+      supabaseServiceRoleKey: `sb_secret_${'b'.repeat(30)}`,
+    });
+    const owner = find(report.subsystems, 'supabase_owner');
+
+    expect(report.status).toBe('ok');
+    expect(owner.configured).toBe(true);
+    expect(owner.notes.join(' ')).toContain('No se pudo cotejar');
+  });
+
+  it('sin proyecto configurado el cotejo no agrega un segundo crítico', () => {
+    // La falla es una sola y el informe ya la cuenta en `supabase`.
+    const report = buildHealthReport(without('supabaseUrl', 'supabaseAnonKey'));
+
+    expect(report.broken).toEqual(['supabase']);
+    expect(find(report.subsystems, 'supabase_owner').configured).toBe(true);
   });
 
   it('el correo configurado sin remitente propio avisa qué va a usar', () => {
@@ -186,6 +249,7 @@ describe('cada subsistema del informe', () => {
 
     expect(subsystems.map((s) => s.id)).toEqual([
       'supabase',
+      'supabase_owner',
       'service_role',
       'email',
       'alerts_cron',
@@ -194,11 +258,20 @@ describe('cada subsistema del informe', () => {
     ]);
 
     for (const subsystem of subsystems) {
-      expect(subsystem.configured, subsystem.id).toBe(false);
       // Un informe que diga «falta algo» sin decir qué hacer deja al lector donde
       // empezó: los dos campos tienen que venir siempre.
       expect(subsystem.impact.length, subsystem.id).toBeGreaterThan(20);
       expect(subsystem.fix.length, subsystem.id).toBeGreaterThan(20);
+
+      if (subsystem.id === 'supabase_owner') {
+        // La excepción: sin URL no hay base que cotejar, así que no hay motivo
+        // que dar — y de que no hay proyecto ya avisa el subsistema `supabase`.
+        // Marcarlo «sin configurar» contaría dos veces la misma falla.
+        expect(subsystem.configured, subsystem.id).toBe(true);
+        expect(subsystem.reason, subsystem.id).toBeNull();
+        continue;
+      }
+      expect(subsystem.configured, subsystem.id).toBe(false);
       expect(subsystem.reason, subsystem.id).toBeTruthy();
     }
   });

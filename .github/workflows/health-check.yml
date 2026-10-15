@@ -2,8 +2,18 @@
 #
 # `/api/health` sabe decir qué subsistemas quedaron sin configurar en un
 # despliegue, pero nadie lo mira por su cuenta. Este workflow lo consulta cada
-# pocas horas y se pone **rojo** cuando falta algo **crítico** —hoy, el proyecto
-# Supabase real—, que es cuando el portal acepta altas pero no guarda nada.
+# pocas horas y se pone **rojo** cuando falta algo **crítico**: el proyecto
+# Supabase real (sin él el portal acepta altas pero no guarda nada) o —el otro
+# crítico— que la base **no sea la de la cuenta dueña del proyecto**, que es el
+# estado en el que el incidente del 2026-10-13 pasó inadvertido: todo respondía,
+# y lo que estaba mal era de quién era la base.
+#
+# También contesta la otra pregunta que este repo se hizo dos veces "de más":
+# **¿lo que está en vivo es el código del repositorio?** El despliegue publica el
+# hash del árbol con el que se construyó (`RIX7_BUILD`) y la sonda lo compara con
+# el de este checkout. No coincidir NO pone el job rojo —que producción vaya unos
+# commits atrás es una situación normal, no una caída— pero queda en el resumen,
+# que es donde se mira cuando alguien pregunta por qué una función "no está".
 #
 # Por qué no está dentro de `ci.yml`: `ci.yml` corre en cada push y valida el
 # código del repo; esto vigila un despliegue **ya desplegado**, así que su
@@ -18,6 +28,20 @@
 # variable de repositorio `HEALTH_URL` (Settings → Secrets and variables →
 # Actions → Variables) para apuntar a otro despliegue; sin ella se usa el alias
 # de producción de Vercel.
+#
+# Además consulta el **esquema** de la base (`scripts/check-schema.mjs`): que el
+# código desplegado encuentre las columnas y funciones que usa. Es la única
+# comprobación que puede ponerse roja sin que nadie toque nada —una migración a
+# medio aplicar, o un proyecto de Supabase recreado— y avisa en horas en vez de
+# cuando alguien se topa con el error usando el portal. Para que corra, hay que
+# definir en Settings → Secrets and variables → Actions:
+#
+#   · Variable  NEXT_PUBLIC_SUPABASE_URL   (la URL del proyecto; es pública)
+#   · Secreto   NEXT_PUBLIC_SUPABASE_ANON_KEY
+#
+# Las dos salen en el bundle del navegador, así que no son credenciales de
+# poder: se usan acá solo para leer. Sin la variable, el paso se saltea y lo
+# dice; no se marca rojo por algo que no está configurado.
 #
 # Nota: GitHub desactiva los schedules tras 60 días sin actividad en el repo.
 
@@ -41,6 +65,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Historial completo: la sonda no se queda en "los commits difieren",
+          # cuenta cuántos commits va producción atrás (`git rev-list --count`), y
+          # con el clon de un solo commit eso no se puede calcular.
+          fetch-depth: 0
 
       - name: Node 24
         uses: actions/setup-node@v4
@@ -55,3 +84,20 @@ jobs:
         env:
           HEALTH_URL: ${{ vars.HEALTH_URL || 'https://rix7.vercel.app' }}
         run: node scripts/check-health.mjs
+
+      # El esquema, contra la base real. Se saltea —diciéndolo— cuando el
+      # repositorio todavía no tiene las dos claves públicas: un job rojo por
+      # algo que no está configurado es un job que se aprende a ignorar.
+      - name: Avisar si faltan las claves para sondear el esquema
+        if: ${{ vars.NEXT_PUBLIC_SUPABASE_URL == '' }}
+        run: |
+          echo '::notice::Sin la variable NEXT_PUBLIC_SUPABASE_URL no se comprueba el esquema de la base.'
+          echo 'Definila en Settings → Secrets and variables → Actions (Variables) junto al secreto' >> "$GITHUB_STEP_SUMMARY"
+          echo '`NEXT_PUBLIC_SUPABASE_ANON_KEY` para que esta comprobación corra.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comprobar el esquema de la base
+        if: ${{ vars.NEXT_PUBLIC_SUPABASE_URL != '' }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: node scripts/check-schema.mjs
