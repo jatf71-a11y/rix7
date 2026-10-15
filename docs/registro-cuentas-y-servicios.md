@@ -71,6 +71,12 @@ Comprobado el 2026-10-15, con la clave que hoy está en `.env.local` (la de la c
 | `VERCEL_OIDC_TOKEN` | `.env.local` | Vercel CLI | `npx vercel env pull` o `vercel link` |
 | Login de Vercel y GitHub | Gestor de contraseñas / llave del sistema | — | Restablecer en cada servicio (ambos tienen correo de recuperación propio) |
 
+**Comprobación en un solo comando.** `npm run check:credenciales` recorre esta tabla contra
+`.env.local` y el entorno: dice cuál falta, si su forma es la esperada, y —lo que de verdad
+ahorra tiempo— **dónde se consigue** y con qué comando se guarda. Con `--online` comprueba
+además la sesión de la CLI de Vercel y los secretos del repositorio, que no viven en ninguna
+variable. No toca ningún servicio ni imprime ningún valor.
+
 **Lo que el repo y esta máquina NO guardan:** la contraseña de ninguna cuenta, la clave de base
 de datos de PostgreSQL y ningún archivo de credenciales. Verificado: no hay `~/.pgpass`, no hay
 `~/.supabase`, y el respaldo `.git.backup-*` no contiene ningún `.env`.

@@ -315,6 +315,30 @@ npm run check:schema -- --json     # el veredicto en JSON
 Sale **1** cuando falta algo y nombra la migración a aplicar; sale **2** cuando
 no pudo mirar (sin URL o sin clave), que no es un «está bien».
 
+### «¿Qué credenciales faltan, y dónde se consigue cada una?»
+
+Todo lo de arriba se contesta **de a una pregunta por vez**, y cada una necesita algo
+distinto: esta lee PostgREST, aquella pide el token. Cuando una credencial falta, la
+comprobación que depende de ella no dice «falta la credencial», dice que no pudo mirar —y
+perseguir eso cuesta más que preguntarlo de frente:
+
+```bash
+npm run check:credenciales              # .env.local y el entorno, sin red
+npm run check:credenciales -- --online  # + sesión de la CLI de Vercel y secretos del repo
+npm run check:credenciales -- --json
+```
+
+Recorre el catálogo del [registro de cuentas y servicios](docs/registro-cuentas-y-servicios.md)
+y para cada credencial dice si está, si su forma es la esperada —con los mismos
+clasificadores que usa el corte, así los dos no pueden discrepar sobre si una clave
+sirve—, **qué deja de funcionar** mientras falte, **dónde se consigue** (con el camino
+exacto en el panel) y **con qué comando se guarda**. Cierra diciendo si el corte tiene lo
+que necesita.
+
+Sale **1** si falta algo crítico o degradado, **0** si solo faltan opcionales, y **2** si se
+usó mal. No toca Vercel, ni Supabase, ni GitHub, y no imprime ningún valor: mira lo que está
+**configurado**, no si la base responde.
+
 ---
 
 ## 7. Verificación post-deploy
