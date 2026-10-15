@@ -73,6 +73,12 @@ Además, el job `domain` corre `npm run check:domain` en cada corrida y deja el
 **estado del plan del dominio** (§8.4 del runbook de Resend) en el resumen: es
 informativo — no bloquea — y en rojo solo si el script falla.
 
+`health-check.yml` corre cada 6 horas y mira el despliegue **ya publicado**: los
+críticos de `/api/health`, que la base sea la del proyecto de la cuenta dueña y
+el esquema de la base. Cuando queda rojo no se queda en la pestaña de Actions:
+abre un issue en el repositorio, lo mantiene al día y lo cierra solo cuando
+vuelve a estar verde (`scripts/notice-health.mjs`, con `issues: write`).
+
 ### 3.2 Vercel — hosting y producción
 
 | Dato | Valor |

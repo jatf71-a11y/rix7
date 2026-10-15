@@ -43,6 +43,12 @@
 # poder: se usan acá solo para leer. Sin la variable, el paso se saltea y lo
 # dice; no se marca rojo por algo que no está configurado.
 #
+# Y cuando queda rojo, **avisa en un issue** (`scripts/notice-health.mjs`): un job
+# rojo hay que ir a mirarlo, y un issue aparece en el feed, manda correo y guarda
+# el motivo con su fecha. Es un solo issue, siempre el mismo: se abre cuando la
+# sonda queda roja, se refresca en cada corrida roja, comenta solo si el motivo
+# cambió y se cierra solo cuando vuelve a estar verde.
+#
 # Nota: GitHub desactiva los schedules tras 60 días sin actividad en el repo.
 
 name: Salud de producción
@@ -52,6 +58,10 @@ on:
     # Cada 6 horas (00, 06, 12 y 18 UTC). Barato: una petición sin dependencias.
     - cron: '0 */6 * * *'
   workflow_dispatch: # permite lanzarlo a mano desde la pestaña Actions
+
+permissions:
+  contents: read # el checkout, para comparar el identificador de la build
+  issues: write # abrir, actualizar y cerrar el aviso de salud
 
 concurrency:
   group: health-check
@@ -81,9 +91,16 @@ jobs:
       # un fallo deja `::error::` con el primer motivo, para no tener que abrir
       # el log.
       - name: Consultar la salud del despliegue
+        id: salud
         env:
           HEALTH_URL: ${{ vars.HEALTH_URL || 'https://rix7.vercel.app' }}
-        run: node scripts/check-health.mjs
+        # `pipefail` para que el paso siga fallando cuando la sonda falla: sin él
+        # el estado del paso sería el de `tee`, y el job quedaría verde con la
+        # sonda en rojo. Lo que sale por acá es lo que después se pega en el
+        # issue, así que el informe tiene que quedar en el archivo **y** en el log.
+        run: |
+          set -o pipefail
+          node scripts/check-health.mjs 2>&1 | tee "$RUNNER_TEMP/salud.txt"
 
       # El esquema, contra la base real. Se saltea —diciéndolo— cuando el
       # repositorio todavía no tiene las dos claves públicas: un job rojo por
@@ -96,8 +113,25 @@ jobs:
           echo '`NEXT_PUBLIC_SUPABASE_ANON_KEY` para que esta comprobación corra.' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Comprobar el esquema de la base
+        id: esquema
         if: ${{ vars.NEXT_PUBLIC_SUPABASE_URL != '' }}
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-        run: node scripts/check-schema.mjs
+        run: |
+          set -o pipefail
+          node scripts/check-schema.mjs 2>&1 | tee "$RUNNER_TEMP/esquema.txt"
+
+      # El aviso va al final y con `if: always()`: tiene que correr tanto si algo
+      # falló —para abrir o refrescar el issue— como si todo salió bien —para
+      # cerrarlo. Los dos `outcome` son el dato con el que decide; si no llegan,
+      # el script se niega a actuar en vez de suponer que está todo bien.
+      - name: Avisar en el issue de salud
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AVISO_DIR: ${{ runner.temp }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SALUD_FALLO: ${{ steps.salud.outcome == 'failure' }}
+          ESQUEMA_FALLO: ${{ steps.esquema.outcome == 'failure' }}
+        run: node scripts/notice-health.mjs

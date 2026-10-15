@@ -34,6 +34,7 @@
     "smoke:prod": "node scripts/smoke-prod.mjs",
     "alerts:e2e": "node scripts/alerts-e2e.mjs",
     "check:health": "node scripts/check-health.mjs",
+    "aviso:salud": "node scripts/notice-health.mjs",
     "check:schema": "node scripts/check-schema.mjs",
     "check:domain": "node scripts/check-domain.mjs",
     "vitals": "node scripts/measure-vitals.mjs",

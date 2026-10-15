@@ -191,6 +191,21 @@ horas— hace la misma comparación contra el checkout del CI y lo deja en su
 resumen: si producción quedó atrás, se ve ahí (y con `npm run check:health`,
 que además cuenta **cuántos commits** va atrás cuando puede).
 
+### El rojo no se queda en la pestaña de Actions
+
+Cuando la sonda encuentra algo crítico, el job se pone rojo —y eso está bien—
+pero un rojo en Actions hay que ir a mirarlo. Así que además **abre un issue**:
+uno solo, siempre el mismo (`Salud de producción en rojo`), que se mantiene al
+día en cada corrida roja, **comenta únicamente cuando el motivo cambia** y se
+cierra solo cuando la sonda vuelve a estar verde. El correo lo manda GitHub al
+abrir el issue, así que el aviso no necesita ninguna clave nueva en el CI.
+
+Ese aviso lo maneja [`scripts/notice-health.mjs`](scripts/notice-health.mjs) y
+se puede ensayar sin tocar nada: `npm run aviso:salud -- --dry-run` (dice qué
+haría y con qué texto). Si el script no recibe el dato de si hubo fallo, se
+niega a actuar en vez de suponer que todo está bien: suponerlo **cerraría** un
+aviso legítimo.
+
 ### El paso que no corre por defecto: `--with-tests`
 
 El build de Next typechequea, pero **no corre la suite**: un test rojo llega a
