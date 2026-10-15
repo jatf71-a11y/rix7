@@ -12,6 +12,7 @@ import {
   listPartnerPublications,
   updatePublication,
 } from '@/lib/data/propertiesStore';
+import { revalidatePublicationSurfaces } from '@/lib/data/publicSurfaces';
 
 // Panel del socio: las cuatro operaciones exigen rol member/admin **y** una
 // corredora vinculada (el guard devuelve 401/403 con el motivo), y toda
@@ -22,6 +23,11 @@ import {
 //
 // Las respuestas traen `persistent`: cuando es false, lo que se acaba de
 // guardar vive solo en memoria (desarrollo sin Supabase) y la UI lo avisa.
+//
+// Cada escritura que sale bien invalida lo público que cambió (la página de
+// empresa de la corredora, su ficha y su landing compartible): las tres se
+// sirven con ISR, así que sin esto la corredora publicaba y su propia página
+// seguía con el listado anterior. Ver `lib/data/publicSurfaces.ts`.
 
 /** Motivo del store → estado HTTP. */
 function statusFor(reason: 'not_found' | 'database' | undefined): number {
@@ -71,6 +77,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    await revalidatePublicationSurfaces(guard.partnerId, result.property?.id);
+
     return NextResponse.json(
       { success: true, data: result.property, persisted: result.persisted },
       { status: 201 }
@@ -103,6 +111,8 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    await revalidatePublicationSurfaces(guard.partnerId, result.property?.id ?? id);
+
     return NextResponse.json({
       success: true,
       data: result.property,
@@ -134,6 +144,8 @@ export async function DELETE(request: NextRequest) {
       { status: statusFor(result.reason) }
     );
   }
+
+  await revalidatePublicationSurfaces(guard.partnerId, validation.data.id);
 
   return NextResponse.json({ success: true, persisted: result.persisted });
 }

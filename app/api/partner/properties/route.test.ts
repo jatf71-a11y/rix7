@@ -10,18 +10,31 @@
  * solo aporta `auth.getUser`, igual que en los tests de `/api/admin/partners`.
  * En los casos que deben fallar cerrado se fuerza `NODE_ENV=production`, porque
  * en desarrollo el guard permite el acceso a propósito (ver `requireMember`).
+ *
+ * La invalidación de lo público también se mockea: lo que se comprueba acá es
+ * que cada escritura que sale bien la dispare (y que las que fallan no la
+ * disparen), no qué rutas invalida —eso es `lib/data/publicSurfaces.test.ts`.
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const { getUser, listPartnerPublications, createPublication, updatePublication, deletePublication } =
-  vi.hoisted(() => ({
-    getUser: vi.fn(),
-    listPartnerPublications: vi.fn(),
-    createPublication: vi.fn(),
-    updatePublication: vi.fn(),
-    deletePublication: vi.fn(),
-  }));
+const {
+  getUser,
+  listPartnerPublications,
+  createPublication,
+  updatePublication,
+  deletePublication,
+  revalidatePublicationSurfaces,
+} = vi.hoisted(() => ({
+  getUser: vi.fn(),
+  listPartnerPublications: vi.fn(),
+  createPublication: vi.fn(),
+  updatePublication: vi.fn(),
+  deletePublication: vi.fn(),
+  revalidatePublicationSurfaces: vi.fn(),
+}));
+
+vi.mock('@/lib/data/publicSurfaces', () => ({ revalidatePublicationSurfaces }));
 
 vi.mock('@/lib/supabase/server', () => ({
   createClient: () => ({ auth: { getUser } }),
@@ -106,6 +119,7 @@ beforeEach(() => {
   });
   updatePublication.mockResolvedValue({ ok: true, property: { id: 'p1' }, persisted: true });
   deletePublication.mockResolvedValue({ ok: true, persisted: true });
+  revalidatePublicationSurfaces.mockResolvedValue([]);
 });
 
 afterEach(() => {
@@ -247,5 +261,50 @@ describe('/api/partner/properties — operaciones', () => {
     const res = await DELETE(del('p1'));
     expect(res.status).toBe(200);
     expect(deletePublication).toHaveBeenCalledWith('p1', 'catedral');
+  });
+});
+
+describe('/api/partner/properties — lo público se refresca al guardar', () => {
+  it('el alta invalida la página de la corredora y la ficha nueva', async () => {
+    withUser('member', 'catedral');
+
+    const res = await POST(post());
+
+    expect(res.status).toBe(201);
+    expect(revalidatePublicationSurfaces).toHaveBeenCalledWith('catedral', 'p1');
+  });
+
+  it('la edición y la baja también, con la corredora del guard', async () => {
+    withUser('member', 'catedral');
+
+    await PUT(put({ id: 'p1', price: 99_000_000 }));
+    expect(revalidatePublicationSurfaces).toHaveBeenCalledWith('catedral', 'p1');
+
+    revalidatePublicationSurfaces.mockClear();
+    await DELETE(del('p9'));
+    expect(revalidatePublicationSurfaces).toHaveBeenCalledWith('catedral', 'p9');
+  });
+
+  it('una escritura que falla no invalida nada', async () => {
+    withUser('member', 'catedral');
+    updatePublication.mockResolvedValue({
+      ok: false,
+      reason: 'not_found',
+      error: 'Publicación no encontrada.',
+      persisted: true,
+    });
+
+    const res = await PUT(put({ id: 'ajena', price: 1 }));
+
+    expect(res.status).toBe(404);
+    expect(revalidatePublicationSurfaces).not.toHaveBeenCalled();
+  });
+
+  it('quien no puede escribir tampoco hace regenerar páginas', async () => {
+    withUser('member');
+
+    expect((await POST(post())).status).toBe(403);
+    expect((await DELETE(del('p1'))).status).toBe(403);
+    expect(revalidatePublicationSurfaces).not.toHaveBeenCalled();
   });
 });
