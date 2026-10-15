@@ -54,4 +54,11 @@ CREATE INDEX IF NOT EXISTS idx_properties_city ON public.properties (city);
 
 -- Atribución por corredora: el feed público consulta por igualdad en cada
 -- rastreo del agregador y /empresas/<slug> pide las de una sola corredora.
-CREATE INDEX IF NOT EXISTS idx_properties_partner ON public.properties (partner_id);
+--
+-- El índice (`idx_properties_partner`) **no** se crea acá: vive en
+-- `0011_properties_partner_id.sql`, junto al `ALTER TABLE` que garantiza la
+-- columna. En una base vieja —donde `properties` ya existía sin `partner_id`—
+-- este `CREATE TABLE IF NOT EXISTS` no toca la tabla, así que un índice sobre la
+-- columna acá fallaba con «42703: column partner_id does not exist» y abortaba
+-- la cadena entera. Pasó de verdad: la base del 2026-10-14 se recuperó desde esa
+-- versión vieja y el orden importó.

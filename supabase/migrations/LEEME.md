@@ -14,9 +14,11 @@ mano en el SQL Editor del dashboard.
 ## Aplicarlas
 
 ```bash
-npm run db:push      # aplica lo que falte
-npm run db:status    # solo informa (no toca la base)
-npm run db:check     # informa y sale 1 si hay pendientes (para el CI)
+npm run db:push        # aplica lo que falte
+npm run db:status      # solo informa (no toca la base)
+npm run db:check       # informa y sale 1 si hay pendientes (para el CI)
+npm run check:schema   # contra la base real: ¿está aplicado? (no necesita token)
+npm run db:apply-sql   # sin token: genera el SQL para pegar en el SQL Editor
 ```
 
 Necesitan `SUPABASE_ACCESS_TOKEN` (un token personal de
@@ -54,22 +56,50 @@ aunque su número ya esté registrado.
    están permitidos: el punto de poder aplicarlas sin preguntar es que solo
    agregan. Si alguna vez hace falta una operación destructiva, va aparte, a
    mano y con una copia de seguridad.
+   **Única excepción: `DROP FUNCTION` de una firma obsoleta**, siempre que el
+   mismo archivo vuelva a crear la función (`0005` lo hace con la firma vieja de
+   `get_properties_filtered`). No es un dato: es la única forma de deshacer una
+   sobrecarga, porque `CREATE OR REPLACE` solo reemplaza cuando la lista de
+   argumentos es idéntica. El test que vigila esta regla acepta `DROP POLICY` y
+   `DROP FUNCTION` —y exige que la función se recree— y sigue rechazando el
+   resto.
 4. **Ampliaciones de esquema, además, en la última migración con `ALTER`.**
    `CREATE TABLE IF NOT EXISTS` no toca una tabla que ya existe, así que una base
    creada con una versión vieja no recibe las columnas nuevas aunque se apliquen
    todas las migraciones. `0011_properties_partner_id.sql` es el ejemplo: en una
    base nueva no hace nada y en una vieja agrega la columna.
+5. **Nada en un archivo puede depender de una columna que ese mismo archivo
+   quizá no creó.** Si la tabla ya existía, el `CREATE TABLE IF NOT EXISTS` se
+   saltea y cualquier sentencia siguiente sobre una columna nueva —un
+   `CREATE INDEX`, un `GRANT`, un `UPDATE`— falla y **corta la cadena entera**.
+   Por eso todo lo que toca una columna nueva va junto al `ALTER` que la agrega
+   (`0011` crea la columna *y* su índice), no en el archivo de la tabla.
 
 `scripts/db-push.test.ts` verifica las cuatro reglas **sobre los archivos
 reales**, así que la garantía no depende de que alguien se acuerde al escribir la
 próxima. Añadir una migración que no las cumpla hace fallar la suite.
 
-## Si igual prefieres el SQL Editor
+## Si no hay token: el SQL Editor, con un archivo generado
 
-Es válido, pero entonces hazlo en orden y uno por uno: cada archivo está pensado
-para aplicarse solo, y el bloque de la sección `12` que antes había que buscar
-dentro de un archivo de 700 líneas ahora es `0010_signups.sql`. Después conviene
-correr `npm run db:status` para ver qué quedó registrado.
+`db:push` necesita un token **de una cuenta con acceso al proyecto**. Cuando esa
+cuenta no está (el proyecto es de otra persona y no hay forma de entrar), queda el
+SQL Editor del dashboard — pero no conviene ir archivo por archivo: son quince y
+el orden importa.
+
+```bash
+npm run db:apply-sql          # → .deploy-tmp/migraciones.sql
+npm run db:apply-sql -- --stdout      # o por la salida, para tuberías
+```
+
+Ese archivo trae el libro de migraciones primero, cada migración y **su registro
+pegado al lado**, y todo dentro de una transacción. Se pega entero en el SQL
+Editor y se ejecuta: o entra completo, o no cambia nada. Al terminar, la base
+queda igual que con `db:push` —incluido `public.rix7_migrations`—, así que el
+primer `npm run db:status` que se corra con token dirá que está al día en vez de
+intentar todo de nuevo.
+
+Comprobar no necesita token: `npm run check:schema` lee la base real con la clave
+pública y dice qué falta.
 
 ## Historia
 

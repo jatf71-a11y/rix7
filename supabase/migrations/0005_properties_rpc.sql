@@ -5,6 +5,24 @@
 -- recibe siempre la última versión del filtro —incluido `p_partner_id`— sin
 -- necesidad de borrar nada. Por eso la migración 0011 no repite el cuerpo.
 --
+-- **Excepción, y es importante:** `CREATE OR REPLACE` reemplaza la función solo
+-- si la lista de argumentos es idéntica. Cuando una base nació con la firma
+-- vieja (sin `p_partner_id`), en vez de reemplazarla queda **una sobrecarga**:
+-- dos `get_properties_filtered` candidatas. PostgREST entonces no sabe cuál
+-- elegir y responde `PGRST203` (HTTP 300) a toda llamada que no fije los diez
+-- argumentos —que es exactamente como la llama el portal (`min_lng`, `min_lat`,
+-- `max_lng`, `max_lat`)—: el buscador cae en silencio al catálogo del código y
+-- la base parece vacía. Pasó de verdad al recuperar la base el 2026-10-14.
+--
+-- Por eso se retira primero la firma vieja. Es un `DROP FUNCTION` de una función
+-- obsoleta, no de datos: la regla 3 de LEEME.md prohíbe borrar tablas, columnas
+-- y filas, y esto no es ninguna de las tres. En una base al día no hace nada.
+DROP FUNCTION IF EXISTS public.get_properties_filtered(
+    DOUBLE PRECISION, DOUBLE PRECISION, DOUBLE PRECISION, DOUBLE PRECISION,
+    NUMERIC, NUMERIC, INTEGER, TEXT, TEXT
+);
+
+--
 -- Permite filtrar por Bounding Box (coordenadas del viewport del mapa) y atributos
 CREATE OR REPLACE FUNCTION public.get_properties_filtered(
     min_lng DOUBLE PRECISION,

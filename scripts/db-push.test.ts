@@ -399,12 +399,29 @@ describe('supabase/migrations (archivos reales)', () => {
     expect(allCreated.length).toBeGreaterThan(0);
   });
 
-  it('nada borra datos: solo se sueltan políticas', () => {
+  it('nada borra datos: solo se sueltan políticas y firmas de funciones', () => {
     for (const file of realFiles) {
       const drops = Array.from(file.content.matchAll(/DROP\s+(\w+)/g), (m) => m[1].toUpperCase());
       for (const object of drops) {
-        expect(object, `${file.fileName}: DROP ${object}`).toBe('POLICY');
+        // `FUNCTION` está permitido con una condición (abajo): retirar una firma
+        // vieja que `CREATE OR REPLACE` no puede reemplazar. `TABLE`, `COLUMN`,
+        // `SCHEMA`, `INDEX`… no.
+        expect(['POLICY', 'FUNCTION'], `${file.fileName}: DROP ${object}`).toContain(object);
       }
+
+      // Una función que se suelta se vuelve a crear en el mismo archivo: si no,
+      // el archivo estaría dejando la base sin algo que el código usa.
+      const droppedFunctions = Array.from(
+        file.content.matchAll(/DROP FUNCTION IF EXISTS public\.(\w+)\s*\(/g),
+        (m) => m[1]
+      );
+      for (const fn of droppedFunctions) {
+        expect(
+          file.content,
+          `${file.fileName}: suelta ${fn}() y no la vuelve a crear`
+        ).toContain(`CREATE OR REPLACE FUNCTION public.${fn}(`);
+      }
+
       expect(file.content, file.fileName).not.toMatch(/\bTRUNCATE\b/i);
       expect(file.content, file.fileName).not.toMatch(/\bDELETE FROM\b/i);
     }
