@@ -122,8 +122,15 @@ jobs:
       # El esquema, contra la base real. Se saltea —diciéndolo— cuando el
       # repositorio todavía no tiene las dos claves públicas: un job rojo por
       # algo que no está configurado es un job que se aprende a ignorar.
+      #
+      # `always()` en los cinco pasos que siguen, y no es decorativo: por
+      # defecto GitHub le pone a cada paso un `success()` implícito, así que un
+      # paso que falla —la sonda, casi siempre— deja **saltados** todos los
+      # siguientes. Comprobado en una corrida real: con la sonda roja, el
+      # esquema y la titularidad ni se intentaban. Justo cuando algo está rojo es
+      # cuando más falta hace saber qué más está mal.
       - name: Avisar si faltan las claves para sondear el esquema
-        if: ${{ vars.NEXT_PUBLIC_SUPABASE_URL == '' }}
+        if: ${{ always() && vars.NEXT_PUBLIC_SUPABASE_URL == '' }}
         run: |
           echo '::notice::Sin la variable NEXT_PUBLIC_SUPABASE_URL no se comprueba el esquema de la base.'
           echo 'Definila en Settings → Secrets and variables → Actions (Variables) junto al secreto' >> "$GITHUB_STEP_SUMMARY"
@@ -131,7 +138,7 @@ jobs:
 
       - name: Comprobar el esquema de la base
         id: esquema
-        if: ${{ vars.NEXT_PUBLIC_SUPABASE_URL != '' }}
+        if: ${{ always() && vars.NEXT_PUBLIC_SUPABASE_URL != '' }}
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -145,6 +152,7 @@ jobs:
       # El valor no se imprime nunca (y GitHub lo enmascara igual).
       - name: ¿Hay token para comprobar la titularidad?
         id: token
+        if: always()
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
@@ -155,7 +163,7 @@ jobs:
           fi
 
       - name: Avisar si falta el token con el que se comprueba la titularidad
-        if: steps.token.outputs.presente != 'true'
+        if: always() && steps.token.outputs.presente != 'true'
         run: |
           echo '::notice::Sin el secreto SUPABASE_ACCESS_TOKEN no se comprueba de quién es la cuenta de la base.'
           echo 'Definilo en Settings → Secrets and variables → Actions (Secrets): un token de solo lectura' >> "$GITHUB_STEP_SUMMARY"
@@ -166,7 +174,7 @@ jobs:
       # notar que la base cambió de dueño.
       - name: Comprobar de quién es la cuenta de la base
         id: cuenta
-        if: steps.token.outputs.presente == 'true'
+        if: always() && steps.token.outputs.presente == 'true'
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
