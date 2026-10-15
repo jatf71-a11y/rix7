@@ -5,6 +5,11 @@ El portal manda **tres** correos y ninguno se finge. Si falta la clave,
 avisos escribe `email-skipped`, el receptor del webhook de Sentry queda en
 `skipped` honesto, y el alta de registro tampoco se hace pasar por enviada.
 
+(Hay un cuarto correo, el de **acceso de socias y corredoras**, que no sale por
+`sendEmail`: lo manda `npm run accesos:socias` por el endpoint por lotes, con
+esta misma clave y este mismo remitente, porque son decenas de correos distintos
+y no una alerta. Ver [`runbook-accesos-socias.md`](runbook-accesos-socias.md).)
+
 Ese es justamente lo que este runbook cierra: **`email-skipped` no es una falla
 que nadie ve**. El sitio responde `degraded` y sigue en verde, el cron sale
 verde, y el correo no sale. Todo este documento existe para cambiar eso con
@@ -479,7 +484,10 @@ que no ocurrió en uno que sí.
 - **No reemplaza al cron.** El envío depende de la clave *y* de que el job corra.
 - **No mide entrega.** Si Resend acepta el mensaje, este runbook da por bueno el
   trabajo: abrir, clics y spam son otra capa.
-- **No guarda secretos en el repo.** Nunca, por ninguna razón.
+- **No manda los enlaces de acceso.** Esos los genera y los manda
+  `npm run accesos:socias` (§ del otro runbook): usa la misma clave y el mismo
+  remitente, pero por el endpoint por lotes, porque son decenas de correos
+  distintos y no una alerta.
 
 ---
 

@@ -85,6 +85,10 @@ NEXT_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_...   # o la anon clásica (eyJ...)
 
 # Token personal, solo para aplicar migraciones. NO va a Vercel.
+# Se emite desde la cuenta **dueña del proyecto de la URL de arriba**: la API de
+# administración solo ve los proyectos de la cuenta del token. Hoy esa cuenta es
+# jatf71@gmail.com y el proyecto, vsqkjimpssdvlvdwrtnh
+# (registro-cuentas-y-servicios.md §3).
 SUPABASE_ACCESS_TOKEN=sbp_...
 ```
 
@@ -119,9 +123,12 @@ Qué deja la base al terminar: extensión `postgis`, `partners`, `properties`
 SELECT name, applied_at FROM public.rix7_migrations ORDER BY name;
 ```
 
-> Alternativa sin CLI: aplica los archivos de `supabase/migrations/` **en orden
-> y uno por uno** en el SQL Editor. Después `npm run db:status` confirma qué
-> quedó registrado.
+> **Sin token** (el proyecto es de otra persona, o todavía no hay token):
+> `npm run db:apply-sql` genera **un solo archivo** con las 15 migraciones y su
+> registro, para pegar entero en el SQL Editor. Va en una transacción y deja
+> `public.rix7_migrations` al día, así que después `npm run db:status` (con
+> token) dice «al día» en vez de repetir todo. No hace falta ir archivo por
+> archivo. Ver [recuperacion-base-2026-10-14.md](recuperacion-base-2026-10-14.md).
 
 ---
 
@@ -158,6 +165,21 @@ Luego **despliega** para que el build tome las claves nuevas:
 npm run deploy:prod       # NO `git push`
 ```
 
+> **Todo junto y con preflight.** Reemplazar las tres variables de un proyecto por
+> las de otro —el corte de base— se hace en un solo comando:
+>
+> ```bash
+> npm run corte:supabase -- --dry-run   # solo comprueba: sondea la base con cada clave
+> npm run corte:supabase                # comprueba, aplica y despliega
+> ```
+>
+> Antes de tocar Vercel valida la forma y la pertenencia de las tres variables,
+> sondea `/auth/v1/admin/users` con la clave de servicio (un 403 significa que se
+> copió la pública) y el catálogo con la pública, y coteja que el proyecto enlazado
+> sea `rix7`. **Se detiene en el primer fallo**: si algo falla antes de aplicar,
+> Vercel no se toca y producción sigue igual.
+
+
 Espera el alias a `https://rix7.vercel.app` (~2 min).
 
 ---
@@ -169,6 +191,7 @@ Espera el alias a `https://rix7.vercel.app` (~2 min).
 ```bash
 curl -s https://rix7.vercel.app/api/health    | head -40
 curl -s "https://rix7.vercel.app/api/properties?limit=3" | head -c 300
+npm run check:schema            # contra la base real: ¿está aplicado? (solo clave pública)
 ```
 
 En `/api/health`, `supabase` debe **desaparecer de la lista de críticos** (el
@@ -230,10 +253,13 @@ El **build de Vercel** también se puede revertir desde Deployments → menú `�
 |---|---|---|
 | `/api/health` sigue con `supabase` crítico tras desplegar | Variables mal pegadas o solo en Production (falta Preview/Development), o no se redeployó | Revisa los 3 entornos y `npm run deploy:prod` |
 | `/api/properties` → `"source":"national_catalog"` | Igual que arriba, o el proyecto Supabase está pausado | Reactiva el proyecto en el dashboard |
-| `db:push` → «Falta SUPABASE_ACCESS_TOKEN» | Token ausente en `.env.local` | Genera uno y ponlo en `.env.local` (nunca en Vercel) |
-| `db:push` → «No se pudo deducir la referencia» | `NEXT_PUBLIC_SUPABASE_URL` no tiene la ref | Pasa `--ref <ref>` o define `SUPABASE_PROJECT_REF` |
+| `corte:supabase` → «403 — la clave es válida pero no tiene permiso de administración: es la anon key» | En `.env.local` quedó la clave pública en el lugar de la de servicio | Copiá la **service_role** (Project Settings » API, pestaña *Legacy API keys* si tus claves son JWT) y guardala con `npm run env:secret -- --name SUPABASE_SERVICE_ROLE_KEY` |
+| `db:push` → «Falta SUPABASE_ACCESS_TOKEN» | Token ausente en `.env.local` | Genera uno en supabase.com/dashboard/account/tokens **desde la cuenta dueña del proyecto** (hoy `jatf71@gmail.com`) y ponlo en `.env.local` (nunca en Vercel) |
+| `db:push` → «No se pudo deducir la referencia» | `NEXT_PUBLIC_SUPABASE_URL` no tiene la ref, **o el token es de otra cuenta** (la API de administración solo ve los proyectos de la cuenta del token) | Pasa `--ref <ref>` o define `SUPABASE_PROJECT_REF`; si el token es de otra cuenta, emite uno desde la dueña del proyecto |
 | Alta aceptada pero `persisted: false` | Falta la migración `0010_signups.sql` | `npm run db:push` |
 | Detalle 404 de propiedades que existen | Falta el RPC `get_property_by_id` | `npm run db:push` (lo crea `0005_properties_rpc.sql`) |
+| `/api/properties` con **0 propiedades** y la tabla llena | La base vieja tenía `get_properties_filtered` sin `p_partner_id`: quedaron **dos firmas** y PostgREST responde `PGRST203` (300) | `npm run db:push` (0005 suelta la firma vieja) y `npm run check:schema`, que ahora vigila `get_properties_filtered(bbox)` |
+| `db:apply-sql` falla con `42703: column partner_id does not exist` | La base venía de una versión anterior de `0003` (sin la columna) y el índice de la columna estaba en ese archivo | Ya está corregido: el índice vive en `0011`, junto al `ALTER TABLE` |
 | Funciones lentas en Chile | Base en región lejana a `gru1` | Migra el proyecto a `South America (São Paulo)` |
 
 ---

@@ -193,7 +193,8 @@ npm run smoke:prod               # prueba de humo contra producción
 npm run alerts:e2e               # E2E del job de avisos (setup/dry/baseline/backdate/send/resend/cleanup)
 npm run check:health             # sonda de configuración
 npm run db:push / db:status      # migraciones de Supabase
-npm run deploy:prod              # publicar a producción
+npm run release:prod             # build + migraciones + deploy + verificación, aborta al primer fallo
+npm run deploy:prod              # solo publicar (lo que llama release:prod en su paso 3)
 ```
 
 ## 6. Cómo consolidar en una sola conversación (y no volver a reparar)
