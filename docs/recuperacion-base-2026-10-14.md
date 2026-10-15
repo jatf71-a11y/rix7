@@ -7,8 +7,8 @@ queda pendiente. El detalle de identidades y credenciales está en
 [registro-cuentas-y-servicios.md](registro-cuentas-y-servicios.md); el ticket a soporte, en
 [ticket-supabase-recuperacion.md](ticket-supabase-recuperacion.md).
 
-**Estado: la base nueva está lista y verificada. Falta el corte de Vercel (una clave) y la
-recreación de las cuentas de Auth.**
+**Estado: el corte de Vercel está hecho y verificado (2026-10-15) — producción lee la base nueva.
+Falta la recreación de las cuentas de Auth.**
 
 ## 1. El punto de partida
 
@@ -95,11 +95,14 @@ Ninguno de los dos se ve en una base creada desde cero, y los dos se arreglaron:
    recrear (excepción documentada a la regla 3), y **`check:schema` lo vigila**: llama al RPC
    como lo llama el portal y un `PGRST203` es un rojo con el nombre de la migración.
 
-## 4. Lo que falta
+## 4. El corte de Vercel (hecho) y lo que queda
 
-1. **El corte de Vercel.** Cambiar `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   y `SUPABASE_SERVICE_ROLE_KEY` en los tres entornos y desplegar. Son dos comandos, y ninguna
-   clave pasa por la pantalla:
+1. **El corte de Vercel. ✅ Hecho el 2026-10-15.** Producción lee la base nueva: `GET
+   https://rix7.cl/api/health` responde **200** con `supabase_owner` y `service_role` en verde, y
+   `GET /api/properties` devuelve `"source":"supabase"` con `total: 14`. El release desplegó y se
+   verificó en vivo al intento 1/3. El corte cambia `NEXT_PUBLIC_SUPABASE_URL`,
+   `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY` en los tres entornos y despliega:
+   son dos comandos, y ninguna clave pasa por la pantalla:
 
    ```bash
    npm run env:secret -- --name SUPABASE_SERVICE_ROLE_KEY   # se pega sin eco, va a .env.local
@@ -127,15 +130,30 @@ Ninguno de los dos se ve en una base creada desde cero, y los dos se arreglaron:
    ```
 
    > **De qué cuenta sale cada clave.** Las tres son del proyecto **nuevo**
-   > (`vsqkjimpssdvlvdwrtnh`, cuenta `jatf71@gmail.com`): la URL y la anon key ya están en
-   > `.env.local`, y a la service role key le falta este paso. La service role key del
-   > proyecto viejo es de la cuenta B y **no** se usa acá. Si en algún momento hace falta un
-   > token personal (`db:status`/`db:push`), también se emite desde la cuenta A.
+   > (`vsqkjimpssdvlvdwrtnh`, cuenta `jatf71@gmail.com`): la URL y la anon key ya estaban en
+   > `.env.local`, y la service role key se guardó el 2026-10-15 con `npm run env:secret`. La
+   > service role key del proyecto viejo es de la cuenta B y **no** se usa acá. Si en algún
+   > momento hace falta un token personal (`db:status`/`db:push`), también se emite desde la
+   > cuenta A.
 
-   > **La clave de servicio es obligatoria para el corte.** La del proyecto viejo sirve *para el
-   > proyecto viejo*: con la URL nueva y esa clave, `/api/alerts/run` y el panel responden 401.
-   > Y al revés: hoy producción funciona entera contra el proyecto viejo, así que **no hay
-   > apuro** — el corte se hace cuando la clave nueva esté guardada.
+   **Lo que costó el corte, anotado porque no se deduce de ningún mensaje de error.** Dos
+   defectos, los dos silenciosos, y ninguno era de la base:
+
+   - **La clave de servicio se guardó pegada dos veces.** El prompt de `env:secret` no hace eco
+     —al pegar no se ve nada, que es lo esperado—, así que quedó en `.env.local` el mismo valor
+     repetido: 82 caracteres, que son 41 × 2. El síntoma fue `401 Invalid API key` en **todos**
+     los endpoints, incluso contra el proyecto viejo, que es lo que hacía sospechar de la clave.
+     La prueba está en el largo, y lo informa el propio comando al guardar: la clave mide **41**
+     caracteres.
+   - **El sincronizador informó «9/9 aplicadas» sin haber escrito una.** `vercel env add` abre un
+     prompt («This name or value looks like a credential») cuando el nombre es `NEXT_PUBLIC_*` y
+     el valor parece una credencial; con la entrada estándar en una tubería, el prompt se queda
+     sin respuesta y la CLI **sale con 0 sin crear la variable**. Como el `vercel env rm` que
+     precede a cada alta sí corría, el corte borró las claves que producción venía usando y dejó
+     la base nueva a medias: el sitio ya desplegado respondía **503** por la anon key ausente.
+     Arreglado en [`scripts/vercel-sync-env.mjs`](../scripts/vercel-sync-env.mjs) (commit
+     `c8d38f8`): el alta va con `--yes --type config|secret` y, antes de informar nada, el script
+     **lee de vuelta** `vercel env ls --json` e informa por presencia, no por código de salida.
 
 2. **Las cuentas de Auth se recrean: nadie restablece contraseñas.** El portal no usa
    contraseñas —se entra con Google o con un enlace al correo—, así que lo que hay que reponer es
@@ -156,7 +174,10 @@ Ninguno de los dos se ve en una base creada desde cero, y los dos se arreglaron:
    copiar a una base que ya tiene esas cuentas.
 3. **Consultas y altas que no se pudieron leer.** `leads` y `signups` del proyecto viejo
    quedaron fuera por no tener una clave con permiso de lectura. No se pierden: siguen en el
-   proyecto viejo. Si el soporte devuelve el acceso, se copian con
+   proyecto viejo, pero el corte **borró la única copia que teníamos** de esa clave —vivía solo
+   en Vercel, marcada como sensible, y cada alta del sync va precedida por un `vercel env rm`—,
+   así que recuperarlas ya no depende de una credencial guardada sino del acceso a la cuenta B.
+   Con ese acceso, se copian con
    `npm run db:copy -- --tables leads,signups --from-key <clave de servicio del viejo>`.
    Y los usuarios de Auth del viejo se pueden **migrar** entonces —la guía oficial de Supabase
    permite copiar todo el esquema `auth`, hashes incluidos—, con lo que no habría que avisarle a
@@ -182,15 +203,17 @@ npm run accesos:socias
 npm run accesos:socias -- --aplicar --enviar
 ```
 
-Después del corte, la comprobación en un minuto:
+Después del corte, la comprobación en un minuto. Los tres primeros se corrieron el **2026-10-15**
+al cerrar el corte y quedaron ✓; los que siguen piden sesión de administración o escriben de
+verdad, así que quedan para cuando toque:
 
 - [ ] `npm run check:schema` → las 5 ✓ contra la URL de producción.
 - [ ] `curl -s https://rix7.vercel.app/api/properties?limit=1` → `"source":"supabase"` y `total: 14`.
-- [ ] `curl -s https://rix7.vercel.app/api/health` → `supabase` **no** entre los críticos, y
-      `service_role` en verde. Y `supabase_owner` —el cotejo de que la base sea la del proyecto de
-      la cuenta dueña— tampoco: **antes del corte ese subsistema está en rojo a propósito**,
-      porque producción sigue apuntando a `wcxpkfmevrbjrjlbayba` (cuenta B), y la sonda de salud
-      del CI lo dice cada 6 horas.
+- [ ] `curl -s https://rix7.vercel.app/api/health` → `supabase` **no** entre los críticos,
+      `service_role` en verde y `supabase_owner` —el cotejo de que la base sea la del proyecto de
+      la cuenta dueña— en verde. Antes del corte del 2026-10-15 ese último estaba en rojo *a
+      propósito*, porque producción apuntaba a `wcxpkfmevrbjrjlbayba` (cuenta B), y la sonda de
+      salud del CI lo decía cada 6 horas.
 - [ ] `/admin/registros` y `/admin/empresas` abren con la sesión de administración.
 - [ ] `npm run accesos:socias` → el plan no deja ninguna persona en «sin corredora»; con
       `--aplicar`, el paso «Verificar» dice que todas tienen rol y corredora.
@@ -207,3 +230,11 @@ Después del corte, la comprobación en un minuto:
    claves es un corte de 10 minutos; recuperar una cuenta puede no tener solución.
 4. **El catálogo es público y por eso se puede rescatar.** Los datos de personas, no: para esos
    hace falta una llave, y por eso el registro de credenciales existe.
+5. **Un valor que no se ve al pegarlo se puede pegar dos veces.** El prompt sin eco no da ninguna
+   señal de que el valor entró —ni siquiera un asterisco—, así que pegar de nuevo parece inocente
+   y guarda la clave duplicada. El síntoma aparece recién cuando la base responde `401` en todo,
+   y se confirma mirando el largo que informa el comando al guardar.
+6. **Que una herramienta informe éxito no significa que haya hecho el trabajo.** `vercel env add`
+   sale con **0** cuando su prompt se queda sin respuesta, y un informe que mira el código de
+   salida da por hecho lo que no pasó. Lo que se informa se lee de vuelta del servicio (commit
+   `c8d38f8`, `scripts/vercel-sync-env.mjs`).

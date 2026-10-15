@@ -5,9 +5,10 @@
 así no sirve para filtrar secretos; sirve para no quedar sin puerta de entrada, que es
 exactamente lo que pasó el 2026-10-13 con el proyecto en vivo.
 
-Última revisión: **2026-10-15** (se comprobó, contra la API y contra producción, qué quedó
-del lado de la cuenta A y qué sigue del lado de la cuenta B: el corte de Vercel **todavía no
-está hecho**). Base de la revisión anterior: **2026-10-14**, después del corte a la base propia
+Última revisión: **2026-10-15, al cerrar el corte de Vercel** (producción pasó a la base de la
+cuenta A: `GET https://rix7.cl/api/health` responde **200** con `supabase_owner` y `service_role`
+en verde, y el catálogo sale de `vsqkjimpssdvlvdwrtnh`). Base de la revisión anterior:
+**2026-10-14**, después del corte a la base propia
 (ver [recuperacion-base-2026-10-14.md](recuperacion-base-2026-10-14.md)).
 
 ---
@@ -31,8 +32,8 @@ a GitHub, por lo que solo puede iniciar sesión con la opción de GitHub»*.
 
 | Servicio | Cuenta | Para qué | Credencial que usa el proyecto |
 |---|---|---|---|
-| **Supabase** | A (`jatf71@gmail.com`) | Cuenta accesible. Su proyecto `rix7-portal` (`vsqkjimpssdvlvdwrtnh`) **es la base nueva**: esquema al día y catálogo copiado el 2026-10-14 | URL y clave pública en `.env.local`; falta guardar la **clave de servicio** nueva y cortar Vercel |
-| **Supabase** | B (`jtorres@catedralpropiedades.com`) | Proyecto `wcxpkfmevrbjrjlbayba`: **origen de la copia** (sigue sirviendo a producción hasta el corte). Conserva `leads`, `signups` y los usuarios de Auth, que no se pudieron leer | URL y clave pública (en `.env.local.pre-migracion-2026-10-14`); la service role key sigue **solo** en Vercel |
+| **Supabase** | A (`jatf71@gmail.com`) | Cuenta accesible. Su proyecto `rix7-portal` (`vsqkjimpssdvlvdwrtnh`) **es la base de producción** desde el 2026-10-15: esquema al día, catálogo copiado el 2026-10-14 | URL, clave pública y **clave de servicio** en `.env.local`, y las tres en Vercel (los 3 entornos) desde el corte del 2026-10-15 |
+| **Supabase** | B (`jtorres@catedralpropiedades.com`) | Proyecto `wcxpkfmevrbjrjlbayba`: **origen de la copia**, ya fuera de producción. Conserva `leads`, `signups` y los usuarios de Auth, que no se pudieron leer | URL y clave pública en `.env.local.pre-migracion-2026-10-14`; su service role key estaba **solo** en Vercel y el corte la borró (cada alta del sync va precedida por un `vercel env rm`): esa copia ya no existe |
 | **Vercel** | `jatf71-4430` (GitHub `jatf71-a11y`) | Hosting de `rix7.cl`, DNS del dominio y variables de entorno | `vercel` CLI, `VERCEL_OIDC_TOKEN` |
 | **GitHub** | `jatf71-a11y` | Repositorio, Actions (CI, avisos, health-check) y secrets del repo | `gh` CLI, `GITHUB_TOKEN` de Actions |
 | **Resend** | cuenta del equipo | Correo de bienvenida y avisos de búsquedas | `RESEND_API_KEY`, `ALERTS_FROM_EMAIL` |
@@ -45,7 +46,7 @@ a GitHub, por lo que solo puede iniciar sesión con la opción de GitHub»*.
 |---|---|
 | Ref del **origen** (cuenta B) | `wcxpkfmevrbjrjlbayba` (URL de API: `https://wcxpkfmevrbjrjlbayba.supabase.co`) |
 | Ref de la **base nueva** (cuenta A) | `vsqkjimpssdvlvdwrtnh` (nombre `rix7-portal`, org `rziojndhrppqwbfmayln`) |
-| Proyecto de **producción** hoy | Todavía el de la cuenta B (`wcxpkfmevrbjrjlbayba`): comprobado el 2026-10-15, `GET https://rix7.cl/api/health` responde **503** con `supabase_owner` en rojo. El corte de Vercel es el paso que falta |
+| Proyecto de **producción** hoy | El de la cuenta A (`vsqkjimpssdvlvdwrtnh`), desde el corte del 2026-10-15: `GET https://rix7.cl/api/health` responde **200** con `supabase_owner` en verde y `/api/properties` devuelve `"source":"supabase"` con `total: 14`. El de la cuenta B queda como origen de solo lectura |
 | Org de Vercel | `team_ZqliMBcJmzlw3EHnMBCRGbHi` (proyecto `prj_38HRJ2h2Q8lxjsXu4pRU6MkRpMD4`, nombre `rix7`) |
 | DNS del dominio | `ns1.vercel-dns.com`, `ns2.vercel-dns.com` (la zona vive en Vercel) |
 | Dominio productivo | `https://rix7.cl` (con `www`), previews en `*.vercel.app` |
@@ -56,20 +57,38 @@ Comprobado el 2026-10-15, con la clave que hoy está en `.env.local` (la de la c
 `vsqkjimpssdvlvdwrtnh` → **200**, `wcxpkfmevrbjrjlbayba` → **401 Invalid API key**; con la de
 `.env.local.pre-migracion-2026-10-14` (cuenta B) es al revés. Ojo: cuál de los dos sirve
 **producción** no se adivina por la clave, se lee —`GET https://rix7.cl/api/health`, subsistema
-`supabase_owner`, que nombra la ref en uso— y hoy sigue siendo la de la cuenta B.
+`supabase_owner`, que nombra la ref en uso— y desde el 2026-10-15 es la de la cuenta A.
 
 ## 3. Dónde vive cada credencial
 
 | Credencial | Vive en | Emitida por | Se recupera con |
 |---|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `.env.local` + Vercel (los 3 entornos) | **Cuenta A** (`jatf71@gmail.com`) → Project Settings → API del proyecto `vsqkjimpssdvlvdwrtnh` | Acceso a la cuenta A (no es secreta: también viaja al navegador) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Vercel, solo servidor (**nunca** al navegador) | **Cuenta A** → API (falta guardarla: es el corte). En Vercel todavía está la de la cuenta B, que sirve **solo** para el proyecto viejo | Acceso a la cuenta A (`npm run env:secret -- --name SUPABASE_SERVICE_ROLE_KEY`) |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `.env.local` + Vercel (los 3 entornos, aplicadas el 2026-10-15) | **Cuenta A** (`jatf71@gmail.com`) → Project Settings → API del proyecto `vsqkjimpssdvlvdwrtnh` | Acceso a la cuenta A (no es secreta: también viaja al navegador) |
+| `SUPABASE_SERVICE_ROLE_KEY` | `.env.local` + Vercel, solo servidor (**nunca** al navegador) | **Cuenta A** → Project Settings → API Keys (se emite con la forma nueva, `sb_secret_…`); guardada el 2026-10-15 con `npm run env:secret` | Acceso a la cuenta A (`npm run env:secret -- --name SUPABASE_SERVICE_ROLE_KEY`) |
 | `SUPABASE_ACCESS_TOKEN` | `.env.local` (ignorado por git), con `npm run db:token`; **y los secretos de GitHub**, para la sonda de titularidad (`npm run check:cuenta`, cada 6 h) | **Cuenta A** → Account → Tokens | Acceso a la cuenta A: es la única que ve el proyecto `vsqkjimpssdvlvdwrtnh` (el de la cuenta B quedó **revocado el 2026-10-06**). Para el CI conviene uno **de solo lectura con alcance** («Organization Projects → Read» y «Organization Members → Read»): alcanza para comprobar de quién es la base y no puede cambiar nada |
 | `RESEND_API_KEY`, `ALERTS_FROM_EMAIL` | Vercel (Secret/Config) | Resend → API Keys | Acceso a la cuenta de Resend |
 | `ALERTS_CRON_SECRET` | Vercel + secrets de GitHub | Se genera | Volver a generarlo y actualizarlo en los dos lados |
 | `SENTRY_*` | Vercel (opcional) | Sentry → Auth Tokens | Acceso a la organización de Sentry |
 | `VERCEL_OIDC_TOKEN` | `.env.local` | Vercel CLI | `npx vercel env pull` o `vercel link` |
 | Login de Vercel y GitHub | Gestor de contraseñas / llave del sistema | — | Restablecer en cada servicio (ambos tienen correo de recuperación propio) |
+
+**El corte del 2026-10-15 dejó dos trampas, y las dos son silenciosas.** Se anotan porque ningún
+mensaje de error las delata:
+
+- **Un valor que no se ve al pegarlo se puede pegar dos veces.** El prompt de
+  `npm run env:secret` no hace eco —al pegar no aparece nada, que es lo esperado—, y así quedó
+  guardada la clave de servicio **duplicada** (82 caracteres = 41 × 2). El síntoma llegó tarde:
+  `401 Invalid API key` en todos los endpoints del proyecto, **incluso contra el proyecto viejo**,
+  que es lo que hacía pensar en la clave y no en el valor. La prueba está en el largo: el comando
+  informa cuántos caracteres guardó (41) y ahí se ve el doble.
+- **Que un comando diga «listo» no es que lo haya hecho.** `vercel env add` abre un prompt
+  («This name or value looks like a credential») cuando el nombre es `NEXT_PUBLIC_*` y el valor
+  parece una credencial; con la entrada estándar en una tubería, el prompt se queda sin respuesta
+  y la CLI **sale con 0 sin crear la variable**. El sync informó «9/9 aplicadas» con la anon key
+  ausente, y como el `env rm` que precede a cada alta sí corría, borró las claves que producción
+  venía usando. Corregido en [`scripts/vercel-sync-env.mjs`](../scripts/vercel-sync-env.mjs)
+  (commit `c8d38f8`): alta con `--yes --type config|secret` y lectura de vuelta con
+  `vercel env ls --json` antes de informar.
 
 **Comprobación en un solo comando.** `npm run check:credenciales` recorre esta tabla contra
 `.env.local` y el entorno: dice cuál falta, si su forma es la esperada, y —lo que de verdad
@@ -85,10 +104,10 @@ de datos de PostgreSQL y ningún archivo de credenciales. Verificado: no hay `~/
 
 | Plataforma | Nombres configurados hoy |
 |---|---|
-| Vercel (Production/Preview/Development) | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `ALERTS_FROM_EMAIL`, `NEXT_PUBLIC_SITE_URL`, `ALERTS_CRON_SECRET`, `NEXT_PUBLIC_DEFAULT_MAP_LAT/LNG/ZOOM` |
+| Vercel (Production/Preview/Development) | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `ALERTS_FROM_EMAIL`, `NEXT_PUBLIC_SITE_URL`, `ALERTS_CRON_SECRET`, `NEXT_PUBLIC_DEFAULT_MAP_LAT/LNG/ZOOM`. Las tres de Supabase, en los tres entornos, desde el corte del 2026-10-15: las `NEXT_PUBLIC_*` como `Config` (viajan al navegador igual) y la de servicio como `Secret` |
 | GitHub → Secrets | `ALERTS_CRON_SECRET`; ⚠️ **falta `SUPABASE_ACCESS_TOKEN`** — sin él la sonda saltea la comprobación de titularidad (no se pone roja: lo dice con un aviso) |
 | GitHub → Variables | `SITE_URL` (= `https://rix7.cl`) |
-| `.env.local` | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_DEFAULT_MAP_LAT/LNG/ZOOM`, `VERCEL_OIDC_TOKEN` (+ `SUPABASE_ACCESS_TOKEN` cuando hay uno vigente, + `SUPABASE_SERVICE_ROLE_KEY` cuando se guarda con `npm run env:secret`) |
+| `.env.local` | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (guardada con `npm run env:secret`, 2026-10-15), `NEXT_PUBLIC_DEFAULT_MAP_LAT/LNG/ZOOM`, `VERCEL_OIDC_TOKEN` (+ `SUPABASE_ACCESS_TOKEN` cuando hay uno vigente) |
 | `.env.local.pre-migracion-2026-10-14` | Las credenciales del proyecto de la cuenta B: la única copia local del origen de la copia. No se versiona ni se borra |
 
 ## 5. Puntos únicos de falla
@@ -98,12 +117,14 @@ de datos de PostgreSQL y ningún archivo de credenciales. Verificado: no hay `~/
    nueva vive en la cuenta A.
 2. **La operación ya no depende de la cuenta B.** Las credenciales de la base nueva se emiten
    desde la cuenta A (tabla §3), y con ellas se administran las migraciones, el catálogo, el
-   panel y los avisos. De la cuenta B queda una sola cosa alcanzable: la `service_role_key` de
-   su proyecto, **solo** dentro de Vercel (marcada como sensible, así que `vercel env pull` la
-   devuelve como `[SENSITIVE]`), que además **no sirve para DDL** porque PostgREST no ejecuta
-   DDL — el motivo por el que la base nueva se levantó con el SQL Editor y `npm run db:apply-sql`,
-   sin ninguna clave del proyecto viejo. Completado el corte de Vercel (pendiente, §6 camino 2)
-   ni siquiera esa sigue haciendo falta.
+   panel y los avisos. De la cuenta B **ya no queda nada alcanzable desde acá**: su
+   `service_role_key` vivía **solo** dentro de Vercel —marcada como sensible, así que `vercel env
+   pull` la devolvía como `[SENSITIVE]`— y el corte la borró, porque cada alta del sync va
+   precedida por un `vercel env rm`. Nunca sirvió para DDL de todos modos, porque PostgREST no
+   ejecuta DDL — el motivo por el que la base nueva se levantó con el SQL Editor y `npm run
+   db:apply-sql`, sin ninguna clave del proyecto viejo. **Consecuencia a tener presente:**
+   recuperar `leads` y `signups` del proyecto viejo ya no depende de una clave que tengamos, sino
+   del acceso a la cuenta B (§6, camino 1).
 3. **El CI no puede migrar**: no existe el secreto `SUPABASE_ACCESS_TOKEN` en el repo, y
    ningún workflow corre `db:push`. Es el mismo secreto que necesita la comprobación de
    titularidad de la sonda de salud (`npm run check:cuenta`): sin él, cada 6 horas se
@@ -137,10 +158,10 @@ Dos caminos, de mejor a peor. El correo listo para enviar está en
    El soporte de **facturación y gestión de cuenta está disponible para todos los clientes**
    (no hace falta plan pago); el soporte técnico limitado sí es solo para proyectos pagos.
 2. **Proyecto propio bajo `jatf71@gmail.com` (sin depender de nadie).** **Ejecutado el
-   2026-10-14**: las 15 migraciones y el catálogo ya están en `vsqkjimpssdvlvdwrtnh`, verificado
-   con `check:schema` y con el portal corriendo contra esa base. Falta el corte de Vercel (una
-   clave: `npm run env:secret` → `npm run corte:supabase`, que la comprueba contra la base antes de
-   aplicarla y despliega) y la recreación
+   2026-10-14** —las 15 migraciones y el catálogo en `vsqkjimpssdvlvdwrtnh`, verificado con
+   `check:schema` y con el portal corriendo contra esa base— **y cerrado el 2026-10-15** con el
+   corte de Vercel (`npm run env:secret` → `npm run corte:supabase`, que comprueba las tres
+   claves contra la base antes de aplicarlas y despliega). Queda la recreación
    de las cuentas de Auth. **Costo aceptado:** los usuarios de Auth no se pueden exportar, así
    que las cuentas se recrean con `npm run accesos:socias`: escribe el rol y la corredora de cada
    una y manda su enlace de acceso por lotes. Nadie restablece contraseñas (el portal no usa:
@@ -177,3 +198,9 @@ sirve: Supabase vincula por **identificador** de GitHub, no por nombre ni correo
     nombre y correo: qué organización es la dueña y quién figura como dueño de esa organización.
     La sonda de salud lo corre en cada pasada cuando existe el secreto, y lo saltea diciéndolo
     cuando no.
+- **Lo que una herramienta dice que hizo se lee de vuelta.** `vercel env add` sale con **0** y
+  no crea nada cuando su prompt se queda sin respuesta (entrada estándar en vez de una terminal),
+  así que el corte llegó a informar «9/9 aplicadas» con la anon key ausente y producción en
+  `503`. Desde el commit `c8d38f8` el sync verifica por presencia con `vercel env ls --json`
+  antes de informar, y el corte informa por presencia también. Un informe que no comprobó el
+  efecto es un defecto que se arregla, no una nota al pie.
