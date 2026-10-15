@@ -59,6 +59,33 @@ const RED_ESQUEMA = [
   '',
 ].join('\n');
 
+// Un informe rojo con la forma real que imprime `check-account.mjs`: la marca de
+// fallo, el motivo, y al final la línea de las peticiones (que no es un fallo).
+const RED_CUENTA = [
+  '',
+  '== Titularidad de la base · vsqkjimpssdvlvdwrtnh ==',
+  '',
+  '  ✗ La base vsqkjimpssdvlvdwrtnh es de OTRA cuenta.',
+  '      La base vsqkjimpssdvlvdwrtnh pertenece a la organización «Mi Org» (miorg), cuyo dueño es otra@cuenta.cl; el dueño esperado es jatf71@gmail.com.',
+  '      · API de administración de Supabase: 4 petición(es).',
+  '',
+  '::error::Titularidad de la base: La base vsqkjimpssdvlvdwrtnh pertenece a la organización «Mi Org» (miorg), cuyo dueño es otra@cuenta.cl; el dueño esperado es jatf71@gmail.com.',
+  '',
+].join('\n');
+
+// El «no se pudo comprobar» no es una contradicción: el informe no lleva `✗`, así
+// que lo que queda en la huella es la línea `::error::` que imprime el script.
+const RED_CUENTA_SIN_COMPROBAR = [
+  '',
+  '== Titularidad de la base · vsqkjimpssdvlvdwrtnh ==',
+  '',
+  '  ? No se pudo comprobar de quién es la base vsqkjimpssdvlvdwrtnh.',
+  '      al token le falta permiso para esto (HTTP 403).',
+  '',
+  '::error::Titularidad de la base sin comprobar: al token le falta permiso para esto (HTTP 403).',
+  '',
+].join('\n');
+
 const GREEN = ['', '  ✓ Sin subsistemas críticos pendientes.', '', '  Todo lo que el portal necesita está configurado.', ''].join('\n');
 
 describe('fingerprintOf', () => {
@@ -92,6 +119,30 @@ describe('fingerprintOf', () => {
   it('sin informes devuelve sin-motivo en vez de romper', () => {
     expect(fingerprintOf([])).toBe('sin-motivo');
     expect(fingerprintOf([{ text: '' }])).toBe('sin-motivo');
+  });
+
+  it('el rojo de la titularidad tiene su propia huella', () => {
+    expect(fingerprintOf([{ text: RED_CUENTA }])).not.toBe(fingerprintOf([{ text: RED_SALUD }]));
+  });
+
+  it('«es de otra cuenta» y «no se pudo comprobar» no son el mismo motivo', () => {
+    // El aviso tiene que poder decir que se pasó de «no sé» a «es de otra cuenta»:
+    // son dos situaciones con arreglos distintos (una credencial vs. la base entera).
+    expect(fingerprintOf([{ text: RED_CUENTA }])).not.toBe(fingerprintOf([{ text: RED_CUENTA_SIN_COMPROBAR }]));
+  });
+
+  it('la línea de las peticiones hechas no cambia la huella', () => {
+    // Si entrara, cada corrida con distinto número de peticiones comentaría de
+    // nuevo por el mismo problema.
+    const otraCuenta = RED_CUENTA.replace('4 petición(es)', '7 petición(es)');
+
+    expect(fingerprintOf([{ text: otraCuenta }])).toBe(fingerprintOf([{ text: RED_CUENTA }]));
+  });
+
+  it('el «no se pudo comprobar» deja huella: el job rojo nunca queda sin motivo', () => {
+    // Sin la línea `::error::` que imprime el script, este informe no traería
+    // ninguna marca de fallo y el issue se abriría con «sin-motivo».
+    expect(fingerprintOf([{ text: RED_CUENTA_SIN_COMPROBAR }])).not.toBe('sin-motivo');
   });
 });
 
@@ -147,6 +198,31 @@ describe('readFailedState', () => {
 
   it('las dos en true nombra las dos', () => {
     expect(readFailedState({ SALUD_FALLO: 'true', ESQUEMA_FALLO: 'true' }).who).toHaveLength(2);
+  });
+
+  it('la titularidad también avisa, y se nombra como lo que es', () => {
+    const state = readFailedState({
+      SALUD_FALLO: 'false',
+      ESQUEMA_FALLO: 'false',
+      CUENTA_FALLO: 'true',
+    });
+
+    expect(state.failed).toBe(true);
+    expect(state.who).toEqual(['la titularidad de la base']);
+  });
+
+  it('la titularidad salteada (sin token) es un verde de verdad', () => {
+    // El workflow la marca `false` cuando el paso se saltea: que no se pueda
+    // comprobar por falta de credencial no puede abrir un aviso.
+    expect(
+      readFailedState({ SALUD_FALLO: 'false', ESQUEMA_FALLO: 'false', CUENTA_FALLO: 'false' })
+    ).toEqual({ known: true, failed: false, who: [] });
+  });
+
+  it('las tres a la vez nombra las tres', () => {
+    const state = readFailedState({ SALUD_FALLO: 'true', ESQUEMA_FALLO: 'true', CUENTA_FALLO: 'true' });
+
+    expect(state.who).toHaveLength(3);
   });
 
   it('un valor que no se entiende deja el estado en desconocido', () => {
@@ -217,6 +293,18 @@ describe('los cuerpos', () => {
     const body = issueBody({ who: ['la sonda de /api/health'], reports: [], fingerprint: 'abc123abc123', now });
 
     expect(body).toContain('Sin informe');
+  });
+
+  it('el cuerpo explica por qué importa que la base sea de otra cuenta', () => {
+    const body = issueBody({
+      who: ['la titularidad de la base'],
+      reports: [{ who: 'la titularidad de la base', text: RED_CUENTA }],
+      fingerprint: 'abc123abc123',
+      now,
+    });
+
+    expect(body).toContain('otra@cuenta.cl');
+    expect(body).toContain('2026-10-13');
   });
 
   it('el comentario de motivo nuevo nombra lo que falla ahora', () => {

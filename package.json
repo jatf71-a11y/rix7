@@ -36,6 +36,7 @@
     "check:health": "node scripts/check-health.mjs",
     "aviso:salud": "node scripts/notice-health.mjs",
     "check:schema": "node scripts/check-schema.mjs",
+    "check:cuenta": "node scripts/check-account.mjs",
     "check:domain": "node scripts/check-domain.mjs",
     "vitals": "node scripts/measure-vitals.mjs",
     "check:a11y": "node scripts/audit-a11y.mjs",

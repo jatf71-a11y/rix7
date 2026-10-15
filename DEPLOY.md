@@ -49,6 +49,13 @@ solo `.sql` con las migraciones y su registro, en una transacción, para pegar
 entero en el SQL Editor (`.deploy-tmp/migraciones.sql`). Después `npm run
 check:schema` dice si quedó aplicado, sin token.
 
+**Ese token también contesta «¿de quién es esta base?»**, que es otra pregunta:
+la contesta `npm run check:cuenta` (ver §6). Las migraciones necesitan permiso de
+escritura; para la titularidad alcanza un token **de solo lectura con alcance**
+(«Organization Projects → Read» y «Organization Members → Read»), que no puede
+cambiar nada. Si van a convivir, conviene el de solo lectura para el CI: la
+sonda de salud lo usa cada 6 horas.
+
 Aplicarlas deja la base con:
 
 - Extensión `postgis`
@@ -191,6 +198,36 @@ horas— hace la misma comparación contra el checkout del CI y lo deja en su
 resumen: si producción quedó atrás, se ve ahí (y con `npm run check:health`,
 que además cuenta **cuántos commits** va atrás cuando puede).
 
+### De quién es la **cuenta** de la base: `npm run check:cuenta`
+
+`supabase_owner` (el crítico de `/api/health`) coteja que la base sea la del
+proyecto de la cuenta dueña, sin red y sin credenciales. Eso atrapa el error de
+apuntar al proyecto equivocado, pero **da por sentado** que esa referencia
+pertenece a la cuenta correcta: la pertenencia está escrita en el código, así que
+si la base cambia de dueño el valor sigue diciendo lo mismo. Y esa es exactamente
+la forma en que el incidente del 2026-10-13 pasó inadvertido: todo respondía.
+
+`npm run check:cuenta` se lo **pregunta a Supabase**, con la API de
+administración, que es el único camino documentado para saber a qué organización
+pertenece un proyecto (con la URL y la clave pública no se puede). Contesta con
+nombre y correo: qué organización es la dueña del proyecto y quién figura como
+dueño de esa organización. Necesita `SUPABASE_ACCESS_TOKEN` —en `.env.local`, y en
+los **secretos del repositorio** para que la sonda de salud lo use cada 6 horas—;
+conviene que sea un token de solo lectura con alcance, como el de §3.
+
+| Salida | Qué significa | Qué hace la sonda de salud |
+|---|---|---|
+| `0` | la organización del proyecto tiene como dueño al correo esperado | verde |
+| `1` | **la base es de otra cuenta**: lo leyó de la API, con nombre y correo | rojo y abre el issue: es el incidente, probado |
+| `2` | no se pudo comprobar (token de otra cuenta, sin el permiso de miembros, la API no responde) | rojo: un token que existe y no puede comprobar nada no está haciendo su trabajo |
+
+Sin el secreto, ese paso se **saltea y lo dice** (`::notice::` y una línea en el
+resumen de la corrida), no se marca rojo: no tener la credencial no es una caída,
+y un job rojo por algo que no está configurado se aprende a ignorar. El correo
+que se espera como dueño sale de `SUPABASE_OWNER_ACCOUNT_EMAIL` y, si no está, del
+documentado en `lib/utils/supabaseOwner` (un test comprueba que los dos sigan
+coincidiendo).
+
 ### El rojo no se queda en la pestaña de Actions
 
 Cuando la sonda encuentra algo crítico, el job se pone rojo —y eso está bien—
@@ -296,6 +333,7 @@ que esta tabla queda para lo que sí hay que mirar a mano.
 | Supabase activo | respuesta de `/api/properties` con `"source":"supabase"` |
 | Modo catálogo | respuesta con `"source":"national_catalog"` = Supabase no configurado/alcanzable |
 | Build en vivo | `npm run check:health` (la compara con el árbol del repo) o mirar el campo `build` de `/api/health`: si difiere, producción no es este código |
+| Dueño de la base | `npm run check:cuenta` — le pregunta a la API de administración qué organización es la dueña y quién es su dueño (necesita `SUPABASE_ACCESS_TOKEN`) |
 | Headers de seguridad | `curl -sI https://<tu-dominio>/ | grep -i content-security` |
 
 ---

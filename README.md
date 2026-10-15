@@ -181,6 +181,8 @@ Para saber qué quedó configurado en un despliegue —proyecto Supabase, **de q
 
 El **de quién es la base** es un chequeo crítico aparte, y existe por el incidente del 2026-10-13: el portal entero andaba sobre una base que había quedado sin dueño accesible, y eso no se notaba porque todo respondía. `supabase_owner` coteja —sin red, con la URL y con el `ref` que llevan las claves clásicas— que la base sea la del proyecto de la cuenta dueña, y si no lo es responde `503`, deja el job de salud en rojo y hace fallar la verificación del release. Un despliegue que usa otro proyecto a propósito lo declara con `SUPABASE_OWNER_PROJECT_REF`; así el check pasa a cotejar contra ese y el informe lo dice.
 
+Eso compara contra una referencia **escrita en el código**, así que por sí solo no puede notar que la base cambie de dueño. La pregunta de verdad —¿de quién es esa cuenta?— la contesta `npm run check:cuenta`: se la pregunta a la API de administración de Supabase, que es el único camino documentado para saber a qué organización pertenece un proyecto, y responde con nombre y correo (la organización y su dueño). Necesita `SUPABASE_ACCESS_TOKEN`; conviene un token de solo lectura con alcance. La sonda de salud lo corre cada 6 horas, y si la base resulta ser de otra cuenta se pone en rojo y lo dice con nombre y correo en el issue.
+
 ### Corredoras inscritas (`public.partners`)
 
 Los socios estratégicos son filas de la tabla `partners`, no una lista en el código: lo que se da de alta o se edita en `/admin/empresas` queda guardado.

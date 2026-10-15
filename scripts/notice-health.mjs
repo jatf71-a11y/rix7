@@ -67,6 +67,7 @@ export const NOTICE_LABEL = 'salud-produccion';
 export const PROBES = [
   { env: 'SALUD_FALLO', file: 'salud.txt', who: 'la sonda de /api/health' },
   { env: 'ESQUEMA_FALLO', file: 'esquema.txt', who: 'el esquema de la base' },
+  { env: 'CUENTA_FALLO', file: 'cuenta.txt', who: 'la titularidad de la base' },
 ];
 
 /** Lo que marca un fallo en la salida de las dos sondas. */
@@ -81,6 +82,8 @@ const CONSEQUENCE = {
     'sin el proyecto Supabase real el portal acepta altas y no las guarda, y una base que no es la del proyecto de la cuenta dueña puede quedar sin administración sin que nada más lo delate.',
   'el esquema de la base':
     'si la base no tiene las columnas o las funciones que el código usa, algunas pantallas dejan de guardar —o el buscador cae al catálogo del código— sin decir por qué.',
+  'la titularidad de la base':
+    'si la base pertenece a una cuenta que no es la dueña del proyecto, el portal funciona igual y nadie lo nota: el día que esa cuenta se pierda, queda una base viva que nadie puede administrar. Es el incidente del 2026-10-13, y por eso el rojo es exactamente lo que se quiere.',
 };
 
 /** Cuánto informe entra en el cuerpo. El resto se recorta **diciéndolo**. */
@@ -298,6 +301,7 @@ function parseArgs(argv) {
     else if (arg.startsWith('--run-url=')) args.runUrl = arg.slice('--run-url='.length);
     else if (arg === '--health-failed') forced.push(PROBES[0].who);
     else if (arg === '--schema-failed') forced.push(PROBES[1].who);
+    else if (arg === '--account-failed') forced.push(PROBES[2].who);
   }
 
   if (forced.length > 0) args.state = { known: true, failed: true, who: forced };
@@ -319,6 +323,7 @@ function usage() {
       '  --run-url <url>   enlace de la corrida, para el cuerpo',
       '  --health-failed   la sonda de /api/health falló',
       '  --schema-failed   el esquema de la base falló',
+      '  --account-failed  la titularidad de la base falló',
       '  --dry-run         muestra el aviso y no toca GitHub',
       '  --help            esto',
       '',

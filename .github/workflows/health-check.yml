@@ -43,6 +43,23 @@
 # poder: se usan acá solo para leer. Sin la variable, el paso se saltea y lo
 # dice; no se marca rojo por algo que no está configurado.
 #
+# Y la tercera, que no se puede contestar desde el código: **¿de quién es la
+# cuenta a la que pertenece la base?** `/api/health` coteja una referencia
+# esperada, escrita a mano: sirve para atajar un despliegue apuntado al proyecto
+# equivocado, pero no puede notar que la base **cambie de dueño**, porque el valor
+# seguiría diciendo lo mismo. `scripts/check-account.mjs` (`npm run check:cuenta`)
+# se lo pregunta a la API de administración de Supabase y contesta con nombre y
+# correo: qué organización es la dueña del proyecto y quién figura como dueño de
+# esa organización.
+#
+# Para eso necesita el **secreto** `SUPABASE_ACCESS_TOKEN` (Settings → Secrets and
+# variables → Actions → Secrets). Conviene que sea un token de solo lectura con
+# alcance —«Organization Projects → Read» y «Organization Members → Read»—: con
+# eso alcanza y no puede cambiar nada. Sin el secreto el paso se saltea y lo dice:
+# no se marca rojo por una credencial que no está. Con el secreto, en cambio,
+# cualquier cosa que no sea «verificado» sí es rojo —un token que existe y no puede
+# comprobar nada no está haciendo su trabajo—.
+#
 # Y cuando queda rojo, **avisa en un issue** (`scripts/notice-health.mjs`): un job
 # rojo hay que ir a mirarlo, y un issue aparece en el feed, manda correo y guarda
 # el motivo con su fecha. Es un solo issue, siempre el mismo: se abre cuando la
@@ -122,6 +139,41 @@ jobs:
           set -o pipefail
           node scripts/check-schema.mjs 2>&1 | tee "$RUNNER_TEMP/esquema.txt"
 
+      # ¿Hay token con el que preguntarle a la API de administración? Se resuelve
+      # en un paso propio para poder condicionar los siguientes sin poner el
+      # secreto en el entorno de todo el job: solo lo ven los dos pasos que lo usan.
+      # El valor no se imprime nunca (y GitHub lo enmascara igual).
+      - name: ¿Hay token para comprobar la titularidad?
+        id: token
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          if [ -n "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "presente=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "presente=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Avisar si falta el token con el que se comprueba la titularidad
+        if: steps.token.outputs.presente != 'true'
+        run: |
+          echo '::notice::Sin el secreto SUPABASE_ACCESS_TOKEN no se comprueba de quién es la cuenta de la base.'
+          echo 'Definilo en Settings → Secrets and variables → Actions (Secrets): un token de solo lectura' >> "$GITHUB_STEP_SUMMARY"
+          echo 'con «Organization Projects → Read» y «Organization Members → Read» alcanza (`npm run check:cuenta`).' >> "$GITHUB_STEP_SUMMARY"
+
+      # De quién es la cuenta de la base, preguntado a Supabase. Es la única
+      # comprobación que no se puede hacer sin credenciales, y la única que puede
+      # notar que la base cambió de dueño.
+      - name: Comprobar de quién es la cuenta de la base
+        id: cuenta
+        if: steps.token.outputs.presente == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+        run: |
+          set -o pipefail
+          node scripts/check-account.mjs 2>&1 | tee "$RUNNER_TEMP/cuenta.txt"
+
       # El aviso va al final y con `if: always()`: tiene que correr tanto si algo
       # falló —para abrir o refrescar el issue— como si todo salió bien —para
       # cerrarlo. Los dos `outcome` son el dato con el que decide; si no llegan,
@@ -134,4 +186,5 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           SALUD_FALLO: ${{ steps.salud.outcome == 'failure' }}
           ESQUEMA_FALLO: ${{ steps.esquema.outcome == 'failure' }}
+          CUENTA_FALLO: ${{ steps.cuenta.outcome == 'failure' }}
         run: node scripts/notice-health.mjs

@@ -5,8 +5,10 @@
 así no sirve para filtrar secretos; sirve para no quedar sin puerta de entrada, que es
 exactamente lo que pasó el 2026-10-13 con el proyecto en vivo.
 
-Última revisión: **2026-10-14** (después del corte a la base propia; ver
-[recuperacion-base-2026-10-14.md](recuperacion-base-2026-10-14.md)).
+Última revisión: **2026-10-15** (se comprobó, contra la API y contra producción, qué quedó
+del lado de la cuenta A y qué sigue del lado de la cuenta B: el corte de Vercel **todavía no
+está hecho**). Base de la revisión anterior: **2026-10-14**, después del corte a la base propia
+(ver [recuperacion-base-2026-10-14.md](recuperacion-base-2026-10-14.md)).
 
 ---
 
@@ -43,15 +45,18 @@ a GitHub, por lo que solo puede iniciar sesión con la opción de GitHub»*.
 |---|---|
 | Ref del **origen** (cuenta B) | `wcxpkfmevrbjrjlbayba` (URL de API: `https://wcxpkfmevrbjrjlbayba.supabase.co`) |
 | Ref de la **base nueva** (cuenta A) | `vsqkjimpssdvlvdwrtnh` (nombre `rix7-portal`, org `rziojndhrppqwbfmayln`) |
-| Proyecto de **producción** hoy | Todavía el de la cuenta B: el corte de Vercel es el paso que falta |
+| Proyecto de **producción** hoy | Todavía el de la cuenta B (`wcxpkfmevrbjrjlbayba`): comprobado el 2026-10-15, `GET https://rix7.cl/api/health` responde **503** con `supabase_owner` en rojo. El corte de Vercel es el paso que falta |
 | Org de Vercel | `team_ZqliMBcJmzlw3EHnMBCRGbHi` (proyecto `prj_38HRJ2h2Q8lxjsXu4pRU6MkRpMD4`, nombre `rix7`) |
 | DNS del dominio | `ns1.vercel-dns.com`, `ns2.vercel-dns.com` (la zona vive en Vercel) |
 | Dominio productivo | `https://rix7.cl` (con `www`), previews en `*.vercel.app` |
 
 **Cómo distinguir los dos proyectos Supabase sin depender del nombre** (los dos se llaman
-`rix7-portal`): el vivo es el que responde con la anon key del repo
-(`GET https://wcxpkfmevrbjrjlbayba.supabase.co/rest/v1/properties?limit=1` → 200). El otro
-está pausado y no conecta.
+`rix7-portal`): cada anon key responde solo en su proyecto (`GET <ref>.supabase.co/rest/v1/properties?limit=1").
+Comprobado el 2026-10-15, con la clave que hoy está en `.env.local` (la de la cuenta A):
+`vsqkjimpssdvlvdwrtnh` → **200**, `wcxpkfmevrbjrjlbayba` → **401 Invalid API key**; con la de
+`.env.local.pre-migracion-2026-10-14` (cuenta B) es al revés. Ojo: cuál de los dos sirve
+**producción** no se adivina por la clave, se lee —`GET https://rix7.cl/api/health`, subsistema
+`supabase_owner`, que nombra la ref en uso— y hoy sigue siendo la de la cuenta B.
 
 ## 3. Dónde vive cada credencial
 
@@ -59,7 +64,7 @@ está pausado y no conecta.
 |---|---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `.env.local` + Vercel (los 3 entornos) | **Cuenta A** (`jatf71@gmail.com`) → Project Settings → API del proyecto `vsqkjimpssdvlvdwrtnh` | Acceso a la cuenta A (no es secreta: también viaja al navegador) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Vercel, solo servidor (**nunca** al navegador) | **Cuenta A** → API (falta guardarla: es el corte). En Vercel todavía está la de la cuenta B, que sirve **solo** para el proyecto viejo | Acceso a la cuenta A (`npm run env:secret -- --name SUPABASE_SERVICE_ROLE_KEY`) |
-| `SUPABASE_ACCESS_TOKEN` | `.env.local` (ignorado por git), con `npm run db:token` | **Cuenta A** → Account → Tokens | Acceso a la cuenta A: es la única que ve el proyecto `vsqkjimpssdvlvdwrtnh` (el de la cuenta B quedó **revocado el 2026-10-06**) |
+| `SUPABASE_ACCESS_TOKEN` | `.env.local` (ignorado por git), con `npm run db:token`; **y los secretos de GitHub**, para la sonda de titularidad (`npm run check:cuenta`, cada 6 h) | **Cuenta A** → Account → Tokens | Acceso a la cuenta A: es la única que ve el proyecto `vsqkjimpssdvlvdwrtnh` (el de la cuenta B quedó **revocado el 2026-10-06**). Para el CI conviene uno **de solo lectura con alcance** («Organization Projects → Read» y «Organization Members → Read»): alcanza para comprobar de quién es la base y no puede cambiar nada |
 | `RESEND_API_KEY`, `ALERTS_FROM_EMAIL` | Vercel (Secret/Config) | Resend → API Keys | Acceso a la cuenta de Resend |
 | `ALERTS_CRON_SECRET` | Vercel + secrets de GitHub | Se genera | Volver a generarlo y actualizarlo en los dos lados |
 | `SENTRY_*` | Vercel (opcional) | Sentry → Auth Tokens | Acceso a la organización de Sentry |
@@ -75,7 +80,7 @@ de datos de PostgreSQL y ningún archivo de credenciales. Verificado: no hay `~/
 | Plataforma | Nombres configurados hoy |
 |---|---|
 | Vercel (Production/Preview/Development) | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `ALERTS_FROM_EMAIL`, `NEXT_PUBLIC_SITE_URL`, `ALERTS_CRON_SECRET`, `NEXT_PUBLIC_DEFAULT_MAP_LAT/LNG/ZOOM` |
-| GitHub → Secrets | `ALERTS_CRON_SECRET` |
+| GitHub → Secrets | `ALERTS_CRON_SECRET`; ⚠️ **falta `SUPABASE_ACCESS_TOKEN`** — sin él la sonda saltea la comprobación de titularidad (no se pone roja: lo dice con un aviso) |
 | GitHub → Variables | `SITE_URL` (= `https://rix7.cl`) |
 | `.env.local` | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_DEFAULT_MAP_LAT/LNG/ZOOM`, `VERCEL_OIDC_TOKEN` (+ `SUPABASE_ACCESS_TOKEN` cuando hay uno vigente, + `SUPABASE_SERVICE_ROLE_KEY` cuando se guarda con `npm run env:secret`) |
 | `.env.local.pre-migracion-2026-10-14` | Las credenciales del proyecto de la cuenta B: la única copia local del origen de la copia. No se versiona ni se borra |
@@ -94,7 +99,11 @@ de datos de PostgreSQL y ningún archivo de credenciales. Verificado: no hay `~/
    sin ninguna clave del proyecto viejo. Completado el corte de Vercel (pendiente, §6 camino 2)
    ni siquiera esa sigue haciendo falta.
 3. **El CI no puede migrar**: no existe el secreto `SUPABASE_ACCESS_TOKEN` en el repo, y
-   ningún workflow corre `db:push`.
+   ningún workflow corre `db:push`. Es el mismo secreto que necesita la comprobación de
+   titularidad de la sonda de salud (`npm run check:cuenta`): sin él, cada 6 horas se
+   comprueba que la base sea *la referencia esperada*, pero no que esa referencia siga
+   siendo de la cuenta A. La sonda lo dice al saltearlo, en vez de dar por bueno lo que no
+   comprobó.
 4. **Una sola persona con las llaves**: Vercel, GitHub, Supabase, Resend y el buzón del
    dominio dependen de la misma persona. Sin una segunda persona capaz de reemitir, cualquier
    ausencia bloquea el despliegue.
@@ -148,10 +157,17 @@ sirve: Supabase vincula por **identificador** de GitHub, no por nombre ni correo
 - Al crear cualquier cuenta de servicio, se anota en este registro *en el momento*.
 - Cada credencial de la tabla §3 se revisa una vez por trimestre: ¿sigue viva?, ¿sigue en su
   lugar?, ¿alguien más puede reemitirla?
-- **La pertenencia no se recuerda: se comprueba.** Que la base de producción sea la del proyecto
-  de la cuenta dueña (`vsqkjimpssdvlvdwrtnh`) no depende de que alguien lo recuerde al
-  desplegar: el subsistema `supabase_owner` de `GET /api/health` lo coteja —con la URL y con el
-  `ref` que llevan las claves—, y si la base es de otra cuenta responde `503`, pone en rojo la
-  sonda que corre cada 6 horas (`.github/workflows/health-check.yml`) y hace fallar la
-  verificación del release. Un despliegue que use otro proyecto a propósito lo declara con
-  `SUPABASE_OWNER_PROJECT_REF` y el informe lo anota.
+- **La pertenencia no se recuerda: se comprueba**, y en dos capas que no son la misma:
+  - **En cada respuesta del portal**: el subsistema `supabase_owner` de `GET /api/health` coteja
+    —con la URL y con el `ref` que llevan las claves, sin red y sin credenciales— que la base sea
+    la del proyecto de la cuenta dueña. Si no lo es, responde `503`, pone en rojo la sonda que
+    corre cada 6 horas (`.github/workflows/health-check.yml`) y hace fallar la verificación del
+    release. Un despliegue que use otro proyecto a propósito lo declara con
+    `SUPABASE_OWNER_PROJECT_REF` y el informe lo anota.
+  - **Contra Supabase mismo**: la referencia esperada está escrita en el código, así que por sí
+    sola no puede notar que la base **cambie de dueño**. Eso lo pregunta
+    `npm run check:cuenta` (`scripts/check-account.mjs`) a la **API de administración** —el único
+    camino documentado para saber a qué organización pertenece un proyecto—, y lo dice con
+    nombre y correo: qué organización es la dueña y quién figura como dueño de esa organización.
+    La sonda de salud lo corre en cada pasada cuando existe el secreto, y lo saltea diciéndolo
+    cuando no.
