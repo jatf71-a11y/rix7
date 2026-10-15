@@ -35,6 +35,11 @@ dev-server.log
 # Estado local de las herramientas (servidores de preview, run doc)
 .freebuff/
 
+# Accesos de socias y corredoras: registro de a quién se le escribió y, si se
+# piden con --enlaces, enlaces de un solo uso. Son datos de personas y secretos
+# de un uso: nunca se versionan.
+.accesos/
+
 # Copias de verificación al lado del código
 .build-check/
 .git.backup-*
