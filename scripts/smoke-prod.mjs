@@ -2,11 +2,15 @@
 /**
  * Prueba de humo contra un despliegue: ¿está la tanda y está guardando?
  *
- * Comprueba desde afuera —como lo haría una visita— las tres piezas que se
- * desplegaron juntas: la portada, la pantalla `/admin/registros` y el alta
- * `/api/registro`. Y responde la pregunta que ningún test de la suite puede
- * responder, porque depende de la base real: **¿el alta se está guardando o la
- * respuesta se está perdiendo en la memoria del servidor?**
+ * Comprueba desde afuera —como lo haría una visita— las piezas que se despliegan
+ * juntas: la portada, el panel de registros, el alta `/api/registro` y las rutas
+ * del panel de socios (`/socio`, `/api/partner/access`, `/api/admin/socios`).
+ * Esas tres últimas están porque una tanda puede desplegarse a medias: la página
+ * responde y la API que necesita da 404, y eso no se ve en ninguna otra parte.
+ *
+ * Y responde la pregunta que ningún test de la suite puede responder, porque
+ * depende de la base real: **¿el alta se está guardando o la respuesta se está
+ * perdiendo en la memoria del servidor?**
  *
  *   npm run smoke:prod                                  # solo mirar (no escribe nada)
  *   npm run smoke:prod -- --url http://localhost:3111
@@ -39,6 +43,7 @@ export const SMOKE_PHONE = '+56 9 0000 0000';
 /** Marcas de identidad de cada página. */
 export const HOME_MARKER = 'Rix7';
 export const ADMIN_MARKER = 'Registros';
+export const SOCIO_MARKER = 'Panel de socios';
 
 /** Señales de que lo que llegó es una pantalla de error, no la página. */
 const ERROR_PAGE = /Application error|Internal Server Error|a server-side exception|__next_error__/i;
@@ -107,6 +112,68 @@ export function judgeHome(status, html) {
  * detectar; un 200 sin la marca de la página, que llegó otra cosa.
  */
 export function judgeAdminPage(status, html) {
+  return judgeAdminPageLike(status, html, ADMIN_MARKER, 'la pantalla de registros');
+}
+
+/**
+ * Cómo leer una ruta de API protegida sin sesión.
+ *
+ * Responde dos preguntas de una sola petición, y las responde distinto:
+ *
+ * - **¿está desplegada?** Un 404 quiere decir que el deploy no trajo la ruta.
+ *   Es el caso que motivó esta comprobación: la gestión de socios existía en el
+ *   repositorio y no en producción, así que el panel se veía vacío sin que nada
+ *   lo advirtiera.
+ * - **¿está protegida?** Un 200 sin sesión significa que la guardia dejó pasar
+ *   datos que no corresponden a una visita.
+ *
+ * @param {number} status
+ * @param {string} subject  qué es lo que no debería verse sin sesión
+ */
+export function judgeProtectedEndpoint(status, subject = 'los datos') {
+  if (status === 404) {
+    return { level: 'fail', detail: 'HTTP 404: la ruta no está desplegada' };
+  }
+  if (status === 200) {
+    return {
+      level: 'fail',
+      detail: `HTTP 200 sin sesión: la guardia dejó pasar ${subject}`,
+    };
+  }
+  if ([401, 403, 503].includes(status)) {
+    return { level: 'ok', detail: `HTTP ${status}: existe y pide sesión (no devuelve datos)` };
+  }
+  return { level: 'fail', detail: `HTTP ${status}: respuesta inesperada` };
+}
+
+/**
+ * Cómo leer `GET /api/registro` sin sesión.
+ *
+ * Lo importante es que **no** devuelva datos: es el listado de quién autorizó
+ * qué, y con la guardia puesta nunca se ve sin sesión de admin. Un 404 significa
+ * que la ruta no se desplegó; un 200, que la guardia dejó pasar el listado.
+ */
+export function judgeRegistroGuard(status) {
+  return judgeProtectedEndpoint(status, 'el listado de registros');
+}
+
+/**
+ * Cómo leer el panel de socios.
+ *
+ * Igual que el panel de registros: sirve que la ruta exista (no un 404) y que la
+ * página sea la del panel y no una pantalla de error. El contenido real necesita
+ * sesión de corredora, así que acá no se juzga lo que muestra: solo que esté.
+ */
+export function judgeSocioPanel(status, html) {
+  return judgeAdminPageLike(status, html, SOCIO_MARKER, 'el panel de socios');
+}
+
+/**
+ * El juicio compartido de una pantalla del panel: existe, no es un error y trae
+ * su marca. Se separa para que los dos paneles no se juzguen distinto —que es
+ * como una comprobación nueva termina siendo más laxa que la vieja.
+ */
+function judgeAdminPageLike(status, html, marker, what) {
   if (status === 404) {
     return { level: 'fail', detail: 'HTTP 404: la ruta no está desplegada' };
   }
@@ -120,33 +187,10 @@ export function judgeAdminPage(status, html) {
   if (ERROR_PAGE.test(html)) {
     return { level: 'fail', detail: 'devolvió 200 pero el cuerpo es una pantalla de error' };
   }
-  if (!html.includes(ADMIN_MARKER)) {
-    return { level: 'fail', detail: 'devolvió 200 pero no es la pantalla de registros' };
+  if (!html.includes(marker)) {
+    return { level: 'fail', detail: `devolvió 200 pero no es ${what}` };
   }
   return { level: 'ok', detail: `200 · ${(html.length / 1024).toFixed(1)} kB` };
-}
-
-/**
- * Cómo leer `GET /api/registro` sin sesión.
- *
- * Lo importante es que **no** devuelva datos: es el listado de quién autorizó
- * qué, y con la guardia puesta nunca se ve sin sesión de admin. Un 404 significa
- * que la ruta no se desplegó; un 200, que la guardia dejó pasar el listado.
- */
-export function judgeRegistroGuard(status) {
-  if (status === 404) {
-    return { level: 'fail', detail: 'HTTP 404: la ruta no está desplegada' };
-  }
-  if (status === 200) {
-    return {
-      level: 'fail',
-      detail: 'HTTP 200 sin sesión: la guardia del panel dejó pasar el listado de registros',
-    };
-  }
-  if ([401, 403, 503].includes(status)) {
-    return { level: 'ok', detail: `HTTP ${status}: existe y pide sesión (no devuelve datos)` };
-  }
-  return { level: 'fail', detail: `HTTP ${status}: respuesta inesperada` };
 }
 
 /** Primer dato del informe de `/api/health` que explica por qué no se guarda. */
@@ -154,6 +198,9 @@ export function persistenceHint(health) {
   const broken = health?.missing?.broken ?? [];
   if (broken.includes('supabase')) {
     return 'Falta el proyecto Supabase real (NEXT_PUBLIC_SUPABASE_URL): sin él el alta se acepta pero queda en la memoria del servidor.';
+  }
+  if (broken.includes('supabase_owner')) {
+    return 'La base de este despliegue no es la de la cuenta dueña del proyecto: el alta se guarda, pero en una base que quizá no se pueda administrar. Cortá con `npm run corte:supabase` (ver `docs/runbook-accesos-socias.md` y `docs/registro-cuentas-y-servicios.md`).';
   }
   return 'Puede faltar aplicar la migración 0010_signups.sql: compruébalo con `npm run db:status`.';
 }
@@ -282,6 +329,37 @@ export async function runSmoke({
   } else {
     const html = await admin.response.text().catch(() => '');
     steps.push({ label: 'GET /admin/registros', ...judgeAdminPage(admin.response.status, html) });
+  }
+
+  // ── El panel de socios: existe y su gestión también ──
+  // Estas tres comprobaciones existen por un incidente concreto: la sección
+  // «Cuentas de socios» y su API vivían en el repositorio y no en producción,
+  // así que el panel se veía sin la mitad que lo hace utilizable y nada lo
+  // decía. Una ruta que da 404 es eso, y ahora se ve en el informe.
+  const socio = await probe(fetchImpl, `${base}/socio`);
+  if (!socio.ok) {
+    steps.push({ level: 'fail', label: 'GET /socio', detail: `no respondió: ${socio.error}` });
+  } else {
+    const html = await socio.response.text().catch(() => '');
+    steps.push({ label: 'GET /socio', ...judgeSocioPanel(socio.response.status, html) });
+  }
+
+  const socioEndpoints = [
+    { path: '/api/partner/access', subject: 'el stock de la corredora' },
+    { path: '/api/admin/socios', subject: 'las cuentas de socios' },
+  ];
+
+  for (const endpoint of socioEndpoints) {
+    const label = `GET ${endpoint.path} (sin sesión)`;
+    const response = await probe(fetchImpl, `${base}${endpoint.path}`);
+    if (!response.ok) {
+      steps.push({ level: 'fail', label, detail: `no respondió: ${response.error}` });
+    } else {
+      steps.push({
+        label,
+        ...judgeProtectedEndpoint(response.response.status, endpoint.subject),
+      });
+    }
   }
 
   // ── El alta: existe y está protegida ──

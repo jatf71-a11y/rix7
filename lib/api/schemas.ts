@@ -305,6 +305,36 @@ export const partnerDeleteSchema = z.object({
   id: z.string({ required_error: 'id is required' }).trim().min(1).max(120),
 });
 
+// ═══ /api/admin/socios (cuentas vinculadas a corredoras) ═══
+
+/**
+ * Correo de una cuenta del portal.
+ *
+ * Es la **clave de búsqueda** con la que el panel encuentra la cuenta que hay
+ * que vincular: la API de administración de Supabase no busca por correo, así
+ * que se lista y se empareja (ver `findAccountByEmail`). Se normaliza a
+ * minúsculas porque los correos no distinguen mayúsculas.
+ */
+const accountEmailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(3)
+  .max(200)
+  .refine((v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), {
+    message: 'Correo inválido.',
+  });
+
+/** Alta o movimiento de un vínculo: qué cuenta y con qué corredora. */
+export const socioLinkSchema = z.object({
+  email: accountEmailSchema,
+  partner_id: idSchema,
+});
+
+export const socioUnlinkSchema = z.object({
+  email: accountEmailSchema,
+});
+
 // ═══ /api/partner/properties (panel del socio) ═══
 
 /**

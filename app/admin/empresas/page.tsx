@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Partner } from '@/lib/data/partners';
 import { slugify } from '@/lib/utils/text';
+import SocioAccounts from './SocioAccounts';
 
 const EMPTY_FORM: Omit<Partner, 'id'> = {
   slug: '',
@@ -502,6 +503,11 @@ function AdminEmpresasPage() {
           ))}
         </div>
       )}
+
+      {/* Cuentas de socios: qué cuenta entra al panel de publicaciones de cada
+          corredora. Es la mitad que faltaba de esta página —las corredoras se
+          administraban, las cuentas no— y sin ella /socio era inalcanzable. */}
+      <SocioAccounts partners={partners} />
 
       {/* Modal de token mostrado UNA vez (hallazgo #14): la base guarda solo
           el hash, así que si se cierra sin copiar hay que regenerar. */}

@@ -6,18 +6,15 @@ import {
   Building2,
   CirclePlus,
   Eye,
-  KeyRound,
   Loader2,
   Pencil,
-  RefreshCw,
   Share2,
-  ShieldAlert,
   Trash2,
 } from 'lucide-react';
 import type { PanelProperty } from '@/lib/data/propertiesStore';
 import { formatPrice, getStatusLabel } from '@/lib/utils/formatters';
-import { useAuth } from '@/components/auth/AuthProvider';
 import ShareDialog from '@/components/socio/ShareDialog';
+import SocioAccessNotice from './SocioAccessNotice';
 
 /**
  * Panel del socio: la lista de SUS publicaciones con las cuatro gestiones del
@@ -41,7 +38,6 @@ const STATUS_STYLES: Record<string, string> = {
 const TOAST_KEY = 'rix7-socio-toast';
 
 export default function SocioPanelPage() {
-  const { openAuthModal } = useAuth();
   const [properties, setProperties] = useState<PanelProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const [access, setAccess] = useState<{ status: number; message: string } | null>(null);
@@ -151,43 +147,15 @@ export default function SocioPanelPage() {
         </div>
       )}
 
-      {/* Estado de acceso */}
+      {/* Estado de acceso — el mismo aviso que usa /socio/publicar, para que la
+          situación se explique igual desde cualquiera de las dos pantallas. */}
       {access && (
-        <div className="mb-6 rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-            {access.status === 401 ? (
-              <KeyRound className="w-6 h-6 text-slate-500" />
-            ) : (
-              <ShieldAlert className="w-6 h-6 text-slate-500" />
-            )}
-          </div>
-          <p className="text-sm text-slate-700 mb-1">
-            {access.status === 401 ? 'Inicia sesión para ver tus publicaciones.' : access.message}
-          </p>
-          {access.status === 401 && (
-            <p className="text-xs text-slate-400 mb-5">
-              Tu publicaciones viven en la cuenta de tu corredora: entra con el
-              correo que usó tu equipo.
-            </p>
-          )}
-          <div className="flex items-center justify-center gap-3">
-            {access.status === 401 ? (
-              <button
-                onClick={() => openAuthModal('entrar a tu panel de publicaciones')}
-                className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-              >
-                Entrar
-              </button>
-            ) : (
-              <button
-                onClick={() => setReloadKey((k) => k + 1)}
-                className="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Reintentar
-              </button>
-            )}
-          </div>
+        <div className="mb-6">
+          <SocioAccessNotice
+            status={access.status}
+            message={access.message}
+            onRetry={() => setReloadKey((k) => k + 1)}
+          />
         </div>
       )}
 

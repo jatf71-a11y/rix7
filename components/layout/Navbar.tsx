@@ -134,13 +134,16 @@ function NavbarContent() {
                 </button>
               </div>
 
-              <button
-                onClick={() => alert('Publicar propiedad en Rix7')}
+              {/* Publicar lleva al alta real del panel de socios. Antes era un
+                  `alert()` de recordatorio: la acción más importante para una
+                  corredora no tenía destino. */}
+              <Link
+                href="/socio/publicar"
                 className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-all"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>Publicar</span>
-              </button>
+              </Link>
             </div>
           ) : registration ? (
             /* Identificado por el registro de este dispositivo (sin cuenta del
@@ -265,7 +268,7 @@ function NavbarContent() {
               Arrendar
             </Link>
             <Link
-              href="/?operation=sale"
+              href="/socio/publicar"
               onClick={() => setIsMobileMenuOpen(false)}
               className="p-2 rounded-lg hover:bg-slate-50"
             >

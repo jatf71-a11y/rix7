@@ -13,8 +13,10 @@ import {
   formatReport,
   judgeAdminPage,
   judgeHome,
+  judgeProtectedEndpoint,
   judgeRegistroGuard,
   judgeSignup,
+  judgeSocioPanel,
   normalizeBaseUrl,
   persistenceHint,
   runSmoke,
@@ -26,6 +28,8 @@ const HOME_HTML = `<!doctype html><html><head><title>Rix7 | Propiedades</title><
   1200
 )}</body></html>`;
 const ADMIN_HTML = '<!doctype html><html><head><title>Panel | Rix7</title></head><body>Registros</body></html>';
+const SOCIO_HTML =
+  '<!doctype html><html><head><title>Panel de socios | Rix7</title></head><body>Panel de socios Mis publicaciones</body></html>';
 
 const htmlResponse = (status: number, body: string) => new Response(body, { status });
 const jsonResponse = (status: number, body: unknown) =>
@@ -61,6 +65,9 @@ function server(routes: Record<string, () => Response>) {
 const happyRoutes = (overrides: Record<string, () => Response> = {}) => ({
   '/ GET': () => htmlResponse(200, HOME_HTML),
   '/admin/registros GET': () => htmlResponse(200, ADMIN_HTML),
+  '/socio GET': () => htmlResponse(200, SOCIO_HTML),
+  '/api/partner/access GET': () => jsonResponse(401, { success: false, error: 'Inicia sesión para continuar.' }),
+  '/api/admin/socios GET': () => jsonResponse(401, { success: false, error: 'Inicia sesión para continuar.' }),
   '/api/registro GET': () => jsonResponse(503, { success: false, error: 'Sin Supabase' }),
   '/api/health GET': () => jsonResponse(200, HEALTH_OK),
   '/api/registro POST': () =>
@@ -158,6 +165,56 @@ describe('judgeRegistroGuard', () => {
   });
 });
 
+describe('judgeProtectedEndpoint', () => {
+  it('acepta que la ruta pida sesión', () => {
+    expect(judgeProtectedEndpoint(401).level).toBe('ok');
+    expect(judgeProtectedEndpoint(403).level).toBe('ok');
+    expect(judgeProtectedEndpoint(503).level).toBe('ok');
+  });
+
+  it('dice que la ruta no está desplegada cuando da 404', () => {
+    // El caso real: la gestión de socios existía en el repo y no en producción.
+    expect(judgeProtectedEndpoint(404).detail).toContain('no está desplegada');
+  });
+
+  it('falla si la respuesta se ve sin sesión, y nombra qué se filtró', () => {
+    const verdict = judgeProtectedEndpoint(200, 'las cuentas de socios');
+
+    expect(verdict.level).toBe('fail');
+    expect(verdict.detail).toContain('sin sesión');
+    expect(verdict.detail).toContain('las cuentas de socios');
+  });
+
+  it('un código inesperado no se da por bueno', () => {
+    expect(judgeProtectedEndpoint(500).level).toBe('fail');
+  });
+});
+
+describe('judgeSocioPanel', () => {
+  it('acepta el panel de socios', () => {
+    expect(judgeSocioPanel(200, SOCIO_HTML).level).toBe('ok');
+  });
+
+  it('dice que la ruta no está desplegada cuando da 404', () => {
+    expect(judgeSocioPanel(404, 'Not found').detail).toContain('no está desplegada');
+  });
+
+  it('rechaza el 200 con la pantalla de error adentro', () => {
+    const verdict = judgeSocioPanel(200, '<html><body>Application error: a server-side exception</body></html>');
+
+    expect(verdict.level).toBe('fail');
+    expect(verdict.detail).toContain('pantalla de error');
+  });
+
+  it('rechaza un 200 que no es el panel', () => {
+    expect(judgeSocioPanel(200, '<html><title>Rix7</title></html>').level).toBe('fail');
+  });
+
+  it('una redirección cuenta como buena: la página existe y pide sesión', () => {
+    expect(judgeSocioPanel(307, '').level).toBe('ok');
+  });
+});
+
 describe('judgeSignup', () => {
   const ok = { success: true, stored: { saved: true, persistent: true } };
 
@@ -201,6 +258,13 @@ describe('persistenceHint', () => {
     expect(hint).toContain('NEXT_PUBLIC_SUPABASE_URL');
   });
 
+  it('si la base no es la de la cuenta dueña, lo dice con el corte como salida', () => {
+    const hint = persistenceHint({ missing: { broken: ['supabase_owner'] } });
+
+    expect(hint).toContain('cuenta dueña');
+    expect(hint).toContain('corte:supabase');
+  });
+
   it('si Supabase está configurado, sospecha de la migración', () => {
     // El otro motivo posible: la tabla no existe todavía en la base.
     const hint = persistenceHint({ missing: { broken: [], degraded: ['email'] } });
@@ -220,6 +284,33 @@ describe('runSmoke', () => {
     expect(report.persisted).toBeNull();
     expect(calls.some((call) => call.method === 'POST')).toBe(false);
     expect(formatReport(report)).toContain('no se verificó');
+  });
+
+  it('comprueba las rutas del panel de socios en la misma corrida', async () => {
+    const { fetchImpl } = server(happyRoutes());
+
+    const report = await runSmoke({ baseUrl: 'https://x.test', fetchImpl });
+    const labels = report.steps.map((step) => step.label);
+
+    expect(labels).toContain('GET /socio');
+    expect(labels).toContain('GET /api/partner/access (sin sesión)');
+    expect(labels).toContain('GET /api/admin/socios (sin sesión)');
+    expect(report.ok).toBe(true);
+  });
+
+  it('detecta el deploy a medias: el panel de socios sin su API', async () => {
+    // El incidente que estas comprobaciones existen para atrapar: la página
+    // responde y la sección de gestión no llegó al despliegue.
+    const { fetchImpl } = server(
+      happyRoutes({ '/api/admin/socios GET': () => htmlResponse(404, 'Not found') })
+    );
+
+    const report = await runSmoke({ baseUrl: 'https://x.test', fetchImpl });
+
+    expect(report.ok).toBe(false);
+    expect(
+      report.steps.find((step) => step.label === 'GET /api/admin/socios (sin sesión)')?.detail
+    ).toContain('no está desplegada');
   });
 
   it('falla cuando una ruta de la tanda no está desplegada', async () => {
