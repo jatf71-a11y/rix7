@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { leadChannelLabel, type Lead, type LeadChannel } from '@/lib/data/leads';
 import type { Partner } from '@/lib/data/partners';
+import { describeReadFailure, type ReadFailure } from '@/lib/utils/readFailure';
 
 /** Colores del badge por canal, para leer la lista de un vistazo. */
 const CHANNEL_STYLES: Record<LeadChannel, string> = {
@@ -40,18 +41,42 @@ export default function AdminLeadsPage() {
   const [loading, setLoading] = useState(true);
   const [persistent, setPersistent] = useState(true);
   const [search, setSearch] = useState('');
+  const [failure, setFailure] = useState<ReadFailure | null>(null);
 
+  /**
+   * Leer los contactos, distinguiendo «no hay» de «no se pudo».
+   *
+   * Un 401 es la respuesta normal de una sesión sin rol de administración, y
+   * antes se veía como una lista vacía: «Todavía no hay contactos». Un panel que
+   * no pudo leer no puede decir que no hay nada.
+   */
   const loadLeads = () => {
     setLoading(true);
+    setFailure(null);
+
     fetch('/api/leads')
-      .then((r) => r.json())
-      .then((result) => {
-        if (result.success) {
-          setLeads(result.data);
-          setPersistent(result.persistent !== false);
+      .then(async (response) => {
+        const result = await response.json().catch(() => null);
+
+        if (!response.ok || !result?.success) {
+          setFailure(
+            describeReadFailure(
+              response.status,
+              'los contactos',
+              typeof result?.error === 'string' ? result.error : null
+            )
+          );
+          return;
         }
+
+        setLeads(result.data ?? []);
+        setPersistent(result.persistent !== false);
       })
-      .catch(() => {})
+      .catch((error: unknown) => {
+        setFailure(
+          describeReadFailure(null, 'los contactos', error instanceof Error ? error.message : null)
+        );
+      })
       .finally(() => setLoading(false));
   };
 
@@ -88,6 +113,23 @@ export default function AdminLeadsPage() {
 
   return (
     <div className="max-w-6xl">
+      {/* No se pudo leer: se dice, en vez de mostrar una lista vacía */}
+      {!loading && failure && (
+        <div
+          className={`flex items-start gap-2 px-4 py-3 mb-5 rounded-lg border text-sm ${
+            failure.kind === 'denied'
+              ? 'border-red-200 bg-red-50 text-red-800'
+              : 'border-amber-200 bg-amber-50 text-amber-800'
+          }`}
+        >
+          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="font-semibold">{failure.title}</p>
+            <p className="mt-0.5">{failure.detail}</p>
+          </div>
+        </div>
+      )}
+
       {/* Aviso: sin Supabase los contactos viven en memoria */}
       {!loading && !persistent && (
         <div className="flex items-start gap-2 px-4 py-3 mb-5 rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-800">
@@ -110,7 +152,9 @@ export default function AdminLeadsPage() {
           <p className="text-sm text-slate-500 mt-1">
             {loading
               ? 'Cargando...'
-              : `${leads.length} ${leads.length === 1 ? 'contacto' : 'contactos'} · ${ultimos7Dias} en los últimos 7 días`}
+              : failure
+                ? 'No se pudo leer la lista'
+                : `${leads.length} ${leads.length === 1 ? 'contacto' : 'contactos'} · ${ultimos7Dias} en los últimos 7 días`}
           </p>
         </div>
         <button
@@ -140,6 +184,12 @@ export default function AdminLeadsPage() {
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-20 bg-white rounded-xl border border-slate-200 animate-pulse" />
           ))}
+        </div>
+      ) : failure ? (
+        <div className="text-center py-20 bg-white rounded-xl border border-slate-200">
+          <AlertCircle className="w-12 h-12 text-red-200 mx-auto mb-4" />
+          <p className="text-slate-600 font-semibold">{failure.title}</p>
+          <p className="text-sm text-slate-400 mt-1 max-w-xl mx-auto">{failure.detail}</p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-xl border border-slate-200">
