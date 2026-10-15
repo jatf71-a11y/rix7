@@ -11,10 +11,14 @@ import { describe, expect, it } from 'vitest';
 import {
   ENVIRONMENTS,
   MANAGED_VARS,
+  addArgs,
   applySync,
   formatPlan,
   linkedProjectRef,
+  parseEnvTargets,
   planSync,
+  variableType,
+  verifySync,
 } from './vercel-sync-env.mjs';
 
 /**
@@ -99,7 +103,15 @@ describe('applySync', () => {
     });
 
     expect(calls[0].args).toEqual(['env', 'rm', 'SUPABASE_SERVICE_ROLE_KEY', 'production', '--yes']);
-    expect(calls[1].args).toEqual(['env', 'add', 'SUPABASE_SERVICE_ROLE_KEY', 'production']);
+    expect(calls[1].args).toEqual([
+      'env',
+      'add',
+      'SUPABASE_SERVICE_ROLE_KEY',
+      'production',
+      '--yes',
+      '--type',
+      'secret',
+    ]);
     // El valor viaja por la entrada estándar: en los argumentos lo vería `ps`.
     expect(calls[1].input).toBe(SECRETO);
     expect(calls[0].input).toBeNull();
@@ -118,6 +130,116 @@ describe('applySync', () => {
 
     expect(done[0].ok).toBe(false);
     expect(done[0].detail).toContain('not linked');
+  });
+});
+
+describe('variableType y addArgs', () => {
+  it('las NEXT_PUBLIC_* van como config (son públicas por diseño) y el resto como secret', () => {
+    expect(variableType('NEXT_PUBLIC_SUPABASE_ANON_KEY')).toBe('config');
+    expect(variableType('SUPABASE_SERVICE_ROLE_KEY')).toBe('secret');
+  });
+
+  it('responde el prompt de la CLI con banderas, porque con una tubería el prompt aborta en silencio', () => {
+    // `vercel env add` pregunta cómo guardar un `NEXT_PUBLIC_` con valor de
+    // credencial. Sin `--yes --type`, la pregunta se queda sin respuesta, la CLI
+    // sale con 0 y **no crea la variable**: así se perdió la anon key del corte.
+    expect(addArgs('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'production')).toEqual([
+      'env',
+      'add',
+      'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+      'production',
+      '--yes',
+      '--type',
+      'config',
+    ]);
+    expect(addArgs('SUPABASE_SERVICE_ROLE_KEY', 'preview')).toContain('secret');
+  });
+});
+
+describe('parseEnvTargets', () => {
+  it('junta los entornos de un target en lista o en texto, y no se queda con los valores', () => {
+    const listing = parseEnvTargets(
+      JSON.stringify([
+        { key: 'A', type: 'encrypted', target: ['production', 'preview'], value: 'cifrado-no-legible' },
+        { key: 'A', type: 'encrypted', target: 'development', value: 'cifrado-no-legible' },
+        { key: 'B', type: 'sensitive', target: ['production'], value: 'cifrado-no-legible' },
+      ]),
+    );
+
+    expect(listing.A.environments).toEqual(['production', 'preview', 'development']);
+    expect(listing.B).toEqual({ environments: ['production'], type: 'sensitive' });
+    expect(JSON.stringify(listing)).not.toContain('cifrado-no-legible');
+  });
+
+  it('saltea lo que la CLI imprime antes del JSON y no rompe con basura', () => {
+    expect(parseEnvTargets('Vercel CLI 61.1.0\n[{"key":"X","target":"production"}]').X.environments).toEqual([
+      'production',
+    ]);
+    expect(parseEnvTargets('nada parseable')).toEqual({});
+  });
+});
+
+describe('verifySync', () => {
+  const steps = [{ name: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', environments: ['production'] }];
+
+  it('no da por aplicada una variable que Vercel no informa, aunque el alta haya salido 0', () => {
+    // El defecto del corte anterior: el alta informó `0` y nunca escribió nada.
+    const { done } = verifySync({
+      steps,
+      values,
+      listing: {},
+      attempts: [
+        { name: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', environment: 'production', ok: true, detail: '208 caracteres' },
+      ],
+    });
+
+    expect(done).toEqual([
+      {
+        name: 'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+        environment: 'production',
+        ok: false,
+        detail: expect.stringContaining('no quedó aplicada'),
+      },
+    ]);
+  });
+
+  it('da por aplicada la que sí está, con su largo y el tipo que informa Vercel', () => {
+    const { done, warnings } = verifySync({
+      steps,
+      values,
+      listing: { NEXT_PUBLIC_SUPABASE_ANON_KEY: { environments: ['production'], type: 'encrypted' } },
+    });
+
+    expect(done[0].ok).toBe(true);
+    expect(done[0].detail).toBe(`${values.NEXT_PUBLIC_SUPABASE_ANON_KEY.length} caracteres · encrypted`);
+    expect(warnings).toEqual([]);
+  });
+
+  it('avisa cuando una pública quedó guardada como secreta, sin caer en un falso verde', () => {
+    const { done, warnings } = verifySync({
+      steps,
+      values,
+      listing: { NEXT_PUBLIC_SUPABASE_ANON_KEY: { environments: ['production'], type: 'sensitive' } },
+    });
+
+    expect(done[0].ok).toBe(true);
+    expect(warnings.join(' ')).toContain('sensitive');
+  });
+
+  it('informa el error de la CLI cuando además el alta falló, y nunca un valor', () => {
+    const secretSteps = [{ name: 'SUPABASE_SERVICE_ROLE_KEY', environments: ['production'] }];
+    const { done, warnings } = verifySync({
+      steps: secretSteps,
+      values,
+      listing: { SUPABASE_SERVICE_ROLE_KEY: { environments: ['production'], type: 'sensitive' } },
+      attempts: [{ name: 'SUPABASE_SERVICE_ROLE_KEY', environment: 'production', ok: false, detail: 'Error: not linked' }],
+    });
+
+    const text = [...done.map((entry) => entry.detail), ...warnings].join(' ');
+    expect(text).not.toContain(SECRETO);
+
+    const missing = verifySync({ steps: secretSteps, values, listing: {}, attempts: [] });
+    expect(missing.done[0].detail).not.toContain(SECRETO);
   });
 });
 

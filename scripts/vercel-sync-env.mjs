@@ -16,6 +16,14 @@
  * la salida. Lo único que se imprime es el **nombre** de cada variable y su
  * largo.
  *
+ * El alta va con `--yes --type …` porque `vercel env add` es interactivo: con un
+ * nombre `NEXT_PUBLIC_` y un valor que parece credencial pregunta cómo guardarlo,
+ * y cuando la entrada estándar es una tubería —no una terminal— el prompt se
+ * queda sin respuesta, la CLI **sale con 0 y no crea nada**. Por eso, además, el
+ * script **lee de vuelta** (`vercel env ls --json`) antes de decir que salió
+ * bien: un corte que se informa «listo» sin haber escrito la anon key deja el
+ * portal sin base, y eso no se nota hasta que alguien mira `/api/health`.
+ *
  *   npm run vercel:sync                        # .env.local → los 3 entornos
  *   npm run vercel:sync -- --dry-run           # dice qué haría, sin tocar nada
  *   npm run vercel:sync -- --only NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -57,6 +65,86 @@ export const MANAGED_VARS = [
 
 /** Los entornos de Vercel que el proyecto usa de verdad. */
 export const ENVIRONMENTS = ['production', 'preview', 'development'];
+
+/**
+ * Con qué tipo se guarda cada variable.
+ *
+ * - Las `NEXT_PUBLIC_*` son públicas por diseño: `config`, que es legible en el
+ *   panel (también viajan al navegador, así que ocultarlas sería un espejismo).
+ * - El resto son credenciales de servidor: `secret`, que Vercel no vuelve a
+ *   mostrar.
+ *
+ * No es cosmético: es lo que responde el prompt interactivo de `env add` sin
+ * que nadie tenga que responderlo (ver la cabecera del archivo).
+ *
+ * @param {string} name
+ * @returns {'config' | 'secret'}
+ */
+export function variableType(name) {
+  return String(name).startsWith('NEXT_PUBLIC_') ? 'config' : 'secret';
+}
+
+/**
+ * Los argumentos de un alta. El valor **no** va acá: viaja por la entrada
+ * estándar, porque en los argumentos lo vería cualquiera con `ps`.
+ *
+ * @param {string} name
+ * @param {string} environment
+ * @returns {string[]}
+ */
+export function addArgs(name, environment) {
+  return ['env', 'add', name, environment, '--yes', '--type', variableType(name)];
+}
+
+/** Los argumentos que leen de vuelta lo que quedó guardado en Vercel. */
+export function listArgs() {
+  return ['env', 'ls', '--json'];
+}
+
+/**
+ * Cómo informa Vercel cada tipo al listar. `sensitive` es lo que la CLI llama
+ * `secret` al agregar, y `encrypted` lo que llama `config`.
+ */
+export const REPORTED_TYPES = { config: 'encrypted', secret: 'sensitive' };
+
+/**
+ * Del JSON de `vercel env ls` saca **presencia y tipo**, por variable. Los
+ * valores llegan cifrados y no se miran: alcanzan para saber si quedó aplicada.
+ *
+ * @param {string} stdout
+ * @returns {Record<string, { environments: string[], type: string | null }>}
+ */
+export function parseEnvTargets(stdout) {
+  try {
+    const start = Math.min(
+      ...[stdout.indexOf('['), stdout.indexOf('{')].filter((at) => at >= 0),
+    );
+    if (!Number.isFinite(start)) return {};
+
+    const parsed = JSON.parse(stdout.slice(start));
+    const list = Array.isArray(parsed) ? parsed : (parsed.envs ?? parsed.env ?? []);
+
+    const listing = {};
+    for (const entry of list) {
+      const name = entry?.key ?? entry?.name;
+      if (typeof name !== 'string') continue;
+
+      const target = entry.target ?? entry.environments ?? entry.env;
+      const environments = (Array.isArray(target) ? target : [target])
+        .filter((environment) => typeof environment === 'string')
+        .map((environment) => environment.trim().toLowerCase());
+
+      const current = listing[name] ?? { environments: [], type: null };
+      current.environments = [...new Set([...current.environments, ...environments])];
+      current.type = typeof entry.type === 'string' ? entry.type : current.type;
+      listing[name] = current;
+    }
+
+    return listing;
+  } catch {
+    return {};
+  }
+}
 
 /**
  * Qué se va a hacer, sin hacerlo: qué variables están, cuáles faltan y en qué
@@ -117,6 +205,7 @@ export function formatPlan(plan, { apply = false, ref = null } = {}) {
       : '  --dry-run: no se cambió nada. Para aplicarlo, corré sin --dry-run.',
   );
   if (apply) {
+    lines.push('  Y después se lee de vuelta (`vercel env ls`): el código de salida de la CLI no prueba que la variable haya quedado.');
     lines.push('  Después: npm run deploy:prod  (las NEXT_PUBLIC_* se incrustan en el build).');
   }
   return lines.join('\n');
@@ -139,6 +228,10 @@ export function linkedProjectRef(projectJson) {
  * existe, la CLI pregunta, y un script que espera una respuesta se cuelga con
  * el valor ya en la tubería. El borrado se ignora si la variable no estaba.
  *
+ * Lo que devuelve son **intentos**, no un resultado: el código de salida de la
+ * CLI no prueba que la variable haya quedado (un prompt sin respuesta sale con 0
+ * y sin escribir). El resultado lo dice `verifySync`, que lee de vuelta.
+ *
  * @param {{ steps: { name: string, environments: string[] }[], values: Record<string, string>, run?: (args: string[], input: string | null) => { status: number, stderr: string } }} params
  * @returns {{ done: { name: string, environment: string, ok: boolean, detail: string }[] }}
  */
@@ -149,7 +242,7 @@ export function applySync({ steps, values, run = defaultRun }) {
     for (const environment of step.environments) {
       run(['env', 'rm', step.name, environment, '--yes'], null);
 
-      const result = run(['env', 'add', step.name, environment], values[step.name]);
+      const result = run(addArgs(step.name, environment), values[step.name]);
       done.push({
         name: step.name,
         environment,
@@ -160,6 +253,79 @@ export function applySync({ steps, values, run = defaultRun }) {
   }
 
   return { done };
+}
+
+/**
+ * El informe real: qué quedó, según lo que Vercel informa ahora.
+ *
+ * Un alta puede salir con 0 y no crear nada —es exactamente lo que pasó con la
+ * anon key, que dejó producción sin base—, así que acá se informa por presencia
+ * y no por código de salida. Si además quedó con otro tipo, se avisa: un
+ * `NEXT_PUBLIC_*` guardado como `secret` es una señal de que algo se respondió
+ * de más en el camino.
+ *
+ * @param {{ steps: { name: string, environments: string[] }[], values?: Record<string, string>, listing: Record<string, { environments: string[], type: string | null }>, attempts?: { name: string, environment: string, ok: boolean, detail: string }[] }} params
+ * @returns {{ done: { name: string, environment: string, ok: boolean, detail: string }[], warnings: string[] }}
+ */
+export function verifySync({ steps, values = {}, listing, attempts = [] }) {
+  const done = [];
+  const warnings = [];
+  const errors = new Map(
+    attempts.filter((attempt) => !attempt.ok).map((attempt) => [`${attempt.name}|${attempt.environment}`, attempt.detail]),
+  );
+
+  for (const step of steps) {
+    for (const environment of step.environments) {
+      const found = listing[step.name] ?? null;
+      const present = found?.environments.includes(environment) ?? false;
+      const length = values[step.name]?.length;
+      const wrongType = present && found.type && found.type !== REPORTED_TYPES[variableType(step.name)];
+
+      if (!present) {
+        const said = errors.get(`${step.name}|${environment}`);
+        done.push({
+          name: step.name,
+          environment,
+          ok: false,
+          detail: said
+            ? `no quedó aplicada — la CLI salió con error: ${said}`
+            : 'no quedó aplicada: Vercel no la informa en ese entorno (un alta que sale con 0 sin escribir nada se ve así)',
+        });
+        continue;
+      }
+
+      done.push({
+        name: step.name,
+        environment,
+        ok: true,
+        detail: `${length ? `${length} caracteres` : 'presente'} · ${found.type ?? 'tipo desconocido'}`,
+      });
+
+      if (wrongType) {
+        warnings.push(
+          `${step.name} · ${environment}: quedó como «${found.type}» y se esperaba «${REPORTED_TYPES[variableType(step.name)]}».`,
+        );
+      }
+    }
+  }
+
+  return { done, warnings };
+}
+
+/**
+ * Lee de vuelta lo que hay en Vercel. Devuelve `null` si no se pudo leer: sin
+ * esta lectura el script no puede afirmar nada, y afirmar de más es el error
+ * que este archivo existe para no repetir.
+ *
+ * @param {(args: string[], input: string | null) => { status: number, stdout?: string }} run
+ * @returns {Record<string, { environments: string[], type: string | null }> | null}
+ */
+export function readBack(run = defaultRun) {
+  const result = run(listArgs(), null);
+  if (result.status !== 0) return null;
+
+  const listing = parseEnvTargets(result.stdout ?? '');
+  return Object.keys(listing).length ? listing : null;
 }
 
 /**
@@ -244,13 +410,36 @@ function main() {
     console.log('  ! Hay variables del corte sin valor: se aplican las demás, pero el corte queda a medias.');
   }
 
-  const { done } = applySync({ steps: plan.steps, values });
+  const { done: attempts } = applySync({ steps: plan.steps, values });
+
+  // Lo que se informa sale de acá, no de los intentos: un alta sin respuesta
+  // (prompt sin terminal) sale con 0 y no escribe nada.
+  const listing = readBack();
+  if (!listing) {
+    console.error(
+      '\n✗ No se pudo leer de vuelta `vercel env ls`: sin eso no hay forma de saber si las variables quedaron.\n' +
+        '  Comprobalo con `npx vercel env ls` antes de desplegar.\n',
+    );
+    process.exitCode = 1;
+    return;
+  }
+
+  const { done, warnings } = verifySync({ steps: plan.steps, values, listing, attempts });
   console.log('');
   for (const step of done) {
     console.log(`  ${step.ok ? '✓' : '✗'} ${step.name} · ${step.environment} — ${step.detail}`);
   }
-  if (done.some((step) => !step.ok)) process.exitCode = 1;
-  else console.log('\n✓ Variables aplicadas. Desplegá con `npm run deploy:prod`.\n');
+  for (const warning of warnings) console.log(`  ! ${warning}`);
+
+  if (done.some((step) => !step.ok)) {
+    console.log('');
+    console.log('  Las ✗ no están en Vercel: el corte sigue a medias. Volvé a correrlo y, si se repite,');
+    console.log('  agregalas a mano en el panel (Project » Settings » Environment Variables) y volvé a leer.');
+    process.exitCode = 1;
+    return;
+  }
+
+  console.log('\n✓ Variables aplicadas y confirmadas en Vercel. Desplegá con `npm run deploy:prod`.\n');
 }
 
 const invokedDirectly =
