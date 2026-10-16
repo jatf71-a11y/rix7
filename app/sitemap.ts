@@ -3,28 +3,29 @@ import { createClient } from '@supabase/supabase-js';
 import { SITE_URL } from '@/lib/site';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { ALL_PROPERTIES } from '@/lib/data/propertyCatalog';
+import { mergePropertyRows, type SitemapPropertyRow } from '@/lib/data/propertyRows';
 import { listPartners } from '@/lib/data/partners-store';
 
 export const revalidate = 3600; // regenerar cada hora
 
-interface PropertyRow {
-  id: string;
-  updated_at?: string | null;
-  created_at?: string | null;
-}
-
 /**
- * IDs de propiedades para el sitemap (fase 3, 2.2).
+ * Propiedades del sitemap (fase 3, 2.2).
  *
- * Tabla **y** catálogo, deduplicados por id: lo publicado en caliente entra al
- * sitemap en la próxima regeneración (cada hora, ver `revalidate`) aunque el
- * deploy sea anterior — era el punto del hallazgo. Si la tabla falla o no está
- * configurada, queda el catálogo. Nunca lanza: el sitemap siempre se genera.
+ * Tabla **y** catálogo: lo publicado en caliente entra al sitemap en la próxima
+ * regeneración (cada hora, ver `revalidate`) aunque el deploy sea anterior — era
+ * el punto del hallazgo. Si la tabla falla o no está configurada, queda el
+ * catálogo. Nunca lanza: el sitemap siempre se genera.
+ *
+ * El cruce entre las dos fuentes vive en `mergePropertyRows`, que es función pura
+ * y por eso está probada: comparar por id no alcanzaba (la tabla guarda un uuid y
+ * el catálogo un id legible), y las fichas del catálogo ya cargadas en la base
+ * aparecían dos veces, cada una con su URL.
  */
-async function getPropertyRows(): Promise<PropertyRow[]> {
-  const catalogRows: PropertyRow[] = ALL_PROPERTIES.map((p) => ({
+async function getPropertyRows(): Promise<SitemapPropertyRow[]> {
+  const catalogRows: SitemapPropertyRow[] = ALL_PROPERTIES.map((p) => ({
     id: p.id,
     created_at: p.created_at ?? null,
+    partner_id: p.partner_id ?? null,
   }));
 
   if (isSupabaseConfigured()) {
@@ -35,13 +36,9 @@ async function getPropertyRows(): Promise<PropertyRow[]> {
       );
       const { data, error } = await supabase
         .from('properties')
-        .select('id, updated_at, created_at');
+        .select('id, updated_at, created_at, partner_id');
       if (!error && data) {
-        const hot = data as PropertyRow[];
-        const hotIds = new Set(hot.map((p) => p.id));
-        // El catálogo aporta las que aún no existen en la tabla; una propiedad
-        // migrada no aparece dos veces.
-        return [...hot, ...catalogRows.filter((p) => !hotIds.has(p.id))];
+        return mergePropertyRows(data as SitemapPropertyRow[], catalogRows);
       }
     } catch {
       // fallback abajo
