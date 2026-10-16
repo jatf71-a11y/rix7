@@ -323,7 +323,7 @@ describe('con proyecto configurado', () => {
 });
 
 describe('rowToPublication', () => {
-  it('lee la ubicación desde GeoJSON (lo que devuelve PostgREST)', () => {
+  it('lee la ubicación desde GeoJSON (lo que devuelven los RPC)', () => {
     const property = store.rowToPublication({
       id: 'p1',
       price: '90000000',
@@ -339,6 +339,18 @@ describe('rowToPublication', () => {
     expect(property.features).toEqual([]);
   });
 
+  it('lee la ubicación desde el EWKB en hex, que es lo que devuelve la base', () => {
+    // Hex tal cual lo devolvió PostgREST para una ficha de Pucón: EWKB de un
+    // Point con SRID 4326. Es el caso que dejaba toda ficha de la base en 0,0.
+    const property = store.rowToPublication({
+      id: 'p2',
+      location: '0101000020E6100000D9CEF753E3FD51C01904560E2DA243C0',
+    });
+
+    expect(property.lng).toBeCloseTo(-71.967, 6);
+    expect(property.lat).toBeCloseTo(-39.267, 6);
+  });
+
   it('tolera location en WKT y ausente', () => {
     const wkt = store.rowToPublication({ id: 'a', location: 'POINT(-70.6 -33.4)' });
     expect(wkt.lng).toBe(-70.6);
@@ -347,5 +359,14 @@ describe('rowToPublication', () => {
     const missing = store.rowToPublication({ id: 'b' });
     expect(missing.lat).toBe(0);
     expect(missing.lng).toBe(0);
+  });
+
+  it('no inventa coordenadas cuando el valor no es un punto legible', () => {
+    // Texto suelto, hex truncado y una geometría que no es un Point: los tres
+    // tienen que quedar en 0,0 en vez de dejar pasar un NaN a la ficha.
+    for (const location of ['', 'no-es-un-punto', '0101000020E6100000', '0102000020E6100000']) {
+      const property = store.rowToPublication({ id: 'x', location });
+      expect([property.lat, property.lng], `location: ${location}`).toEqual([0, 0]);
+    }
   });
 });

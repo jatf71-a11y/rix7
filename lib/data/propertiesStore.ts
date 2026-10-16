@@ -185,35 +185,85 @@ function inputToRow(input: Partial<PublicationInput>): Record<string, unknown> {
 }
 
 /**
- * Fila de la tabla → `Property` del panel.
+ * Punto de un **EWKB en hex**: la forma en que PostgREST devuelve la columna
+ * `geography` en un `select`.
  *
- * PostgREST devuelve `location` como GeoJSON (`coordinates: [lng, lat]`); se
- * tolera también el WKT por si viene de otra vía. Si no hay ubicación
- * legible quedan 0,0 — el formulario las pide de nuevo antes de guardar.
+ * No llega como GeoJSON ni como WKT —PostGIS serializa la columna y PostgREST la
+ * entrega tal cual—, así que el valor es algo como
+ * `0101000020E6100000D9CEF753E3FD51C01904560E2DA243C0`: byte de orden de bytes,
+ * tipo de geometría, SRID y dos `double`. Sin decodificarlo, una ficha de la base
+ * llegaba a la página de la corredora y al feed con 0,0, y al formulario del
+ * panel, que al guardar habría escrito ese 0,0 encima de las coordenadas reales
+ * (lo comprobó una sonda contra la base real, no el código).
+ *
+ * Se lee con `DataView` y no con `Buffer` porque esto corre también en el
+ * navegador. Devuelve `null` si no es un Point, si no alcanzan los bytes o si las
+ * coordenadas no son un punto válido del planeta.
  */
-export function rowToPublication(row: Record<string, unknown>): Property {
-  const location = row.location;
-  let lat = 0;
-  let lng = 0;
+function pointFromEwkbHex(value: string): { lat: number; lng: number } | null {
+  const hex = value.trim();
+  if (hex.length < 42 || hex.length % 2 !== 0 || !/^[0-9a-f]+$/i.test(hex)) return null;
 
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < bytes.length; i += 1) {
+    bytes[i] = Number.parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  }
+  const view = new DataView(bytes.buffer);
+
+  const little = bytes[0] === 1;
+  const type = view.getUint32(1, little);
+  if ((type & 0xff) !== 1) return null; // 1 = Point: cualquier otra cosa no es una ubicación
+  // El flag 0x20000000 avisa que el SRID viene escrito entre el tipo y los datos.
+  const at = (type & 0x20000000) === 0 ? 5 : 9;
+  if (bytes.length < at + 16) return null;
+
+  return validPoint(view.getFloat64(at + 8, little), view.getFloat64(at, little));
+}
+
+/** Un punto solo si cae dentro de los rangos reales de latitud y longitud. */
+function validPoint(lat: unknown, lng: unknown): { lat: number; lng: number } | null {
+  const la = Number(lat);
+  const ln = Number(lng);
+  if (!Number.isFinite(la) || !Number.isFinite(ln)) return null;
+  if (la < -90 || la > 90 || ln < -180 || ln > 180) return null;
+  return { lat: la, lng: ln };
+}
+
+/**
+ * Ubicación de una fila, en cualquiera de las tres formas que puede llegar:
+ * EWKB en hex (la base), GeoJSON (los RPC, que sacan `lat`/`lng` con
+ * `ST_X`/`ST_Y`) o WKT/EWKT (la forma en que el panel **escribe**).
+ */
+function locationToPoint(location: unknown): { lat: number; lng: number } | null {
   if (location && typeof location === 'object' && !Array.isArray(location)) {
     const coords = (location as { coordinates?: unknown }).coordinates;
-    if (Array.isArray(coords) && coords.length >= 2) {
-      lng = Number(coords[0]);
-      lat = Number(coords[1]);
-    }
-  } else if (typeof location === 'string') {
-    const match = location.match(/POINT\s*\(\s*(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s*\)/i);
-    if (match) {
-      lng = Number(match[1]);
-      lat = Number(match[2]);
-    }
+    if (!Array.isArray(coords) || coords.length < 2) return null;
+    return validPoint(coords[1], coords[0]);
   }
+  if (typeof location !== 'string') return null;
+
+  // El patrón busca `POINT(...)` dentro del texto, así que también acepta el
+  // prefijo `SRID=4326;` del EWKT.
+  const match = location.match(/POINT\s*\(\s*(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s*\)/i);
+  if (match) return validPoint(match[2], match[1]);
+
+  return pointFromEwkbHex(location);
+}
+
+/**
+ * Fila de la tabla → `Property` del panel.
+ *
+ * `location` llega como EWKB en hex; se tolera además GeoJSON y WKT (ver
+ * `locationToPoint`). Si no hay ubicación legible quedan 0,0 — el formulario las
+ * pide de nuevo antes de guardar.
+ */
+export function rowToPublication(row: Record<string, unknown>): Property {
+  const point = locationToPoint(row.location);
 
   return {
     ...row,
-    lat: Number.isFinite(lat) ? lat : 0,
-    lng: Number.isFinite(lng) ? lng : 0,
+    lat: point?.lat ?? 0,
+    lng: point?.lng ?? 0,
     price: Number(row.price ?? 0),
     bathrooms: Number(row.bathrooms ?? 0),
     area_sqm: row.area_sqm == null ? Number(row.area_sqm ?? 0) : Number(row.area_sqm),
