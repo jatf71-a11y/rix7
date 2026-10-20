@@ -24,10 +24,12 @@ import {
  * al entrar, **la cuenta manda** y lo del dispositivo se sube una sola vez si la
  * cuenta está vacía (ver `decideLocalFavoritesMigration`).
  *
- * Por qué se mantiene el modo dispositivo en vez de exigir cuenta para guardar:
- * obligar a entrar para marcar un corazón es justo la fricción que veníamos
- * quitando. La cuenta se justifica porque el favorito **viaja**, no porque sea
- * un requisito para la acción.
+ * Por qué se mantiene el modo dispositivo: la cuenta (correo + enlace mágico) es
+ * un paso más que el registro del portal, y el favorito del dispositivo sigue
+ * sirviendo para quien todavía no la tiene. Lo que sí pide el producto es estar
+ * **registrado** para marcar un corazón: esa regla vive en las pantallas
+ * (`shareGateDecision`), no acá, para que el proveedor siga siendo solo el
+ * almacenamiento y la migración.
  */
 
 interface FavoritesContextType {

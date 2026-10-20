@@ -102,6 +102,51 @@ export async function recordShareView(
 }
 
 /**
+ * Aperturas de **una** corredora, para su panel.
+ *
+ * Mismo filtro doble que el resto del panel del socio: `partner_id` en la
+ * consulta y la RLS de `0017_socio_actividad`, que es la que autoriza al rol
+ * `member` a leer las filas de su corredora. Las aperturas sin corredora
+ * atribuida no son de nadie y quedan fuera.
+ */
+export async function listPartnerShareViews(
+  partnerId: string,
+  days = 180
+): Promise<ShareViewListResult> {
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = await sessionClient();
+      const since = new Date(Date.now() - Math.max(1, days) * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10);
+
+      const { data, error } = await supabase
+        .from('share_views')
+        .select(SHARE_VIEW_COLUMNS)
+        .eq('partner_id', partnerId)
+        .gte('day', since)
+        .order('day', { ascending: false })
+        .limit(5000);
+
+      if (!error && data) {
+        const views = (data as ShareViewRow[])
+          .map(rowToShareView)
+          .filter((view): view is ShareView => view !== null);
+        return { views, source: 'supabase', persistent: true };
+      }
+    } catch {
+      // Supabase caído: se muestra lo que haya en memoria, que suele ser nada.
+    }
+  }
+
+  return {
+    views: readDevViews().filter((view) => view.partnerId === partnerId),
+    source: 'memory',
+    persistent: false,
+  };
+}
+
+/**
  * Aperturas de los últimos `days` días, para armar el informe.
  *
  * Trae solo la ventana que el panel va a mostrar: el total histórico lo calcula

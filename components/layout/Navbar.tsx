@@ -14,7 +14,7 @@ import { LogOut, PlusCircle, Heart, Menu, X, Settings, Info, Building2 } from 'l
 const STANDALONE_PATHS = ['/compartir'];
 
 function NavbarContent() {
-  const { user, signOut, isAdmin, isAdminDevBypass, isMember } = useAuth();
+  const { user, signOut, isAdmin, isAdminDevBypass } = useAuth();
   // Identidad reconocida: sesión del portal o registro de este dispositivo.
   const { registration, isChecking, forget, openSignup } = useRegistration();
   // Cuántos favoritos tiene: el contador del corazón se lee del mismo estado que
@@ -41,53 +41,56 @@ function NavbarContent() {
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Logo Rix7 */}
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl overflow-hidden bg-white border border-slate-200/90 p-1 flex items-center justify-center shadow-md shadow-blue-500/10 group-hover:scale-105 transition-transform">
-            <img
-              src="/brand-logo.png"
-              alt="Logo Rix7"
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <div>
-            <span className="text-2xl font-black tracking-tight text-slate-900">
-              Rix<span className="text-blue-600">7</span>
-            </span>
-          </div>
-        </Link>
+        {/* Marca y secciones: agrupadas a la izquierda para que las acciones de
+            la derecha (y la UF/USD al final) no dependan del ancho del menú. */}
+        <div className="flex items-center gap-4 lg:gap-6 min-w-0">
+          {/* Logo Rix7 */}
+          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+            <div className="w-10 h-10 rounded-xl overflow-hidden bg-white border border-slate-200/90 p-1 flex items-center justify-center shadow-md shadow-blue-500/10 group-hover:scale-105 transition-transform">
+              <img
+                src="/brand-logo.png"
+                alt="Logo Rix7"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div>
+              <span className="text-2xl font-black tracking-tight text-slate-900">
+                Rix<span className="text-blue-600">7</span>
+              </span>
+            </div>
+          </Link>
 
-        {/* Enlaces de Navegación Desktop con Estados Activos */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-          <Link
-            href="/?operation=sale"
-            className={`transition-colors font-bold ${
-              !isRent ? 'text-blue-600 border-b-2 border-blue-600 pb-0.5' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Comprar
-          </Link>
-          <Link
-            href="/?operation=rent"
-            className={`transition-colors font-bold ${
-              isRent ? 'text-blue-600 border-b-2 border-blue-600 pb-0.5' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Arrendar
-          </Link>
-          <Link href="/?operation=sale" className="text-slate-600 hover:text-slate-900 transition-colors">
-            Publicar
-          </Link>
-          {/*
-            Apunta a la calculadora de dividendo, que vive al final de una ficha
-            **de venta** (`#hipoteca`; en una de arriendo no se renderiza). La
-            propiedad tiene que existir en el catálogo: con `scl-premium-vitacura`
-            —un id que ya no está— este ítem del menú llevaba a un 404.
-          */}
-          <Link href="/properties/scl-premium-lo-barnechea#hipoteca" className="text-slate-600 hover:text-slate-900 transition-colors">
-            Créditos Hipotecarios
-          </Link>
-        </nav>
+          {/* Secciones de escritorio como botones, con la misma forma y alto que
+              «Regístrate»: la activa va rellena y las demás en blanco. */}
+          <nav className="hidden md:flex items-center gap-2 text-sm font-medium">
+            <Link
+              href="/?operation=sale"
+              className={`inline-flex items-center px-4 py-2 rounded-lg font-semibold text-white shadow-sm transition-all ${
+                !isRent
+                  ? 'bg-blue-700 shadow-blue-500/30'
+                  : 'bg-blue-600 shadow-blue-500/20 hover:bg-blue-700'
+              }`}
+            >
+              Comprar
+            </Link>
+            <Link
+              href="/?operation=rent"
+              className={`inline-flex items-center px-4 py-2 rounded-lg font-semibold text-white shadow-sm transition-all ${
+                isRent
+                  ? 'bg-blue-700 shadow-blue-500/30'
+                  : 'bg-blue-600 shadow-blue-500/20 hover:bg-blue-700'
+              }`}
+            >
+              Arrendar
+            </Link>
+            <Link
+              href="/?operation=sale"
+              className="inline-flex items-center px-4 py-2 rounded-lg font-semibold bg-blue-600 text-white shadow-sm shadow-blue-500/20 transition-all hover:bg-blue-700"
+            >
+              Publicar
+            </Link>
+          </nav>
+        </div>
 
         {/* Selector de Moneda y Acciones de Usuario Desktop */}
         <div className="hidden md:flex items-center gap-3">
@@ -194,7 +197,31 @@ function NavbarContent() {
             </div>
           )}
 
-          {/* Badge tipo de cambio (Banco Central de Chile) */}
+          {/* Acceso de socios: la puerta al panel, visible siempre. Con sesión
+              de socio lleva directo a sus publicaciones; sin ella, `/socio`
+              muestra el aviso de acceso y el camino para entrar. */}
+          <Link
+            href="/socio"
+            className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm shadow-blue-500/20 transition-all shrink-0"
+            title="Acceso de socios"
+          >
+            <Building2 className="w-4 h-4" />
+            <span>Socios</span>
+          </Link>
+
+          {/* Acceso al Panel Admin, solo para administradores */}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="flex items-center gap-1.5 pl-3 border-l border-slate-200 text-slate-500 hover:text-blue-600 transition-colors shrink-0"
+              title={isAdminDevBypass ? 'Panel Admin (acceso de desarrollo)' : 'Panel Admin'}
+            >
+              <Settings className="w-3.5 h-3.5" />
+              <span className="text-xs font-semibold">Admin</span>
+            </Link>
+          )}
+
+          {/* Badge tipo de cambio (Banco Central de Chile), al borde derecho */}
           <div
             className="hidden lg:flex items-center gap-1 pl-3 border-l border-slate-200 text-sm font-semibold text-slate-700 whitespace-nowrap"
             title="Tipos de cambio oficiales del Banco Central de Chile"
@@ -206,31 +233,6 @@ function NavbarContent() {
               USD <strong className="text-slate-900">${formatNumber(Math.round(rates.dolar))}</strong>
             </span>
           </div>
-
-          {/* Panel del socio — al final de la línea de acciones, solo para
-              cuentas con rol member/admin (o bypass de desarrollo) */}
-          {isMember && (
-            <Link
-              href="/socio"
-              className="flex items-center gap-1.5 pl-3 border-l border-slate-200 text-slate-500 hover:text-blue-600 transition-colors shrink-0"
-              title="Panel de socios"
-            >
-              <Building2 className="w-3.5 h-3.5" />
-              <span className="text-xs font-semibold">Mis publicaciones</span>
-            </Link>
-          )}
-
-          {/* Acceso al Panel Admin — al final de la línea de acciones, solo para administradores */}
-          {isAdmin && (
-            <Link
-              href="/admin"
-              className="flex items-center gap-1.5 pl-3 border-l border-slate-200 text-slate-500 hover:text-blue-600 transition-colors shrink-0"
-              title={isAdminDevBypass ? 'Panel Admin (acceso de desarrollo)' : 'Panel Admin'}
-            >
-              <Settings className="w-3.5 h-3.5" />
-              <span className="text-xs font-semibold">Admin</span>
-            </Link>
-          )}
         </div>
 
         {/* Botón Menú Móvil */}
@@ -274,16 +276,16 @@ function NavbarContent() {
             >
               Publicar
             </Link>
-            {isMember && (
-              <Link
-                href="/socio"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 rounded-lg hover:bg-slate-50 flex items-center gap-2"
-              >
-                <Building2 className="w-4 h-4 text-slate-400" />
-                <span>Mis publicaciones</span>
-              </Link>
-            )}
+            {/* Mismo acceso que en escritorio: siempre visible, para que un
+                socio pueda entrar desde el móvil sin pasar por el registro. */}
+            <Link
+              href="/socio"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="px-3 py-2 rounded-lg bg-blue-600 text-white font-semibold flex items-center gap-2"
+            >
+              <Building2 className="w-4 h-4" />
+              <span>Socios</span>
+            </Link>
             {isAdmin && (
               <Link
                 href="/admin"

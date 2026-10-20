@@ -14,6 +14,14 @@ import { ContactAgentForm } from '@/components/properties/ContactAgentForm';
 import { PartnerLogo } from '@/components/properties/PartnerLogo';
 import { PropertyGallery } from '@/components/properties/PropertyGallery';
 import { SectorOverview } from '@/components/properties/SectorOverview';
+import { useRegistration } from '@/components/auth/RegistrationProvider';
+import { RegistrationGateDialog } from '@/components/auth/RegistrationGateDialog';
+import {
+  REGISTRATION_GATE_TITLES,
+  shareGateDecision,
+  type GatedAction,
+} from '@/lib/utils/shareGate';
+import { trackShareEvent } from '@/lib/utils/shareTracking';
 import {
   Bed,
   Bath,
@@ -21,12 +29,15 @@ import {
   Car,
   CheckCircle,
   Share2,
+  Copy,
   ExternalLink,
   ShieldCheck,
   EyeOff,
   Calendar,
   Layers,
   Download,
+  Building2,
+  MessageCircle,
 } from 'lucide-react';
 
 interface Props {
@@ -115,6 +126,13 @@ export default function SharePropertyLanding({
   const isRent = property.status === 'for_rent';
   const [copyOk, setCopyOk] = useState(false);
 
+  // Compartir en la landing exige el mismo registro que en la ficha: quien
+  // recibe el enlace puede reenviarlo, pero deja rastro de quién lo movió. Es
+  // también lo que hace que la cadena de atribución no se corte al segundo
+  // salto del enlace.
+  const { registration, isChecking: registrationLoading } = useRegistration();
+  const [gatedAction, setGatedAction] = useState<GatedAction | null>(null);
+
   useShareViewPing(property.id, partner?.id);
 
   const shareUrl = useMemo(() => {
@@ -124,9 +142,29 @@ export default function SharePropertyLanding({
 
   const shareText = `${property.title} en ${property.city} | Rix7`;
 
+  /** Ejecuta la acción solo con identidad; si no, abre el aviso de registro. */
+  const requireRegistration = (action: GatedAction, run: () => void) => {
+    const decision = shareGateDecision({ registration, isChecking: registrationLoading });
+    if (decision === 'prompt') setGatedAction(action);
+    else if (decision === 'run') run();
+  };
+
+  /** Deja constancia del reenvío con la identidad registrada, sin bloquear. */
+  const recordShare = (channel: 'whatsapp' | 'copy' | 'share' | 'card') => {
+    trackShareEvent({
+      propertyId: property.id,
+      partnerId: partner?.id ?? property.partner_id ?? null,
+      channel,
+      source: 'landing',
+      registration,
+      shareUrl,
+    });
+  };
+
   const openWhatsApp = () => {
     const text = encodeURIComponent(`${shareText}\n${shareUrl}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    recordShare('whatsapp');
   };
 
   const copyLink = async () => {
@@ -134,13 +172,16 @@ export default function SharePropertyLanding({
       await navigator.clipboard.writeText(shareUrl);
       setCopyOk(true);
       setTimeout(() => setCopyOk(false), 2000);
+      recordShare('copy');
     } catch {}
   };
 
   const handleShare = async () => {
     try {
       if (navigator.share) {
+        // Cancelar la hoja del sistema no es haber compartido.
         await navigator.share({ title: shareText, text: shareText, url: shareUrl });
+        recordShare('share');
       } else {
         copyLink();
       }
@@ -209,7 +250,15 @@ export default function SharePropertyLanding({
           <div className="flex items-center gap-2">
             <CurrencySelector />
             <button
-              onClick={handleShare}
+              onClick={() => requireRegistration('copy', copyLink)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+              title="Copiar enlace de esta ficha"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{copyOk ? '¡Copiado!' : 'Copiar'}</span>
+            </button>
+            <button
+              onClick={() => requireRegistration('share', handleShare)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
               title="Compartir esta ficha"
             >
@@ -396,6 +445,54 @@ export default function SharePropertyLanding({
             el formulario, que ya se declara `sticky` por dentro.
           */}
           <div className="lg:col-span-1 space-y-4">
+            {/* ═══ Publicación de la corredora ═══
+                El resumen tiene que llevar a la publicación original: quien
+                recibe el enlace decide con la corredora, no con el portal. El
+                botón va a la página de la empresa —donde están todas sus
+                fichas— y el de contacto baja al formulario, que es el que
+                registra al interesado y le asigna la corredora. */}
+            {partner && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                <h2 className="text-sm font-bold text-slate-900">
+                  Publicación de {partner.name}
+                </h2>
+                <p className="text-xs text-slate-600 leading-relaxed mt-2">
+                  Este resumen corresponde a una publicación de <strong>{partner.name}</strong>. La
+                  ficha completa, la disponibilidad y la coordinación de la visita las maneja
+                  directamente la corredora.
+                </p>
+
+                <Link
+                  href={`/empresas/${partner.slug}`}
+                  className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-slate-900 text-white text-xs font-semibold rounded-xl hover:bg-slate-800 transition-colors"
+                >
+                  <Building2 className="w-4 h-4" />
+                  Ver publicación de {partner.name}
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+
+                <a
+                  href="#contacto"
+                  className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Contactar a {partner.name}
+                </a>
+
+                {partner.website && (
+                  <a
+                    href={partner.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:underline"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    Sitio web de la corredora
+                  </a>
+                )}
+              </div>
+            )}
+
             {/* Qué pasa si deja los datos: el contexto que convierte el
                 formulario en una oferta en vez de un trámite. Encabeza la
                 columna la identidad de la corredora —logo y nombre— para que se
@@ -433,11 +530,16 @@ export default function SharePropertyLanding({
               </p>
             </div>
 
-            <ContactAgentForm property={property} partner={partner} />
+            {/* Ancla del CTA «Contactar»: lleva al formulario, no al encabezado
+                de la columna. `scroll-mt` deja aire bajo la barra fija. */}
+            <div id="contacto" className="scroll-mt-24">
+              <ContactAgentForm property={property} partner={partner} source="landing" />
+            </div>
 
             <button
-              onClick={openWhatsApp}
+              onClick={() => requireRegistration('whatsapp', openWhatsApp)}
               className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-slate-200 text-slate-600 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-colors"
+              title="Compartir esta ficha por WhatsApp"
             >
               Compartir esta ficha por WhatsApp
             </button>
@@ -452,6 +554,18 @@ export default function SharePropertyLanding({
               <a
                 href={`/compartir/${property.id}/share-card`}
                 download={`Rix7-${property.id}.png`}
+                onClick={(event) => {
+                  const decision = shareGateDecision({
+                    registration,
+                    isChecking: registrationLoading,
+                  });
+                  if (decision === 'run') {
+                    recordShare('card');
+                    return;
+                  }
+                  event.preventDefault();
+                  if (decision === 'prompt') setGatedAction('card');
+                }}
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-slate-900 text-white text-xs font-semibold rounded-xl hover:bg-slate-800 transition-colors"
               >
                 <Download className="w-4 h-4" />
@@ -482,6 +596,14 @@ export default function SharePropertyLanding({
           </Link>
         </div>
       </div>
+
+      {/* Aviso de registro: mismo diálogo que la ficha y las tarjetas. */}
+      <RegistrationGateDialog
+        open={gatedAction !== null}
+        title={gatedAction ? REGISTRATION_GATE_TITLES[gatedAction] : ''}
+        description="Compartir esta ficha está disponible para visitantes registrados. El registro es gratis: así el enlace que reenvíes queda ligado a tu cuenta y la corredora puede darte seguimiento."
+        onClose={() => setGatedAction(null)}
+      />
     </div>
   );
 }

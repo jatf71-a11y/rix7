@@ -62,10 +62,10 @@ Aplicarlas deja la base con:
 - Tabla `public.partners` (corredoras) + `public.properties` + índices (GiST espacial + B-Tree)
 - RPC `get_properties_filtered` (listado con bounding box) y `get_property_by_id` (detalle, usada por `/api/properties/[id]`)
 - Políticas RLS de todas las tablas, bucket de Storage `properties-media`
-- Tablas `leads`, `saved_searches`, `favorites`, `share_views` y `signups`
+- Tablas `leads`, `saved_searches`, `favorites`, `share_views`, `share_events` y `signups`
 
 Si prefieres el SQL Editor, no apliques los archivos **en orden y uno por uno**:
-`npm run db:apply-sql` arma el archivo con el libro de migraciones y los quince
+`npm run db:apply-sql` arma el archivo con el libro de migraciones y los dieciséis
 archivos en orden, y `npm run check:schema` confirma qué quedó aplicado.
 
 Luego, la semilla: **`supabase/seed.sql`** siembra el catálogo inicial
@@ -111,6 +111,29 @@ deployment con «the commit author doesn't have permission to create deployments
 El camino real es el comando de abajo (el porqué completo está en la cabecera de
 [`scripts/deploy-prod.mjs`](scripts/deploy-prod.mjs): publica el árbol de trabajo
 **sin metadata de git**, así el deployment queda atribuido a la cuenta dueña).
+
+### Un solo dominio, tres puertas
+
+La decisión es **un único sitio publicado**: `https://rix7.cl`. El portal, el
+admin y el panel de socios no son aplicaciones ni dominios distintos, son rutas
+del mismo deployment:
+
+| Puerta | Ruta | Acceso |
+| --- | --- | --- |
+| Portal | `/` | público |
+| Admin | `/admin` | sesión con rol admin |
+| Socios | `/socio` | sesión con rol member y corredora vinculada |
+
+`www.rix7.cl` redirige al dominio principal y `rix7.vercel.app` es un alias del
+mismo deployment, no un entorno aparte. Las URLs `*.vercel.app` con hash
+(`rix7-<hash>.vercel.app`) son snapshots inmutables de un deploy concreto: sirven
+para revisar o volver atrás, pero no son «la versión publicada».
+
+Para **revisar antes de publicar** se usa el preview local (`npm run dev`) o la
+URL de un deployment de preview; ninguno de los dos reemplaza a producción.
+Publicar es siempre el comando de abajo, desde el árbol de trabajo, y el número
+que identifica lo publicado es el `build.id` de `/api/health` (commit + hash),
+no el `version` de `package.json`.
 
 ### El comando
 

@@ -60,25 +60,3 @@ export interface PropertyFilterState {
   searchQuery: string;
   newPropertyType: NewPropertyType;
 }
-
-export interface MortgageInputs {
-  homePrice: number;
-  downPaymentPercent: number;
-  loanTermYears: number;
-  interestRate: number;
-  annualPropertyTaxRate?: number;
-  annualHomeInsurance?: number;
-  monthlyHoa?: number;
-}
-
-export interface MortgageBreakdown {
-  monthlyPayment: number;
-  principalAndInterest: number;
-  monthlyPropertyTax: number;
-  monthlyInsurance: number;
-  monthlyHoa: number;
-  downPaymentAmount: number;
-  loanAmount: number;
-  totalInterestPaid: number;
-  totalCostOverTerm: number;
-}

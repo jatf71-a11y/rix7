@@ -4,6 +4,11 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AlertCircle, ExternalLink, Link2, RefreshCw } from 'lucide-react';
 import type { ShareReport } from '@/lib/data/shareViews';
+import {
+  shareChannelLabel,
+  shareSourceLabel,
+  type ShareEvent,
+} from '@/lib/data/shareEvents';
 import type { Partner } from '@/lib/data/partners';
 
 /** Ventanas que ofrece el panel. El servidor valida el valor que reciba. */
@@ -48,8 +53,22 @@ function formatDay(day: string | null): string {
   return `${date}/${month}/${year.slice(2)}`;
 }
 
+/** Fecha y hora del compartido, en el formato del panel de contactos. */
+function formatDateTime(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleString('es-CL', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 export default function AdminLandingsPage() {
   const [report, setReport] = useState<ShareReport | null>(null);
+  const [events, setEvents] = useState<ShareEvent[]>([]);
   const [partners, setPartners] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [persistent, setPersistent] = useState(true);
@@ -57,13 +76,20 @@ export default function AdminLandingsPage() {
 
   const load = (windowDays: number) => {
     setLoading(true);
-    fetch(`/api/admin/share-report?days=${windowDays}`)
-      .then((r) => r.json())
-      .then((result) => {
-        if (result?.success) {
-          setReport(result.data);
-          setPersistent(result.persistent !== false);
-        }
+    // Las dos fuentes se piden juntas: el informe dice qué enlaces convierten y
+    // la lista de compartidos dice **quién** los movió. Si una falla, la otra
+    // igual se muestra; el aviso de "modo de prueba" solo aparece cuando
+    // ninguna persiste.
+    Promise.all([
+      fetch(`/api/admin/share-report?days=${windowDays}`).then((r) => r.json()),
+      fetch('/api/admin/share-events?limit=200').then((r) => r.json()),
+    ])
+      .then(([reportResult, eventsResult]) => {
+        if (reportResult?.success) setReport(reportResult.data);
+        if (eventsResult?.success) setEvents(eventsResult.data ?? []);
+        setPersistent(
+          reportResult?.persistent !== false && eventsResult?.persistent !== false
+        );
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -152,7 +178,8 @@ export default function AdminLandingsPage() {
       <p className="text-xs text-slate-400 mb-6 max-w-2xl">
         Cada apertura es un enlace abierto, no una persona: se cuentan por día y sin guardar ningún
         dato del visitante. Los contactos son los de “Contactos”, agrupados por la corredora de la
-        propiedad.
+        propiedad. La lista de compartidos sí tiene identidad: es la de las visitas registradas que
+        movieron un enlace.
       </p>
 
       {/* Contenido */}
@@ -162,17 +189,23 @@ export default function AdminLandingsPage() {
             <div key={i} className="h-16 bg-white rounded-xl border border-slate-200 animate-pulse" />
           ))}
         </div>
-      ) : sinActividad ? (
-        <div className="text-center py-20 bg-white rounded-xl border border-slate-200">
-          <Link2 className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-          <p className="text-slate-400 font-semibold">Todavía no hay enlaces abiertos</p>
-          <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
-            Cuando alguien abra una landing compartida —desde la ficha, el botón “Compartir” o un
-            enlace reenviado por WhatsApp— aparecerá acá con su corredora.
-          </p>
-        </div>
       ) : (
         <div className="space-y-8">
+          {/* Sin aperturas, pero la sección de compartidos se muestra igual: son
+              dos registros distintos y uno puede tener datos sin el otro. */}
+          {sinActividad && (
+            <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
+              <Link2 className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+              <p className="text-slate-400 font-semibold">Todavía no hay enlaces abiertos</p>
+              <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
+                Cuando alguien abra una landing compartida —desde la ficha, el botón “Compartir” o
+                un enlace reenviado por WhatsApp— aparecerá acá con su corredora.
+              </p>
+            </div>
+          )}
+
+          {report && report.partners.length > 0 && (
+            <>
           {/* Por corredora */}
           <section>
             <h2 className="text-sm font-bold text-slate-900 mb-3">Por corredora</h2>
@@ -285,6 +318,98 @@ export default function AdminLandingsPage() {
             {report!.properties.length > 25 && (
               <p className="text-xs text-slate-400 mt-2">
                 Se muestran los 25 enlaces con más actividad de {report!.properties.length}.
+              </p>
+            )}
+          </section>
+            </>
+          )}
+
+          {/* Quién compartió: el registro de identidad de los enlaces */}
+          <section>
+            <h2 className="text-sm font-bold text-slate-900 mb-1">Compartidos con identidad</h2>
+            <p className="text-xs text-slate-500 mb-3">
+              Visitas registradas que usaron WhatsApp, copiar o compartir, y socios que compartieron
+              desde su panel. Es lo que permite atribuir cada enlace a una persona.
+            </p>
+
+            {events.length === 0 ? (
+              <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
+                <p className="text-sm text-slate-400 font-semibold">
+                  Todavía no hay compartidos registrados
+                </p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Cuando una visita registrada comparta una propiedad, aparecerá acá con su nombre,
+                  correo, canal y enlace.
+                </p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-200">
+                        <th className="px-4 py-3 font-bold">Fecha</th>
+                        <th className="px-4 py-3 font-bold">Quién</th>
+                        <th className="px-4 py-3 font-bold">Propiedad</th>
+                        <th className="px-4 py-3 font-bold">Corredora</th>
+                        <th className="px-4 py-3 font-bold">Canal</th>
+                        <th className="px-4 py-3 font-bold">Origen</th>
+                        <th className="px-4 py-3 font-bold text-right">Enlace</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {events.slice(0, 50).map((event) => (
+                        <tr
+                          key={event.id}
+                          className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60"
+                        >
+                          <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
+                            {formatDateTime(event.createdAt)}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="block font-semibold text-slate-900">{event.name}</span>
+                            <a
+                              href={`mailto:${event.email}`}
+                              className="text-[11px] text-blue-600 hover:underline"
+                            >
+                              {event.email}
+                            </a>
+                            {event.phone && (
+                              <span className="block text-[11px] text-slate-500">{event.phone}</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 font-semibold text-slate-900">
+                            {event.propertyId}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-slate-600">
+                            {partnerName(event.partnerId)}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-slate-600">
+                            {shareChannelLabel(event.channel)}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-slate-500">
+                            {shareSourceLabel(event.source)}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <Link
+                              href={`/compartir/${event.propertyId}`}
+                              target="_blank"
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700"
+                            >
+                              <span>Abrir</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+            {events.length > 50 && (
+              <p className="text-xs text-slate-400 mt-2">
+                Se muestran los 50 compartidos más recientes de {events.length}.
               </p>
             )}
           </section>

@@ -81,6 +81,11 @@ export const OPTIONAL_TABLES = [
     pk: ['id'],
     why: 'las altas del boletín y de la lista de espera',
   },
+  {
+    name: 'share_events',
+    pk: ['id'],
+    why: 'quién compartió cada enlace (necesita una clave del origen con permiso de lectura)',
+  },
 ];
 
 /** Todo lo que la herramienta sabe copiar, con su clave. @type {TableSpec[]} */

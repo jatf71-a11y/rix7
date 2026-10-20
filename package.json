@@ -18,6 +18,7 @@
     "test:watch": "vitest",
     "test:integration:nosupabase": "node scripts/integration-nosupabase.mjs",
     "test:integration:supabase": "vitest run app/api/properties/route.integration.test.ts",
+    "test:e2e:gate": "node scripts/gate-e2e.mjs",
     "check:knip": "knip",
     "check:bundle": "node scripts/check-bundle-budget.mjs",
     "check:secrets": "node scripts/check-secrets.mjs",

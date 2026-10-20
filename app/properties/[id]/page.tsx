@@ -112,8 +112,8 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   // viven en el bundle del cliente, sino en Supabase.
   const partner = property.partner_id ? await getPartnerById(property.partner_id) : undefined;
 
-  // Solo las fichas en arriendo llevan velocímetros: en venta la tarjeta es el
-  // simulador hipotecario, que es la pregunta que se hace quien compra.
+  // Solo las fichas en arriendo llevan velocímetros: miden demanda de arriendo,
+  // que no aplica a una propiedad en venta.
   const insights = property.status === 'for_rent' ? await resolveRentInsights(property) : undefined;
 
   return (

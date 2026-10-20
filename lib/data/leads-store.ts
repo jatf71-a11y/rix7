@@ -68,6 +68,7 @@ export async function createLead(lead: NormalizedLead): Promise<LeadWriteResult>
         email: lead.email,
         phone: lead.phone,
         channel: lead.channel,
+        source: lead.source,
         message: lead.message,
         createdAt: new Date().toISOString(),
       },
@@ -86,6 +87,7 @@ export async function createLead(lead: NormalizedLead): Promise<LeadWriteResult>
       email: lead.email,
       phone: lead.phone,
       channel: lead.channel,
+      source: lead.source,
       message: lead.message,
     });
 
@@ -99,6 +101,53 @@ export async function createLead(lead: NormalizedLead): Promise<LeadWriteResult>
       error: error instanceof Error ? error.message : 'Error inesperado al guardar el contacto.',
     };
   }
+}
+
+/**
+ * Contactos de **una** corredora, para su panel.
+ *
+ * Es una lectura distinta de `listLeads` (que es del equipo y ve todo el
+ * portal): acá el filtro por `partner_id` es obligatorio y va además de la RLS,
+ * igual que en `listPartnerPublications`. Así una cuenta de socio no puede ver
+ * los contactos de otra aunque una política mal configurada lo permitiera.
+ *
+ * La migración `0017_socio_actividad` habilita la lectura de estos contactos
+ * para el rol `member` cuando la fila es de su corredora; sin ella la RLS los
+ * oculta y el panel muestra cero actividad en vez de un error.
+ */
+export async function listPartnerLeads(
+  partnerId: string,
+  limit = 500
+): Promise<LeadListResult> {
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = await sessionClient();
+      const { data, error } = await supabase
+        .from('leads')
+        .select(LEAD_COLUMNS)
+        .eq('partner_id', partnerId)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (!error && data) {
+        return {
+          leads: (data as LeadRow[]).map(rowToLead),
+          source: 'supabase',
+          persistent: true,
+        };
+      }
+    } catch {
+      // Supabase caído: se muestra lo que haya en memoria, que será poco o nada.
+    }
+  }
+
+  return {
+    leads: readDevLeads()
+      .filter((lead) => lead.partnerId === partnerId)
+      .slice(0, limit),
+    source: 'memory',
+    persistent: false,
+  };
 }
 
 /** Listado para el panel, del más reciente al más antiguo. */

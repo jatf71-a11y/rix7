@@ -14,6 +14,29 @@ export type LeadChannel = 'form' | 'call' | 'whatsapp' | 'mail';
 
 export const LEAD_CHANNELS: readonly LeadChannel[] = ['form', 'call', 'whatsapp', 'mail'];
 
+/**
+ * Superficie desde la que se dejó el contacto.
+ *
+ * La ficha y la landing compartida tienen el mismo formulario, así que sin este
+ * dato no se puede saber si el enlace compartido convirtió o si la persona
+ * llegó sola al portal. `panel` queda para altas manuales del equipo.
+ */
+export type LeadSource = 'ficha' | 'landing' | 'panel';
+
+export const LEAD_SOURCES: readonly LeadSource[] = ['ficha', 'landing', 'panel'];
+
+/** Etiqueta del origen para la UI del panel. */
+export function leadSourceLabel(source: LeadSource): string {
+  switch (source) {
+    case 'landing':
+      return 'Landing compartida';
+    case 'panel':
+      return 'Panel';
+    default:
+      return 'Ficha';
+  }
+}
+
 /** Etiqueta del canal para la UI del panel. */
 export function leadChannelLabel(channel: LeadChannel): string {
   switch (channel) {
@@ -44,6 +67,7 @@ export interface LeadInput {
   email?: unknown;
   phone?: unknown;
   channel?: unknown;
+  source?: unknown;
   message?: unknown;
 }
 
@@ -54,6 +78,7 @@ export interface NormalizedLead {
   email: string;
   phone: string;
   channel: LeadChannel;
+  source: LeadSource;
   message: string | null;
 }
 
@@ -66,6 +91,7 @@ export interface LeadRow {
   email: string;
   phone: string;
   channel: string;
+  source: string | null;
   message: string | null;
   created_at: string;
 }
@@ -79,12 +105,13 @@ export interface Lead {
   email: string;
   phone: string;
   channel: LeadChannel;
+  source: LeadSource;
   message: string | null;
   createdAt: string;
 }
 
 export const LEAD_COLUMNS =
-  'id, property_id, partner_id, name, email, phone, channel, message, created_at';
+  'id, property_id, partner_id, name, email, phone, channel, source, message, created_at';
 
 /** Correo con la misma forma que valida el formulario. */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -142,6 +169,14 @@ export function normalizeLead(input: unknown): LeadValidation {
     return { ok: false, error: 'Canal de contacto inválido.' };
   }
 
+  // Ausente = ficha: es el comportamiento de siempre y el de cualquier cliente
+  // anterior. Un valor desconocido sí se rechaza, para no guardar un origen
+  // inventado que después nadie puede interpretar.
+  const source = typeof raw.source === 'string' && raw.source.trim().length > 0 ? raw.source.trim() : 'ficha';
+  if (!LEAD_SOURCES.includes(source as LeadSource)) {
+    return { ok: false, error: 'Origen de contacto inválido.' };
+  }
+
   const message =
     typeof raw.message === 'string' && raw.message.trim().length > 0
       ? raw.message.trim().slice(0, LEAD_LIMITS.message)
@@ -156,6 +191,7 @@ export function normalizeLead(input: unknown): LeadValidation {
       email,
       phone,
       channel: channel as LeadChannel,
+      source: source as LeadSource,
       message,
     },
   };
@@ -175,6 +211,9 @@ export function rowToLead(row: LeadRow): Lead {
     email: row.email,
     phone: row.phone,
     channel,
+    source: LEAD_SOURCES.includes((row.source ?? '') as LeadSource)
+      ? (row.source as LeadSource)
+      : 'ficha',
     message: row.message,
     createdAt: row.created_at,
   };

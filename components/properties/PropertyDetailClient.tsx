@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { PropertyGallery } from '@/components/properties/PropertyGallery';
-import { MortgageCalculator } from '@/components/properties/MortgageCalculator';
 import { PropertyGauges } from '@/components/properties/PropertyGauges';
 import { ContactAgentForm } from '@/components/properties/ContactAgentForm';
 
@@ -26,7 +25,15 @@ const PropertyMapLeaflet = dynamic(() => import('@/components/map/PropertyMapLea
 import { useCurrency } from '@/components/currency/CurrencyProvider';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useFavorites } from '@/components/auth/FavoritesProvider';
+import { useRegistration } from '@/components/auth/RegistrationProvider';
+import { RegistrationGateDialog } from '@/components/auth/RegistrationGateDialog';
+import {
+  REGISTRATION_GATE_TITLES,
+  shareGateDecision,
+  type GatedAction,
+} from '@/lib/utils/shareGate';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
+import { trackShareEvent } from '@/lib/utils/shareTracking';
 import { formatArea, getPropertyTypeLabel, getStatusLabel } from '@/lib/utils/formatters';
 import {
   Bed,
@@ -74,6 +81,22 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
   // cuando acaba de guardar uno, que es cuando le importa.
   const { openAuthModal } = useAuth();
 
+  // ═══ Compartir y guardar: solo con el visitante registrado ═══
+  //
+  // Los botones de WhatsApp, copiar, compartir y guardar se ven siempre, pero
+  // una visita sin registro no los ejecuta: al apretarlos aparece un aviso que
+  // explica el requisito y ofrece inscribirse. Es un candado de producto, no de
+  // seguridad: la landing pública sigue siendo enlazable por cualquiera.
+  const { registration, isChecking: registrationLoading } = useRegistration();
+  const [gatedAction, setGatedAction] = useState<GatedAction | null>(null);
+
+  /** Ejecuta la acción solo si hay identidad; si no, abre el aviso de registro. */
+  const requireRegistration = (action: GatedAction, run: () => void) => {
+    const decision = shareGateDecision({ registration, isChecking: registrationLoading });
+    if (decision === 'prompt') setGatedAction(action);
+    else if (decision === 'run') run();
+  };
+
   const isNewProp = property.created_at
     ? Date.now() - new Date(property.created_at).getTime() < 7 * 24 * 60 * 60 * 1000
     : false;
@@ -92,9 +115,28 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
     typeof window !== 'undefined' ? `${window.location.origin}${sharePath}` : sharePath;
   const shareText = `${property.title} en ${property.city} | Rix7`;
 
+  /**
+   * Deja el registro del compartido con la identidad que habilitó la acción.
+   *
+   * Es "dispara y olvida": si el aviso no llega, la persona ya compartió y no
+   * tiene por qué ver un error. El canal distingue WhatsApp de copiar y de la
+   * hoja nativa, para que el informe muestre qué botón se usa de verdad.
+   */
+  const recordShare = (channel: 'whatsapp' | 'copy' | 'share') => {
+    trackShareEvent({
+      propertyId: property.id,
+      partnerId: partner?.id ?? property.partner_id ?? null,
+      channel,
+      source: 'ficha',
+      registration,
+      shareUrl,
+    });
+  };
+
   const shareWhatsApp = () => {
     const text = encodeURIComponent(`${shareText}\n${shareUrl}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    recordShare('whatsapp');
   };
 
   const copyLink = async () => {
@@ -102,13 +144,17 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
       await navigator.clipboard.writeText(shareUrl);
       setCopyOk(true);
       setTimeout(() => setCopyOk(false), 2000);
+      recordShare('copy');
     } catch {}
   };
 
   const handleNativeShare = async () => {
     try {
       if (navigator.share) {
+        // Solo se registra si la hoja del sistema terminó bien: cancelar no es
+        // haber compartido.
         await navigator.share({ title: property.title, text: shareText, url: shareUrl });
+        recordShare('share');
       } else {
         copyLink();
       }
@@ -132,7 +178,7 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
             <CurrencySelector />
             {/* Botón WhatsApp */}
             <button
-              onClick={shareWhatsApp}
+              onClick={() => requireRegistration('whatsapp', shareWhatsApp)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-200 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 transition-colors"
               title="Compartir por WhatsApp"
             >
@@ -141,7 +187,7 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
             </button>
             {/* Botón Copiar enlace */}
             <button
-              onClick={copyLink}
+              onClick={() => requireRegistration('copy', copyLink)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
               title="Copiar enlace"
             >
@@ -150,7 +196,7 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
             </button>
             {/* Botón Compartir nativo */}
             <button
-              onClick={handleNativeShare}
+              onClick={() => requireRegistration('share', handleNativeShare)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
               title="Compartir"
             >
@@ -158,7 +204,7 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
             </button>
             {/* Botón Favorito: se guarda en la cuenta si hay sesión */}
             <button
-              onClick={() => toggleFavorite(property.id)}
+              onClick={() => requireRegistration('save', () => toggleFavorite(property.id))}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
                 isFavorited
                   ? 'bg-red-50 border-red-200 text-red-600'
@@ -216,7 +262,7 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
 
         {/* Contenedor Principal: Información a la Izquierda y Contacto Fijo a la Derecha */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
-          {/* Columna Izquierda (Detalles, Specs, Descripción, Crédito Hipotecario) */}
+          {/* Columna Izquierda (Detalles, Specs, Descripción) */}
           <div className="lg:col-span-8 space-y-8">
             {/* Encabezado y Precio con Moneda Activa */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
@@ -328,9 +374,6 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
               city={property.city}
             />
 
-            {/* Calculadora de Dividendo Hipotecario (venta) */}
-            {!isRent && <MortgageCalculator propertyPrice={property.price} />}
-
             {/* Velocímetros de precio vs. mercado y demanda (arriendo) */}
             {isRent && insights && (
               <PropertyGauges
@@ -348,6 +391,14 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
           </div>
         </div>
       </div>
+
+      {/* Aviso de registro: aparece al apretar compartir o guardar sin identidad.
+          Es el mismo diálogo que usan las tarjetas del listado. */}
+      <RegistrationGateDialog
+        open={gatedAction !== null}
+        title={gatedAction ? REGISTRATION_GATE_TITLES[gatedAction] : ''}
+        onClose={() => setGatedAction(null)}
+      />
     </div>
   );
 }

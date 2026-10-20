@@ -11,7 +11,12 @@ import {
   RefreshCw,
   Search,
 } from 'lucide-react';
-import { leadChannelLabel, type Lead, type LeadChannel } from '@/lib/data/leads';
+import {
+  leadChannelLabel,
+  leadSourceLabel,
+  type Lead,
+  type LeadChannel,
+} from '@/lib/data/leads';
 import type { Partner } from '@/lib/data/partners';
 import { describeReadFailure, type ReadFailure } from '@/lib/utils/readFailure';
 
@@ -225,6 +230,14 @@ export default function AdminLeadsPage() {
                       >
                         {leadChannelLabel(lead.channel)}
                       </span>
+                      {/* El origen solo se destaca cuando no es la ficha: así
+                          se ve de un vistazo qué interés nació del enlace
+                          compartido, sin ruido en el caso más común. */}
+                      {lead.source !== 'ficha' && (
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-md border bg-indigo-50 text-indigo-700 border-indigo-200">
+                          {leadSourceLabel(lead.source)}
+                        </span>
+                      )}
                       {partnerName && (
                         <span className="text-[11px] font-semibold text-slate-500">
                           {partnerName}

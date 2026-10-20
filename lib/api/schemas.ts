@@ -188,6 +188,27 @@ export const shareViewSchema = z.object({
   partnerId: z.unknown().optional(),
 });
 
+// ═══ /api/share/event ═══
+
+/**
+ * Un compartido con identidad. La **forma** se valida acá (objeto con campos
+ * conocidos); la **semántica** —largos, correo, canal y origen permitidos— la
+ * aplica `normalizeShareEvent`, que comparte límites con la política RLS de
+ * `public.share_events` y tiene suite propia.
+ */
+export const shareEventPostSchema = z
+  .object({
+    property_id: z.unknown().optional(),
+    partner_id: z.unknown().optional(),
+    channel: z.unknown().optional(),
+    source: z.unknown().optional(),
+    name: z.unknown().optional(),
+    email: z.unknown().optional(),
+    phone: z.unknown().optional(),
+    share_url: z.unknown().optional(),
+  })
+  .passthrough();
+
 // ═══ /api/leads ═══
 
 /**

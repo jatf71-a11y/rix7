@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Mail, Phone, ShieldCheck, X } from 'lucide-react';
 import { Property } from '@/lib/types/property';
 import type { Partner } from '@/lib/data/partners';
-import type { LeadChannel } from '@/lib/data/leads';
+import type { LeadChannel, LeadSource } from '@/lib/data/leads';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useRegistration } from '@/components/auth/RegistrationProvider';
 import { reportError } from '@/lib/monitoring/reportError';
@@ -17,6 +17,12 @@ interface ContactAgentFormProps {
    * un viaje extra y a mostrar el formulario sin ellos.
    */
   partner?: Partner;
+  /**
+   * Desde dónde se deja el contacto. La ficha y la landing compartida usan el
+   * mismo formulario, así que sin este dato el equipo no puede saber si el
+   * enlace compartido convirtió o si la persona llegó sola al portal.
+   */
+  source?: LeadSource;
 }
 
 /**
@@ -58,7 +64,7 @@ interface ContactChannel {
  *   El dato no se muestra en el botón: se revela en el popup, junto con la
  *   acción directa y un botón para copiarlo.
  */
-export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
+export function ContactAgentForm({ property, partner, source = 'ficha' }: ContactAgentFormProps) {
   const { openAuthModal } = useAuth();
   // La identidad vive en el layout: el mismo usuario que reconoce el Navbar es
   // el que habilita los canales de contacto de la ficha.
@@ -235,6 +241,7 @@ export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
           email: data.email.trim(),
           phone: data.phone,
           channel,
+          source,
         }),
         // `keepalive` para que el aviso sobreviva cuando el canal elegido
         // (tel:/mailto:) haga que el navegador abandone la página.
@@ -255,7 +262,7 @@ export function ContactAgentForm({ property, partner }: ContactAgentFormProps) {
           void reportError(error, { extra: { propertyId: property.id, channel } });
         });
     },
-    [property.id, property.partner_id, partner?.id, name, email, phone]
+    [property.id, property.partner_id, partner?.id, name, email, phone, source]
   );
 
   /** Copia el dato del canal. Si el portapapeles falla, el dato queda visible y seleccionable. */

@@ -116,6 +116,8 @@ describe('el buscador como requisito', () => {
 
 /** Todas las respuestas de un proyecto al día. */
 const HEALTHY_ROUTES: Record<string, () => Response> = {
+  [`${BASE}/rest/v1/leads?select=source&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/share_events?select=channel&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/properties?select=rol&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/properties?select=video_url&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/properties?select=video_poster&limit=1`]: () => jsonResponse(200, []),
@@ -169,7 +171,12 @@ describe('schemaPlan', () => {
     expect(ids).toContain('rix7_partner_id()');
     expect(ids).toContain('get_properties_filtered(bbox)');
     expect(new Set(REQUIRED_SCHEMA.map((item) => item.migration))).toEqual(
-      new Set(['0005_properties_rpc', '0014_socio_publicaciones', '0015_rol_y_video'])
+      new Set([
+        '0005_properties_rpc',
+        '0014_socio_publicaciones',
+        '0015_rol_y_video',
+        '0016_share_events_y_origen',
+      ])
     );
   });
 });
@@ -308,6 +315,9 @@ describe('runSchemaCheck', () => {
 
   it('el caso de producción: las 0014 y 0015 sin aplicar', async () => {
     const { fetchImpl } = server({
+      // 0016 aplicada: el caso que se estudia es el de las 0014 y 0015.
+      [`${BASE}/rest/v1/leads?select=source&limit=1`]: () => jsonResponse(200, []),
+      [`${BASE}/rest/v1/share_events?select=channel&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/properties?select=rol&limit=1`]: () => jsonResponse(400, MISSING_COLUMN),
       [`${BASE}/rest/v1/properties?select=video_url&limit=1`]: () =>
         jsonResponse(400, { ...MISSING_COLUMN, message: 'column properties.video_url does not exist' }),

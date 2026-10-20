@@ -231,6 +231,46 @@ jobs:
           done
           npm run check:a11y -- --fail-on-serious
 
+  # Candado de registro: comportamiento real en un navegador real. Los tests de
+  # vitest prueban la decisión pura (`shareGateDecision`), pero no la hidratación,
+  # `localStorage` ni los clics. `scripts/gate-e2e.mjs` abre Chrome por CDP
+  # —mismo criterio que la auditoría a11y, sin Playwright— contra la build del
+  # job `verify`: sin `.env*` el portal degrada al catálogo local, así que la
+  # ficha `scl-depto-marco-polo` y la grilla de departamentos existen igual.
+  # Si una visita sin registro vuelve a guardar o compartir, este job se pone rojo.
+  gate:
+    name: Candado de registro (Chrome real)
+    runs-on: ubuntu-latest
+    needs: verify
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Bajar la build del job verify
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: .next
+
+      - name: Levantar la build y probar el candado
+        run: |
+          npx next start -p 3000 &
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://localhost:3000/ && break
+            sleep 1
+          done
+          npm run test:e2e:gate -- --base http://localhost:3000
+
   # Comportamiento, no solo tipos: ¿qué ve una persona cuando el portal no tiene
   # Supabase? Sin `needs` ni artifact: la suite compila su propia build sin
   # `.env*` (ver cabecera), que es justo lo que hay que probar, y no pide un

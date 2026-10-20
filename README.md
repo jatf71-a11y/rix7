@@ -161,6 +161,26 @@ Aperturas de las landings, cruzadas con los contactos que ya guarda `leads`. La 
 
 **Tasa sin datos no es 0 %.** Si un enlace no tuvo aperturas, la tasa se muestra como `—` en lugar de `0 %`: no hubo fracaso, no hay dato.
 
+### Quién compartió cada enlace (`public.share_events`)
+
+`share_views` cuenta enlaces abiertos, no personas. Cuando lo que hace falta es **saber quién movió el enlace** —para atribuirlo a la corredora y hacer seguimiento— entra `public.share_events`: una fila por acción de compartir, con la identidad que el portal ya reconoce (el registro del dispositivo o la cuenta del portal).
+
+| Dato | Qué guarda |
+|---|---|
+| Propiedad y corredora | `property_id` y `partner_id` de la ficha |
+| Canal | `whatsapp`, `copy` (copiar enlace), `share` (hoja del sistema) o `card` (tarjeta descargada) |
+| Origen | `ficha` (`/properties/[id]`), `landing` (`/compartir/[id]`) o `panel` (el socio desde `/socio`) |
+| Identidad | nombre, correo y teléfono del registro que habilitó la acción |
+| Enlace | la landing exacta que se puso a circular |
+
+- **Candado y registro van juntos.** Compartir exige visitante registrado en la ficha **y en la landing**: quien recibe el enlace puede reenviarlo, pero el segundo salto también queda atribuido a una persona. Sin registro se abre el mismo aviso de inscripción que en la ficha.
+- **El registro no frena la acción.** Se manda con `keepalive` y sin `await`; si el servidor no lo guarda, la persona ya compartió y el fallo se reporta al monitoreo (`reportError`) en vez de mostrarse como un error en pantalla.
+- **Se consulta en `/admin/landings`**, en la sección «Compartidos con identidad», junto al informe de aperturas y contactos.
+- **Privacidad**: el alta es pública porque el registro vive en el dispositivo de la visita, pero la lectura y el borrado son solo del equipo (`is_rix7_admin()`). La política RLS repite los límites de `normalizeShareEvent` (nombre, correo, canal, origen y enlace) y el POST tiene rate limit por IP.
+- **Los contactos distinguen su origen.** `public.leads.source` (`ficha` | `landing` | `panel`) se muestra en `/admin/leads`, así que el equipo puede separar el interés que nació del enlace compartido del que llegó solo al portal.
+
+**La landing lleva a la publicación de la corredora.** El resumen no termina en el formulario: la columna de contacto enlaza a `/empresas/<slug>` —la página de la corredora con todas sus publicaciones— y ofrece «Contactar a la corredora», que baja al formulario interno. Así el visitante llega a la publicación original y la operación no queda fuera del portal.
+
 ---
 
 ## 🗄️ Base de Datos Supabase & PostGIS

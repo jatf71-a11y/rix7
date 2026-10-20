@@ -14,7 +14,9 @@ import {
   X,
 } from 'lucide-react';
 import type { PanelProperty } from '@/lib/data/propertiesStore';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { buildShareLinks, shareText } from '@/lib/utils/shareLinks';
+import { trackShareEvent } from '@/lib/utils/shareTracking';
 import { formatPrice } from '@/lib/utils/formatters';
 
 /**
@@ -46,6 +48,7 @@ export default function ShareDialog({
   property: PanelProperty;
   onClose: () => void;
 }) {
+  const { user } = useAuth();
   const [clipboardNote, setClipboardNote] = useState<string | null>(null);
   const [canNativeShare, setCanNativeShare] = useState(false);
 
@@ -57,6 +60,31 @@ export default function ShareDialog({
     isRent: property.status === 'for_rent',
   });
   const links = buildShareLinks({ url, text });
+
+  /**
+   * Registra el compartido del socio con la identidad de su cuenta.
+   *
+   * El panel no es la ficha pública: acá la persona ya está autenticada, así
+   * que el evento queda atribuido a su correo y a su corredora. Sin sesión (el
+   * bypass de desarrollo) no se inventa una identidad y no se registra nada.
+   */
+  const trackShare = (channel: 'whatsapp' | 'copy' | 'share') => {
+    if (!user?.email) return;
+    const metadata = user.user_metadata ?? {};
+    const fullName = typeof metadata.full_name === 'string' ? metadata.full_name.trim() : '';
+    trackShareEvent({
+      propertyId: property.id,
+      partnerId: property.partner_id ?? null,
+      channel,
+      source: 'panel',
+      registration: {
+        name: fullName || user.email.split('@')[0],
+        email: user.email,
+        phone: typeof metadata.phone === 'string' ? metadata.phone : undefined,
+      },
+      shareUrl: url,
+    });
+  };
 
   // El compartir nativo (celular, menú del sistema) solo si el navegador lo
   // ofrece; en desktop no se muestra un botón que no va a hacer nada.
@@ -94,6 +122,7 @@ export default function ShareDialog({
 
   async function handleInstagram() {
     const ok = await copyLink();
+    if (ok) trackShare('copy');
     setClipboardNote(
       ok
         ? 'Enlace copiado. Pégalo en tu historia o publicación de Instagram.'
@@ -104,12 +133,14 @@ export default function ShareDialog({
 
   async function handleCopy() {
     const ok = await copyLink();
+    if (ok) trackShare('copy');
     setClipboardNote(ok ? 'Enlace copiado.' : 'No se pudo copiar el enlace.');
   }
 
   async function handleNative() {
     try {
       await navigator.share({ title: property.title, text, url });
+      trackShare('share');
     } catch {
       // Cancelar el share del sistema no es un error que mostrar.
     }
@@ -167,6 +198,7 @@ export default function ShareDialog({
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackShare(link.id === 'whatsapp' ? 'whatsapp' : 'share')}
                 className="flex flex-col items-center gap-1.5 rounded-xl border border-slate-200 px-2 py-3 hover:border-blue-300 hover:bg-blue-50 transition-colors"
               >
                 <Icon className="w-5 h-5 text-slate-600" />

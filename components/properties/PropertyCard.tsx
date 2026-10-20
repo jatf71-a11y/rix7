@@ -5,6 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Property } from '@/lib/types/property';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
+import { useFavorites } from '@/components/auth/FavoritesProvider';
+import { useRegistration } from '@/components/auth/RegistrationProvider';
+import { RegistrationGateDialog } from '@/components/auth/RegistrationGateDialog';
+import { shareGateDecision } from '@/lib/utils/shareGate';
 import { formatArea, getPropertyTypeLabel, getStatusLabel } from '@/lib/utils/formatters';
 import { Bed, Bath, Maximize2, Heart, ChevronLeft, ChevronRight, MapPin, LampDesk } from 'lucide-react';
 
@@ -17,10 +21,19 @@ interface PropertyCardProps {
 
 function PropertyCardComponent({ property, isHovered, onMouseEnter, onMouseLeave }: PropertyCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isFavorited, setIsFavorited] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   const { format } = useCurrency();
+
+  // El corazón lee y escribe los mismos favoritos que la ficha y el Navbar, en
+  // vez de un estado local que se perdía al cambiar de pantalla.
+  const { isFavorite, toggle, isLoading: favoritesLoading } = useFavorites();
+  const isFavorited = isFavorite(property.id);
+
+  // Guardar exige visitante registrado; sin identidad se ofrece inscribirse en
+  // lugar de marcar el corazón (misma regla que la barra de la ficha).
+  const { registration, isChecking: registrationLoading } = useRegistration();
 
   const isRent = property.status === 'for_rent';
   const isNew = property.created_at ? (Date.now() - new Date(property.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000 : false;
@@ -66,7 +79,9 @@ function PropertyCardComponent({ property, isHovered, onMouseEnter, onMouseLeave
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsFavorited(!isFavorited);
+    const decision = shareGateDecision({ registration, isChecking: registrationLoading });
+    if (decision === 'prompt') setGateOpen(true);
+    else if (decision === 'run') void toggle(property.id);
   };
 
   return (
@@ -129,12 +144,13 @@ function PropertyCardComponent({ property, isHovered, onMouseEnter, onMouseLeave
           {/* Botón de Favorito */}
           <button
             onClick={toggleFavorite}
+            disabled={favoritesLoading}
             className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all ${
               isFavorited
                 ? 'bg-red-500 text-white'
                 : 'bg-black/30 hover:bg-black/50 text-white'
             }`}
-            aria-label="Guardar propiedad"
+            aria-label={isFavorited ? 'Quitar de favoritos' : 'Guardar propiedad'}
           >
             <Heart className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''}`} />
           </button>
@@ -236,6 +252,13 @@ function PropertyCardComponent({ property, isHovered, onMouseEnter, onMouseLeave
           )}
         </div>
       </Link>
+
+      {/* Fuera del <Link>: el diálogo no debe navegar a la ficha al cerrarlo. */}
+      <RegistrationGateDialog
+        open={gateOpen}
+        title="Regístrate para guardar esta propiedad"
+        onClose={() => setGateOpen(false)}
+      />
     </div>
   );
 }

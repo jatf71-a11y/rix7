@@ -105,7 +105,8 @@ cambió.)
 | Estado local | **No configurado** (`.env.local` tiene un proyecto `placeholder`) |
 
 Tablas principales: `properties`, `partners`, `favorites`, `saved_searches`,
-`leads`, `signups` (solo-anexa), `share_views`, `property_views`, `rix7_migrations`.
+`leads`, `signups` (solo-anexa), `share_views`, `share_events`, `property_views`,
+`rix7_migrations`.
 
 ### 3.4 Correo, monitoreo y datos externos
 

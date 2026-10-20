@@ -64,6 +64,22 @@ export const PROBE_TIMEOUT_MS = 15000;
  */
 export const REQUIRED_SCHEMA = [
   {
+    id: 'leads.source',
+    kind: 'column',
+    table: 'leads',
+    column: 'source',
+    migration: '0016_share_events_y_origen',
+    because: 'el panel distingue si el contacto nació en la ficha o en la landing compartida',
+  },
+  {
+    id: 'share_events.channel',
+    kind: 'column',
+    table: 'share_events',
+    column: 'channel',
+    migration: '0016_share_events_y_origen',
+    because: 'es el registro de quién compartió cada enlace; sin la tabla, el alta de compartidos falla',
+  },
+  {
     id: 'properties.rol',
     kind: 'column',
     table: 'properties',

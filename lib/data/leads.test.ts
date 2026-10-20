@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   LEAD_LIMITS,
   leadChannelLabel,
+  leadSourceLabel,
   normalizeLead,
   rowToLead,
   type LeadRow,
@@ -34,6 +35,8 @@ describe('normalizeLead', () => {
       email: 'javier@example.cl',
       phone: '+56 9 1111 2222',
       channel: 'whatsapp',
+      // Sin `source`, el contacto es de la ficha: el comportamiento de siempre.
+      source: 'ficha',
       message: null,
     });
   });
@@ -61,6 +64,18 @@ describe('normalizeLead', () => {
     }
     expect(errorOf({ ...valido, channel: 'telegram' })).toMatch(/canal/i);
     expect(errorOf({ ...valido, channel: 'FORM' })).toMatch(/canal/i);
+  });
+
+  it('registra el origen del contacto y rechaza uno inventado', () => {
+    for (const source of ['ficha', 'landing', 'panel']) {
+      const result = normalizeLead({ ...valido, source });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.lead.source).toBe(source);
+    }
+
+    expect(normalizeLead({ ...valido, source: undefined }).ok).toBe(true);
+    expect(errorOf({ ...valido, source: 'whatsapp' })).toMatch(/origen/i);
   });
 
   it('rechaza cuerpos que no son objetos', () => {
@@ -113,6 +128,7 @@ describe('rowToLead', () => {
     email: 'javier@example.cl',
     phone: '+56 9 1111 2222',
     channel: 'whatsapp',
+    source: 'landing',
     message: null,
     created_at: '2026-09-23T14:00:00Z',
   };
@@ -126,6 +142,7 @@ describe('rowToLead', () => {
       email: 'javier@example.cl',
       phone: '+56 9 1111 2222',
       channel: 'whatsapp',
+      source: 'landing',
       message: null,
       createdAt: '2026-09-23T14:00:00Z',
     });
@@ -142,5 +159,29 @@ describe('leadChannelLabel', () => {
     expect(leadChannelLabel('call')).toBe('Llamada');
     expect(leadChannelLabel('whatsapp')).toBe('WhatsApp');
     expect(leadChannelLabel('mail')).toBe('Correo');
+  });
+});
+
+describe('leadSourceLabel', () => {
+  it('distingue la ficha de la landing y del panel', () => {
+    expect(leadSourceLabel('ficha')).toBe('Ficha');
+    expect(leadSourceLabel('landing')).toBe('Landing compartida');
+    expect(leadSourceLabel('panel')).toBe('Panel');
+  });
+
+  it('una fuente desconocida se lee como ficha, no rompe la lista', () => {
+    const base: LeadRow = {
+      id: 'x',
+      property_id: null,
+      partner_id: null,
+      name: 'Ana',
+      email: 'ana@example.cl',
+      phone: '+56 9 1111 2222',
+      channel: 'form',
+      source: 'desconocida',
+      message: null,
+      created_at: '2026-09-23T14:00:00Z',
+    };
+    expect(rowToLead(base).source).toBe('ficha');
   });
 });

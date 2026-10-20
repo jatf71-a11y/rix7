@@ -113,8 +113,8 @@ npm run db:status     # ahora todo debe salir aplicado
 Qué deja la base al terminar: extensión `postgis`, `partners`, `properties`
 (+ índices GiST/B-Tree), los RPC `get_properties_filtered` y
 `get_property_by_id`, políticas RLS, el bucket `properties-media` y las tablas
-`leads`, `saved_searches`, `favorites`, `share_views` y **`signups`** (esta
-última es la que faltaba y por eso el alta no persistía).
+`leads`, `saved_searches`, `favorites`, `share_views`, `share_events` y
+**`signups`** (esta última es la que faltaba y por eso el alta no persistía).
 
 `db:push` se detiene en el primer error y registra cada migración aplicada en
 `public.rix7_migrations`, así que re-ejecutarlo es seguro. Verifica:
