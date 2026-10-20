@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { BUILD_ID_ENV, parseBuildIdValue } from '@/lib/utils/buildId';
+import {
+  RELEASE_TAG_ENV,
+  RELEASE_VERSION_ENV,
+  parseReleaseIdentity,
+} from '@/lib/utils/releaseIdentity';
 import { buildHealthReport, httpStatus, subsystemEnvFrom } from '@/lib/utils/health';
 
 /**
@@ -16,6 +21,10 @@ import { buildHealthReport, httpStatus, subsystemEnvFrom } from '@/lib/utils/hea
  *
  * Es pública a propósito: no expone ningún valor (solo si está o no), y sirve
  * justamente cuando uno no tiene acceso al panel de Vercel.
+ *
+ * `release` agrega la versión del `package.json` y el tag exacto del commit
+ * publicado. Es lo que permite detectar que la build coincide con el árbol pero
+ * no con la versión o el tag que el repositorio declara.
  *
  * `build` es lo otro que informa: **cuál de todas las builds está publicada**.
  * El release la calcula (un hash del árbol de trabajo) y la publica como
@@ -42,6 +51,13 @@ export async function GET() {
       success: report.status !== 'broken',
       environment: process.env.VERCEL_ENV || process.env.NODE_ENV || 'desconocido',
       build: parseBuildIdValue(process.env[BUILD_ID_ENV]),
+      // La versión y el tag viajan aparte del hash: el hash dice «este árbol»,
+      // esto dice «esta release». Sin ellos, un deploy puede coincidir con el
+      // árbol y aun así no corresponder al tag que el equipo cree publicado.
+      release: parseReleaseIdentity(
+        process.env[RELEASE_VERSION_ENV],
+        process.env[RELEASE_TAG_ENV]
+      ),
       checkedAt: new Date().toISOString(),
       status: report.status,
       summary: report.summary,

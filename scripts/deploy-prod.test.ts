@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest';
 
 import { BUILD_ID_ENV, formatBuildIdValue } from './build-id.mjs';
 import { vercelArgs } from './deploy-prod.mjs';
+import { RELEASE_TAG_ENV, RELEASE_VERSION_ENV } from './release-identity.mjs';
 
 const SHA = '9d1c3ab77e5f1234567890abcdef1234567890ab';
 
@@ -44,5 +45,29 @@ describe('vercelArgs', () => {
 
   it('un valor vacío no se publica como si existiera', () => {
     expect(vercelArgs({ buildValue: '' })).toEqual(['--yes', 'vercel', '--prod', '--yes']);
+  });
+
+  it('publica versión y tag para que /api/health pueda comparar la release', () => {
+    const args = vercelArgs({
+      buildValue: '1.4f2a3c4b5d6e7f80.-.0.1760361600',
+      version: '10.1.0',
+      tag: 'v10.1.0',
+    });
+
+    expect(args).toContain(`${RELEASE_VERSION_ENV}=10.1.0`);
+    expect(args).toContain(`${RELEASE_TAG_ENV}=v10.1.0`);
+  });
+
+  it('sin tag publica la versión igual; sin versión, el tag igual', () => {
+    expect(vercelArgs({ version: '10.1.0' })).toContain(`${RELEASE_VERSION_ENV}=10.1.0`);
+    expect(vercelArgs({ version: '10.1.0' })).not.toContain(`${RELEASE_TAG_ENV}=`);
+    expect(vercelArgs({ tag: 'v10.1.0' })).toContain(`${RELEASE_TAG_ENV}=v10.1.0`);
+  });
+
+  it('un valor con espacios o metacaracteres no llega al CLI', () => {
+    const args = vercelArgs({ version: '10.1.0; rm -rf /', tag: 'v10.1.0 | evil' });
+
+    expect(args.join(' ')).not.toContain('rm -rf');
+    expect(args.join(' ')).not.toContain('evil');
   });
 });

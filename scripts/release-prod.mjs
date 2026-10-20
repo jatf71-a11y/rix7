@@ -139,6 +139,12 @@ import { fileURLToPath } from 'node:url';
 import { BUILD_ID_ENV, describeBuild, readTreeBuildId } from './build-id.mjs';
 import { assertNoSecrets } from './check-secrets.mjs';
 import { formatReport as formatHealthReport, runCheck } from './check-health.mjs';
+import {
+  RELEASE_TAG_ENV,
+  RELEASE_VERSION_ENV,
+  describeReleaseIdentity,
+  readReleaseIdentity,
+} from './release-identity.mjs';
 import { formatReport as formatSmokeReport, runSmoke } from './smoke-prod.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -217,7 +223,7 @@ export const RELEASE_STEPS = [
     title: 'Deploy a producción',
     script: 'scripts/deploy-prod.mjs',
     flag: '--no-deploy',
-    why: 'publica el árbol de trabajo sin metadata de git (el plan Hobby bloquea los commits de otro autor) tras correr la guardia de secretos, y publica el identificador de la build para que lo publicado se pueda comparar con el repo.',
+    why: 'publica el árbol de trabajo sin metadata de git (el plan Hobby bloquea los commits de otro autor) tras correr la guardia de secretos, y publica el identificador de la build junto con la versión y el tag para que lo publicado se pueda comparar con el repo.',
     hint: 'si falló por `.vercel/project.json`, corre `npx vercel link`; si falló por la guardia de secretos, mira los hallazgos de arriba. Un deploy fallido **no** deja nada a medio publicar: Vercel conserva el anterior.',
   },
   {
@@ -225,7 +231,7 @@ export const RELEASE_STEPS = [
     title: 'Verificación en vivo',
     script: null,
     flag: '--no-verify',
-    why: 'un deploy que salió 0 solo dice que subió una build; que responda, que no falte nada crítico y que **lo que está en vivo sea este árbol** se comprueba acá.',
+    why: 'un deploy que salió 0 solo dice que subió una build; que responda, que no falte nada crítico y que **lo que está en vivo sea este árbol y esta release** se comprueba acá.',
     hint: 'mira el informe de arriba: `smoke` dice qué ruta falló, `health` qué subsistema crítico falta y el identificador de la build dice si lo publicado es este árbol. Si el deploy quedó mal, el camino es el rollback (sección 8 de DEPLOY.md).',
   },
 ];
@@ -480,7 +486,7 @@ export function resolveVerifyUrl({
  * publicado» solo puede decirse si la verificación corrió, y «todo salió bien»
  * solo si había algo que salir bien.
  *
- * @param {{ durationMs: number, deployment?: string | null, verified?: { attempt: number } | null, attempts?: number, skipped?: ReleaseStep[], tree?: string | null, ranDeploy?: boolean, ranVerify?: boolean, buildLabel?: string | null, buildCompared?: boolean }} report
+ * @param {{ durationMs: number, deployment?: string | null, verified?: { attempt: number } | null, attempts?: number, skipped?: ReleaseStep[], tree?: string | null, ranDeploy?: boolean, ranVerify?: boolean, buildLabel?: string | null, buildCompared?: boolean, releaseLabel?: string | null, releaseCompared?: boolean, releaseConfirmed?: boolean }} report
  * @returns {string}
  */
 export function formatReleaseSummary({
@@ -494,6 +500,9 @@ export function formatReleaseSummary({
   ranVerify = false,
   buildLabel = null,
   buildCompared = false,
+  releaseLabel = null,
+  releaseCompared = false,
+  releaseConfirmed = false,
 }) {
   const lines = ['', `✓ Release completo en ${formatDuration(durationMs)}.`];
 
@@ -519,6 +528,20 @@ export function formatReleaseSummary({
   } else if (ranDeploy || ranVerify) {
     lines.push('  · Sin identificador de la build: no se pudo calcular el hash del árbol (¿git disponible?), así que NO se comprobó que producción sea este árbol.');
   }
+  // La release, además del árbol: el hash responde «¿este código?», esto
+  // responde «¿esta versión?». Solo se afirma la coincidencia si se comparó.
+  if (!releaseLabel) {
+    if (ranDeploy || ranVerify) {
+      lines.push('  · Sin versión ni tag: no se pudo leer el `package.json` o el tag, así que NO se comprobó qué release está publicada.');
+    }
+  } else if (!ranVerify) {
+    lines.push(`  · Versión y tag: ${releaseLabel} — publicada, pero no se comparó con lo vivo (--no-verify).`);
+  } else if (releaseConfirmed) {
+    lines.push(`  · Versión y tag: ${releaseLabel} — en vivo coincide con el repositorio.`);
+  } else {
+    lines.push(`  · Versión y tag: ${releaseLabel} — NO coincide con lo publicado.`);
+  }
+
   if (ranVerify) {
     lines.push('  · La persistencia de un alta NO se probó acá (eso escribe y manda correo):');
     lines.push('    `npm run smoke:prod -- --write --email tu@correo.cl`.');
@@ -569,6 +592,7 @@ export function formatPlan(plan) {
     if (plan.steps.some((step) => step.id === 'deploy')) {
       lines.push('  Además compara el identificador de la build: si en vivo no quedó este árbol, el release falla.');
     }
+    lines.push('  También compara la versión y el tag del repositorio: si lo publicado no es esa release, el release falla.');
   }
 
   lines.push('');
@@ -688,13 +712,14 @@ export async function runStep(
  * sirve el anterior» de «el árbol cambió en el medio». Sin `expected` (no se
  * pudo calcular) no se exige nada — pero el informe final lo dice.
  *
- * @param {{ url: string, attempts: number, expected?: ReturnType<typeof readTreeBuildId> | null, published?: ReturnType<typeof readTreeBuildId> | null, smokeImpl?: typeof runSmoke, healthImpl?: typeof runCheck, sleepImpl?: (ms: number) => Promise<unknown>, log?: (...args: unknown[]) => void, delayMs?: number }} options
+ * @param {{ url: string, attempts: number, expected?: ReturnType<typeof readTreeBuildId> | null, releaseExpected?: ReturnType<typeof readReleaseIdentity> | null, published?: ReturnType<typeof readTreeBuildId> | null, smokeImpl?: typeof runSmoke, healthImpl?: typeof runCheck, sleepImpl?: (ms: number) => Promise<unknown>, log?: (...args: unknown[]) => void, delayMs?: number }} options
  * @returns {Promise<{ ok: boolean, attempt: number }>}
  */
 export async function verifyLive({
   url,
   attempts,
   expected = null,
+  releaseExpected = null,
   published = null,
   smokeImpl = runSmoke,
   healthImpl = runCheck,
@@ -706,6 +731,10 @@ export async function verifyLive({
   // identificador local (sin git) no hay nada que afirmar, y afirmar de más es
   // cómo un release verde deja pasar una build que no es la del repositorio.
   const requiresTree = Boolean(expected?.value);
+  // La versión/tag se exige cuando el repositorio declara alguna: publicar una
+  // release que no coincide con su `package.json` o su tag no es un release
+  // válido, aunque el árbol sí coincida.
+  const requiresRelease = Boolean(releaseExpected?.version || releaseExpected?.tag);
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     log(`\n→ Verificando ${url} (intento ${attempt}/${attempts})…`);
@@ -713,11 +742,13 @@ export async function verifyLive({
     const smoke = await smokeImpl({ baseUrl: url });
     log(formatSmokeReport(smoke));
 
-    const health = await healthImpl({ baseUrl: url, expected, published });
+    const health = await healthImpl({ baseUrl: url, expected, releaseExpected, published });
     log(formatHealthReport(health));
 
     const treeMatches = !requiresTree || health.judgement?.build?.status === 'match';
-    if (smoke.ok && health.ok && treeMatches) return { ok: true, attempt };
+    const releaseMatches =
+      !requiresRelease || health.judgement?.release?.ok !== false;
+    if (smoke.ok && health.ok && treeMatches && releaseMatches) return { ok: true, attempt };
 
     if (attempt < attempts) {
       log(
@@ -881,6 +912,27 @@ async function main() {
   const willDeploy = plan.steps.some((step) => step.id === 'deploy');
   const publishedTree = willDeploy ? readTreeBuildId() : null;
 
+  // La identidad de release se calcula antes del deploy y viaja por entorno al
+  // paso de deploy; la verificación vuelve a leerla después, por si el árbol
+  // cambió en el medio.
+  const publishedRelease = readReleaseIdentity();
+  if (publishedRelease.version || publishedRelease.tag) {
+    console.log(`  · Versión y tag: ${describeReleaseIdentity(publishedRelease)}`);
+    if (!publishedRelease.tag) {
+      console.warn(
+        `  ⚠ El commit no tiene tag${publishedRelease.nearestTag ? ` (el más cercano es ${publishedRelease.nearestTag}${publishedRelease.distance === null ? '' : `, a ${publishedRelease.distance} commit${publishedRelease.distance === 1 ? '' : 's'}`})` : ''}: la release queda sin tag identificable.`
+      );
+    }
+    if (willDeploy) {
+      process.env[RELEASE_VERSION_ENV] = publishedRelease.version ?? '';
+      process.env[RELEASE_TAG_ENV] = publishedRelease.tag ?? '';
+    }
+  } else {
+    console.warn(
+      `  ⚠ No se pudo leer la versión/tag del repositorio (${publishedRelease.error ?? 'sin datos'}): no se podrá comprobar qué release quedó publicada.`
+    );
+  }
+
   if (publishedTree?.value) {
     process.env[BUILD_ID_ENV] = publishedTree.value;
     console.log(`  · Identificador de la build: ${describeBuild(publishedTree)}`);
@@ -897,6 +949,8 @@ async function main() {
   let urls = { deployment: null, alias: null };
   let verified = null;
   let verifiedTree = null;
+  let verifiedRelease = null;
+  let releaseConfirmed = false;
 
   for (const [index, step] of plan.steps.entries()) {
     const position = `[${index + 1}/${plan.steps.length}]`;
@@ -906,6 +960,7 @@ async function main() {
       // mientras corría el release, lo publicado ya no es «este árbol» y hay que
       // decirlo en vez de comparar contra el estado de hace un minuto.
       verifiedTree = readTreeBuildId();
+      verifiedRelease = readReleaseIdentity();
 
       const target = resolveVerifyUrl({ override: plan.url, ...urls });
       console.log(`\n${position} ${step.title} · ${target.url}`);
@@ -918,6 +973,7 @@ async function main() {
         url: target.url,
         attempts: plan.attempts,
         expected: verifiedTree?.value ? verifiedTree : null,
+        releaseExpected: verifiedRelease,
         published: publishedTree?.value ? publishedTree : null,
       });
       if (!verified.ok) {
@@ -927,6 +983,8 @@ async function main() {
         });
         return;
       }
+      // La verificación ya exigió versión y tag si el repo los declara.
+      releaseConfirmed = true;
       continue;
     }
 
@@ -960,6 +1018,12 @@ async function main() {
       ranVerify: plan.steps.some((step) => step.id === 'verify'),
       buildLabel: publishedTree?.value ? describeBuild(publishedTree) : null,
       buildCompared: Boolean(verifiedTree?.value),
+      releaseLabel:
+        verifiedRelease?.version || verifiedRelease?.tag
+          ? describeReleaseIdentity(verifiedRelease)
+          : null,
+      releaseCompared: Boolean(verifiedRelease?.version || verifiedRelease?.tag),
+      releaseConfirmed: releaseConfirmed,
     })
   );
 }

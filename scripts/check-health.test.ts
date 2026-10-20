@@ -17,6 +17,7 @@ import {
   judgeHealth,
   normalizeBaseUrl,
   readLiveBuild,
+  readLiveRelease,
   runCheck,
   summaryMarkdown,
 } from './check-health.mjs';
@@ -353,6 +354,113 @@ describe('runCheck contra el árbol local', () => {
 
     const result = await runCheck({ baseUrl: 'https://rix7.cl', fetchImpl, expected: TREE });
     expect(result.judgement.build?.status).toBe('no-live');
+  });
+});
+
+const RELEASE = {
+  version: '10.1.0',
+  tag: 'v10.1.0',
+  nearestTag: 'v10.1.0',
+  nearestCommit: 'aaaa1111',
+  distance: 0,
+  error: null,
+};
+
+describe('readLiveRelease', () => {
+  it('lee versión y tag del endpoint', () => {
+    expect(readLiveRelease({ release: { version: '10.1.0', tag: 'v10.1.0' } })).toEqual({
+      version: '10.1.0',
+      tag: 'v10.1.0',
+    });
+  });
+
+  it('un release vacío o ausente no es identidad', () => {
+    expect(readLiveRelease(HEALTHY)).toBeNull();
+    expect(readLiveRelease({ release: null })).toBeNull();
+    expect(readLiveRelease({ release: {} })).toBeNull();
+    expect(readLiveRelease({ release: 'v10.1.0' })).toBeNull();
+    expect(readLiveRelease(null)).toBeNull();
+  });
+});
+
+describe('runCheck contra la versión y el tag', () => {
+  const conRelease = (release: unknown) =>
+    (async () => jsonResponse(200, { ...HEALTHY, release })) as unknown as typeof fetch;
+
+  it('si en vivo está la versión y el tag del repo, coincide', async () => {
+    const result = await runCheck({
+      baseUrl: 'https://rix7.cl',
+      fetchImpl: conRelease({ version: '10.1.0', tag: 'v10.1.0' }),
+      releaseExpected: RELEASE,
+    });
+
+    expect(result.judgement.release?.status).toBe('match');
+    expect(result.judgement.release?.ok).toBe(true);
+    // La comparación de release no convierte el portal en «caído»: eso sigue
+    // dependiendo de los subsistemas críticos.
+    expect(result.ok).toBe(true);
+  });
+
+  it('una versión distinta se marca como contradicción', async () => {
+    const result = await runCheck({
+      baseUrl: 'https://rix7.cl',
+      fetchImpl: conRelease({ version: '10.0.0', tag: 'v10.0.0' }),
+      releaseExpected: RELEASE,
+    });
+
+    expect(result.judgement.release?.status).toBe('version-differs');
+    expect(result.judgement.release?.ok).toBe(false);
+  });
+
+  it('un deployment sin release no se compara ni se acusa', async () => {
+    const result = await runCheck({
+      baseUrl: 'https://rix7.cl',
+      fetchImpl: (async () => jsonResponse(200, HEALTHY)) as unknown as typeof fetch,
+      releaseExpected: RELEASE,
+    });
+
+    expect(result.judgement.release?.status).toBe('no-live');
+    expect(result.judgement.release?.ok).toBe(true);
+  });
+
+  it('sin releaseExpected no agrega el veredicto', async () => {
+    const result = await runCheck({
+      baseUrl: 'https://rix7.cl',
+      fetchImpl: conRelease({ version: '10.1.0', tag: 'v10.1.0' }),
+    });
+
+    expect(result.judgement.release).toBeUndefined();
+  });
+});
+
+describe('el informe nombra la release', () => {
+  it('la consola muestra la coincidencia de versión y tag', async () => {
+    const result = await runCheck({
+      baseUrl: 'https://rix7.cl',
+      fetchImpl: (async () =>
+        jsonResponse(200, { ...HEALTHY, release: { version: '10.1.0', tag: 'v10.1.0' } })) as unknown as typeof fetch,
+      releaseExpected: RELEASE,
+    });
+
+    const text = formatReport(result);
+    expect(text).toContain('Versión y tag');
+    expect(text).toContain('coincide con el repositorio');
+  });
+
+  it('la consola marca la contradicción y el resumen la lleva', async () => {
+    const result = await runCheck({
+      baseUrl: 'https://rix7.cl',
+      fetchImpl: (async () =>
+        jsonResponse(200, { ...HEALTHY, release: { version: '10.0.0', tag: 'v10.0.0' } })) as unknown as typeof fetch,
+      releaseExpected: RELEASE,
+    });
+
+    const text = formatReport(result);
+    expect(text).toContain('! Versión y tag');
+    expect(text).toContain('10.0.0');
+
+    const md = summaryMarkdown(result);
+    expect(md).toContain('- Release: **no coincide**');
   });
 });
 

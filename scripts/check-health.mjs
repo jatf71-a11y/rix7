@@ -37,10 +37,19 @@
  * aprende a ignorar. En el **release** la misma comparación sí es un fallo: ahí
  * lo publicado tiene que ser exactamente el árbol que se acaba de verificar.
  *
+ * ## La cuarta: ¿lo que está en vivo es esta release?
+ *
+ * El hash no distingue una versión de otra. El deploy publica también
+ * `RIX7_VERSION` y `RIX7_TAG`, y acá se comparan con `package.json` y el tag del
+ * checkout. Una contradicción —otra versión, otro tag, o un tag que no
+ * corresponde a la versión— **sí** pone el job rojo: no es «producción va un
+ * commit atrás», es «lo que está en vivo dice ser otra release». Que el árbol no
+ * tenga tag es solo un aviso, porque la build sigue siendo la correcta.
+ *
  * Uso:
  *   npm run check:health
  *   npm run check:health -- --url http://localhost:3111
- *   npm run check:health -- --no-tree   # sin comparar contra el árbol local
+ *   npm run check:health -- --no-tree   # sin comparar árbol, versión ni tag
  *   HEALTH_URL=https://rix7.cl node scripts/check-health.mjs
  */
 import path from 'node:path';
@@ -53,6 +62,11 @@ import {
   readTreeBuildId,
   shortId,
 } from './build-id.mjs';
+import {
+  compareReleaseIdentity,
+  formatReleaseComparison,
+  readReleaseIdentity,
+} from './release-identity.mjs';
 
 /** Producción por defecto; se cambia con `--url` o `HEALTH_URL`. */
 export const DEFAULT_HEALTH_URL = 'https://rix7.vercel.app';
@@ -82,6 +96,7 @@ export const FETCH_TIMEOUT_MS = 15000;
  * @property {Subsystem[]} subsystems
  * @property {string | null} summary       el resumen que mandó el endpoint
  * @property {ReturnType<typeof compareBuilds>} [build]  en vivo vs el árbol local (lo agrega `runCheck`)
+ * @property {ReturnType<typeof compareReleaseIdentity>} [release]  versión/tag en vivo vs el repo (lo agrega `runCheck`)
  */
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -134,6 +149,30 @@ export function readLiveBuild(payload) {
     dirty: value.dirty === true,
     builtAt: typeof value.builtAt === 'string' && value.builtAt ? value.builtAt : null,
   };
+}
+
+/**
+ * La versión y el tag que publica el despliegue, o `null`.
+ *
+ * Misma regla defensiva que `readLiveBuild`: un objeto sin ninguno de los dos
+ * datos es `null`, no una identidad vacía que después «coincida» con todo.
+ *
+ * @param {unknown} payload el JSON de `/api/health`
+ * @returns {{ version: string | null, tag: string | null } | null}
+ */
+export function readLiveRelease(payload) {
+  const record = payload && typeof payload === 'object' && !Array.isArray(payload) ? /** @type {Record<string, unknown>} */ (payload) : null;
+  const release = record?.release;
+  if (!release || typeof release !== 'object' || Array.isArray(release)) return null;
+
+  const value = /** @type {Record<string, unknown>} */ (release);
+  const version = typeof value.version === 'string' && value.version ? value.version : null;
+  const tag = typeof value.tag === 'string' && value.tag ? value.tag : null;
+
+  // Un objeto vacío no es identidad: haría que la comparación dijera «coincide»
+  // sin haber comparado nada.
+  if (!version && !tag) return null;
+  return { version, tag };
 }
 
 export function judgeHealth(payload, httpStatus = 0) {
@@ -210,7 +249,7 @@ export function judgeHealth(payload, httpStatus = 0) {
  * configuración—; `null` o un objeto sin identificador dice «no se pudo
  * identificar el árbol»; y un identificador se compara de verdad.
  *
- * @param {{ baseUrl?: string, fetchImpl?: typeof fetch, timeoutMs?: number, expected?: ReturnType<typeof readTreeBuildId> | null | undefined, published?: { id?: string | null } | null, relationImpl?: typeof gitRelation }} [options]
+ * @param {{ baseUrl?: string, fetchImpl?: typeof fetch, timeoutMs?: number, expected?: ReturnType<typeof readTreeBuildId> | null | undefined, releaseExpected?: ReturnType<typeof readReleaseIdentity> | null | undefined, published?: { id?: string | null, commit?: string | null } | null, relationImpl?: typeof gitRelation }} [options]
  * @returns {Promise<{ url: string, ok: boolean, httpStatus: number, judgement: HealthJudgement, error: string | null }>}
  */
 export async function runCheck({
@@ -218,6 +257,7 @@ export async function runCheck({
   fetchImpl = fetch,
   timeoutMs = FETCH_TIMEOUT_MS,
   expected,
+  releaseExpected,
   published = null,
   relationImpl = gitRelation,
 } = {}) {
@@ -296,6 +336,14 @@ export async function runCheck({
     judgement.build = compareBuilds({ live, expected, published, relation });
   }
 
+  if (releaseExpected !== undefined) {
+    judgement.release = compareReleaseIdentity({
+      live: readLiveRelease(payload),
+      expected: releaseExpected,
+      publishedCommit: published?.commit ?? null,
+    });
+  }
+
   return { url, ok: judgement.ok, httpStatus, judgement, error: null };
 }
 
@@ -328,6 +376,13 @@ export function formatReport({ url, httpStatus, judgement }) {
   if (judgement.build) {
     lines.push('');
     for (const line of formatBuildComparison(judgement.build)) lines.push(line);
+  }
+
+  // «¿Es este código?» y «¿es esta versión?» son dos preguntas distintas: la
+  // build puede coincidir con el árbol y aun así el tag estar atrás.
+  if (judgement.release) {
+    lines.push('');
+    for (const line of formatReleaseComparison(judgement.release)) lines.push(line);
   }
 
   lines.push('');
@@ -373,6 +428,15 @@ export function summaryMarkdown({ url, httpStatus, judgement }) {
     }
   }
 
+  if (judgement.release) {
+    const comparison = judgement.release;
+    const mark = comparison.ok ? '' : '**no coincide** — ';
+    lines.push(`- Release: ${mark}${comparison.detail}.`);
+    if (comparison.hint && comparison.level !== 'info') {
+      lines.push(`\n> ${comparison.ok ? '⚠️' : '🛑'} ${comparison.hint}`);
+    }
+  }
+
   lines.push('');
   return lines.join('\n');
 }
@@ -407,13 +471,17 @@ function usage() {
       '',
       'Opciones:',
       '  --url <url>     despliegue a consultar (por defecto, producción; o HEALTH_URL)',
-      '  --no-tree       no compara con el árbol de este repositorio',
+      '  --no-tree       no compara árbol, versión ni tag de este repositorio',
       '  --help          esto',
       '',
       'Además de la configuración, compara el identificador de la build que publica',
       'el despliegue con el hash de este árbol: así se ve sin entrar a Vercel si',
       'producción quedó atrás. No coincidir NO lo cuenta como crítico (no es una',
       'caída): se informa, y el release sí lo toma como un fallo.',
+      '',
+      'También compara versión y tag. Que el árbol no esté taggeado es un aviso;',
+      'que la versión o el tag no sean los del repositorio sí sale con 1: lo que',
+      'está en vivo dice ser otra release.',
       '',
       'Pensado para correr solo desde el CI cada pocas horas. Un 503 con el informe',
       'de críticos es un fallo del job —que es exactamente lo que se quiere saber—.',
@@ -446,21 +514,34 @@ async function main() {
   // código?». Si no se puede calcular, el informe sigue siendo útil: solo dice
   // que la comparación quedó sin hacer.
   const expected = args.tree ? readTreeBuildId() : undefined;
+  // La versión y el tag se leen aparte del hash: `--no-tree` significa «no
+  // compares», así que tampoco se comparan.
+  const releaseExpected = args.tree ? readReleaseIdentity() : undefined;
 
   if (expected?.error) {
     console.warn(`⚠ No se pudo identificar el árbol de este repositorio: ${expected.error}`);
   } else if (expected?.skipped?.length) {
     console.warn(`⚠ El identificador del árbol se calculó sin ${expected.skipped.length} archivo(s) que no se pudieron leer.`);
   }
+  if (releaseExpected?.error) {
+    console.warn(`⚠ No se pudo leer la versión/tag del repositorio: ${releaseExpected.error}`);
+  }
 
-  const result = await runCheck({ baseUrl: args.url, expected });
+  const result = await runCheck({ baseUrl: args.url, expected, releaseExpected });
   console.log(formatReport(result));
   await appendSummary(summaryMarkdown(result));
 
-  if (!result.ok) {
+  // Una contradicción de versión/tag también pone la sonda roja: que el portal
+  // funcione no significa que lo publicado sea la release que el repo declara.
+  const releaseBroken = result.judgement.release?.ok === false;
+
+  if (!result.ok || releaseBroken) {
     // `::error::` pinta el aviso en la lista de la corrida de GitHub, además del
     // job rojo. Así el motivo no hay que buscarlo en el log.
-    const detail = result.judgement.reasons[0] ?? 'el informe no se pudo leer';
+    const detail =
+      result.judgement.reasons[0] ??
+      result.judgement.release?.detail ??
+      'el informe no se pudo leer';
     console.error(`::error::Salud de producción: ${detail}`);
     process.exitCode = 1;
   }

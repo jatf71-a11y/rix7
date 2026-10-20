@@ -9,6 +9,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { GET } from '@/app/api/health/route';
+import { RELEASE_TAG_ENV, RELEASE_VERSION_ENV } from '@/lib/utils/releaseIdentity';
 import { DEFAULT_OWNER_PROJECT_REF } from '@/lib/utils/supabaseOwner';
 
 /** Todas las claves que el informe mira, para fijarlas en cada test. */
@@ -195,5 +196,43 @@ describe('/api/health', () => {
 
     const body = await (await GET()).json();
     expect(body.build).toBeNull();
+  });
+
+  it('informa la versión y el tag publicados por el deployment', async () => {
+    setEnv();
+    vi.stubEnv(RELEASE_VERSION_ENV, '10.1.0');
+    vi.stubEnv(RELEASE_TAG_ENV, 'v10.1.0');
+
+    const body = await (await GET()).json();
+
+    expect(body.release).toEqual({ version: '10.1.0', tag: 'v10.1.0' });
+  });
+
+  it('un commit sin tag publica la versión y deja el tag en null', async () => {
+    setEnv();
+    vi.stubEnv(RELEASE_VERSION_ENV, '10.1.0');
+    vi.stubEnv(RELEASE_TAG_ENV, '');
+
+    const body = await (await GET()).json();
+
+    expect(body.release).toEqual({ version: '10.1.0', tag: null });
+  });
+
+  it('sin versión ni tag responde null, no un objeto vacío', async () => {
+    setEnv();
+    vi.stubEnv(RELEASE_VERSION_ENV, '');
+    vi.stubEnv(RELEASE_TAG_ENV, '');
+
+    const body = await (await GET()).json();
+    expect(body.release).toBeNull();
+  });
+
+  it('un valor que no es semver no se publica', async () => {
+    setEnv();
+    vi.stubEnv(RELEASE_VERSION_ENV, 'main; rm -rf /');
+    vi.stubEnv(RELEASE_TAG_ENV, 'release-final');
+
+    const body = await (await GET()).json();
+    expect(body.release).toBeNull();
   });
 });

@@ -45,6 +45,14 @@ import { fileURLToPath } from 'node:url';
 
 import { BUILD_ID_ENV, describeBuild, readTreeBuildId } from './build-id.mjs';
 import { assertNoSecrets } from './check-secrets.mjs';
+import {
+  RELEASE_TAG_ENV,
+  RELEASE_VERSION_ENV,
+  describeReleaseIdentity,
+  readReleaseIdentity,
+  sanitizeTag,
+  sanitizeVersion,
+} from './release-identity.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const staging = path.join(root, '.deploy-staging');
@@ -57,12 +65,20 @@ const staging = path.join(root, '.deploy-staging');
  * aparezca cuando no hay identificador, es la diferencia entre un deployment
  * identificable y uno que responde `build: null` para siempre.
  *
- * @param {{ buildValue?: string | null }} [options]
+ * @param {{ buildValue?: string | null, version?: string | null, tag?: string | null }} [options]
  * @returns {string[]}
  */
-export function vercelArgs({ buildValue = null } = {}) {
+export function vercelArgs({ buildValue = null, version = null, tag = null } = {}) {
   const args = ['--yes', 'vercel', '--prod', '--yes'];
   if (buildValue) args.push('-e', `${BUILD_ID_ENV}=${buildValue}`);
+  // La versión y el tag viajan como variables de entorno del deployment para
+  // que `/api/health` pueda responder «¿es esta release?» y no solo «¿es este
+  // árbol?». Son semver y un tag semver: no traen espacios ni caracteres que
+  // rompan el paso por `cmd.exe` en Windows.
+  const safeVersion = sanitizeVersion(version);
+  const safeTag = sanitizeTag(tag);
+  if (safeVersion) args.push('-e', `${RELEASE_VERSION_ENV}=${safeVersion}`);
+  if (safeTag) args.push('-e', `${RELEASE_TAG_ENV}=${safeTag}`);
   return args;
 }
 
@@ -122,6 +138,18 @@ function main() {
   const treeBuild = inherited ? null : readTreeBuildId({ root });
   const buildValue = inherited ?? treeBuild?.value ?? null;
 
+  // La identidad de release sigue el mismo criterio: si el release ya la
+  // calculó, se respeta; si no, se lee acá. Sin ella el deployment responde
+  // `release: null` y la verificación no puede afirmar qué versión publicó.
+  const inheritedVersion = process.env[RELEASE_VERSION_ENV] || null;
+  const inheritedTag = process.env[RELEASE_TAG_ENV] || null;
+  const releaseIdentity =
+    inheritedVersion || inheritedTag
+      ? { version: sanitizeVersion(inheritedVersion), tag: sanitizeTag(inheritedTag) }
+      : readReleaseIdentity({ root });
+  const version = releaseIdentity?.version ?? null;
+  const tag = releaseIdentity?.tag ?? null;
+
   if (inherited) {
     console.log(`→ Identificador de la build: ${inherited} (lo aporta el release)`);
   } else if (buildValue) {
@@ -133,6 +161,17 @@ function main() {
 
   if (treeBuild?.skipped?.length) {
     console.warn(`⚠ No se pudieron leer ${treeBuild.skipped.length} archivo(s) del árbol: el identificador se calculó sin ellos.`);
+  }
+
+  if (version || tag) {
+    console.log(`→ Versión y tag: ${describeReleaseIdentity({ version, tag })}`);
+    if (!tag) {
+      console.warn('  El commit no está taggeado: la build se publica, pero queda sin tag identificable.');
+    }
+  } else {
+    console.warn(
+      `⚠ No se pudo leer la versión/tag (${releaseIdentity?.error ?? 'sin datos'}): /api/health responderá \`release: null\`.`
+    );
   }
 
   console.log('→ Preparando copia sin metadata de git…');
@@ -153,7 +192,7 @@ function main() {
   // en `null`. Se pasa por `cmd.exe /c` en vez de `shell: true`, que es la forma
   // explícita de invocar el shim sin que los argumentos pasen por un intérprete.
   const isWindows = process.platform === 'win32';
-  const vercel = vercelArgs({ buildValue });
+  const vercel = vercelArgs({ buildValue, version, tag });
   const [command, args] = isWindows ? ['cmd.exe', ['/c', 'npx', ...vercel]] : ['npx', vercel];
 
   const result = spawnSync(command, args, {

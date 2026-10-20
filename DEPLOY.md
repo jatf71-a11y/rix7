@@ -181,8 +181,8 @@ npm run release:prod
 | 1 | Build de producción | `npm run build` | un error de tipos descubierto acá se arregla en un minuto; descubierto por Vercel, en un deploy fallido |
 | 2 | Migraciones pendientes | `npm run db:push` (sección 3) | **la base primero soporta, el código después usa**: publicar antes de migrar deja el portal en vivo contra columnas que no existen |
 | 3 | Esquema de la base | `npm run check:schema` | aplicar una migración no es lo mismo que **comprobar que quedó aplicada**: lee la base real y dice qué falta. Solo necesita la clave pública, así que sirve aunque no tengas el token |
-| 4 | Deploy a producción | `npm run deploy:prod` (sección 5) | publica el árbol de trabajo sin metadata de git, tras la guardia de secretos, y publica el **identificador de la build** (el hash de este árbol) |
-| 5 | Verificación en vivo | `smoke:prod` + `check:health` | portada, `/admin/registros`, `/api/registro`, las rutas del panel de socios (`/socio`, `/api/partner/access`, `/api/admin/socios`) y los críticos de `/api/health`, contra la URL publicada. Además **compara el identificador**: si lo que está en vivo no es este árbol, el release falla |
+| 4 | Deploy a producción | `npm run deploy:prod` (sección 5) | publica el árbol de trabajo sin metadata de git, tras la guardia de secretos, y publica el **identificador de la build** (el hash de este árbol), la **versión** y el **tag** |
+| 5 | Verificación en vivo | `smoke:prod` + `check:health` | portada, `/admin/registros`, `/api/registro`, las rutas del panel de socios (`/socio`, `/api/partner/access`, `/api/admin/socios`) y los críticos de `/api/health`, contra la URL publicada. Además **compara el identificador** y la **versión/tag**: si lo que está en vivo no es este árbol o no es esta release, el release falla |
 
 Antes de todo corre la **guardia de secretos** (sobre el árbol de trabajo): un
 token suelto corta el release antes de aplicar migraciones o publicar nada.
@@ -220,6 +220,42 @@ La [sonda de salud](.github/workflows/health-check.yml) —que corre sola cada 6
 horas— hace la misma comparación contra el checkout del CI y lo deja en su
 resumen: si producción quedó atrás, se ve ahí (y con `npm run check:health`,
 que además cuenta **cuántos commits** va atrás cuando puede).
+
+### La versión y el tag: «¿producción es esta release?»
+
+El hash responde «¿es este código?», pero no «¿es esta versión?». Para eso el
+deploy publica también `RIX7_VERSION` (el `version` de `package.json`) y
+`RIX7_TAG` (el tag exacto del commit, vacío si no tiene), y `/api/health` los
+devuelve en `release`:
+
+```bash
+curl -s https://rix7.cl/api/health | grep -o '"release":[^}]*}'
+# "release":{"version":"10.1.0","tag":"v10.1.0"}
+```
+
+La verificación compara ese objeto con el repositorio y **falla** cuando hay una
+contradicción: la versión en vivo no es la del `package.json`, el tag en vivo no
+es el del commit, o el tag no corresponde a la versión (`v10.0.0` con
+`"version": "10.1.0"`). También pone roja la sonda de salud, no solo el
+release.
+
+Si el commit **no tiene tag**, el release no falla —el árbol sigue siendo el
+correcto— pero lo dice como advertencia, con el tag más cercano y a cuántos
+commits quedó. Ese fue el caso del 2026-10-20: producción llevaba 38 commits
+después de `v10.0.0` y nada lo advertía.
+
+El flujo de una release con número es:
+
+```bash
+# 1. subir la versión en package.json (10.0.0 → 10.1.0)
+# 2. taguear el mismo commit que se va a publicar
+git tag v10.1.0
+# 3. publicar y verificar
+npm run release:prod
+```
+
+El tag se crea local; el deploy no lo empuja. Si querés que quede en GitHub,
+`git push --tags` (el push no publica, ver sección 5).
 
 ### De quién es la **cuenta** de la base: `npm run check:cuenta`
 

@@ -587,6 +587,76 @@ describe('verifyLive', () => {
 
     expect(result.ok).toBe(true);
   });
+  /**
+   * La otra mitad: el árbol puede coincidir y aun así la versión o el tag no.
+   * Es el caso que dejó producción 38 commits después de `v10.0.0` sin que el
+   * release lo dijera.
+   */
+  const RELEASE = {
+    version: '10.1.0',
+    tag: 'v10.1.0',
+    nearestTag: 'v10.1.0',
+    nearestCommit: 'aaaa1111',
+    distance: 0,
+    error: null,
+  };
+
+  const healthWithRelease = (ok: boolean) => async () => ({
+    ...(await okHealth()),
+    judgement: {
+      ...(await okHealth()).judgement,
+      release: {
+        status: ok ? ('match' as const) : ('version-differs' as const),
+        level: ok ? ('ok' as const) : ('warn' as const),
+        ok,
+        detail: ok ? 'coincide' : 'en vivo dice 10.0.0 y el repositorio 10.1.0',
+        hint: ok ? null : 'publicá el árbol actual',
+        live: null,
+        expected: null,
+      },
+    },
+  });
+
+  it('con versión y tag locales, exige que lo publicado sea esa release', async () => {
+    const result = await verifyLive({
+      url: 'https://rix7.cl',
+      attempts: 3,
+      releaseExpected: RELEASE,
+      smokeImpl: okSmoke,
+      healthImpl: healthWithRelease(true),
+      sleepImpl: async () => {},
+      log: () => {},
+    });
+
+    expect(result).toEqual({ ok: true, attempt: 1 });
+  });
+
+  it('si la versión o el tag no coinciden, el release falla aunque el sitio responda', async () => {
+    const result = await verifyLive({
+      url: 'https://rix7.cl',
+      attempts: 2,
+      releaseExpected: RELEASE,
+      smokeImpl: okSmoke,
+      healthImpl: healthWithRelease(false),
+      sleepImpl: async () => {},
+      log: () => {},
+    });
+
+    expect(result).toEqual({ ok: false, attempt: 2 });
+  });
+
+  it('sin identidad local no exige la comparación de release', async () => {
+    const result = await verifyLive({
+      url: 'https://rix7.cl',
+      attempts: 2,
+      smokeImpl: okSmoke,
+      healthImpl: healthWithRelease(false),
+      sleepImpl: async () => {},
+      log: () => {},
+    });
+
+    expect(result).toEqual({ ok: true, attempt: 1 });
+  });
 });
 
 describe('informe final', () => {
@@ -664,6 +734,40 @@ describe('informe final', () => {
 
     expect(text).toContain('Sin identificador de la build');
     expect(text).not.toContain('en vivo coincide');
+  });
+
+  it('nombra la versión y el tag cuando lo publicado es esa release', () => {
+    const text = formatReleaseSummary({
+      durationMs: 2_000,
+      ranDeploy: true,
+      ranVerify: true,
+      verified: { attempt: 1 },
+      releaseLabel: '10.1.0 · tag v10.1.0',
+      releaseCompared: true,
+      releaseConfirmed: true,
+    });
+
+    expect(text).toContain('Versión y tag: 10.1.0 · tag v10.1.0');
+    expect(text).toContain('en vivo coincide con el repositorio');
+  });
+
+  it('sin comparación de release no afirma que coincida', () => {
+    const text = formatReleaseSummary({
+      durationMs: 2_000,
+      ranDeploy: true,
+      ranVerify: false,
+      releaseLabel: '10.1.0 · tag v10.1.0',
+      releaseCompared: true,
+    });
+
+    expect(text).toContain('no se comparó con lo vivo');
+    expect(text).not.toContain('en vivo coincide con el repositorio');
+  });
+
+  it('si no se pudo leer la versión lo dice', () => {
+    const text = formatReleaseSummary({ durationMs: 2_000, ranDeploy: true, ranVerify: true, verified: { attempt: 1 } });
+
+    expect(text).toContain('Sin versión ni tag');
   });
 });
 
