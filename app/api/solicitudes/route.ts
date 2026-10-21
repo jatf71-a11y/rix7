@@ -1,0 +1,155 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { solicitudPatchSchema, solicitudPostSchema } from '@/lib/api/schemas';
+import { validateInput } from '@/lib/api/validate';
+import {
+  createSolicitud,
+  listSolicitudes,
+  updateSolicitudStatus,
+} from '@/lib/data/solicitudesStore';
+import {
+  isSolicitudKind,
+  normalizeSolicitud,
+  normalizeSolicitudPatch,
+} from '@/lib/data/solicitudes';
+import { requireAdmin } from '@/lib/supabase/auth-guard';
+import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
+
+/**
+ * `/api/solicitudes` — el otro extremo del botón «Publicar».
+ *
+ * POST es **público**: un propietario o una empresa que quiere registrarse no
+ * tiene cuenta todavía, y es justamente quien deja sus datos. Se protege con
+ * rate limit por IP y validando el cuerpo en dos capas: la forma (Zod) y la
+ * semántica de cada camino (`normalizeSolicitud`). La política RLS vuelve a
+ * exigir lo mínimo —tipo válido, contacto y consentimiento—.
+ *
+ * GET es **del equipo**: las solicitudes tienen datos personales y solo se
+ * listan con rol admin. El filtro `?kind=` es para las pestañas del panel; un
+ * tipo desconocido se rechaza en vez de devolver todo como si nada.
+ *
+ * PATCH es **del equipo**: el ciclo de vida (`nueva`, `en_revision`,
+ * `contactada`, `cerrada`) solo lo mueve quien revisa las solicitudes. La RLS de
+ * UPDATE exige `is_rix7_admin()`, así que además del guard la base vuelve a
+ * negar el cambio a cualquier otra cuenta.
+ *
+ * La respuesta no finge persistencia: `persisted:false` significa que se guardó
+ * solo en memoria (desarrollo sin Supabase) y el panel lo muestra.
+ */
+
+const RATE_LIMIT_MAX = 12;
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutos
+
+const rateLimiter = createRateLimiter({ max: RATE_LIMIT_MAX, windowMs: RATE_LIMIT_WINDOW_MS });
+
+export async function GET(request: NextRequest) {
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
+
+  const kindParam = request.nextUrl.searchParams.get('kind');
+  if (kindParam && !isSolicitudKind(kindParam)) {
+    return NextResponse.json({ success: false, error: 'Tipo de solicitud inválido.' }, { status: 400 });
+  }
+
+  const { solicitudes, source, persistent } = await listSolicitudes(
+    kindParam && isSolicitudKind(kindParam) ? kindParam : undefined
+  );
+
+  return NextResponse.json(
+    { success: true, data: solicitudes, source, persistent },
+    // Son datos personales del equipo: ningún caché intermedio debe guardarlos.
+    { headers: { 'Cache-Control': 'no-store' } }
+  );
+}
+
+export async function PATCH(request: NextRequest) {
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ success: false, error: 'Cuerpo inválido' }, { status: 400 });
+  }
+
+  const shape = validateInput(solicitudPatchSchema, body);
+  if (!shape.ok) {
+    return NextResponse.json({ success: false, error: shape.error }, { status: 400 });
+  }
+
+  const patch = normalizeSolicitudPatch(body as { id?: unknown; status?: unknown });
+  if (!patch.ok) {
+    return NextResponse.json({ success: false, error: patch.error }, { status: 400 });
+  }
+
+  const updated = await updateSolicitudStatus(patch.id, patch.status);
+
+  if (!updated.ok) {
+    // Un id que no existe es 404; un fallo de la base es 500. El panel necesita
+    // distinguirlos para no mandar a recargar cuando el problema es otro.
+    if (!updated.found) {
+      return NextResponse.json(
+        { success: false, error: updated.error ?? 'No encontramos esa solicitud.' },
+        { status: 404 }
+      );
+    }
+
+    console.error('[solicitudes] no se pudo actualizar el estado:', updated.error);
+    return NextResponse.json(
+      { success: false, error: 'No se pudo actualizar la solicitud.', persisted: updated.persisted },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json(
+    { success: true, solicitud: updated.solicitud ?? null, persisted: updated.persisted },
+    { headers: { 'Cache-Control': 'no-store' } }
+  );
+}
+
+export async function POST(request: NextRequest) {
+  if (rateLimiter.isLimited(clientIpFrom(request.headers))) {
+    return NextResponse.json(
+      { success: false, error: 'Demasiadas solicitudes. Intenta de nuevo en unos minutos.' },
+      { status: 429, headers: { 'Retry-After': '600' } }
+    );
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ success: false, error: 'Cuerpo inválido' }, { status: 400 });
+  }
+
+  // Primero la forma: objeto con los campos que el formulario puede mandar.
+  const shape = validateInput(solicitudPostSchema, body);
+  if (!shape.ok) {
+    return NextResponse.json({ success: false, error: shape.error }, { status: 400 });
+  }
+
+  // Después la semántica: qué exige cada camino y con qué límites.
+  const validation = normalizeSolicitud(body as Record<string, unknown>);
+  if (!validation.ok) {
+    return NextResponse.json({ success: false, error: validation.error }, { status: 400 });
+  }
+
+  const stored = await createSolicitud(validation.solicitud);
+
+  if (!stored.ok) {
+    console.error('[solicitudes] no se pudo guardar:', stored.error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'No se pudo guardar la solicitud. Intenta de nuevo o escríbenos.',
+        persisted: stored.persisted,
+      },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json(
+    { success: true, id: stored.id ?? null, persisted: stored.persisted },
+    { status: 201 }
+  );
+}

@@ -116,6 +116,7 @@ describe('el buscador como requisito', () => {
 
 /** Todas las respuestas de un proyecto al día. */
 const HEALTHY_ROUTES: Record<string, () => Response> = {
+  [`${BASE}/rest/v1/solicitudes?select=kind&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/leads?select=source&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/share_events?select=channel&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/properties?select=rol&limit=1`]: () => jsonResponse(200, []),
@@ -168,6 +169,7 @@ describe('schemaPlan', () => {
   it('el manifiesto cubre lo que el código desplegado da por existente', () => {
     const ids = schemaPlan(REQUIRED_SCHEMA, BASE).map((probe) => probe.id);
     expect(ids).toContain('properties.rol');
+    expect(ids).toContain('solicitudes.kind');
     expect(ids).toContain('rix7_partner_id()');
     expect(ids).toContain('get_properties_filtered(bbox)');
     expect(new Set(REQUIRED_SCHEMA.map((item) => item.migration))).toEqual(
@@ -176,6 +178,7 @@ describe('schemaPlan', () => {
         '0014_socio_publicaciones',
         '0015_rol_y_video',
         '0016_share_events_y_origen',
+        '0018_solicitudes',
       ])
     );
   });
@@ -194,6 +197,15 @@ describe('judgeColumn', () => {
 
   it('PGRST204 también es que falta (PostgREST lo usa para columnas desconocidas)', () => {
     expect(judgeColumn(400, { code: 'PGRST204', message: "Could not find the 'rol' column" }).verdict).toBe('missing');
+  });
+
+  it('PGRST205 es que falta la tabla (una migración sin aplicar)', () => {
+    expect(
+      judgeColumn(404, {
+        code: 'PGRST205',
+        message: "Could not find the table 'public.solicitudes' in the schema cache",
+      }).verdict
+    ).toBe('missing');
   });
 
   it('un 400 que no identifica la columna es «no sé», no un aprobado', () => {
@@ -315,7 +327,8 @@ describe('runSchemaCheck', () => {
 
   it('el caso de producción: las 0014 y 0015 sin aplicar', async () => {
     const { fetchImpl } = server({
-      // 0016 aplicada: el caso que se estudia es el de las 0014 y 0015.
+      // 0016 y 0018 aplicadas: el caso que se estudia es el de las 0014 y 0015.
+      [`${BASE}/rest/v1/solicitudes?select=kind&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/leads?select=source&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/share_events?select=channel&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/properties?select=rol&limit=1`]: () => jsonResponse(400, MISSING_COLUMN),

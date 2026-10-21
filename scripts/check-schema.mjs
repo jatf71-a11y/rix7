@@ -64,6 +64,15 @@ export const PROBE_TIMEOUT_MS = 15000;
  */
 export const REQUIRED_SCHEMA = [
   {
+    id: 'solicitudes.kind',
+    kind: 'column',
+    table: 'solicitudes',
+    column: 'kind',
+    migration: '0018_solicitudes',
+    because:
+      'es la bandeja de Publicar: sin la tabla, las licitaciones y los registros de empresa no se pueden guardar',
+  },
+  {
     id: 'leads.source',
     kind: 'column',
     table: 'leads',
@@ -191,8 +200,8 @@ export function judgeColumn(status, body) {
   if (status === 200 || status === 206) return { verdict: 'present', detail: 'existe' };
 
   const code = errorCode(body);
-  if (code === '42703' || code === 'PGRST204') {
-    return { verdict: 'missing', detail: errorMessage(body) ?? `falta la columna (${code})` };
+  if (code === '42703' || code === 'PGRST204' || code === 'PGRST205') {
+    return { verdict: 'missing', detail: errorMessage(body) ?? `falta la columna o la tabla (${code})` };
   }
 
   if (status === 400) {

@@ -14,6 +14,7 @@ import {
 import type { PanelProperty } from '@/lib/data/propertiesStore';
 import { CHILE_REGIONS } from '@/lib/data/chileLocations';
 import { getPropertyTypeLabel } from '@/lib/utils/formatters';
+import { isValidRol, ROL_MAX_LENGTH } from '@/lib/utils/rol';
 import { uploadMedia } from '@/lib/utils/uploadMedia';
 
 /**
@@ -234,11 +235,10 @@ export default function PublicationForm({
       errors.lat = 'Coordenadas fuera de rango.';
     if (form.year_built && !/^\d{4}$/.test(form.year_built.trim()))
       errors.year_built = 'Año inválido (4 dígitos).';
-    // Espejo de `rolSchema` (lib/api/schemas.ts) para fallar en pantalla antes
-    // de viajar; la autoridad sigue siendo el servidor.
+    // Misma regla que `rolSchema` (lib/api/schemas.ts), para fallar en pantalla
+    // antes de viajar; la autoridad sigue siendo el servidor.
     const rol = form.rol.trim();
-    if (rol && !/^\d[\dA-Za-z\-/ .]{3,39}$/.test(rol))
-      errors.rol = 'ROL inválido (ej: 15234-67).';
+    if (rol && !isValidRol(rol)) errors.rol = 'ROL inválido (ej: 15234-67).';
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   }
@@ -474,7 +474,7 @@ export default function PublicationForm({
             value={form.rol}
             onChange={(e) => set('rol')(e.target.value)}
             placeholder="15234-67"
-            maxLength={40}
+            maxLength={ROL_MAX_LENGTH}
           />
           {fieldErrors.rol ? (
             <p className="text-xs text-red-600 mt-1">{fieldErrors.rol}</p>

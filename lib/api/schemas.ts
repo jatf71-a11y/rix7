@@ -25,6 +25,8 @@
 
 import { z } from 'zod';
 
+import { isValidRol, ROL_MAX_LENGTH } from '@/lib/utils/rol';
+
 /** Longitud máxima aceptada para ids de propiedad/usuario-style legibles. */
 const MAX_ID_LENGTH = 120;
 
@@ -230,6 +232,52 @@ export const leadsPostSchema = z
   })
   .passthrough();
 
+// ═══ /api/solicitudes ═══
+
+/**
+ * Solicitud del botón «Publicar» (licitación de propietario o registro de
+ * corredora/inmobiliaria).
+ *
+ * Acá se valida solo la **forma** —objeto con los campos que el formulario
+ * puede mandar—; la semántica (qué exige cada camino, largos, correo, precio,
+ * consentimiento) la aplica `normalizeSolicitud`, que comparte reglas con la
+ * política RLS y tiene suite propia.
+ */
+export const solicitudPostSchema = z
+  .object({
+    kind: z.unknown().optional(),
+    name: z.unknown().optional(),
+    email: z.unknown().optional(),
+    phone: z.unknown().optional(),
+    company: z.unknown().optional(),
+    message: z.unknown().optional(),
+    consent: z.unknown().optional(),
+    operation: z.unknown().optional(),
+    property_type: z.unknown().optional(),
+    region: z.unknown().optional(),
+    commune: z.unknown().optional(),
+    expected_price: z.unknown().optional(),
+    address: z.unknown().optional(),
+    rol: z.unknown().optional(),
+    rut: z.unknown().optional(),
+    role: z.unknown().optional(),
+    website: z.unknown().optional(),
+  })
+  .passthrough();
+
+/**
+ * Cambio de estado de una solicitud desde el panel (PATCH).
+ *
+ * Igual que el alta: acá solo la **forma**, y `normalizeSolicitudPatch` decide
+ * si el id tiene forma de id y el estado es uno de los cuatro del ciclo.
+ */
+export const solicitudPatchSchema = z
+  .object({
+    id: z.unknown().optional(),
+    status: z.unknown().optional(),
+  })
+  .passthrough();
+
 // ═══ /api/registro ═══
 
 /**
@@ -391,18 +439,16 @@ const publicationImageSchema = z
   });
 
 /**
- * ROL de propiedad (SII): forma tolerante — dígito inicial y luego dígitos,
- * letras, guiones, puntos, barras o espacios (la notación varía por
- * circunscripción: `15234-67`, `13-15234-67`, con destino `15234-67D`).
- * No se exige guión para no rechazar variantes válidas; lo que se evita es
- * basura arbitraria en un campo que se guarda como identificación.
+ * ROL de propiedad (SII): la forma se define una sola vez en
+ * `lib/utils/rol.ts`, que también usan el formulario del panel y la
+ * solicitud de licitación.
  */
 const rolSchema = z
   .string()
   .trim()
   .min(4, 'ROL demasiado corto.')
-  .max(40)
-  .refine((v) => /^\d[\dA-Za-z\-/ .]{3,39}$/.test(v), {
+  .max(ROL_MAX_LENGTH)
+  .refine(isValidRol, {
     message: 'ROL inválido (ej: 15234-67).',
   });
 
