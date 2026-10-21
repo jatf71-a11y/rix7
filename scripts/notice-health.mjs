@@ -68,6 +68,7 @@ export const PROBES = [
   { env: 'SALUD_FALLO', file: 'salud.txt', who: 'la sonda de /api/health' },
   { env: 'ESQUEMA_FALLO', file: 'esquema.txt', who: 'el esquema de la base' },
   { env: 'CUENTA_FALLO', file: 'cuenta.txt', who: 'la titularidad de la base' },
+  { env: 'POSTGIS_FALLO', file: 'postgis.txt', who: 'el traslado de PostGIS fuera de public' },
 ];
 
 /** Lo que marca un fallo en la salida de las dos sondas. */
@@ -84,6 +85,8 @@ const CONSEQUENCE = {
     'si la base no tiene las columnas o las funciones que el código usa, algunas pantallas dejan de guardar —o el buscador cae al catálogo del código— sin decir por qué.',
   'la titularidad de la base':
     'si la base pertenece a una cuenta que no es la dueña del proyecto, el portal funciona igual y nadie lo nota: el día que esa cuenta se pierda, queda una base viva que nadie puede administrar. Es el incidente del 2026-10-13, y por eso el rojo es exactamente lo que se quiere.',
+  'el traslado de PostGIS fuera de public':
+    'mientras `public.spatial_ref_sys` siga expuesta, `anon` puede escribir en las definiciones de los SRID y romper los cálculos espaciales. El plazo para trasladar la extensión venció: si Support no lo hizo, toca la Vía B del runbook, en una ventana sin escrituras y con los exports del día.',
 };
 
 /** Cuánto informe entra en el cuerpo. El resto se recorta **diciéndolo**. */
@@ -302,6 +305,7 @@ function parseArgs(argv) {
     else if (arg === '--health-failed') forced.push(PROBES[0].who);
     else if (arg === '--schema-failed') forced.push(PROBES[1].who);
     else if (arg === '--account-failed') forced.push(PROBES[2].who);
+    else if (arg === '--postgis-failed') forced.push(PROBES[3].who);
   }
 
   if (forced.length > 0) args.state = { known: true, failed: true, who: forced };
@@ -315,7 +319,7 @@ function usage() {
       '',
       'Avisa en un issue cuando la sonda de salud queda roja, y lo cierra cuando vuelve.',
       '',
-      '  node scripts/notice-health.mjs            # en el workflow: lee SALUD_FALLO / ESQUEMA_FALLO',
+      '  node scripts/notice-health.mjs            # en el workflow: lee SALUD_FALLO / ESQUEMA_FALLO …',
       '  node scripts/notice-health.mjs --dry-run  # dice qué haría, sin tocar GitHub',
       '',
       'Opciones:',
@@ -324,6 +328,7 @@ function usage() {
       '  --health-failed   la sonda de /api/health falló',
       '  --schema-failed   el esquema de la base falló',
       '  --account-failed  la titularidad de la base falló',
+      '  --postgis-failed  el traslado de PostGIS fuera de public falló',
       '  --dry-run         muestra el aviso y no toca GitHub',
       '  --help            esto',
       '',

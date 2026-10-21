@@ -60,6 +60,14 @@
 # cualquier cosa que no sea «verificado» sí es rojo —un token que existe y no puede
 # comprobar nada no está haciendo su trabajo—.
 #
+# Y una cuarta que tampoco sale del código: el **aviso de PostGIS**. La tabla
+# `public.spatial_ref_sys` la puede escribir `anon` y el proyecto no puede
+# protegerla —pertenece a la extensión, no al rol `postgres`—, así que hay un
+# pedido a Support con fecha límite (`docs/runbook-postgis-esquema.md`).
+# `scripts/check-postgis.mjs` la consulta cada 6 horas: verde mientras se espera
+# —la espera es el estado esperado— y roja cuando el plazo pasó sin que la
+# extensión se moviera, que es el disparador de la Vía B.
+#
 # Y cuando queda rojo, **avisa en un issue** (`scripts/notice-health.mjs`): un job
 # rojo hay que ir a mirarlo, y un issue aparece en el feed, manda correo y guarda
 # el motivo con su fecha. Es un solo issue, siempre el mismo: se abre cuando la
@@ -146,6 +154,24 @@ jobs:
           set -o pipefail
           node scripts/check-schema.mjs 2>&1 | tee "$RUNNER_TEMP/esquema.txt"
 
+      # El aviso del Security Advisor por `public.spatial_ref_sys`: la tabla de
+      # PostGIS vive en `public`, `anon` puede escribirla y el proyecto **no**
+      # puede protegerla (pertenece a `supabase_admin`), así que hay un pedido a
+      # Support con fecha. Esta sonda es la que hace que la fecha exista fuera del
+      # runbook: verde mientras se espera —la espera es el estado esperado— y roja,
+      # con issue y correo, cuando el plazo pasó y la tabla sigue expuesta. El
+      # disparador se mueve con la variable `POSTGIS_DEADLINE` sin tocar código.
+      - name: Comprobar si PostGIS sigue en public
+        id: postgis
+        if: ${{ always() && vars.NEXT_PUBLIC_SUPABASE_URL != '' }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          POSTGIS_DEADLINE: ${{ vars.POSTGIS_DEADLINE }}
+        run: |
+          set -o pipefail
+          node scripts/check-postgis.mjs 2>&1 | tee "$RUNNER_TEMP/postgis.txt"
+
       # ¿Hay token con el que preguntarle a la API de administración? Se resuelve
       # en un paso propio para poder condicionar los siguientes sin poner el
       # secreto en el entorno de todo el job: solo lo ven los dos pasos que lo usan.
@@ -195,4 +221,5 @@ jobs:
           SALUD_FALLO: ${{ steps.salud.outcome == 'failure' }}
           ESQUEMA_FALLO: ${{ steps.esquema.outcome == 'failure' }}
           CUENTA_FALLO: ${{ steps.cuenta.outcome == 'failure' }}
+          POSTGIS_FALLO: ${{ steps.postgis.outcome == 'failure' }}
         run: node scripts/notice-health.mjs

@@ -225,6 +225,29 @@ describe('readFailedState', () => {
     expect(state.who).toHaveLength(3);
   });
 
+  it('el vencimiento del plazo de PostGIS avisa como una sonda más', () => {
+    const state = readFailedState({
+      SALUD_FALLO: 'false',
+      ESQUEMA_FALLO: 'false',
+      CUENTA_FALLO: 'false',
+      POSTGIS_FALLO: 'true',
+    });
+
+    expect(state.failed).toBe(true);
+    expect(state.who).toEqual(['el traslado de PostGIS fuera de public']);
+  });
+
+  it('PostGIS en plazo (verde) no abre ningún aviso', () => {
+    expect(
+      readFailedState({
+        SALUD_FALLO: 'false',
+        ESQUEMA_FALLO: 'false',
+        CUENTA_FALLO: 'false',
+        POSTGIS_FALLO: 'false',
+      })
+    ).toEqual({ known: true, failed: false, who: [] });
+  });
+
   it('un valor que no se entiende deja el estado en desconocido', () => {
     // Interpretarlo como «false» cerraría un aviso abierto por una variable mal escrita.
     expect(readFailedState({ SALUD_FALLO: 'quizás', ESQUEMA_FALLO: 'false' }).known).toBe(false);
