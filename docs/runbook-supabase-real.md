@@ -113,8 +113,10 @@ npm run db:status     # ahora todo debe salir aplicado
 Qué deja la base al terminar: extensión `postgis`, `partners`, `properties`
 (+ índices GiST/B-Tree), los RPC `get_properties_filtered` y
 `get_property_by_id`, políticas RLS, el bucket `properties-media` y las tablas
-`leads`, `saved_searches`, `favorites`, `share_views`, `share_events` y
-**`signups`** (esta última es la que faltaba y por eso el alta no persistía).
+`leads`, `saved_searches`, `favorites`, `share_views`, `share_events`,
+`property_views`, `solicitudes` y **`signups`** (esta última es la que faltaba y
+por eso el alta no persistía). `0019` agrega los `GRANT` explícitos de la Data
+API que Supabase deja de conceder sola desde el 2026-10-30.
 
 `db:push` se detiene en el primer error y registra cada migración aplicada en
 `public.rix7_migrations`, así que re-ejecutarlo es seguro. Verifica:
@@ -123,8 +125,27 @@ Qué deja la base al terminar: extensión `postgis`, `partners`, `properties`
 SELECT name, applied_at FROM public.rix7_migrations ORDER BY name;
 ```
 
+### Estado verificado el 2026-10-21 (después de `0019`)
+
+La base quedó en **19 migraciones** (`0001 … 0019`), `npm run db:status` dice
+«al día» y `npm run check:schema` sale verde con los ocho objetos que usa el
+código.
+
+Lo que `0019` **no** hace —y conviene tener presente— es retirar los grants
+viejos. Medido ese mismo día contra `information_schema.role_table_grants`, las
+diez tablas del portal siguen con los siete privilegios
+(`SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER`) para `anon`,
+`authenticated` y `service_role`: son los que Supabase concedía sola al crear
+cada tabla. Hoy lo que protege las filas es **RLS**, no la lista de grants;
+`TRUNCATE` no se alcanza por PostgREST (no tiene ruta HTTP) y `UPDATE`/`DELETE`
+de `anon` no tienen política que los permita.
+
+Dejar la base en lo mínimo que el portal usa requiere una migración que
+**revoque** lo que sobra. No está hecha: es un cambio de privilegios sobre
+producción y merece su propia ventana y su propia medición antes/después.
+
 > **Sin token** (el proyecto es de otra persona, o todavía no hay token):
-> `npm run db:apply-sql` genera **un solo archivo** con las 15 migraciones y su
+> `npm run db:apply-sql` genera **un solo archivo** con todas las migraciones y su
 > registro, para pegar entero en el SQL Editor. Va en una transacción y deja
 > `public.rix7_migrations` al día, así que después `npm run db:status` (con
 > token) dice «al día» en vez de repetir todo. No hace falta ir archivo por

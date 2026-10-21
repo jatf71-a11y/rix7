@@ -9,4 +9,25 @@
 --
 -- PostGIS queda en el esquema `extensions` (el que Supabase usa por defecto);
 -- los RPC declaran `search_path = public, extensions` para encontrarlo.
-CREATE EXTENSION IF NOT EXISTS postgis;
+--
+-- ⚠ El esquema **no es un detalle**: PostGIS crea su tabla de sistemas de
+-- referencia (`spatial_ref_sys`) en el esquema donde se instala. Sin
+-- `WITH SCHEMA extensions`, la extensión cae en `public`, que es el esquema que
+-- la Data API expone: `spatial_ref_sys` queda legible y escribible con la clave
+-- pública y el Security Advisor de Supabase lo marca como **crítico**
+-- («Table publicly accessible», `rls_disabled_in_public`) en cada revisión.
+--
+-- Esa tabla no guarda datos del portal, pero sí las definiciones de los SRID:
+-- con escritura abierta cualquiera puede corromper las proyecciones y romper
+-- las consultas espaciales. No se arregla con `ENABLE ROW LEVEL SECURITY`
+-- porque la tabla es de la extensión y no del rol `postgres`, y PostGIS ≥ 2.3
+-- no es relocalizable con `ALTER EXTENSION ... SET SCHEMA`.
+--
+-- En una base donde PostGIS ya vive en `public` (producción hasta 2026-10-17),
+-- este archivo **no la mueve**: `CREATE EXTENSION IF NOT EXISTS` no toca una
+-- extensión existente. El traslado de esa base se hace aparte, con Supabase
+-- Support; el procedimiento y la verificación están en
+-- `docs/runbook-postgis-esquema.md`.
+CREATE SCHEMA IF NOT EXISTS extensions;
+
+CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA extensions;

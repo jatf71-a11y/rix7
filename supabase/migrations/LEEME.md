@@ -75,15 +75,22 @@ aunque su número ya esté registrado.
    Por eso todo lo que toca una columna nueva va junto al `ALTER` que la agrega
    (`0011` crea la columna *y* su índice), no en el archivo de la tabla.
 
-`scripts/db-push.test.ts` verifica las cuatro reglas **sobre los archivos
-reales**, así que la garantía no depende de que alguien se acuerde al escribir la
+6. **Grants explícitos en `public`.** Desde el **2026-10-30** Supabase deja de
+   conceder la Data API automáticamente a las tablas nuevas: toda tabla que cree
+   una migración necesita su `GRANT`. El mínimo es `SELECT` para `anon`, DML
+   para `authenticated` y `service_role`, y **nunca `ALL`** (incluye `TRUNCATE`,
+   que no pasa por RLS). `0019_grants_data_api.sql` concede las diez actuales; si
+   agregás una tabla, poné sus grants en el mismo archivo que la crea.
+
+`scripts/db-push.test.ts` verifica estas reglas **sobre los archivos reales**,
+así que la garantía no depende de que alguien se acuerde al escribir la
 próxima. Añadir una migración que no las cumpla hace fallar la suite.
 
 ## Si no hay token: el SQL Editor, con un archivo generado
 
 `db:push` necesita un token **de una cuenta con acceso al proyecto**. Cuando esa
 cuenta no está (el proyecto es de otra persona y no hay forma de entrar), queda el
-SQL Editor del dashboard — pero no conviene ir archivo por archivo: son quince y
+SQL Editor del dashboard — pero no conviene ir archivo por archivo: son todas y
 el orden importa.
 
 ```bash

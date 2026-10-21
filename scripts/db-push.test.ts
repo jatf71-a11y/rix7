@@ -342,6 +342,18 @@ describe('informes', () => {
 // ═════════════════════════════════════════════════════════════════════════════
 
 describe('supabase/migrations (archivos reales)', () => {
+  /**
+   * El SQL sin comentarios `--`: los comentarios explican el defecto que se
+   * evita y citan sentencias («`CREATE EXTENSION postgis;` sin `WITH SCHEMA`»),
+   * así que buscar sobre el texto crudo confundiría la explicación con el
+   * código.
+   */
+  const sqlOf = (content: string) =>
+    content
+      .split('\n')
+      .map((line) => line.replace(/--.*$/, ''))
+      .join('\n');
+
   it('hay migraciones y todas siguen la convención', () => {
     const plan = planMigrations(realFiles);
 
@@ -369,6 +381,131 @@ describe('supabase/migrations (archivos reales)', () => {
       expect(file.content, file.fileName).not.toMatch(/CREATE TABLE (?!IF NOT EXISTS)/);
       expect(file.content, file.fileName).not.toMatch(/CREATE INDEX (?!IF NOT EXISTS)/);
       expect(file.content, file.fileName).not.toMatch(/CREATE UNIQUE INDEX (?!IF NOT EXISTS)/);
+      expect(file.content, file.fileName).not.toMatch(/CREATE SCHEMA (?!IF NOT EXISTS)/);
+      expect(file.content, file.fileName).not.toMatch(/CREATE EXTENSION (?!IF NOT EXISTS)/);
+    }
+  });
+
+  it('PostGIS se instala fuera de public', () => {
+    // `CREATE EXTENSION postgis;` sin `WITH SCHEMA` la instala en el primer
+    // esquema escribible del search_path —en Supabase, `public`—, y PostGIS
+    // crea ahí `spatial_ref_sys`. Esa tabla queda expuesta por la Data API sin
+    // RLS: el Security Advisor la marca como crítica y no se arregla con
+    // políticas, porque la tabla es de la extensión. Ver
+    // docs/runbook-postgis-esquema.md.
+    const extensions: { fileName: string; name: string; rest: string }[] = [];
+
+    for (const file of realFiles) {
+      const matches = Array.from(
+        sqlOf(file.content).matchAll(/CREATE EXTENSION\s+(?:IF NOT EXISTS\s+)?(\w+)([^;]*);/gi),
+        (m) => ({ fileName: file.fileName, name: m[1], rest: m[2] })
+      );
+      extensions.push(...matches);
+    }
+
+    // Sin esto el test pasaría si un día se dejaran de instalar extensiones.
+    expect(extensions.length).toBeGreaterThan(0);
+
+    for (const ext of extensions) {
+      expect(ext.rest, `${ext.fileName}: ${ext.name} sin WITH SCHEMA`).toMatch(/WITH SCHEMA\s+\w+/i);
+      expect(ext.rest, `${ext.fileName}: ${ext.name} instalada en public`).not.toMatch(
+        /WITH SCHEMA\s+public\b/i
+      );
+    }
+  });
+
+  it('toda tabla de public habilita RLS', () => {
+    // El aviso «Table publicly accessible» de Supabase se dispara por tablas en
+    // `public` sin RLS. Se vigila sobre los archivos reales: una tabla nueva a
+    // la que se le olvide su `ENABLE ROW LEVEL SECURITY` falla acá, no en el
+    // correo del Security Advisor. `properties` la habilita en 0004, un archivo
+    // distinto del que la crea, así que la comprobación es sobre toda la
+    // carpeta y no archivo por archivo.
+    const created = new Set<string>();
+    const withRls = new Set<string>();
+
+    for (const file of realFiles) {
+      const sql = sqlOf(file.content);
+      for (const match of Array.from(
+        sql.matchAll(/CREATE TABLE IF NOT EXISTS\s+(public\.\w+)/gi),
+        (m) => m[1]
+      )) {
+        created.add(match.toLowerCase());
+      }
+      for (const match of Array.from(
+        sql.matchAll(/ALTER TABLE\s+(public\.\w+)\s+ENABLE ROW LEVEL SECURITY/gi),
+        (m) => m[1]
+      )) {
+        withRls.add(match.toLowerCase());
+      }
+    }
+
+    expect(created.size).toBeGreaterThan(0);
+    for (const table of Array.from(created)) {
+      expect(withRls.has(table), `${table} se crea sin ENABLE ROW LEVEL SECURITY`).toBe(true);
+    }
+  });
+
+  it('toda tabla de public lleva sus grants explícitos', () => {
+    // Desde el 2026-10-30 Supabase deja de conceder la Data API
+    // automáticamente a las tablas nuevas de `public`: sin GRANT, una base
+    // creada desde estas migraciones responde «permission denied» aunque la
+    // tabla exista. Este test es la garantía de que ninguna quede sin el suyo.
+    const created = new Set<string>();
+    // tabla → rol → privilegios concedidos
+    const granted = new Map<string, Map<string, Set<string>>>();
+
+    for (const file of realFiles) {
+      const sql = sqlOf(file.content);
+      for (const match of Array.from(
+        sql.matchAll(/CREATE TABLE IF NOT EXISTS\s+(public\.\w+)/gi),
+        (m) => m[1]
+      )) {
+        created.add(match.toLowerCase());
+      }
+      for (const match of Array.from(
+        sql.matchAll(/GRANT\s+([^;]*?)\s+ON\s+(public\.\w+)\s+TO\s+([^;]+);/gi)
+      )) {
+        const table = match[2].toLowerCase();
+        const privileges = match[1]
+          .split(',')
+          .map((p) => p.trim().toLowerCase())
+          .filter(Boolean);
+        const roles = match[3]
+          .split(',')
+          .map((r) => r.trim().toLowerCase())
+          .filter(Boolean);
+        const byRole = granted.get(table) ?? new Map<string, Set<string>>();
+        for (const role of roles) {
+          const current = byRole.get(role) ?? new Set<string>();
+          for (const privilege of privileges) current.add(privilege);
+          byRole.set(role, current);
+        }
+        granted.set(table, byRole);
+      }
+      // `ALL` incluye TRUNCATE, que no pasa por RLS: no se concede nunca.
+      expect(sql, file.fileName).not.toMatch(/GRANT\s+ALL\b/i);
+    }
+
+    expect(created.size).toBeGreaterThan(0);
+    for (const table of Array.from(created)) {
+      const byRole = granted.get(table);
+      expect(byRole, `${table} sin GRANT explícito`).toBeDefined();
+
+      // Los tres roles son los que usan los clientes del proyecto: sin uno de
+      // ellos, una base nueva responde «permission denied» en ese camino.
+      expect(byRole!.get('anon')?.has('select'), `${table} sin SELECT para anon`).toBe(true);
+      for (const role of ['authenticated', 'service_role']) {
+        for (const privilege of ['select', 'insert', 'update', 'delete']) {
+          expect(byRole!.get(role)?.has(privilege), `${table} sin ${privilege} para ${role}`).toBe(
+            true
+          );
+        }
+      }
+
+      // `anon` solo lee y da de alta: modificar o borrar no es suyo.
+      expect(byRole!.get('anon')?.has('update'), `${table}: anon con UPDATE`).not.toBe(true);
+      expect(byRole!.get('anon')?.has('delete'), `${table}: anon con DELETE`).not.toBe(true);
     }
   });
 
@@ -401,7 +538,9 @@ describe('supabase/migrations (archivos reales)', () => {
 
   it('nada borra datos: solo se sueltan políticas y firmas de funciones', () => {
     for (const file of realFiles) {
-      const drops = Array.from(file.content.matchAll(/DROP\s+(\w+)/g), (m) => m[1].toUpperCase());
+      // Sin comentarios: explicar «no usar TRUNCATE» no es usarlo.
+      const sql = sqlOf(file.content);
+      const drops = Array.from(sql.matchAll(/DROP\s+(\w+)/g), (m) => m[1].toUpperCase());
       for (const object of drops) {
         // `FUNCTION` está permitido con una condición (abajo): retirar una firma
         // vieja que `CREATE OR REPLACE` no puede reemplazar. `TABLE`, `COLUMN`,
@@ -412,18 +551,18 @@ describe('supabase/migrations (archivos reales)', () => {
       // Una función que se suelta se vuelve a crear en el mismo archivo: si no,
       // el archivo estaría dejando la base sin algo que el código usa.
       const droppedFunctions = Array.from(
-        file.content.matchAll(/DROP FUNCTION IF EXISTS public\.(\w+)\s*\(/g),
+        sql.matchAll(/DROP FUNCTION IF EXISTS public\.(\w+)\s*\(/g),
         (m) => m[1]
       );
       for (const fn of droppedFunctions) {
         expect(
-          file.content,
+          sql,
           `${file.fileName}: suelta ${fn}() y no la vuelve a crear`
         ).toContain(`CREATE OR REPLACE FUNCTION public.${fn}(`);
       }
 
-      expect(file.content, file.fileName).not.toMatch(/\bTRUNCATE\b/i);
-      expect(file.content, file.fileName).not.toMatch(/\bDELETE FROM\b/i);
+      expect(sql, file.fileName).not.toMatch(/\bTRUNCATE\b/i);
+      expect(sql, file.fileName).not.toMatch(/\bDELETE FROM\b/i);
     }
   });
 

@@ -2,6 +2,15 @@
 -- 0003 · Tabla principal del catálogo (public.properties) y sus índices
 -- ════════════════════════════════════════════════════════════════════════════
 -- Depende de 0002: `partner_id` referencia `public.partners`.
+--
+-- `extensions` va en el search_path para que `GEOGRAPHY` resuelva tanto en una
+-- base donde PostGIS vive en `extensions` (0001, base nueva) como en una vieja
+-- donde quedó en `public`. La columna no se califica con el esquema a propósito:
+-- `CREATE TABLE IF NOT EXISTS` resuelve los tipos **antes** de mirar si la tabla
+-- ya existe, así que `extensions.geography` haría fallar la reaplicación en las
+-- bases donde el tipo todavía está en `public`.
+SET search_path = "$user", public, extensions;
+
 CREATE TABLE IF NOT EXISTS public.properties (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
@@ -51,6 +60,10 @@ CREATE INDEX IF NOT EXISTS idx_properties_price ON public.properties (price);
 CREATE INDEX IF NOT EXISTS idx_properties_bedrooms ON public.properties (bedrooms);
 CREATE INDEX IF NOT EXISTS idx_properties_property_type ON public.properties (property_type);
 CREATE INDEX IF NOT EXISTS idx_properties_city ON public.properties (city);
+
+-- Devuelve el search_path de la sesión a su valor por defecto: el ajuste de
+-- arriba solo hacía falta para resolver `GEOGRAPHY`.
+RESET search_path;
 
 -- Atribución por corredora: el feed público consulta por igualdad en cada
 -- rastreo del agregador y /empresas/<slug> pide las de una sola corredora.
