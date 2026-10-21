@@ -5,7 +5,11 @@ import { getPartnerById } from '@/lib/data/partners-store';
 import { poisFromSnapshot } from '@/lib/data/poiSnapshotLookup';
 import { sectorGeometry } from '@/lib/data/mapSnapshotLookup';
 import { POI_CATEGORIES, WALKABLE_RADIUS_M } from '@/lib/data/poiCategories';
-import { buildSectorOverview, haversineMeters } from '@/lib/utils/sectorSummary';
+import {
+  buildNeighborhoodIntro,
+  buildSectorOverview,
+  haversineMeters,
+} from '@/lib/utils/sectorSummary';
 import type { SectorCard } from '@/components/properties/SectorOverview';
 import { SectorMap } from '@/components/properties/SectorMap';
 import { approximatePoint, type ApproximatePoint } from '@/lib/utils/approximateLocation';
@@ -212,6 +216,9 @@ export default async function SharePropertyPage({ params }: Props) {
         property={publicProperty}
         partner={partner as any}
         sector={sector.cards}
+        // Se redacta acá, con los conteos que ya se muestran: el navegador
+        // recibe una frase, nunca los POIs con nombre ni sus distancias.
+        sectorSummary={buildNeighborhoodIntro(sector.cards) ?? undefined}
         sectorMap={sectorMap}
         shareUrl={`${SITE_URL}/compartir/${property.id}`}
       />

@@ -93,7 +93,9 @@ export function buildShareLinks({ url, text }: ShareInput): ShareNetwork[] {
     {
       id: 'email',
       label: 'Correo',
-      href: `mailto:?subject=${t}&body=${u}`,
+      // El cuerpo lleva el texto y la landing, no solo la URL: quien lo recibe
+      // por correo ve de qué se trata antes de abrir el enlace.
+      href: `mailto:?subject=${t}&body=${encodeURIComponent(`${text}\n\n${url}`)}`,
     },
   ];
 }

@@ -46,6 +46,12 @@ interface Props {
   /** Entorno ya calculado en el servidor (POIs del snapshot estático). */
   sector?: SectorCard[];
   /**
+   * Párrafo breve del barrio, redactado en el servidor solo con los conteos.
+   * No incluye nombres de lugares ni distancias: eso permitiría acotar la
+   * ubicación real de la propiedad, que es lo que entrega la corredora.
+   */
+  sectorSummary?: string;
+  /**
    * Mapa del sector, dibujado en el servidor y montado acá como hijo: el SVG
    * llega pintado, sin que el navegador tenga que construirlo. `undefined` si
    * no hay geometría para esa celda, y en ese caso la tarjeta se queda con su
@@ -119,6 +125,7 @@ export default function SharePropertyLanding({
   property,
   partner,
   sector = [],
+  sectorSummary,
   sectorMap,
   shareUrl: staticShareUrl,
 }: Props) {
@@ -387,7 +394,7 @@ export default function SharePropertyLanding({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             {/* ═══ Entorno / barrio, desde los POIs ═══ */}
-            <SectorOverview insights={sector} />
+            <SectorOverview insights={sector} summary={sectorSummary} />
 
             {/* ═══ Descripción ═══ */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">

@@ -19,6 +19,12 @@ export type SectorCard = Pick<SectorCategoryInsight, 'category' | 'count' | 'byT
 interface SectorOverviewProps {
   /** Una entrada por categoría con contenido; vacío = no se muestra nada. */
   insights: SectorCard[];
+  /**
+   * Párrafo breve que resume el barrio. Lo redacta el servidor con
+   * `buildNeighborhoodIntro` y solo usa conteos: sin nombres de lugares ni
+   * distancias, que permitirían ubicar la propiedad real.
+   */
+  summary?: string;
   /** Título de la sección. */
   title?: string;
   className?: string;
@@ -63,7 +69,12 @@ function CategoryIcon({ category, count }: { category: string; count: number }) 
  * bloque con el título y el pie de atribución pero sin contenido se lee como
  * un error de la página.
  */
-export function SectorOverview({ insights, title = 'A 15 minutos caminando', className = '' }: SectorOverviewProps) {
+export function SectorOverview({
+  insights,
+  summary,
+  title = 'A 15 minutos caminando',
+  className = '',
+}: SectorOverviewProps) {
   if (insights.length === 0) return null;
 
   const total = insights.reduce((sum, i) => sum + i.count, 0);
@@ -81,6 +92,10 @@ export function SectorOverview({ insights, title = 'A 15 minutos caminando', cla
           </p>
         </div>
       </div>
+
+      {summary && (
+        <p className="mt-4 text-sm text-slate-700 leading-relaxed">{summary}</p>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-5">
         {insights.map((insight) => {

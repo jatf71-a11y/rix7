@@ -11,6 +11,7 @@
  * Módulo neutral (sin Leaflet ni React) para poder testearlo y reutilizarlo.
  */
 import {
+  POI_CATEGORIES,
   poiTypeLabel,
   poiTypeLabelPlural,
   poiTypeLabelSingular,
@@ -176,6 +177,87 @@ export function buildSectorOverview(
     .map((key) => buildCategoryInsight(pois, key, lat, lng, radiusM))
     .filter((i): i is SectorCategoryInsight => i !== null)
     .sort((a, b) => b.count - a.count);
+}
+
+/**
+ * Lo mínimo que necesita la descripción del barrio de una tarjeta de sector.
+ *
+ * Se define acá y no se importa de `SectorOverview` para que este módulo siga
+ * siendo neutral (sin React): la landing comparte el tipo, no la dependencia.
+ */
+export interface NeighborhoodCard {
+  category: string;
+  count: number;
+  byType: { type: string; count: number }[];
+}
+
+/** Etiqueta corta de la categoría, con el nombre crudo como respaldo. */
+function categoryLabel(category: string): string {
+  return POI_CATEGORIES[category]?.label || category;
+}
+
+/** "1 área verde" / "3 áreas verdes", para no dejar el plural fijo. */
+function countLabel(count: number, singular: string, plural: string): string {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+/**
+ * Descripción breve del barrio, armada solo con **conteos** de POIs.
+ *
+ * Es el párrafo que abre la sección de entorno de la landing compartida: los
+ * contadores por categoría dicen cuánto hay, pero no cuentan qué significa para
+ * quien recibe el enlace. Acá se traduce a dos o tres frases.
+ *
+ * Regla que no se negocia: **no usa nombres de lugares ni distancias**. Un
+ * «Colegio X a 240 m» permitiría triangular la ubicación real de la propiedad,
+ * que es justo lo que la corredora entrega al interesado. Los conteos, en
+ * cambio, ya viajan en las tarjetas y no dicen dónde está la propiedad.
+ *
+ * Devuelve `null` si no hay datos o si hay tan pocos lugares que describir el
+ * barrio sería inventarlo: tres POIs sueltos no hacen un barrio.
+ */
+export function buildNeighborhoodIntro(cards: NeighborhoodCard[]): string | null {
+  const withContent = cards.filter((card) => card.count > 0);
+  if (withContent.length === 0) return null;
+
+  const total = withContent.reduce((sum, card) => sum + card.count, 0);
+  if (total < 3) return null;
+
+  // Las categorías más abundantes son las que definen el barrio: en una zona
+  // residencial manda Educación; en el centro, Comercio.
+  const top = [...withContent].sort((a, b) => b.count - a.count).slice(0, 3);
+  const categories = top.map((card) => `${categoryLabel(card.category)} (${card.count})`);
+
+  // Los subtipos concretos son lo que se reconoce al leer: «4 supermercados»
+  // dice más que «22 lugares de comercio».
+  const types = withContent
+    .flatMap((card) => card.byType)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3)
+    .map((type) => `${type.count} ${poiTypeLabelPlural(type.type)}`);
+
+  const sentences = [
+    `A 15 minutos a pie hay ${total} lugares: ${joinWithY(categories)}.`,
+    types.length ? `Lo más frecuente: ${joinWithY(types)}.` : '',
+  ];
+
+  // El tiempo libre solo se agrega si no quedó ya entre las tres categorías
+  // principales: repetir «Áreas Verdes (28)» y «28 áreas verdes» en dos frases
+  // seguidas se lee como un error de la página.
+  const mentioned = new Set(top.map((card) => card.category));
+  const green = mentioned.has('park') ? 0 : (withContent.find((c) => c.category === 'park')?.count ?? 0);
+  const sports = mentioned.has('sports')
+    ? 0
+    : (withContent.find((c) => c.category === 'sports')?.count ?? 0);
+  if (green > 0 || sports > 0) {
+    const leisure = [
+      green > 0 ? countLabel(green, 'área verde', 'áreas verdes') : '',
+      sports > 0 ? countLabel(sports, 'lugar para hacer deporte', 'lugares para hacer deporte') : '',
+    ].filter(Boolean);
+    sentences.push(`Para el tiempo libre: ${joinWithY(leisure)}.`);
+  }
+
+  return sentences.filter(Boolean).join(' ');
 }
 
 /**

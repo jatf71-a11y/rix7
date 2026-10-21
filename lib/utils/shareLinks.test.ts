@@ -48,6 +48,15 @@ describe('buildShareLinks', () => {
     );
   });
 
+  it('el correo lleva texto y landing en el cuerpo, no una URL pelada', () => {
+    const href = byId.email.href;
+    expect(href).toBeTruthy();
+    const body = new URLSearchParams(href!.split('?')[1]).get('body');
+
+    expect(body).toContain(INPUT.url);
+    expect(body).toContain(INPUT.text);
+  });
+
   it('Facebook y LinkedIn comparten solo la URL (título lo toma la tarjeta OG)', () => {
     expect(byId.facebook.href).toBe(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(INPUT.url)}`

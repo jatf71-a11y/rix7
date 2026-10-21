@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   buildEducationSummary,
   buildCategorySummary,
+  buildNeighborhoodIntro,
   buildSectorSummaries,
   haversineMeters,
 } from './sectorSummary';
@@ -158,6 +159,68 @@ describe('buildCategorySummary', () => {
 
   it('devuelve null cuando la categoría no tiene POIs', () => {
     expect(buildCategorySummary([poi({ category: 'education' })], 'safety', -33.4175, -70.608)).toBeNull();
+  });
+});
+
+describe('buildNeighborhoodIntro', () => {
+  const card = (
+    category: string,
+    count: number,
+    byType: { type: string; count: number }[] = []
+  ) => ({ category, count, byType });
+
+  it('devuelve null sin datos o con tan pocos lugares que no hay barrio', () => {
+    expect(buildNeighborhoodIntro([])).toBeNull();
+    expect(buildNeighborhoodIntro([card('shopping', 2, [{ type: 'supermarket', count: 2 }])])).toBeNull();
+  });
+
+  it('resume el barrio con el total y las categorías más abundantes', () => {
+    const text = buildNeighborhoodIntro([
+      card('shopping', 12, [{ type: 'supermarket', count: 4 }, { type: 'bakery', count: 3 }]),
+      card('education', 6, [{ type: 'school', count: 3 }]),
+      card('health', 2, [{ type: 'pharmacy', count: 2 }]),
+      card('safety', 1, [{ type: 'police', count: 1 }]),
+    ])!;
+
+    expect(text).toContain('A 15 minutos a pie hay 21 lugares');
+    expect(text).toContain('Comercio (12)');
+    expect(text).toContain('Educación (6)');
+    expect(text).toContain('Lo más frecuente: 4 supermercados, 3 panaderías y 3 colegios.');
+    expect(text).not.toContain('Seguridad (1)'); // solo las tres primeras categorías
+  });
+
+  it('menciona áreas verdes y deporte cuando aportan al barrio', () => {
+    const text = buildNeighborhoodIntro([
+      card('shopping', 9, [{ type: 'supermarket', count: 9 }]),
+      card('education', 7, [{ type: 'school', count: 7 }]),
+      card('health', 5, [{ type: 'pharmacy', count: 5 }]),
+      card('park', 1, [{ type: 'park', count: 1 }]),
+      card('sports', 3, [{ type: 'fitness_centre', count: 3 }]),
+    ])!;
+
+    expect(text).toContain('Para el tiempo libre: 1 área verde y 3 lugares para hacer deporte.');
+  });
+
+  it('no repite las áreas verdes si ya están entre las categorías principales', () => {
+    const text = buildNeighborhoodIntro([
+      card('park', 8, [{ type: 'park', count: 8 }]),
+      card('shopping', 6, [{ type: 'supermarket', count: 6 }]),
+      card('sports', 4, [{ type: 'fitness_centre', count: 4 }]),
+    ])!;
+
+    expect(text).toContain('Áreas Verdes (8)');
+    expect(text).not.toContain('Para el tiempo libre');
+  });
+
+  it('no nombra lugares ni distancias, aunque la tarjeta los traiga', () => {
+    const text = buildNeighborhoodIntro([
+      card('education', 3, [{ type: 'school', count: 3 }]),
+      { category: 'shopping', count: 5, byType: [{ type: 'supermarket', count: 5 }] },
+    ])!;
+
+    expect(text).not.toMatch(/\d+\s?m\b/);
+    expect(text).not.toContain('Colegio San');
+    expect(text).not.toContain('más cerca');
   });
 });
 
