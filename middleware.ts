@@ -1,7 +1,26 @@
-import { type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from './lib/supabase/middleware';
+import { adminHostRedirect, adminRedirectUrl } from './lib/utils/adminHost';
 
 export async function middleware(request: NextRequest) {
+  // El panel no se sirve desde el dominio público: `/admin` en rix7.cl
+  // redirige a admin.rix7.cl. En local y en preview no se aplica, para poder
+  // probar el panel sin DNS ni dominio adicional.
+  const production = process.env.VERCEL_ENV
+    ? process.env.VERCEL_ENV === 'production'
+    : process.env.NODE_ENV === 'production';
+
+  const adminHost = adminHostRedirect({
+    pathname: request.nextUrl.pathname,
+    host: request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '',
+    adminHost: process.env.ADMIN_HOST,
+    production,
+  });
+
+  if (adminHost) {
+    return NextResponse.redirect(adminRedirectUrl(request.url, adminHost), 307);
+  }
+
   return await updateSession(request);
 }
 

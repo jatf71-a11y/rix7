@@ -8,13 +8,13 @@ import { useRegistration } from '../auth/RegistrationProvider';
 import { useFavorites } from '../auth/FavoritesProvider';
 import { useCurrency } from '../currency/CurrencyProvider';
 import { formatNumber } from '@/lib/utils/formatters';
-import { LogOut, PlusCircle, Heart, Menu, X, Settings, Info, Building2 } from 'lucide-react';
+import { LogOut, PlusCircle, Heart, Menu, X, Info, Building2 } from 'lucide-react';
 
 /** Prefijos de rutas sin barra de navegación (se lista, no se esconde después). */
 const STANDALONE_PATHS = ['/compartir'];
 
 function NavbarContent() {
-  const { user, signOut, isAdmin, isAdminDevBypass } = useAuth();
+  const { user, signOut } = useAuth();
   // Identidad reconocida: sesión del portal o registro de este dispositivo.
   const { registration, isChecking, forget, openSignup } = useRegistration();
   // Cuántos favoritos tiene: el contador del corazón se lee del mismo estado que
@@ -83,8 +83,11 @@ function NavbarContent() {
             >
               Arrendar
             </Link>
+            {/* Publicar abre el selector de los tres caminos (propietario en
+                licitación, corredora o inmobiliaria): no todos publican una
+                ficha, así que no puede llevar directo al alta de socio. */}
             <Link
-              href="/?operation=sale"
+              href="/publicar"
               className="inline-flex items-center px-4 py-2 rounded-lg font-semibold bg-blue-600 text-white shadow-sm shadow-blue-500/20 transition-all hover:bg-blue-700"
             >
               Publicar
@@ -141,7 +144,7 @@ function NavbarContent() {
                   `alert()` de recordatorio: la acción más importante para una
                   corredora no tenía destino. */}
               <Link
-                href="/socio/publicar"
+                href="/publicar"
                 className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-all"
               >
                 <PlusCircle className="w-4 h-4" />
@@ -209,17 +212,9 @@ function NavbarContent() {
             <span>Socios</span>
           </Link>
 
-          {/* Acceso al Panel Admin, solo para administradores */}
-          {isAdmin && (
-            <Link
-              href="/admin"
-              className="flex items-center gap-1.5 pl-3 border-l border-slate-200 text-slate-500 hover:text-blue-600 transition-colors shrink-0"
-              title={isAdminDevBypass ? 'Panel Admin (acceso de desarrollo)' : 'Panel Admin'}
-            >
-              <Settings className="w-3.5 h-3.5" />
-              <span className="text-xs font-semibold">Admin</span>
-            </Link>
-          )}
+          {/* El admin no tiene enlace en el sitio público: se entra por
+              admin.rix7.cl. Tampoco se muestra a un usuario con rol admin,
+              porque el acceso no debe depender de recordar una ruta. */}
 
           {/* Badge tipo de cambio (Banco Central de Chile), al borde derecho */}
           <div
@@ -270,7 +265,7 @@ function NavbarContent() {
               Arrendar
             </Link>
             <Link
-              href="/socio/publicar"
+              href="/publicar"
               onClick={() => setIsMobileMenuOpen(false)}
               className="p-2 rounded-lg hover:bg-slate-50"
             >
@@ -286,16 +281,7 @@ function NavbarContent() {
               <Building2 className="w-4 h-4" />
               <span>Socios</span>
             </Link>
-            {isAdmin && (
-              <Link
-                href="/admin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 rounded-lg hover:bg-slate-50 flex items-center gap-2"
-              >
-                <Settings className="w-4 h-4 text-slate-400" />
-                <span>Panel Admin</span>
-              </Link>
-            )}
+            {/* El admin no aparece en el menú móvil: vive en admin.rix7.cl. */}
           </nav>
 
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">

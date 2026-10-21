@@ -180,7 +180,7 @@ function judgeAdminPageLike(status, html, marker, what) {
   if (status >= 300 && status < 400) {
     return {
       level: 'ok',
-      detail: `HTTP ${status}: la página existe y el panel pide la sesión antes de mostrarla`,
+      detail: `HTTP ${status}: la página existe y redirige al host del panel o pide sesión`,
     };
   }
   if (status !== 200) return { level: 'fail', detail: `HTTP ${status}` };

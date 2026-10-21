@@ -7,11 +7,14 @@ import {
   LayoutDashboard,
   Users,
   Inbox,
+  ClipboardList,
   Link2,
   UserPlus,
   ArrowLeft,
   ChevronRight,
 } from 'lucide-react';
+
+import type { DeployedRelease } from '@/lib/utils/deployedRelease';
 
 const sidebarItems = [
   {
@@ -30,6 +33,11 @@ const sidebarItems = [
     icon: Inbox,
   },
   {
+    label: 'Solicitudes',
+    href: '/admin/solicitudes',
+    icon: ClipboardList,
+  },
+  {
     label: 'Registros',
     href: '/admin/registros',
     icon: UserPlus,
@@ -41,8 +49,39 @@ const sidebarItems = [
   },
 ];
 
-export default function AdminShell({ children }: { children: React.ReactNode }) {
+/**
+ * Fecha de publicación de la build, en UTC y con formato propio.
+ *
+ * No se usa `Intl` a propósito: el componente se renderiza en el servidor y se
+ * hidrata en el navegador, y dos implementaciones de `es-CL` no coinciden en
+ * detalles como el espacio de «a. m.». Eso producía un error de hidratación. UTC
+ * explícito evita además la ambigüedad de la zona horaria.
+ */
+function formatBuiltAt(iso: string): string {
+  return `${iso.slice(0, 16).replace('T', ' ')} UTC`;
+}
+
+export default function AdminShell({
+  children,
+  release,
+}: {
+  children: React.ReactNode;
+  release: DeployedRelease;
+}) {
   const pathname = usePathname();
+
+  const build = release.build;
+  const commit = build?.commit ? build.commit.slice(0, 7) : null;
+  const builtAt = build?.builtAt ? formatBuiltAt(build.builtAt) : null;
+  const buildTitle = build
+    ? [
+        commit ? `Commit ${commit}` : null,
+        builtAt ? `Publicado ${builtAt}` : null,
+        build.dirty ? 'El árbol tenía cambios sin commitear' : null,
+      ]
+        .filter((part): part is string => part !== null)
+        .join(' · ')
+    : 'Este despliegue no publica RIX7_BUILD: no se puede afirmar qué árbol está en vivo.';
 
   return (
     <div className="flex min-h-[calc(100vh-64px)] bg-slate-50">
@@ -94,8 +133,53 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 lg:p-8 overflow-auto">
-        {children}
+      <main className="flex-1 p-6 lg:p-8 overflow-auto flex flex-col">
+        <div className="flex-1">{children}</div>
+
+        {/*
+          Pie con la release publicada. La versión y el identificador salen del
+          deployment, no de una constante del código: si producción quedó en un
+          commit viejo, acá se ve el que realmente está sirviendo.
+        */}
+        <footer className="mt-10 flex flex-wrap items-center justify-between gap-x-6 gap-y-1 border-t border-slate-200 pt-4 text-[11px] text-slate-400">
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="font-semibold text-slate-500">Rix7 v{release.version}</span>
+            {release.tag ? (
+              <span>
+                tag <span className="font-mono">{release.tag}</span>
+              </span>
+            ) : (
+              <span title="El commit publicado no tiene un tag de release">sin tag</span>
+            )}
+          </p>
+
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1" title={buildTitle}>
+            {build ? (
+              <>
+                <span>
+                  build <span className="font-mono text-slate-500">{build.id}</span>
+                </span>
+                {commit && <span className="font-mono">{commit}</span>}
+                {builtAt && <span>{builtAt}</span>}
+                {build.dirty && (
+                  <span className="rounded bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-700">
+                    sin commitear
+                  </span>
+                )}
+              </>
+            ) : (
+              <span className="font-medium text-slate-500">build sin identificar</span>
+            )}
+            <a
+              href="/api/health"
+              target="_blank"
+              rel="noreferrer"
+              className="underline decoration-slate-300 underline-offset-2 hover:text-slate-600"
+            >
+              ver salud
+            </a>
+          </p>
+        </footer>
       </main>
     </div>
   );
