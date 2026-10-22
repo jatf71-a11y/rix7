@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthProvider';
-import { createClient } from '@/lib/supabase/client';
+import { loadClient } from '@/lib/supabase/client';
 import { X, Mail, AlertCircle, CheckCircle2, Loader2, ArrowLeft } from 'lucide-react';
 import {
   describeAuthError,
@@ -123,7 +123,7 @@ export function AuthModal() {
   const [cooldown, setCooldown] = useState(0);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  const [supabase] = useState(() => createClient());
+
 
   // Distingue "se abrió estando afuera" de "se abrió ya adentro": el modal solo
   // debe cerrarse solo cuando entrar tuvo sentido.
@@ -202,6 +202,9 @@ export function AuthModal() {
     setErrorMsg(null);
 
     try {
+      // El SDK se carga recién acá: hasta que no se intenta entrar no hace falta
+      // (ver `loadClient`). Es la misma instancia que usa `AuthProvider`.
+      const supabase = await loadClient();
       const { error } = await supabase.auth.signInWithOtp({
         email: destination,
         options: {
@@ -264,6 +267,7 @@ export function AuthModal() {
     setErrorMsg(null);
 
     try {
+      const supabase = await loadClient();
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {

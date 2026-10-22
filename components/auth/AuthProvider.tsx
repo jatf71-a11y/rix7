@@ -1,10 +1,20 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 // `import type`: son solo tipos. Sin el `type`, el bundler puede conservar la
 // librería entera por si el import tiene efectos.
-import type { User, Session } from '@supabase/supabase-js';
-import { createClient } from '@/lib/supabase/client';
+import type { SupabaseClient, User, Session } from '@supabase/supabase-js';
+import { loadClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { shouldLoadSession } from '@/lib/utils/authCookie';
 import { resolveRole } from '@/lib/utils/roles';
 import { REGISTRATION_KEY, parseStoredRegistration } from '@/lib/utils/registration';
 import { normalizeChilePhone } from '@/lib/utils/phone';
@@ -61,29 +71,64 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authReason, setAuthReason] = useState<string | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // Un único cliente por montaje: al crearlo en cada render cambiaba de
-  // identidad y el efecto de sesión se volvía a suscribir continuamente.
-  const [supabase] = useState(() => createClient());
+  // El cliente se carga cuando hace falta y una sola vez por página: al
+  // crearlo en cada render cambiaba de identidad y el efecto de sesión se volvía
+  // a suscribir continuamente.
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
+  const clientRef = useRef<Promise<SupabaseClient> | null>(null);
+  const attachedRef = useRef(false);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+
+  const ensureClient = useCallback(() => {
+    if (!clientRef.current) {
+      clientRef.current = loadClient().then((client) => {
+        setSupabase(client);
+        return client;
+      });
+    }
+    return clientRef.current;
+  }, []);
+
+  /** Se engancha al evento de sesión del cliente. Idempotente. */
+  const attachSession = useCallback((client: SupabaseClient) => {
+    if (attachedRef.current) return;
+    attachedRef.current = true;
+
+    client.auth
+      .getSession()
+      .then(({ data }) => {
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
+        setIsLoading(false);
+      })
+      .catch(() => setIsLoading(false));
+
+    const { data } = client.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+      setIsLoading(false);
+    });
+
+    unsubscribeRef.current = () => data.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => () => unsubscribeRef.current?.(), []);
 
   useEffect(() => {
-    // Obtener sesión inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    // Sin proyecto real, o sin una sesión a la vista, no hay nada que consultar:
+    // el SDK (~66 kB) se descarga recién cuando alguien abre el acceso o cuando
+    // la cookie dice que hay una cuenta detrás.
+    if (
+      !shouldLoadSession({ configured: isSupabaseConfigured(), cookieString: document.cookie })
+    ) {
       setIsLoading(false);
-    });
+      return;
+    }
 
-    // Escuchar cambios de autenticación
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase]);
+    ensureClient()
+      .then(attachSession)
+      .catch(() => setIsLoading(false));
+  }, [ensureClient, attachSession]);
 
   // El rol vive en app_metadata (controlado por el servidor, no editable por el
   // usuario). La resolución es la misma que usa el guard de las rutas de admin
@@ -112,7 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * cada refresco de token.
    */
   useEffect(() => {
-    if (!user || typeof window === 'undefined') return;
+    if (!user || !supabase || typeof window === 'undefined') return;
 
     const stored = parseStoredRegistration(localStorage.getItem(REGISTRATION_KEY));
     if (!stored) return;
@@ -136,21 +181,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
   }, [user, supabase]);
 
-  const openAuthModal = useCallback((reason?: string, error?: string) => {
-    // Se pisan en cada apertura: un mensaje viejo no debe reaparecer cuando el
-    // diálogo se abre por otro motivo.
-    setAuthReason(reason ?? null);
-    setAuthError(error ?? null);
-    setIsAuthModalOpen(true);
-  }, []);
+
+  const openAuthModal = useCallback(
+    (reason?: string, error?: string) => {
+      // Se pisan en cada apertura: un mensaje viejo no debe reaparecer cuando el
+      // diálogo se abre por otro motivo.
+      setAuthReason(reason ?? null);
+      setAuthError(error ?? null);
+      setIsAuthModalOpen(true);
+
+      // Entrar necesita el SDK: se empieza a cargar con el clic, no cuando la
+      // persona ya escribió su correo. Si la cookie no delataba la sesión, esto
+      // también la recupera.
+      if (isSupabaseConfigured()) {
+        ensureClient()
+          .then(attachSession)
+          .catch(() => {
+            // Sin SDK no se puede entrar; el modal explica el problema al
+            // intentarlo.
+          });
+      }
+    },
+    [ensureClient, attachSession]
+  );
 
   const closeAuthModal = useCallback(() => {
     setIsAuthModalOpen(false);
   }, []);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-  }, [supabase]);
+    const client = await ensureClient();
+    await client.auth.signOut();
+  }, [ensureClient]);
 
   const contextValue = useMemo(
     () => ({

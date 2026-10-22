@@ -123,8 +123,8 @@ export async function uploadMedia(file: File): Promise<UploadResult> {
   }
 
   try {
-    const { createClient } = await import('@/lib/supabase/client');
-    const supabase = createClient();
+    const { loadClient } = await import('@/lib/supabase/client');
+    const supabase = await loadClient();
     const path = mediaStoragePath(check.kind, file.name, file.type, crypto.randomUUID());
 
     const { error } = await supabase.storage.from(MEDIA_BUCKET).upload(path, file, {
