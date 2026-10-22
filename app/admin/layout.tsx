@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { requireAdmin } from '@/lib/supabase/auth-guard';
 import { readDeployedRelease } from '@/lib/utils/deployedRelease';
 import manifest from '../../package.json';
-import AdminLogin from './AdminLogin';
+import AdminAccess from './AdminAccess';
 import AdminShell from './AdminShell';
 
 /**
@@ -37,7 +37,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
    * sigue el bypass de desarrollo del guard.
    */
   const guard = await requireAdmin();
-  if (!guard.ok) return <AdminLogin status={guard.response.status} />;
+  // La pantalla de acceso se carga en diferido (`AdminAccess`): trae el cliente
+  // de Supabase y solo la ve quien no tiene sesión.
+  if (!guard.ok) return <AdminAccess status={guard.response.status} />;
 
   // El pie del panel muestra lo que el deployment publicó (versión, tag y build).
   // Se lee acá, en el servidor, para que el navegador reciba solo el resultado y

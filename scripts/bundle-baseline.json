@@ -5,7 +5,7 @@
     "/_not-found/page": 87.9,
     "/admin/empresas/page": 96.5,
     "/admin/landings/page": 99.3,
-    "/admin/layout": 166.9,
+    "/admin/layout": 99,
     "/admin/leads/page": 99.2,
     "/admin/page": 97.7,
     "/admin/registros/page": 92.4,
@@ -16,7 +16,7 @@
     "/error": 96.9,
     "/favoritos/page": 184.1,
     "/global-error": 101.4,
-    "/layout": 190.2,
+    "/layout": 190.3,
     "/legal/layout": 87.9,
     "/legal/privacidad/page": 95.3,
     "/legal/terminos/page": 95.3,
@@ -36,5 +36,5 @@
   },
   "toleranceKb": 5,
   "generatedAt": "2026-10-22",
-  "commit": "3f05b60"
+  "commit": "53a0b86"
 }
