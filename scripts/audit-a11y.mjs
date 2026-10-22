@@ -26,6 +26,18 @@
  *   --fail-on-serious   Exit 1 si alguna ruta tiene hallazgos critical/serious
  *   --json              Salida JSON en vez del informe de consola
  *   --chrome=<path>     Binario de Chrome/Edge (o variable CHROME_PATH)
+ *   --chrome-timeout=<ms>  Espera máxima a que Chrome abra el puerto CDP (60000)
+ *   --chrome-attempts=<n>  Intentos de arranque de Chrome antes de rendirse (3)
+ *
+ * Arranque de Chrome con reintentos: en CI el primer Chrome de una corrida
+ * fría puede tardar en abrir el puerto de depuración —o morir al arrancar— y
+ * el 2026-10-22 eso puso el job de a11y en rojo sin un solo hallazgo de axe
+ * («Chrome no expuso el endpoint de depuración a tiempo», a los 20 s). Un
+ * fallo de infraestructura leído como hallazgo de accesibilidad enseña a
+ * ignorar el job, así que ahora cada intento espera más (60 s), escucha si el
+ * proceso murió para no esperar de gusto, guarda el stderr de Chrome para
+ * diagnosticar y reintenta con puerto y perfil nuevos. La comprobación de axe
+ * es la misma y sigue bloqueando: lo que se agregó es margen, no indulgencia.
  *
  * Qué audita: las rutas que representan cada plantilla del portal (home
  * cliente, ficha server-render, corredora, favoritos, compartir, legal).
@@ -47,9 +59,10 @@
 
 import { spawn, spawnSync } from 'node:child_process';
 import { mkdtemp, rm } from 'node:fs/promises';
-import { existsSync, readFileSync } from 'node:fs';
+import { closeSync, existsSync, openSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { createServer } from 'node:net';
 
@@ -87,6 +100,23 @@ const FIX_HINTS = {
   list: 'Los hijos de <ul>/<ol> deben ser <li> (o template/script).',
   listitem: 'Los <li> deben vivir dentro de <ul>/<ol>.',
 };
+
+// ── Arranque de Chrome: margen y reintentos ──────────────────────────────────
+
+/**
+ * Espera máxima a que Chrome abra el puerto de depuración.
+ *
+ * Era 20 s fijos. Alcanzaba en local pero no en un runner frío con Chrome
+ * recién instalado: el 2026-10-22 el job de a11y falló justo ahí. 60 s deja
+ * aire de sobra —una vez arriba, la auditoría no cambia— sin colgar el CI.
+ */
+export const DEFAULT_CHROME_START_TIMEOUT_MS = 60_000;
+
+/** Intentos de arranque de Chrome. El segundo suele ser el que funciona. */
+export const DEFAULT_CHROME_ATTEMPTS = 3;
+
+/** Pausa entre intentos: deja que el runner se despeje antes de relanzar. */
+export const CHROME_RETRY_DELAY_MS = 2_000;
 
 const IMPACT_RANK = { critical: 0, serious: 1, moderate: 2, minor: 3 };
 const IMPACT_LABEL = { critical: '🔴 crítico', serious: '🟠 serio', moderate: '🟡 moderado', minor: '⚪ menor' };
@@ -137,6 +167,18 @@ function normalizePath(arg) {
   return p.startsWith('/') ? p : `/${p}`;
 }
 
+/**
+ * Entero positivo, o el valor por defecto si no lo es.
+ *
+ * Sin esto, `--chrome-attempts=0` (o basura) dejaría el bucle de reintentos sin
+ * ninguna vuelta y el fallo aparecería como «Chrome no arrancó» sin haberlo
+ * intentado nunca.
+ */
+function positiveInt(raw, fallback) {
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : fallback;
+}
+
 function parseArgs(argv) {
   const opts = {
     base: process.env.A11Y_BASE || 'http://localhost:3000',
@@ -146,6 +188,8 @@ function parseArgs(argv) {
     json: false,
     failOnSerious: false,
     chrome: process.env.CHROME_PATH || null,
+    chromeTimeout: positiveInt(process.env.A11Y_CHROME_TIMEOUT, DEFAULT_CHROME_START_TIMEOUT_MS),
+    chromeAttempts: positiveInt(process.env.A11Y_CHROME_ATTEMPTS, DEFAULT_CHROME_ATTEMPTS),
     paths: [],
   };
   for (const arg of argv) {
@@ -153,6 +197,10 @@ function parseArgs(argv) {
     else if (arg.startsWith('--settle=')) opts.settle = Number(arg.slice(9)) || 2500;
     else if (arg.startsWith('--device=')) opts.device = arg.slice(9);
     else if (arg.startsWith('--chrome=')) opts.chrome = arg.slice(9);
+    else if (arg.startsWith('--chrome-timeout='))
+      opts.chromeTimeout = positiveInt(arg.slice(17), DEFAULT_CHROME_START_TIMEOUT_MS);
+    else if (arg.startsWith('--chrome-attempts='))
+      opts.chromeAttempts = positiveInt(arg.slice(18), DEFAULT_CHROME_ATTEMPTS);
     else if (arg === '--all') opts.all = true;
     else if (arg === '--json') opts.json = true;
     else if (arg === '--fail-on-serious') opts.failOnSerious = true;
@@ -270,9 +318,23 @@ function connect(wsUrl) {
   };
 }
 
-async function waitForEndpoint(port, timeoutMs = 20000) {
+/**
+ * Espera a que Chrome publique `/json/version`.
+ *
+ * Dos mejoras sobre la versión de 20 s fijos: el techo es configurable y, si
+ * el proceso ya murió, corta en el acto. Esperar el minuto completo a un
+ * navegador que ya terminó solo alarga el fallo y esconde la causa.
+ */
+async function waitForEndpoint(port, { timeoutMs = DEFAULT_CHROME_START_TIMEOUT_MS, hasExited = () => null } = {}) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
+    const exited = hasExited();
+    if (exited) {
+      throw new Error(
+        `Chrome terminó antes de exponer el endpoint de depuración ` +
+          `(código ${exited.code ?? '—'}${exited.signal ? `, señal ${exited.signal}` : ''})`
+      );
+    }
     try {
       const res = await fetch(`http://127.0.0.1:${port}/json/version`);
       if (res.ok) return true;
@@ -281,7 +343,146 @@ async function waitForEndpoint(port, timeoutMs = 20000) {
     }
     await sleep(150);
   }
-  throw new Error('Chrome no expuso el endpoint de depuración a tiempo');
+  throw new Error(`Chrome no expuso el endpoint de depuración en ${Math.round(timeoutMs / 1000)} s`);
+}
+
+/**
+ * Argumentos de arranque de Chrome.
+ *
+ * Es una función para que el test pueda comprobar dos cosas que importan: que
+ * el puerto y el perfil viajen en cada intento (sin perfil nuevo, un Chrome
+ * que murió deja un `SingletonLock` que hace fallar al siguiente) y que **no**
+ * aparezca `--no-sandbox`: se conserva el sandbox del navegador. `--disable-dev-shm-usage`
+ * evita el cuelgue clásico de Chrome en contenedores con `/dev/shm` chico.
+ */
+export function chromeArgs({ port, profileDir }) {
+  return [
+    '--headless=new',
+    `--remote-debugging-port=${port}`,
+    `--user-data-dir=${profileDir}`,
+    '--no-first-run',
+    '--no-default-browser-check',
+    '--disable-extensions',
+    '--disable-background-networking',
+    '--disable-sync',
+    '--disable-dev-shm-usage',
+    '--hide-scrollbars',
+    '--mute-audio',
+    'about:blank',
+  ];
+}
+
+function killChrome(chrome) {
+  try {
+    if (process.platform === 'win32') {
+      spawnSync('taskkill', ['/pid', String(chrome.pid), '/T', '/F'], { stdio: 'ignore' });
+    } else {
+      chrome.kill('SIGKILL');
+    }
+  } catch {
+    /* ya terminó */
+  }
+}
+
+/**
+ * Las últimas líneas del stderr de Chrome, para el mensaje de fallo.
+ *
+ * Antes el stderr iba a `ignore`: cuando Chrome moría, el job solo decía «no
+ * expuso el endpoint» y no había forma de saber si fue lento, si le faltaba una
+ * librería o si el sandbox lo bloqueó.
+ */
+function readLogTail(logPath, maxLines = 8) {
+  try {
+    const text = readFileSync(logPath, 'utf8').trim();
+    if (!text) return '';
+    return text.split('\n').slice(-maxLines).map((l) => `  ${l.trim().slice(0, 200)}`).join('\n');
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Un intento de arranque: Chrome con puerto y perfil propios, esperando el CDP.
+ *
+ * Devuelve la sesión (`port` + `close`) o tira un error con el stderr de Chrome
+ * y limpiando lo que dejó: si el intento falla, el siguiente no puede heredar
+ * un perfil bloqueado ni un proceso vivo.
+ */
+async function launchChrome({ chromePath, timeoutMs }) {
+  const port = await freePort();
+  const workDir = await mkdtemp(join(tmpdir(), 'rix7-a11y-'));
+  const profileDir = join(workDir, 'profile');
+  const logPath = join(workDir, 'chrome.log');
+
+  const logFd = openSync(logPath, 'a');
+  const chrome = spawn(chromePath, chromeArgs({ port, profileDir }), {
+    stdio: ['ignore', 'ignore', logFd],
+  });
+  closeSync(logFd); // el hijo ya heredó su propia copia del descriptor
+
+  let exited = null;
+  chrome.on('exit', (code, signal) => {
+    exited = { code, signal };
+  });
+
+  const close = async () => {
+    killChrome(chrome);
+    await sleep(300);
+    await rm(workDir, { recursive: true, force: true }).catch(() => {});
+  };
+
+  try {
+    await waitForEndpoint(port, { timeoutMs, hasExited: () => exited });
+  } catch (err) {
+    // El stderr se lee ANTES de `close()`: esa limpieza borra el directorio de
+    // trabajo y con él el log, y el mensaje quedaría sin la única pista útil.
+    const tail = readLogTail(logPath);
+    await close();
+    const detail = tail ? `\n  stderr de Chrome:\n${tail}` : '\n  (Chrome no escribió nada en stderr)';
+    throw new Error(`${err.message}${detail}`);
+  }
+
+  return { port, close };
+}
+
+/**
+ * Corre `launch` hasta `attempts` veces, esperando entre intento e intento.
+ *
+ * El fallo final incluye el error de cada intento: si tres arranques fallan, el
+ * mensaje tiene que decir por qué (y que fue el navegador, no axe).
+ *
+ * @param {{ attempts?: number, launch: (attempt: number) => Promise<any>,
+ *   onRetry?: (err: Error, attempt: number, attempts: number) => void,
+ *   delayMs?: number, wait?: (ms: number) => Promise<void> }} options
+ */
+export async function withChromeRetries({
+  attempts = DEFAULT_CHROME_ATTEMPTS,
+  launch,
+  onRetry = () => {},
+  delayMs = CHROME_RETRY_DELAY_MS,
+  wait = sleep,
+}) {
+  const total = positiveInt(attempts, DEFAULT_CHROME_ATTEMPTS);
+  const failures = [];
+
+  for (let attempt = 1; attempt <= total; attempt++) {
+    try {
+      return await launch(attempt);
+    } catch (err) {
+      failures.push(err);
+      if (attempt === total) break;
+      onRetry(err, attempt, total);
+      await wait(delayMs);
+    }
+  }
+
+  const last = failures[failures.length - 1];
+  const error = new Error(
+    `Chrome no arrancó en ${total} intento(s) — es el navegador, no una regla de axe. ` +
+      `Último error: ${last?.message ?? 'sin detalle'}`
+  );
+  error.failures = failures;
+  throw error;
 }
 
 async function newTab(port) {
@@ -430,8 +631,6 @@ function renderReport(summary, opts) {
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
   const chromePath = findChrome(opts.chrome);
-  const port = await freePort();
-  const userDataDir = await mkdtemp(join(tmpdir(), 'rix7-a11y-'));
   const axeSrc = await axeSource();
 
   // Precalentamiento: en `next dev` la primera visita compila la ruta.
@@ -443,28 +642,21 @@ async function main() {
     }
   }
 
-  const chrome = spawn(
-    chromePath,
-    [
-      '--headless=new',
-      `--remote-debugging-port=${port}`,
-      `--user-data-dir=${userDataDir}`,
-      '--no-first-run',
-      '--no-default-browser-check',
-      '--disable-extensions',
-      '--disable-background-networking',
-      '--disable-sync',
-      '--hide-scrollbars',
-      '--mute-audio',
-      'about:blank',
-    ],
-    { stdio: 'ignore' },
-  );
+  // El arranque va con reintentos: ver la cabecera. Si los tres intentos
+  // fallan, el error dice que fue Chrome —no se reporta ningún hallazgo de axe
+  // que no se haya medido—.
+  const session = await withChromeRetries({
+    attempts: opts.chromeAttempts,
+    onRetry: (err, attempt, attempts) => {
+      console.warn(`⚠ Chrome no arrancó (intento ${attempt}/${attempts}): ${err.message}`);
+      console.warn('  Reintentando con otro puerto y un perfil nuevo…');
+    },
+    launch: () => launchChrome({ chromePath, timeoutMs: opts.chromeTimeout }),
+  });
 
   let summary = [];
   try {
-    await waitForEndpoint(port);
-    const tab = await newTab(port);
+    const tab = await newTab(session.port);
     const client = connect(tab.webSocketDebuggerUrl);
     await client.ready;
 
@@ -496,17 +688,13 @@ async function main() {
       }
     }
   } finally {
-    if (process.platform === 'win32') {
-      spawnSync('taskkill', ['/pid', String(chrome.pid), '/T', '/F'], { stdio: 'ignore' });
-    } else {
-      chrome.kill('SIGKILL');
-    }
-    await sleep(300);
-    await rm(userDataDir, { recursive: true, force: true }).catch(() => {});
+    await session.close();
   }
 }
 
-main().catch((err) => {
-  console.error(`\n✖ ${err.message}\n`);
-  process.exit(1);
-});
+if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))) {
+  main().catch((err) => {
+    console.error(`\n✖ ${err.message}\n`);
+    process.exit(1);
+  });
+}

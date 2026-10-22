@@ -193,11 +193,20 @@ jobs:
   # instalar un navegador. El script precalienta cada ruta antes de inyectar
   # axe, así que no hay ruido de compilación: contra `next start` mide lo mismo
   # que verá el usuario.
+  #
+  # El arranque del navegador ya no es un punto único de fallo. El 2026-10-22
+  # este job se puso rojo sin un solo hallazgo: Chrome no abrió el puerto de
+  # depuración en los 20 s que esperaba el script. Ahora el script espera hasta
+  # 60 s y reintenta hasta 3 veces con puerto y perfil nuevos, dejando el stderr
+  # del navegador en el mensaje de fallo. La comprobación de axe no cambió: si
+  # hay algo critical/serious, el job sigue rojo. El techo de tiempo es para que
+  # esos reintentos no puedan colgar la corrida.
   a11y:
     name: Accesibilidad (axe-core, fail on serious)
     runs-on: ubuntu-latest
     needs: verify
     if: always() # corre aunque verify falle: un build roto se ve en ambos lados
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -224,6 +233,9 @@ jobs:
       # con un mensaje claro si alguna vez se corre con una major anterior.
       - name: Levantar la build y auditar
         run: |
+          # La versión queda en el log: si el runner cambia de Chrome entre
+          # corridas, el diagnóstico de un arranque lento empieza por acá.
+          google-chrome --version || true
           npx next start -p 3000 &
           for i in $(seq 1 60); do
             curl -sf -o /dev/null http://localhost:3000/ && break
