@@ -122,6 +122,12 @@ const HEALTHY_ROUTES: Record<string, () => Response> = {
   [`${BASE}/rest/v1/properties?select=rol&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/properties?select=video_url&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/properties?select=video_poster&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/properties?select=common_expenses&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/properties?select=property_taxes&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/properties?select=deposit&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/properties?select=property_taxes_source&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/properties?select=property_taxes_checked_at&limit=1`]: () =>
+    jsonResponse(200, []),
   [`${BASE}/rest/v1/rpc/rix7_partner_id`]: () => jsonResponse(200, null),
   [`${BASE}/rest/v1/rpc/get_properties_filtered`]: () => jsonResponse(200, [{ id: 'p1' }]),
 };
@@ -179,6 +185,8 @@ describe('schemaPlan', () => {
         '0015_rol_y_video',
         '0016_share_events_y_origen',
         '0018_solicitudes',
+        '0022_gastos_contribuciones_garantia',
+        '0023_fuente_contribuciones',
       ])
     );
   });
@@ -336,6 +344,14 @@ describe('runSchemaCheck', () => {
         jsonResponse(400, { ...MISSING_COLUMN, message: 'column properties.video_url does not exist' }),
       [`${BASE}/rest/v1/properties?select=video_poster&limit=1`]: () =>
         jsonResponse(400, { ...MISSING_COLUMN, message: 'column properties.video_poster does not exist' }),
+      // 0022 y 0023 sí están aplicadas en el escenario: los costos ya existen.
+      [`${BASE}/rest/v1/properties?select=common_expenses&limit=1`]: () => jsonResponse(200, []),
+      [`${BASE}/rest/v1/properties?select=property_taxes&limit=1`]: () => jsonResponse(200, []),
+      [`${BASE}/rest/v1/properties?select=deposit&limit=1`]: () => jsonResponse(200, []),
+      [`${BASE}/rest/v1/properties?select=property_taxes_source&limit=1`]: () =>
+        jsonResponse(200, []),
+      [`${BASE}/rest/v1/properties?select=property_taxes_checked_at&limit=1`]: () =>
+        jsonResponse(200, []),
       [`${BASE}/rest/v1/rpc/rix7_partner_id`]: () => jsonResponse(404, MISSING_FUNCTION),
       [`${BASE}/rest/v1/rpc/get_properties_filtered`]: () => jsonResponse(200, []),
     });

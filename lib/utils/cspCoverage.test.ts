@@ -73,6 +73,13 @@ const SERVER_ONLY = [
   'lib/email/sentryAlertEmail.ts', // arma el HTML del correo que envía el servidor: el enlace a sentry.io lo abre el cliente de correo del destinatario, no el navegador de la app
   'lib/supabase/server.ts', // cliente de servidor
   'lib/supabase/config.ts', // configuración de servidor
+  // Consulta de contribuciones al SII: la hace la ruta `/api/contribuciones`
+  // desde Node. El navegador nunca pide www4.sii.cl, así que no hay directiva
+  // del CSP que la cubra ni que haga falta agregar.
+  'lib/data/siiContribuciones.ts',
+  // Búsqueda del ROL por dirección en la aplicación de Mapas del SII: igual
+  // que la anterior, la hace la ruta `/api/rol` desde Node.
+  'lib/data/siiRol.ts',
 ];
 
 /** Artefactos generados por `postinstall` (copias de dependencias), no código propio. */

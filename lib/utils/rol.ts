@@ -9,7 +9,7 @@
  *
  * Vive en un módulo puro porque lo necesitan tres capas distintas: el esquema
  * Zod de las publicaciones, el formulario del panel y la validación de la
- * solicitud de licitación. Duplicar la expresión regular es cómo una de las
+ * solicitud de propuestas. Duplicar la expresión regular es cómo una de las
  * tres empieza a aceptar algo que las otras rechazan.
  */
 

@@ -254,6 +254,29 @@ describe('lib/api/schemas', () => {
       }
     });
 
+    it('acepta los costos de la ficha en CLP y los deja como número', () => {
+      const result = publicationPostSchema.safeParse({
+        ...valid,
+        common_expenses: '85000',
+        property_taxes: '240000',
+        deposit: 850_000,
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.common_expenses).toBe(85_000);
+        expect(result.data.property_taxes).toBe(240_000);
+        expect(result.data.deposit).toBe(850_000);
+      }
+    });
+
+    it('un costo negativo se rechaza: un monto no puede ser menor que cero', () => {
+      expect(publicationPostSchema.safeParse({ ...valid, deposit: '-1' }).success).toBe(false);
+      expect(publicationPostSchema.safeParse({ ...valid, common_expenses: '-1' }).success).toBe(
+        false
+      );
+    });
+
     it('rechaza vocabulario fuera del catálogo', () => {
       expect(
         publicationPostSchema.safeParse({ ...valid, property_type: 'villa' }).success

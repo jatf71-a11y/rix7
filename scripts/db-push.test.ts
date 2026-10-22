@@ -536,16 +536,20 @@ describe('supabase/migrations (archivos reales)', () => {
     expect(allCreated.length).toBeGreaterThan(0);
   });
 
-  it('nada borra datos: solo se sueltan políticas y firmas de funciones', () => {
+  it('nada borra datos: solo se sueltan políticas, firmas de funciones y checks', () => {
     for (const file of realFiles) {
       // Sin comentarios: explicar «no usar TRUNCATE» no es usarlo.
       const sql = sqlOf(file.content);
       const drops = Array.from(sql.matchAll(/DROP\s+(\w+)/g), (m) => m[1].toUpperCase());
       for (const object of drops) {
         // `FUNCTION` está permitido con una condición (abajo): retirar una firma
-        // vieja que `CREATE OR REPLACE` no puede reemplazar. `TABLE`, `COLUMN`,
-        // `SCHEMA`, `INDEX`… no.
-        expect(['POLICY', 'FUNCTION'], `${file.fileName}: DROP ${object}`).toContain(object);
+        // vieja que `CREATE OR REPLACE` no puede reemplazar. `CONSTRAINT` también
+        // (abajo): Postgres no permite modificar un CHECK existente, hay que
+        // soltarlo y volverlo a crear — y un CHECK no contiene datos. `TABLE`,
+        // `COLUMN`, `SCHEMA`, `INDEX`… no.
+        expect(['POLICY', 'FUNCTION', 'CONSTRAINT'], `${file.fileName}: DROP ${object}`).toContain(
+          object
+        );
       }
 
       // Una función que se suelta se vuelve a crear en el mismo archivo: si no,
@@ -559,6 +563,21 @@ describe('supabase/migrations (archivos reales)', () => {
           sql,
           `${file.fileName}: suelta ${fn}() y no la vuelve a crear`
         ).toContain(`CREATE OR REPLACE FUNCTION public.${fn}(`);
+      }
+
+      // Igual que con las funciones: una restricción suelta debe volver a
+      // crearse en el mismo archivo. Sin esto, un DROP CONSTRAINT a medias
+      // dejaría la tabla sin su CHECK y el archivo «aplicado» no sería el que
+      // el repo describe.
+      const droppedConstraints = Array.from(
+        sql.matchAll(/ALTER TABLE\s+[\w.]+\s+DROP CONSTRAINT IF EXISTS\s+"?([\w]+)"?/gi),
+        (m) => m[1]
+      );
+      for (const constraint of droppedConstraints) {
+        expect(
+          sql,
+          `${file.fileName}: suelta la restricción ${constraint} y no la vuelve a crear`
+        ).toContain(`ADD CONSTRAINT ${constraint}`);
       }
 
       expect(sql, file.fileName).not.toMatch(/\bTRUNCATE\b/i);

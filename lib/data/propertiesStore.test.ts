@@ -206,7 +206,7 @@ describe('modo desarrollo (sin Supabase)', () => {
 });
 
 describe('con proyecto configurado', () => {
-  it('el alta escribe partner_id, user_id, location en WKT y el ROL/video', async () => {
+  it('el alta escribe partner_id, user_id, location en WKT, el ROL/video y los costos', async () => {
     configureSupabase();
     sb.reset([
       {
@@ -218,7 +218,14 @@ describe('con proyecto configurado', () => {
     ]);
 
     const created = await store.createPublication(
-      { ...INPUT, rol: '15234-67', video_url: 'https://cdn.example/promo.mp4' },
+      {
+        ...INPUT,
+        rol: '15234-67',
+        video_url: 'https://cdn.example/promo.mp4',
+        common_expenses: 85_000,
+        property_taxes: 240_000,
+        deposit: 850_000,
+      },
       { partnerId: 'catedral', userId: 'uuid-del-usuario' }
     );
 
@@ -232,6 +239,10 @@ describe('con proyecto configurado', () => {
       title: INPUT.title,
       rol: '15234-67',
       video_url: 'https://cdn.example/promo.mp4',
+      // 0022: los tres costos de la ficha, en las columnas que los guardan.
+      common_expenses: 85_000,
+      property_taxes: 240_000,
+      deposit: 850_000,
       // PostGIS: longitud primero, como exige POINT(lng lat).
       location: `POINT(${INPUT.lng} ${INPUT.lat})`,
     });
@@ -258,6 +269,11 @@ describe('con proyecto configurado', () => {
 
     expect(sb.state.lastInsert).not.toHaveProperty('rol');
     expect(sb.state.lastInsert).not.toHaveProperty('video_url');
+    // Lo mismo con los costos (base previa a 0022): sin valor no viajan, así
+    // crear una publicación sigue funcionando antes de aplicar la migración.
+    expect(sb.state.lastInsert).not.toHaveProperty('common_expenses');
+    expect(sb.state.lastInsert).not.toHaveProperty('property_taxes');
+    expect(sb.state.lastInsert).not.toHaveProperty('deposit');
   });
 
   it('el listado va filtrado por partner_id además de la sesión', async () => {
@@ -349,6 +365,24 @@ describe('rowToPublication', () => {
 
     expect(property.lng).toBeCloseTo(-71.967, 6);
     expect(property.lat).toBeCloseTo(-39.267, 6);
+  });
+
+  it('deja NULL los costos no informados, no un 0 que la ficha mostraría como «$0»', () => {
+    const empty = store.rowToPublication({ id: 'p3' });
+    expect(empty.common_expenses).toBeNull();
+    expect(empty.property_taxes).toBeNull();
+    expect(empty.deposit).toBeNull();
+
+    // PostgREST puede devolver un NUMERIC como cadena: se normaliza a número.
+    const informed = store.rowToPublication({
+      id: 'p4',
+      common_expenses: '85000',
+      property_taxes: '240000',
+      deposit: 850_000,
+    });
+    expect(informed.common_expenses).toBe(85_000);
+    expect(informed.property_taxes).toBe(240_000);
+    expect(informed.deposit).toBe(850_000);
   });
 
   it('tolera location en WKT y ausente', () => {

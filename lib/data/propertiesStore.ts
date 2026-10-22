@@ -52,6 +52,17 @@ export interface PublicationInput {
   rol?: string;
   /** Video de la ficha (URL o subido a Storage). Cadena vacía = quitarlo. */
   video_url?: string;
+  /** Costos de la ficha en CLP (0022). Sin valor = no se escriben. */
+  common_expenses?: number;
+  property_taxes?: number;
+  deposit?: number;
+  /**
+   * Procedencia del monto de contribuciones (0023). `'sii'` cuando lo trajo la
+   * consulta con el ROL; vacío al escribirlo a mano, para no atribuirle al SII
+   * un número que alguien cambió después.
+   */
+  property_taxes_source?: string;
+  property_taxes_checked_at?: string;
 }
 
 /**
@@ -118,10 +129,25 @@ const WRITEABLE_COLUMNS = [
   // sigue funcionando en cualquier base.
   'rol',
   'video_url',
+  // 0022: costos de la ficha. Igual que el ROL y el video, el formulario los
+  // manda solo cuando traen valor: crear sin ellos funciona en cualquier base.
+  'common_expenses',
+  'property_taxes',
+  'deposit',
+  'property_taxes_source',
+  'property_taxes_checked_at',
 ] as const;
 
 /** Columnas de texto donde la cadena vacía significa «borrar el valor». */
-const CLEARABLE_TEXT_COLUMNS = ['rol', 'video_url'] as const;
+// `property_taxes_checked_at` también está acá aunque sea un TIMESTAMPTZ: la
+// cadena vacía que manda el formulario al borrar la procedencia tiene que
+// llegar como NULL, no como '' (Postgres la rechazaría como fecha inválida).
+const CLEARABLE_TEXT_COLUMNS = [
+  'rol',
+  'video_url',
+  'property_taxes_source',
+  'property_taxes_checked_at',
+] as const;
 
 /**
  * Respaldo en memoria, **solo** para desarrollo sin Supabase. No es una caché:
@@ -251,7 +277,18 @@ function locationToPoint(location: unknown): { lat: number; lng: number } | null
 }
 
 /**
- * Fila de la tabla → `Property` del panel.
+ * Monto opcional de una fila: `null` cuando no lo informaron.
+ *
+ * PostgREST puede devolver un NUMERIC como número o como cadena según el
+ * camino; el panel y la ficha necesitan un número o nada, nunca `NaN`.
+ */
+function optionalAmount(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const amount = Number(value);
+  return Number.isFinite(amount) ? amount : null;
+}
+
+/** Fila de la tabla → `Property` del panel.
  *
  * `location` llega como EWKB en hex; se tolera además GeoJSON y WKT (ver
  * `locationToPoint`). Si no hay ubicación legible quedan 0,0 — el formulario las
@@ -269,6 +306,21 @@ export function rowToPublication(row: Record<string, unknown>): Property {
     area_sqm: row.area_sqm == null ? Number(row.area_sqm ?? 0) : Number(row.area_sqm),
     images: Array.isArray(row.images) ? row.images : [],
     features: Array.isArray(row.features) ? row.features : [],
+    // 0022: sin dato queda NULL, que es «no informado» y no un 0 que la ficha
+    // mostraría como «$0».
+    common_expenses: optionalAmount(row.common_expenses),
+    property_taxes: optionalAmount(row.property_taxes),
+    deposit: optionalAmount(row.deposit),
+    // 0023: procedencia del monto de contribuciones. Cadena vacía nunca: o hay
+    // dato, o es NULL («ingresado a mano»).
+    property_taxes_source:
+      typeof row.property_taxes_source === 'string' && row.property_taxes_source
+        ? row.property_taxes_source
+        : null,
+    property_taxes_checked_at:
+      typeof row.property_taxes_checked_at === 'string' && row.property_taxes_checked_at
+        ? row.property_taxes_checked_at
+        : null,
   } as Property;
 }
 

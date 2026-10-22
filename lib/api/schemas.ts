@@ -235,8 +235,8 @@ export const leadsPostSchema = z
 // ═══ /api/solicitudes ═══
 
 /**
- * Solicitud del botón «Publicar» (licitación de propietario o registro de
- * corredora/inmobiliaria).
+ * Solicitud del botón «Publicar» (propietario que busca propuestas o registro
+ * de corredora/inmobiliaria).
  *
  * Acá se valida solo la **forma** —objeto con los campos que el formulario
  * puede mandar—; la semántica (qué exige cada camino, largos, correo, precio,
@@ -277,6 +277,35 @@ export const solicitudPatchSchema = z
     status: z.unknown().optional(),
   })
   .passthrough();
+
+// ═══ /api/contribuciones ═══
+
+/**
+ * Consulta de contribuciones al SII desde el panel (`?rol=&comuna=&region=`).
+ *
+ * Acá solo se valida la forma; el ROL se parte y se contrasta con el catálogo
+ * de comunas del SII en `lookupContribucionesSII`. `region` es el nombre de la
+ * ficha (`state`) y sirve para desambiguar comunas homónimas.
+ */
+export const contribucionesQuerySchema = z.object({
+  rol: z.string({ required_error: 'Falta el ROL.' }).trim().min(4).max(ROL_MAX_LENGTH),
+  comuna: z.string({ required_error: 'Falta la comuna.' }).trim().min(2).max(80),
+  region: z.string().trim().max(120).optional(),
+});
+
+// ═══ /api/rol ═══
+
+/**
+ * Búsqueda del ROL por dirección en el SII (`?direccion=&comuna=`).
+ *
+ * `direccion` es el texto libre de la ficha y la unidad (depto, oficina) viaja
+ * ahí mismo; `parseAddress` la separa en calle, número y detalle. La comuna es
+ * obligatoria porque el SII indexa las direcciones por comuna.
+ */
+export const rolQuerySchema = z.object({
+  direccion: z.string({ required_error: 'Falta la dirección.' }).trim().min(3).max(300),
+  comuna: z.string({ required_error: 'Falta la comuna.' }).trim().min(2).max(80),
+});
 
 // ═══ /api/registro ═══
 
@@ -441,7 +470,7 @@ const publicationImageSchema = z
 /**
  * ROL de propiedad (SII): la forma se define una sola vez en
  * `lib/utils/rol.ts`, que también usan el formulario del panel y la
- * solicitud de licitación.
+ * solicitud de propuestas.
  */
 const rolSchema = z
   .string()
@@ -497,6 +526,15 @@ const publicationFields = {
   rol: rolSchema.or(z.literal('')).optional(),
   // Video de la ficha: URL o archivo subido a Storage. Vacío = sin video.
   video_url: mediaUrlSchema.optional(),
+  // Costos de la ficha (migración 0022), en CLP y opcionales: sin valor no
+  // viajan y la columna queda NULL, que la ficha lee como «no informado».
+  common_expenses: z.coerce.number().finite().min(0).max(1_000_000_000).optional(),
+  property_taxes: z.coerce.number().finite().min(0).max(1_000_000_000).optional(),
+  deposit: z.coerce.number().finite().min(0).max(1_000_000_000).optional(),
+  // Procedencia del monto de contribuciones (0023): la pone la consulta al SII
+  // desde el panel, nunca un cliente anónimo. Cadena vacía = borrar la marca.
+  property_taxes_source: z.string().trim().max(20).optional(),
+  property_taxes_checked_at: z.string().trim().max(40).optional(),
   images: z.array(publicationImageSchema).max(30).default([]),
   features: z.array(z.string().trim().min(1).max(80)).max(40).default([]),
   // `location` es NOT NULL en la base: sin par no hay fila posible.

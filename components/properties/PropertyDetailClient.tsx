@@ -35,6 +35,7 @@ import {
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { trackShareEvent } from '@/lib/utils/shareTracking';
 import { formatArea, getPropertyTypeLabel, getStatusLabel } from '@/lib/utils/formatters';
+import { propertyCosts } from '@/lib/utils/propertyCosts';
 import {
   Bed,
   Bath,
@@ -103,6 +104,10 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
   const showLogo = partner && (property.featured || isNewProp);
   const isRent = property.status === 'for_rent';
   const pricePerSqm = property.area_sqm > 0 ? Math.round(property.price / property.area_sqm) : 0;
+
+  // Costos informados por la corredora (migración 0022). No dependen de la
+  // operación: las contribuciones también son un dato de la venta.
+  const costs = propertyCosts(property);
 
   // ═══ Compartir (WhatsApp + enlace copiado) ═══
   //
@@ -340,6 +345,27 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
                   </div>
                 </div>
               </div>
+
+              {/* Costos de la ficha: se omite el bloque entero si no hay ninguno
+                  informado, así una publicación sin estos datos se ve igual que
+                  antes de la 0022. */}
+              {costs.length > 0 && (
+                <dl className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-100">
+                  {costs.map((cost) => (
+                    <div key={cost.label}>
+                      <dt className="text-xs text-slate-500 uppercase font-semibold">
+                        {cost.label}
+                      </dt>
+                      <dd className="text-base font-bold text-slate-900">
+                        {format(cost.amount)}
+                        {cost.suffix && (
+                          <span className="text-xs font-medium text-slate-500"> {cost.suffix}</span>
+                        )}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
             </div>
 
             {/* Descripción Completa */}

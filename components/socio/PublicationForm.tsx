@@ -6,12 +6,14 @@ import {
   MapPin,
   Navigation,
   Plus,
+  Search,
   Trash2,
   Upload,
   X,
   AlertCircle,
 } from 'lucide-react';
 import type { PanelProperty } from '@/lib/data/propertiesStore';
+import type { RolCandidate } from '@/lib/data/siiRol';
 import { CHILE_REGIONS } from '@/lib/data/chileLocations';
 import { getPropertyTypeLabel } from '@/lib/utils/formatters';
 import { isValidRol, ROL_MAX_LENGTH } from '@/lib/utils/rol';
@@ -63,6 +65,13 @@ export interface PublicationPayload {
   rol: string;
   /** Video de la ficha: vacío = sin video (y en edición, quitarlo). */
   video_url: string;
+  /** Costos de la ficha en CLP: vacío = no informado, no viaja. */
+  common_expenses?: number;
+  property_taxes?: number;
+  deposit?: number;
+  /** Procedencia del monto de contribuciones (0023); vacío = ingresado a mano. */
+  property_taxes_source: string;
+  property_taxes_checked_at: string;
 }
 
 interface FormState {
@@ -87,7 +96,29 @@ interface FormState {
   agent_phone: string;
   rol: string;
   video_url: string;
+  common_expenses: string;
+  property_taxes: string;
+  deposit: string;
+  property_taxes_source: string;
+  property_taxes_checked_at: string;
 }
+
+/** Resultado de «Buscar por dirección» en el SII, mientras se está editando. */
+interface RolSearch {
+  loading: boolean;
+  candidates: RolCandidate[];
+  total: number;
+  note: string | null;
+  error: string | null;
+}
+
+const EMPTY_ROL_SEARCH: RolSearch = {
+  loading: false,
+  candidates: [],
+  total: 0,
+  note: null,
+  error: null,
+};
 
 const EMPTY_FORM: FormState = {
   title: '',
@@ -111,6 +142,11 @@ const EMPTY_FORM: FormState = {
   agent_phone: '',
   rol: '',
   video_url: '',
+  common_expenses: '',
+  property_taxes: '',
+  deposit: '',
+  property_taxes_source: '',
+  property_taxes_checked_at: '',
 };
 
 /** Las mismas claves que acepta `publicationPostSchema` (lib/api/schemas.ts). */
@@ -156,6 +192,11 @@ function fromProperty(property: PanelProperty): FormState {
     agent_phone: property.agent_phone ?? '',
     rol: property.rol ?? '',
     video_url: property.video_url ?? '',
+    common_expenses: property.common_expenses ? String(property.common_expenses) : '',
+    property_taxes: property.property_taxes ? String(property.property_taxes) : '',
+    deposit: property.deposit ? String(property.deposit) : '',
+    property_taxes_source: property.property_taxes_source ?? '',
+    property_taxes_checked_at: property.property_taxes_checked_at ?? '',
   };
 }
 
@@ -201,6 +242,14 @@ export default function PublicationForm({
   const [uploadError, setUploadError] = useState<
     { kind: 'photo' | 'video'; message: string } | null
   >(null);
+  /** Consulta de contribuciones al SII: en curso, resultado y error. */
+  const [taxesLookup, setTaxesLookup] = useState<{
+    loading: boolean;
+    note: string | null;
+    error: string | null;
+  }>({ loading: false, note: null, error: null });
+  /** Búsqueda del ROL por dirección en el SII: en curso, predios y error. */
+  const [rolLookup, setRolLookup] = useState<RolSearch>(EMPTY_ROL_SEARCH);
 
   const regionName = useMemo(() => regionOf(form.state), [form.state]);
   const region = CHILE_REGIONS.find((r) => r.name === regionName);
@@ -235,6 +284,14 @@ export default function PublicationForm({
       errors.lat = 'Coordenadas fuera de rango.';
     if (form.year_built && !/^\d{4}$/.test(form.year_built.trim()))
       errors.year_built = 'Año inválido (4 dígitos).';
+    // Costos opcionales: si se escriben, tienen que ser un monto en CLP. Vacío
+    // es «no informado» y la ficha no muestra esa línea.
+    for (const key of ['common_expenses', 'property_taxes', 'deposit'] as const) {
+      const value = form[key].trim();
+      if (!value) continue;
+      const amount = Number(value);
+      if (!Number.isFinite(amount) || amount < 0) errors[key] = 'Monto inválido.';
+    }
     // Misma regla que `rolSchema` (lib/api/schemas.ts), para fallar en pantalla
     // antes de viajar; la autoridad sigue siendo el servidor.
     const rol = form.rol.trim();
@@ -248,6 +305,7 @@ export default function PublicationForm({
     if (saving || !validate()) return;
 
     const optional = (value: string) => (value.trim() ? value.trim() : undefined);
+    const amount = (value: string) => (value.trim() ? Number(value) : undefined);
 
     onSubmit({
       title: form.title.trim(),
@@ -275,6 +333,13 @@ export default function PublicationForm({
       // el ROL o el video (el store lo convierte en NULL).
       rol: form.rol.trim(),
       video_url: form.video_url.trim(),
+      common_expenses: amount(form.common_expenses),
+      property_taxes: amount(form.property_taxes),
+      deposit: amount(form.deposit),
+      // Vacío = borrar la marca: un monto que se escribió a mano no se atribuye
+      // al SII. El store convierte la cadena vacía en NULL.
+      property_taxes_source: form.property_taxes_source,
+      property_taxes_checked_at: form.property_taxes_checked_at,
     });
   }
 
@@ -354,6 +419,149 @@ export default function PublicationForm({
     } finally {
       setGeocoding(false);
     }
+  }
+
+  /**
+   * Trae el monto anual de contribuciones desde el SII con el ROL y la comuna
+   * de la ficha.
+   *
+   * Rellena el campo y deja marcada la procedencia; **no** guarda nada: el
+   * guardado sigue siendo el botón del formulario, así la persona ve el monto y
+   * decide. Si después lo edita a mano, la marca se borra al escribir.
+   */
+  async function lookupTaxes() {
+    const rol = form.rol.trim();
+    const comuna = form.city.trim();
+    if (!rol || !comuna) {
+      setTaxesLookup({
+        loading: false,
+        note: null,
+        error: 'Para consultar al SII necesitas el ROL y la comuna.',
+      });
+      return;
+    }
+
+    setTaxesLookup({ loading: true, note: null, error: null });
+    try {
+      const params = new URLSearchParams({ rol, comuna });
+      if (form.state.trim()) params.set('region', form.state.trim());
+
+      const response = await fetch(`/api/contribuciones?${params.toString()}`, {
+        cache: 'no-store',
+      });
+      const body = await response.json().catch(() => null);
+
+      if (!response.ok || !body?.success) {
+        setTaxesLookup({
+          loading: false,
+          note: null,
+          error: body?.error ?? 'No se pudo consultar el SII. Intenta de nuevo.',
+        });
+        return;
+      }
+
+      const annual = Number(body?.data?.annual);
+      if (!Number.isFinite(annual) || annual <= 0) {
+        setTaxesLookup({
+          loading: false,
+          note: null,
+          error: 'El SII no informó un monto para ese ROL.',
+        });
+        return;
+      }
+
+      const year = Number(body?.data?.year);
+      const checkedAt = String(body?.data?.checkedAt ?? '');
+      setForm((prev) => ({
+        ...prev,
+        property_taxes: String(annual),
+        property_taxes_source: 'sii',
+        property_taxes_checked_at: checkedAt,
+      }));
+      setTaxesLookup({
+        loading: false,
+        note: `SII ${Number.isFinite(year) ? year : ''}: $${annual.toLocaleString('es-CL')} al año. Revisa el monto antes de guardar.`,
+        error: null,
+      });
+    } catch {
+      setTaxesLookup({
+        loading: false,
+        note: null,
+        error: 'Sin conexión con el servidor. Intenta de nuevo.',
+      });
+    }
+  }
+
+  /**
+   * Busca en el SII los roles de la dirección escrita (calle, número y, si la
+   * trae, la unidad).
+   *
+   * No escribe el ROL: una dirección puede tener varios predios —un
+   * estacionamiento por rol— y el SII también devuelve predios de otras calles
+   * que comparten el número. La persona ve la lista con la dirección tal como
+   * la registra el SII y elige; el campo se completa recién con ese clic.
+   */
+  async function lookupRol() {
+    const direccion = form.address.trim();
+    const comuna = form.city.trim();
+    if (!direccion || !comuna) {
+      setRolLookup({
+        ...EMPTY_ROL_SEARCH,
+        error: 'Para buscar el ROL necesitas la dirección y la comuna.',
+      });
+      return;
+    }
+
+    setRolLookup({ ...EMPTY_ROL_SEARCH, loading: true });
+    try {
+      const params = new URLSearchParams({ direccion, comuna });
+      const response = await fetch(`/api/rol?${params.toString()}`, { cache: 'no-store' });
+      const body = await response.json().catch(() => null);
+
+      if (!response.ok || !body?.success) {
+        setRolLookup({
+          ...EMPTY_ROL_SEARCH,
+          error: body?.error ?? 'No se pudo consultar el SII. Intenta de nuevo.',
+        });
+        return;
+      }
+
+      const candidates: RolCandidate[] = Array.isArray(body?.data?.candidates)
+        ? body.data.candidates
+        : [];
+      const total = Number(body?.data?.total) || candidates.length;
+
+      setRolLookup({
+        loading: false,
+        candidates,
+        total,
+        note:
+          total > candidates.length
+            ? `Hay ${total} predios en esa dirección: agrega el departamento u oficina para acotar la lista.`
+            : null,
+        error: null,
+      });
+    } catch {
+      setRolLookup({
+        ...EMPTY_ROL_SEARCH,
+        error: 'Sin conexión con el servidor. Intenta de nuevo.',
+      });
+    }
+  }
+
+  /** Elige un ROL de la lista: recién acá se completa el campo. */
+  function pickRol(rol: string) {
+    setForm((prev) => ({ ...prev, rol }));
+    setFieldErrors((prev) => ({ ...prev, rol: '' }));
+    setRolLookup(EMPTY_ROL_SEARCH);
+  }
+
+  /** Fecha de la consulta al SII, solo si es una fecha válida. */
+  function checkedAtLabel(iso: string): string | null {
+    if (!iso) return null;
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return null;
+    return new Intl.DateTimeFormat('es-CL', { dateStyle: 'medium' }).format(date);
   }
 
   return (
@@ -476,6 +684,55 @@ export default function PublicationForm({
             placeholder="15234-67"
             maxLength={ROL_MAX_LENGTH}
           />
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={lookupRol}
+              disabled={rolLookup.loading || saving || !form.address.trim() || !form.city.trim()}
+              className="inline-flex items-center gap-1 rounded-md border border-slate-300 px-2 py-1 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-40"
+              title="Buscar en el SII los roles de la dirección y la comuna de la ficha"
+            >
+              <Search className="w-3 h-3" />
+              {rolLookup.loading ? 'Buscando…' : 'Buscar por dirección'}
+            </button>
+            {rolLookup.candidates.length > 0 && (
+              <span className="text-[11px] text-slate-500">
+                {rolLookup.total} {rolLookup.total === 1 ? 'predio' : 'predios'} en esa
+                dirección
+              </span>
+            )}
+          </div>
+          {rolLookup.candidates.length > 0 && (
+            <ul
+              aria-label="Roles encontrados en el SII"
+              className="mt-2 max-h-56 divide-y divide-slate-100 overflow-auto rounded-lg border border-slate-200"
+            >
+              {rolLookup.candidates.map((candidate) => (
+                <li key={candidate.rol}>
+                  <button
+                    type="button"
+                    onClick={() => pickRol(candidate.rol)}
+                    className="w-full px-3 py-2 text-left transition-colors hover:bg-slate-50"
+                    title={`Usar el ROL ${candidate.rol}`}
+                  >
+                    <span className="block text-xs font-semibold text-slate-900">
+                      {candidate.rol}
+                    </span>
+                    <span className="block text-[11px] text-slate-500">
+                      {candidate.address}
+                      {candidate.destino ? ` · ${candidate.destino}` : ''}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {rolLookup.error && (
+            <p className="text-[11px] text-red-600 mt-1">{rolLookup.error}</p>
+          )}
+          {rolLookup.note && (
+            <p className="text-[11px] text-slate-500 mt-1">{rolLookup.note}</p>
+          )}
           {fieldErrors.rol ? (
             <p className="text-xs text-red-600 mt-1">{fieldErrors.rol}</p>
           ) : (
@@ -484,6 +741,11 @@ export default function PublicationForm({
               no aparece en la ficha pública ni en el enlace compartido.
             </p>
           )}
+          {!rolLookup.error && (!form.address.trim() || !form.city.trim()) ? (
+            <p className="text-[11px] text-slate-400 mt-1">
+              Para buscar el ROL se necesitan la dirección y la comuna (sección Ubicación).
+            </p>
+          ) : null}
         </div>
       </section>
 
@@ -500,7 +762,12 @@ export default function PublicationForm({
               id="pub-address"
               className={inputBase}
               value={form.address}
-              onChange={(e) => set('address')(e.target.value)}
+              onChange={(e) => {
+                set('address')(e.target.value);
+                // La lista de roles era de otra dirección: no se puede dejar
+                // ahí para que alguien elija el predio equivocado.
+                setRolLookup(EMPTY_ROL_SEARCH);
+              }}
               placeholder="Av. Providencia 1234, depto 901"
               maxLength={300}
             />
@@ -517,9 +784,10 @@ export default function PublicationForm({
               id="pub-region"
               className={inputBase}
               value={regionName}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, state: e.target.value, city: '' }))
-              }
+              onChange={(e) => {
+                setForm((prev) => ({ ...prev, state: e.target.value, city: '' }));
+                setRolLookup(EMPTY_ROL_SEARCH);
+              }}
             >
               <option value="">Elige una región…</option>
               {CHILE_REGIONS.map((r) => (
@@ -538,7 +806,10 @@ export default function PublicationForm({
               id="pub-city"
               className={inputBase}
               value={form.city}
-              onChange={(e) => set('city')(e.target.value)}
+              onChange={(e) => {
+                set('city')(e.target.value);
+                setRolLookup(EMPTY_ROL_SEARCH);
+              }}
               disabled={communeOptions.length === 0}
             >
               <option value="">
@@ -687,6 +958,111 @@ export default function PublicationForm({
             {fieldErrors.year_built && (
               <p className="text-xs text-red-600 mt-1">{fieldErrors.year_built}</p>
             )}
+          </div>
+        </div>
+
+        {/* Costos que la ficha publica junto al precio (migración 0022). Son
+            opcionales: lo que se deje vacío no se guarda y la ficha no muestra
+            esa línea, en vez de un «$0» que sería falso. */}
+        <div className="border-t border-slate-100 pt-4">
+          <p className="text-[11px] text-slate-400 mb-3">
+            Costos de la ficha. Deja vacío lo que no corresponda.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className={labelBase} htmlFor="pub-common-expenses">
+                Gastos comunes (CLP/mes)
+              </label>
+              <input
+                id="pub-common-expenses"
+                type="number"
+                min={0}
+                step={1000}
+                className={inputBase}
+                value={form.common_expenses}
+                onChange={(e) => set('common_expenses')(e.target.value)}
+                placeholder="85000"
+              />
+              {fieldErrors.common_expenses && (
+                <p className="text-xs text-red-600 mt-1">{fieldErrors.common_expenses}</p>
+              )}
+            </div>
+            <div>
+              <label className={labelBase} htmlFor="pub-property-taxes">
+                Contribuciones (CLP/año)
+              </label>
+              <input
+                id="pub-property-taxes"
+                type="number"
+                min={0}
+                step={1000}
+                className={inputBase}
+                value={form.property_taxes}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Editar a mano invalida la procedencia: el número ya no es
+                  // el que devolvió el SII.
+                  setForm((prev) => ({
+                    ...prev,
+                    property_taxes: value,
+                    property_taxes_source: '',
+                    property_taxes_checked_at: '',
+                  }));
+                  setTaxesLookup({ loading: false, note: null, error: null });
+                }}
+                placeholder="240000"
+              />
+              <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={lookupTaxes}
+                  disabled={taxesLookup.loading || saving || !form.rol.trim() || !form.city.trim()}
+                  className="inline-flex items-center gap-1 rounded-md border border-slate-300 px-2 py-1 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-40"
+                  title="Consultar el monto emitido por el SII con el ROL de la ficha"
+                >
+                  <Search className="w-3 h-3" />
+                  {taxesLookup.loading ? 'Consultando…' : 'Consultar SII'}
+                </button>
+                {form.property_taxes_source === 'sii' &&
+                  checkedAtLabel(form.property_taxes_checked_at) && (
+                    <span className="text-[11px] font-medium text-emerald-700">
+                      Consultado el {checkedAtLabel(form.property_taxes_checked_at)}
+                    </span>
+                  )}
+              </div>
+              {fieldErrors.property_taxes && (
+                <p className="text-xs text-red-600 mt-1">{fieldErrors.property_taxes}</p>
+              )}
+              {taxesLookup.note && (
+                <p className="text-[11px] text-slate-500 mt-1">{taxesLookup.note}</p>
+              )}
+              {taxesLookup.error && (
+                <p className="text-[11px] text-red-600 mt-1">{taxesLookup.error}</p>
+              )}
+              {!form.rol.trim() || !form.city.trim() ? (
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Para consultar al SII se necesitan el ROL y la comuna.
+                </p>
+              ) : null}
+            </div>
+            <div>
+              <label className={labelBase} htmlFor="pub-deposit">
+                Garantía (CLP)
+              </label>
+              <input
+                id="pub-deposit"
+                type="number"
+                min={0}
+                step={1000}
+                className={inputBase}
+                value={form.deposit}
+                onChange={(e) => set('deposit')(e.target.value)}
+                placeholder="850000"
+              />
+              {fieldErrors.deposit && (
+                <p className="text-xs text-red-600 mt-1">{fieldErrors.deposit}</p>
+              )}
+            </div>
           </div>
         </div>
 

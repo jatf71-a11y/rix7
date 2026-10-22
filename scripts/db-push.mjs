@@ -28,10 +28,15 @@
  *
  * Sobre la seguridad de aplicarlo sin preguntar: las migraciones son
  * **aditivas** —`CREATE ... IF NOT EXISTS`, `CREATE OR REPLACE`, `ALTER ... ADD
- * COLUMN IF NOT EXISTS` y `DROP POLICY IF EXISTS` de políticas que el propio
- * archivo vuelve a crear—, y `scripts/db-push.test.ts` se lo exige a cada
- * archivo real, incluido que no haya `DROP TABLE`, `DROP COLUMN`, `TRUNCATE` ni
- * `DELETE`. Aplicar dos veces no rompe nada.
+ * COLUMN IF NOT EXISTS` y `DROP POLICY IF EXISTS` de políticas y restricciones
+ * que el propio archivo vuelve a crear—, y `scripts/db-push.test.ts` se lo
+ * exige a cada archivo real, incluido que no haya `DROP TABLE`, `DROP COLUMN`,
+ * `TRUNCATE` ni `DELETE`. Aplicar dos veces no rompe nada.
+ *
+ * (Un `DROP CONSTRAINT IF EXISTS` es la única forma de cambiar un CHECK:
+ * Postgres no permite modificar una restricción existente, hay que soltarla y
+ * recrearla — ver `0020_agentes.sql`. Un CHECK no contiene datos, y el test
+ * exige que la restricción suelta vuelva a crearse en el mismo archivo.)
  *
  * Las migraciones ya aplicadas se registran en `public.rix7_migrations` (con RLS
  * habilitado y sin políticas: nadie la lee por la API pública). El registro hace
