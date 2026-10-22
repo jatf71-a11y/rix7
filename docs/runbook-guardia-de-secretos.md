@@ -180,8 +180,8 @@ if (!assertNoSecrets({ action: 'despliego a producción' })) process.exit(1);
 
 Por qué el de deploy es el que más importa: los `.env*` ya quedan **fuera de la
 copia** (`entry.name.startsWith(".env")`), pero un secreto suelto en un archivo
-normal viajaría igual. El gate corre antes de crear `.deploy-staging`, así que
-ni siquiera se copia.
+normal viajaría igual. El gate corre antes de armar la copia del deploy (la que
+hoy se crea en el temporal del sistema), así que ni siquiera se copia.
 
 Por qué `dev` también: es el único camino a `next dev`, así que un descuido se
 nota en el primer arranque, no en producción.

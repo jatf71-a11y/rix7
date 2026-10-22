@@ -12,10 +12,10 @@
  *    permission to create deployments for this project."
  *
  * Este script publica **sin metadata de git**: copia el árbol de trabajo a un
- * directorio temporal (sin `.git`, `node_modules` ni `.next`), bloquea el
- * descubrimiento del repositorio con `GIT_CEILING_DIRECTORIES` y despliega
- * desde ahí. El deployment queda atribuido a la cuenta dueña —que sí tiene
- * permiso— y Vercel lo promueve a producción automáticamente.
+ * directorio temporal del sistema (sin `.git`, `node_modules` ni `.next`),
+ * bloquea el descubrimiento del repositorio con `GIT_CEILING_DIRECTORIES` y
+ * despliega desde ahí. El deployment queda atribuido a la cuenta dueña —que sí
+ * tiene permiso— y Vercel lo promueve a producción automáticamente.
  *
  * Antes de copiar nada corre la guardia de secretos (`check-secrets.mjs`). Los
  * `.env*` ya quedan fuera de la copia, pero un secreto suelto en un archivo
@@ -40,6 +40,7 @@
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -55,7 +56,121 @@ import {
 } from './release-identity.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const staging = path.join(root, '.deploy-staging');
+
+/** Donde armaban la copia las versiones del script anteriores a `stagingPathFor`. */
+const LEGACY_STAGING = path.join(root, '.deploy-staging');
+
+/** Prefijo de los stagings del temporal: es lo que permite reconocer y barrer los propios. */
+const STAGING_PREFIX = 'rix7-deploy-';
+
+/**
+ * Dónde se arma la copia del árbol que se le pasa al CLI.
+ *
+ * Antes vivía en `.deploy-staging`, dentro del proyecto, y ese era el problema:
+ * el CLI se lanza con `cwd` en ese directorio, así que en Windows el proceso —o
+ * su hijo, o el antivirus— todavía tiene el handle abierto cuando `spawnSync`
+ * retorna. El `rmSync` de la limpieza fallaba con EBUSY/EPERM y dejaba dentro del
+ * repositorio un directorio que nadie borraba: `.gitignore` tapando el rastro y
+ * un aviso amarillo que se leía como ruido. En el temporal del sistema el mismo
+ * fallo no ensucia el árbol.
+ *
+ * El nombre lleva marca de tiempo y pid para que dos deploys simultáneos no se
+ * pisen la copia: la versión anterior borraba `.deploy-staging` al empezar, así
+ * que un segundo deploy podía vaciarle el staging al primero en pleno vuelo.
+ *
+ * @param {{ tmpdir?: string, now?: number, pid?: number }} [options]
+ * @returns {string}
+ */
+export function stagingPathFor({ tmpdir = os.tmpdir(), now = Date.now(), pid = process.pid } = {}) {
+  return path.join(tmpdir, `${STAGING_PREFIX}${now.toString(36)}-${pid}`);
+}
+
+/**
+ * Códigos que en Windows significan «todavía no» y no «no se puede»: el handle
+ * del CLI se cierra unos milisegundos después de que el proceso termina.
+ */
+const RETRYABLE_REMOVE_ERRORS = new Set(['EBUSY', 'EPERM', 'EACCES', 'ENOTEMPTY', 'EMFILE', 'ENFILE']);
+
+/** Espera sincrónica: `main` es sincrónico de punta a punta (`spawnSync`). */
+function sleepSync(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+/**
+ * Borra un árbol de directorios, reintentando con una espera creciente.
+ *
+ * Devuelve si lo logró y **nunca lanza**: un fallo al limpiar no puede tumbar el
+ * deploy, porque lo único que importa cuando algo sale mal es el error del
+ * deploy. Pero tampoco se ignora en silencio: quien llama decide qué decir.
+ *
+ * @param {string} dir
+ * @param {{
+ *   retries?: number,
+ *   baseDelayMs?: number,
+ *   rm?: (dir: string) => void,
+ *   sleep?: (ms: number) => void,
+ * }} [options]
+ * @returns {boolean}
+ */
+export function removeTreeWithRetry(
+  dir,
+  {
+    retries = 6,
+    baseDelayMs = 120,
+    rm = (target) => fs.rmSync(target, { recursive: true, force: true }),
+    sleep = sleepSync,
+  } = {}
+) {
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      rm(dir);
+      return true;
+    } catch (err) {
+      if (!RETRYABLE_REMOVE_ERRORS.has(err?.code) || attempt === retries) return false;
+      sleep(baseDelayMs * 2 ** attempt);
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Barre los stagings que dejaron deploys anteriores (interrumpidos o con el
+ * handle todavía tomado) y devuelve cuántos borró.
+ *
+ * Solo toca directorios con este prefijo **y** más viejos que `maxAgeMs`: uno
+ * reciente puede ser un deploy corriendo ahora mismo en otra terminal, y borrarle
+ * la copia en pleno vuelo es peor que dejar basura en el temporal.
+ *
+ * @param {{ tmpdir?: string, maxAgeMs?: number, now?: number }} [options]
+ * @returns {number}
+ */
+export function sweepStaleStaging({
+  tmpdir = os.tmpdir(),
+  maxAgeMs = 12 * 60 * 60 * 1000,
+  now = Date.now(),
+} = {}) {
+  let entries;
+  try {
+    entries = fs.readdirSync(tmpdir, { withFileTypes: true });
+  } catch {
+    return 0;
+  }
+
+  let removed = 0;
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !entry.name.startsWith(STAGING_PREFIX)) continue;
+    const target = path.join(tmpdir, entry.name);
+    try {
+      if (now - fs.statSync(target).mtimeMs < maxAgeMs) continue;
+    } catch {
+      continue;
+    }
+    if (removeTreeWithRetry(target)) removed += 1;
+  }
+
+  return removed;
+}
 
 /**
  * Los argumentos del CLI de Vercel, con el identificador de la build si lo hay.
@@ -174,8 +289,21 @@ function main() {
     );
   }
 
-  console.log('→ Preparando copia sin metadata de git…');
-  fs.rmSync(staging, { recursive: true, force: true });
+  // Los stagings que dejaron deploys anteriores se van solos: nadie tiene que
+  // acordarse de borrarlos a mano.
+  const swept = sweepStaleStaging();
+  if (swept) console.log(`→ Limpié ${swept} staging(s) viejo(s) del temporal.`);
+
+  // El que armaba la versión anterior del script vivía dentro del árbol; si quedó
+  // tirado, se va acá. Que no se pueda borrar todavía no afecta a este deploy:
+  // la copia nueva va al temporal.
+  if (fs.existsSync(LEGACY_STAGING) && !removeTreeWithRetry(LEGACY_STAGING)) {
+    console.warn('⚠ Quedó un `.deploy-staging` de un deploy anterior y Windows no lo suelta todavía.');
+    console.warn('  Este deploy no depende de él (`npm run clean` lo borra).');
+  }
+
+  const staging = stagingPathFor();
+  console.log(`→ Preparando copia sin metadata de git en ${staging}…`);
   // El staging se crea acá y no dentro de `copyTree`: esa función solo hace
   // `mkdirSync` cuando copia un directorio, así que si el primer elemento del
   // árbol es un archivo (`.env.example` va primero en orden alfabético) el
@@ -202,12 +330,12 @@ function main() {
   });
 
   // La limpieza no puede tumbar el script: en Windows el CLI puede seguir
-  // reteniendo archivos un instante (EPERM) y un fallo acá taparía el error real
-  // del deploy, que es lo único que importa cuando algo sale mal.
-  try {
-    fs.rmSync(staging, { recursive: true, force: true });
-  } catch (err) {
-    console.warn('⚠ No se pudo borrar el staging (queda para revisar):', err.code);
+  // reteniendo archivos un instante y un fallo acá taparía el error real del
+  // deploy, que es lo único que importa cuando algo sale mal. Por eso se reintenta
+  // con espera creciente, y si aun así queda algo se dice **dónde**: en el
+  // temporal, nunca en el árbol, y el próximo deploy lo barre.
+  if (!removeTreeWithRetry(staging)) {
+    console.warn(`⚠ No se pudo borrar el staging temporal; queda para revisar: ${staging}`);
   }
 
   // Un fallo al **lanzar** (no un fallo del deploy) deja `status` en `null`. Sin

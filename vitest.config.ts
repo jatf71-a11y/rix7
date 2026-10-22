@@ -13,11 +13,12 @@ export default defineConfig({
     include: ['**/*.test.ts'],
     /**
      * Se excluyen los directorios de trabajo que el proyecto crea al lado del
-     * código: `.deploy-staging` (la copia sin metadata de git que publica
-     * `deploy:prod`) y `.build-check` (la copia para verificar un build). Sin
-     * esto, una copia que quede en disco —el `rmSync` del deploy puede fallar con
-     * EPERM en Windows— duplica cada archivo de test y el conteo de la suite deja
-     * de significar algo: llegó a reportar 952 tests cuando son 476.
+     * código: `.build-check` (la copia para verificar un build) y, por si quedó
+     * alguno de una versión anterior del script, `.deploy-staging` (la copia sin
+     * metadata de git que publicaba `deploy:prod`, que desde entonces vive en el
+     * temporal del sistema). Sin esto, una copia que quede en disco duplica cada
+     * archivo de test y el conteo de la suite deja de significar algo: llegó a
+     * reportar 952 tests cuando son 476.
      */
     exclude: [...configDefaults.exclude, '**/.deploy-staging/**', '**/.build-check/**'],
     environment: 'node',
