@@ -19,7 +19,7 @@ import {
 import { isValidRol, ROL_MAX_LENGTH } from '@/lib/utils/rol';
 
 /**
- * Licitación de una propiedad de un propietario sin corredora.
+ * Propiedad de un propietario sin corredora que pide recibir propuestas.
  *
  * No publica una ficha: deja la propiedad y sus datos para que el equipo la
  * revise e invite a corredoras verificadas a competir por representarla. Por eso
@@ -114,7 +114,7 @@ export default function PropietarioForm() {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          kind: 'licitacion',
+          kind: 'propuestas',
           ...form,
           // El input da cadena; vacío significa «a convenir», no cero.
           expected_price: form.expected_price.trim() ? Number(form.expected_price) : undefined,
@@ -145,9 +145,9 @@ export default function PropietarioForm() {
         </div>
         <h2 className="mt-5 text-xl font-black text-slate-900">Recibimos tu propiedad</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-600">
-          Tu solicitud quedó ingresada a licitación. El equipo de Rix7 la revisará y
-          contactará a corredoras registradas y verificadas para que compitan por
-          representarte.
+          Tu solicitud quedó registrada. El equipo de Rix7 la revisará y contactará a
+          corredoras registradas y verificadas para que te envíen sus propuestas y
+          compitan por representarte.
         </p>
 
         {success.id && (
@@ -159,7 +159,7 @@ export default function PropietarioForm() {
 
         <ol className="mt-6 space-y-4">
           {[
-            ['Revisamos la propiedad', 'Verificamos los datos y la zona para preparar la licitación.'],
+            ['Revisamos la propiedad', 'Verificamos los datos y la zona para invitar a las corredoras.'],
             ['Invitamos a corredoras', 'Corredoras verificadas reciben la ficha y deciden si participan.'],
             ['Te contactamos', 'Te presentamos las propuestas y eliges con quién trabajar.'],
           ].map(([title, detail], index) => (
@@ -213,7 +213,7 @@ export default function PropietarioForm() {
           </span>
           <div>
             <h2 className="text-sm font-black text-slate-900">La propiedad</h2>
-            <p className="text-xs text-slate-500">Datos básicos para preparar la licitación.</p>
+            <p className="text-xs text-slate-500">Datos básicos para preparar tu solicitud.</p>
           </div>
         </div>
 
@@ -326,7 +326,7 @@ export default function PropietarioForm() {
               <input
                 id="commune"
                 type="text"
-                list="comunas-licitacion"
+                list="comunas-propietario"
                 value={form.commune}
                 onChange={(event) => update('commune', event.target.value)}
                 placeholder={form.region ? 'Elige o escribe tu comuna' : 'Primero elige la región'}
@@ -335,7 +335,7 @@ export default function PropietarioForm() {
                 minLength={2}
                 maxLength={80}
               />
-              <datalist id="comunas-licitacion">
+              <datalist id="comunas-propietario">
                 {communes.map((commune) => (
                   <option key={commune} value={commune} />
                 ))}
@@ -381,7 +381,7 @@ export default function PropietarioForm() {
               maxLength={ROL_MAX_LENGTH}
             />
             <p className="mt-1.5 text-[11px] text-slate-400">
-              Identificación del inmueble ante el SII. Es obligatoria para preparar la licitación.
+              Identificación del inmueble ante el SII. Es obligatoria para identificar la propiedad.
             </p>
           </div>
         </div>
@@ -390,8 +390,8 @@ export default function PropietarioForm() {
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-sm font-black text-slate-900">Detalles de la propiedad</h2>
         <p className="mb-4 text-xs text-slate-500">
-          Estado, urgencia, si ya tuvo corredora o cualquier detalle relevante para preparar la
-          licitación.
+          Estado, urgencia, si ya tuvo corredora o cualquier detalle relevante para tu
+          solicitud.
         </p>
         <label htmlFor="message" className="sr-only">
           Detalles de la propiedad
@@ -413,7 +413,7 @@ export default function PropietarioForm() {
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-sm font-black text-slate-900">Tus datos</h2>
         <p className="mb-4 text-xs text-slate-500">
-          Solo los usamos para contactarte por esta licitación.
+          Solo los usamos para contactarte por esta solicitud.
         </p>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -517,7 +517,7 @@ export default function PropietarioForm() {
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          {sending ? 'Enviando…' : 'Enviar a licitación'}
+          {sending ? 'Enviando…' : 'Recibir propuestas'}
         </button>
       </div>
     </form>

@@ -9,8 +9,8 @@ import {
   type Solicitud,
 } from './solicitudes';
 
-const LICITACION = {
-  kind: 'licitacion',
+const PROPUESTAS = {
+  kind: 'propuestas',
   name: 'Ana Pérez',
   email: 'ana@example.cl',
   phone: '+56 9 1234 5678',
@@ -39,15 +39,26 @@ const CORREDORA = {
   website: 'https://catedral.cl',
 };
 
+const AGENTE = {
+  kind: 'agente',
+  name: 'Diego Soto',
+  email: 'diego@example.cl',
+  phone: '+56 9 8765 4321',
+  consent: true,
+  rut: '12.345.678-5',
+  region: 'Región Metropolitana de Santiago',
+  commune: 'Ñuñoa',
+};
+
 describe('normalizeSolicitud', () => {
-  it('normaliza una licitación con precio numérico', () => {
-    const result = normalizeSolicitud(LICITACION);
+  it('normaliza una solicitud de propuestas con precio numérico', () => {
+    const result = normalizeSolicitud(PROPUESTAS);
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
     expect(result.solicitud).toMatchObject({
-      kind: 'licitacion',
+      kind: 'propuestas',
       name: 'Ana Pérez',
       company: null,
       consent: true,
@@ -80,37 +91,37 @@ describe('normalizeSolicitud', () => {
   });
 
   it('exige el consentimiento de privacidad', () => {
-    const result = normalizeSolicitud({ ...LICITACION, consent: false });
+    const result = normalizeSolicitud({ ...PROPUESTAS, consent: false });
 
     expect(result).toEqual({ ok: false, error: 'Debes aceptar la política de privacidad.' });
   });
 
   it('rechaza un tipo de solicitud que no existe', () => {
-    const result = normalizeSolicitud({ ...LICITACION, kind: 'otra' });
+    const result = normalizeSolicitud({ ...PROPUESTAS, kind: 'otra' });
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain('Tipo de solicitud');
   });
 
   it('rechaza un correo mal formado sin llegar al store', () => {
-    const result = normalizeSolicitud({ ...LICITACION, email: 'ana.example.cl' });
+    const result = normalizeSolicitud({ ...PROPUESTAS, email: 'ana.example.cl' });
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain('correo');
   });
 
-  it('no acepta una licitación sin comuna ni tipo de propiedad', () => {
-    const sinComuna = normalizeSolicitud({ ...LICITACION, commune: '' });
-    const tipoInvalido = normalizeSolicitud({ ...LICITACION, property_type: 'castillo' });
+  it('no acepta una solicitud de propuestas sin comuna ni tipo de propiedad', () => {
+    const sinComuna = normalizeSolicitud({ ...PROPUESTAS, commune: '' });
+    const tipoInvalido = normalizeSolicitud({ ...PROPUESTAS, property_type: 'castillo' });
 
     expect(sinComuna.ok).toBe(false);
     expect(tipoInvalido.ok).toBe(false);
   });
 
   it('exige una dirección exacta, no una referencia vacía', () => {
-    const sinDireccion = normalizeSolicitud({ ...LICITACION, address: '' });
-    const referenciaVaga = normalizeSolicitud({ ...LICITACION, address: '  ' });
-    const demasiadoCorta = normalizeSolicitud({ ...LICITACION, address: 'Casa' });
+    const sinDireccion = normalizeSolicitud({ ...PROPUESTAS, address: '' });
+    const referenciaVaga = normalizeSolicitud({ ...PROPUESTAS, address: '  ' });
+    const demasiadoCorta = normalizeSolicitud({ ...PROPUESTAS, address: 'Casa' });
 
     expect(sinDireccion.ok).toBe(false);
     expect(referenciaVaga.ok).toBe(false);
@@ -121,22 +132,22 @@ describe('normalizeSolicitud', () => {
   });
 
   it('acepta el precio como número, no solo como cadena del formulario', () => {
-    const result = normalizeSolicitud({ ...LICITACION, expected_price: 120_000_000 });
+    const result = normalizeSolicitud({ ...PROPUESTAS, expected_price: 120_000_000 });
 
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.solicitud.payload.expected_price).toBe(120_000_000);
   });
 
   it('un precio negativo no se guarda como si fuera válido', () => {
-    const result = normalizeSolicitud({ ...LICITACION, expected_price: '-1' });
+    const result = normalizeSolicitud({ ...PROPUESTAS, expected_price: '-1' });
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain('precio');
   });
 
   it('exige el precio esperado: ya no existe «a convenir»', () => {
-    const vacio = normalizeSolicitud({ ...LICITACION, expected_price: '' });
-    const cero = normalizeSolicitud({ ...LICITACION, expected_price: '0' });
+    const vacio = normalizeSolicitud({ ...PROPUESTAS, expected_price: '' });
+    const cero = normalizeSolicitud({ ...PROPUESTAS, expected_price: '0' });
 
     expect(vacio.ok).toBe(false);
     expect(cero.ok).toBe(false);
@@ -144,9 +155,9 @@ describe('normalizeSolicitud', () => {
     if (!cero.ok) expect(cero.error).toContain('precio');
   });
 
-  it('exige el ROL: no se puede enviar una licitación sin identificación', () => {
-    const vacio = normalizeSolicitud({ ...LICITACION, rol: '' });
-    const espacios = normalizeSolicitud({ ...LICITACION, rol: '  ' });
+  it('exige el ROL: no se puede enviar una solicitud de propuestas sin identificación', () => {
+    const vacio = normalizeSolicitud({ ...PROPUESTAS, rol: '' });
+    const espacios = normalizeSolicitud({ ...PROPUESTAS, rol: '  ' });
 
     expect(vacio.ok).toBe(false);
     expect(espacios.ok).toBe(false);
@@ -154,15 +165,15 @@ describe('normalizeSolicitud', () => {
     if (!espacios.ok) expect(espacios.error).toContain('ROL');
   });
 
-  it('exige los detalles de la propiedad en una licitación', () => {
-    const result = normalizeSolicitud({ ...LICITACION, message: '' });
+  it('exige los detalles de la propiedad en una solicitud de propuestas', () => {
+    const result = normalizeSolicitud({ ...PROPUESTAS, message: '' });
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain('mensaje');
   });
 
   it('rechaza un ROL con forma inválida', () => {
-    const result = normalizeSolicitud({ ...LICITACION, rol: 'sin-rol' });
+    const result = normalizeSolicitud({ ...PROPUESTAS, rol: 'sin-rol' });
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain('ROL');
@@ -181,12 +192,42 @@ describe('normalizeSolicitud', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain('empresa');
   });
+
+  it('acepta un agente sin empresa: no factura, emite boleta de honorarios', () => {
+    const result = normalizeSolicitud(AGENTE);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    // Sin razón social ni cargo que declarar: la empresa queda en null, no en ''.
+    expect(result.solicitud).toMatchObject({
+      kind: 'agente',
+      company: null,
+      payload: { rut: '12.345.678-5', role: null },
+    });
+  });
+
+  it('un agente con nombre comercial lo guarda, pero no lo exige', () => {
+    const conNombre = normalizeSolicitud({ ...AGENTE, company: 'Propiedades Sur' });
+    const sinNombre = normalizeSolicitud({ ...AGENTE, company: '   ' });
+
+    expect(conNombre.ok).toBe(true);
+    expect(sinNombre.ok).toBe(true);
+    if (conNombre.ok) expect(conNombre.solicitud.company).toBe('Propiedades Sur');
+    if (sinNombre.ok) expect(sinNombre.solicitud.company).toBeNull();
+  });
+
+  it('un agente no necesita mensaje: una empresa tampoco, pero una solicitud de propuestas sí', () => {
+    const agente = normalizeSolicitud({ ...AGENTE, message: '' });
+
+    expect(agente.ok).toBe(true);
+  });
 });
 
 describe('rowToSolicitud y detalles', () => {
   const row = {
     id: 's1',
-    kind: 'licitacion',
+    kind: 'propuestas',
     name: 'Ana Pérez',
     email: 'ana@example.cl',
     phone: '+56 9 1234 5678',
@@ -206,7 +247,7 @@ describe('rowToSolicitud y detalles', () => {
     created_at: '2026-10-20T12:00:00.000Z',
   };
 
-  it('traduce la fila y arma el detalle de una licitación', () => {
+  it('traduce la fila y arma el detalle de una solicitud de propuestas', () => {
     const solicitud = rowToSolicitud(row);
 
     expect(solicitud.status).toBe('nueva');
@@ -250,6 +291,32 @@ describe('rowToSolicitud y detalles', () => {
       { label: 'Cargo', value: 'Gerente' },
       { label: 'Ubicación', value: '—' },
       { label: 'Sitio web', value: 'https://losandes.cl' },
+    ]);
+  });
+
+  it('el detalle de un agente no inventa empresa ni cargo', () => {
+    const solicitud: Solicitud = {
+      id: 's3',
+      kind: 'agente',
+      name: 'Diego Soto',
+      email: 'diego@example.cl',
+      phone: '+56 9 8765 4321',
+      company: null,
+      message: null,
+      payload: {
+        rut: '12.345.678-5',
+        role: null,
+        region: 'Región Metropolitana de Santiago',
+        commune: 'Ñuñoa',
+        website: null,
+      },
+      status: 'nueva',
+      createdAt: '2026-10-21T12:00:00.000Z',
+    };
+
+    expect(solicitudDetails(solicitud)).toEqual([
+      { label: 'RUT', value: '12.345.678-5' },
+      { label: 'Ubicación', value: 'Ñuñoa, Región Metropolitana de Santiago' },
     ]);
   });
 });

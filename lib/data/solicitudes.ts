@@ -1,11 +1,16 @@
 /**
  * Solicitudes del botón «Publicar».
  *
- * Tres caminos, una misma fila:
+ * Cuatro caminos, una misma fila:
  *
- * - `licitacion`: un propietario sin corredora pide que corredoras verificadas
- *   compitan por publicar su propiedad.
+ * - `propuestas`: un propietario sin corredora pide recibir propuestas de
+ *   corredoras verificadas, que compiten por publicar su propiedad. La clave
+ *   interna dice lo mismo que la pantalla («recibir propuestas») desde la
+ *   migración `0021`, que renombró el antiguo `licitacion`.
  * - `corredora` / `inmobiliaria`: una empresa pide su registro.
+ * - `agente`: un corredor que opera por cuenta propia, sin empresa. No se le
+ *   pide razón social ni cargo porque no factura: emite boleta de honorarios
+ *   con su RUT de persona natural.
  *
  * Lo común —contacto, consentimiento, estado— vive en columnas; lo propio de
  * cada camino vive en `payload`. Así los formularios de empresa pueden crecer
@@ -18,12 +23,22 @@
 
 import { isValidRol, ROL_MAX_LENGTH } from '@/lib/utils/rol';
 
-export type SolicitudKind = 'licitacion' | 'corredora' | 'inmobiliaria';
+export type SolicitudKind = 'propuestas' | 'corredora' | 'inmobiliaria' | 'agente';
 
+/**
+ * Los cuatro caminos de «Publicar».
+ *
+ * Es la misma lista que acepta el CHECK de `solicitudes.kind` (migración
+ * `0021`) y la política de INSERT, que la vuelve a validar en el servidor. Si
+ * se agrega o renombra un camino hay que mover los tres lugares en la misma
+ * migración —el CHECK, la política y esta lista— o la API aceptaría un `kind`
+ * que la tabla rechaza.
+ */
 export const SOLICITUD_KINDS: readonly SolicitudKind[] = [
-  'licitacion',
+  'propuestas',
   'corredora',
   'inmobiliaria',
+  'agente',
 ];
 
 export type SolicitudStatus = 'nueva' | 'en_revision' | 'contactada' | 'cerrada';
@@ -35,14 +50,15 @@ export const SOLICITUD_STATUSES: readonly SolicitudStatus[] = [
   'cerrada',
 ];
 
-/** Operación de la propiedad que se ofrece en licitación. */
+/** Operación de la propiedad que se ofrece a las corredoras. */
 export type SolicitudOperation = 'sale' | 'rent';
 
 export const SOLICITUD_OPERATIONS: readonly SolicitudOperation[] = ['sale', 'rent'];
 
 /**
- * Tipos de propiedad que acepta la licitación. Es el mismo vocabulario de las
- * publicaciones (`PropertyType`), sin `all`: acá se describe una propiedad real.
+ * Tipos de propiedad que acepta la solicitud de propietario. Es el mismo
+ * vocabulario de las publicaciones (`PropertyType`), sin `all`: acá se describe
+ * una propiedad real.
  */
 export type SolicitudPropertyType =
   | 'apartment'
@@ -77,9 +93,10 @@ export const SOLICITUD_PROPERTY_TYPE_LABELS: Record<SolicitudPropertyType, strin
 };
 
 export const SOLICITUD_KIND_LABELS: Record<SolicitudKind, string> = {
-  licitacion: 'Licitación de propietario',
+  propuestas: 'Propietario busca propuestas',
   corredora: 'Registro de corredora',
   inmobiliaria: 'Registro de inmobiliaria',
+  agente: 'Agente independiente',
 };
 
 export const SOLICITUD_STATUS_LABELS: Record<SolicitudStatus, string> = {
@@ -98,14 +115,14 @@ export interface SolicitudInput {
   company?: unknown;
   message?: unknown;
   consent?: unknown;
-  // Licitación
+  // Propietario que busca propuestas
   operation?: unknown;
   property_type?: unknown;
   region?: unknown;
   commune?: unknown;
   expected_price?: unknown;
   address?: unknown;
-  /** ROL de propiedad (SII): identifica el inmueble de la licitación. */
+  /** ROL de propiedad (SII): identifica el inmueble de la solicitud. */
   rol?: unknown;
   // Registro de empresa
   rut?: unknown;
@@ -178,7 +195,7 @@ export type SolicitudValidation =
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** ¿Es uno de los tres caminos de «Publicar»? */
+/** ¿Es uno de los cuatro caminos de «Publicar»? */
 export function isSolicitudKind(value: unknown): value is SolicitudKind {
   return typeof value === 'string' && (SOLICITUD_KINDS as readonly string[]).includes(value);
 }
@@ -256,8 +273,9 @@ function requiredText(
 /**
  * Valida y normaliza una solicitud.
  *
- * El `kind` decide qué campos son obligatorios: una licitación sin comuna no
- * sirve para asignar corredoras, y una empresa sin nombre no se puede verificar.
+ * El `kind` decide qué campos son obligatorios: una solicitud de propietario
+ * sin comuna no sirve para asignar corredoras, y una empresa sin nombre no se
+ * puede verificar.
  * Los campos opcionales vacíos se guardan como `null`, no como `''`, para que el
  * panel distinga «no lo dejó» de «lo dejó en blanco».
  */
@@ -285,11 +303,11 @@ export function normalizeSolicitud(input: SolicitudInput): SolicitudValidation {
     return { ok: false, error: 'El teléfono no tiene un formato válido.' };
   }
 
-  // En una licitación el detalle también es obligatorio: el equipo necesita
+  // En una solicitud de propietario el detalle también es obligatorio: el equipo necesita
   // saber el estado y la urgencia para preparar la invitación a corredoras.
   // En un registro de empresa sigue siendo un comentario libre.
   const message =
-    kind === 'licitacion'
+    kind === 'propuestas'
       ? requiredText(input.message, SOLICITUD_LIMITS.message, 'El mensaje', 10)
       : optionalText(input.message, SOLICITUD_LIMITS.message, 'El mensaje');
   if (!message.ok) return message;
@@ -298,7 +316,7 @@ export function normalizeSolicitud(input: SolicitudInput): SolicitudValidation {
     return { ok: false, error: 'Debes aceptar la política de privacidad.' };
   }
 
-  if (kind === 'licitacion') {
+  if (kind === 'propuestas') {
     const operation = text(input.operation);
     if (!(SOLICITUD_OPERATIONS as readonly string[]).includes(operation)) {
       return { ok: false, error: 'Indica si la propiedad es para venta o arriendo.' };
@@ -316,7 +334,7 @@ export function normalizeSolicitud(input: SolicitudInput): SolicitudValidation {
     if (!commune.ok) return commune;
 
     // La dirección es obligatoria y exacta: es lo que permite ubicar el
-    // inmueble y asignarle una zona, y sin ella la licitación no se puede
+    // inmueble y asignarle una zona, y sin ella la solicitud no se puede
     // preparar. Ya no se acepta «sector» o una referencia vaga.
     const address = requiredText(input.address, SOLICITUD_LIMITS.address, 'La dirección', 1);
     if (!address.ok) return address;
@@ -325,7 +343,7 @@ export function normalizeSolicitud(input: SolicitudInput): SolicitudValidation {
     }
 
     // El ROL es obligatorio: identifica el inmueble sin depender de la
-    // dirección y es lo que permite preparar la licitación.
+    // dirección y es lo que permite preparar la solicitud.
     const rol = requiredText(input.rol, SOLICITUD_LIMITS.rol, 'El ROL', 1);
     if (!rol.ok) return rol;
     if (!isValidRol(rol.value)) {
@@ -379,7 +397,14 @@ export function normalizeSolicitud(input: SolicitudInput): SolicitudValidation {
     };
   }
 
-  const company = requiredText(input.company, SOLICITUD_LIMITS.company, 'El nombre de la empresa', 2);
+  // El agente no tiene empresa que declarar: `company` es opcional y casi
+  // siempre termina en `null`. No se le pide razón social ni boleta de
+  // actividad porque no factura — emite boleta de honorarios con su RUT de
+  // persona natural—; si igual deja un nombre comercial, se guarda tal cual.
+  const company =
+    kind === 'agente'
+      ? optionalText(input.company, SOLICITUD_LIMITS.company, 'El nombre de la empresa')
+      : requiredText(input.company, SOLICITUD_LIMITS.company, 'El nombre de la empresa', 2);
   if (!company.ok) return company;
 
   const rut = optionalText(input.rut, SOLICITUD_LIMITS.rut, 'El RUT');
@@ -430,7 +455,7 @@ export function rowToSolicitud(row: SolicitudRow): Solicitud {
 
   return {
     id: row.id,
-    kind: isSolicitudKind(row.kind) ? row.kind : 'licitacion',
+    kind: isSolicitudKind(row.kind) ? row.kind : 'propuestas',
     name: row.name,
     email: row.email,
     phone: row.phone,
@@ -480,7 +505,7 @@ export interface SolicitudDetail {
 export function solicitudDetails(solicitud: Solicitud): SolicitudDetail[] {
   const payload = solicitud.payload;
 
-  if (solicitud.kind === 'licitacion') {
+  if (solicitud.kind === 'propuestas') {
     const price = solicitudPriceLabel(payload.expected_price);
     return [
       { label: 'Operación', value: solicitudOperationLabel(payload.operation) },
@@ -492,6 +517,20 @@ export function solicitudDetails(solicitud: Solicitud): SolicitudDetail[] {
       },
       ...(payload.address ? [{ label: 'Dirección', value: String(payload.address) }] : []),
       { label: 'Precio esperado', value: price ?? 'A convenir' },
+    ];
+  }
+
+  // Un agente es una persona, no una empresa: sin «Empresa» ni «Cargo», que en
+  // su caso serían campos vacíos permanentes. El RUT es lo que lo identifica y
+  // con lo que emite la boleta de honorarios.
+  if (solicitud.kind === 'agente') {
+    return [
+      { label: 'RUT', value: payload.rut ? String(payload.rut) : '—' },
+      {
+        label: 'Ubicación',
+        value: [payload.commune, payload.region].filter(Boolean).join(', ') || '—',
+      },
+      ...(payload.website ? [{ label: 'Sitio web', value: String(payload.website) }] : []),
     ];
   }
 

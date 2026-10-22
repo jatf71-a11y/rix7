@@ -7,25 +7,28 @@ import {
   Home,
   Landmark,
   ShieldCheck,
+  UserRound,
 } from 'lucide-react';
 
 /**
  * Puerta única de «Publicar».
  *
  * Antes el botón llevaba directo al alta de una corredora. Eso dejaba afuera a
- * dos públicos reales: quien tiene una propiedad y todavía no contrató corredora
- * (que necesita una licitación) y las inmobiliarias, que no son corredoras.
+ * tres públicos reales: quien tiene una propiedad y todavía no contrató corredora
+ * (que necesita recibir propuestas), las inmobiliarias, que no son corredoras, y los
+ * agentes que trabajan por cuenta propia y no representan a ninguna empresa.
  * Acá se elige el camino antes de pedir datos; cada uno tiene su propio flujo y
  * su propio formulario.
  *
- * Rix7 publica solo con corredoras registradas y verificadas, así que el
- * propietario no publica una ficha: pide que corredoras compitan por ella.
+ * Rix7 publica solo con corredores registrados y verificados, así que el
+ * propietario no publica una ficha: pide recibir propuestas de corredoras que
+ * compiten por ella.
  */
 
 export const metadata: Metadata = {
   title: 'Publicar una propiedad | Rix7',
   description:
-    'Publica como propietario en licitación, o registra tu corredora o inmobiliaria para publicar tu stock en Rix7.',
+    'Publica como propietario y recibe propuestas, o registra tu corredora, inmobiliaria o actividad de agente independiente para publicar en Rix7.',
 };
 
 const options = [
@@ -36,13 +39,13 @@ const options = [
     title: 'Soy propietario',
     subtitle: 'Tengo una propiedad y aún no tengo corredora',
     description:
-      'Ingresa tu propiedad a licitación para que corredoras verificadas compitan por representarte y publicarla en Rix7.',
+      'Ingresa tu propiedad y recibe propuestas de corredoras verificadas que compiten por representarte y publicarla en Rix7.',
     bullets: [
       'Rix7 revisa la solicitud',
       'Corredoras registradas y verificadas',
       'Tú eliges con quién trabajar',
     ],
-    cta: 'Iniciar licitación',
+    cta: 'Recibir propuestas',
     tone: 'amber' as const,
   },
   {
@@ -77,6 +80,22 @@ const options = [
     cta: 'Registrar mi inmobiliaria',
     tone: 'emerald' as const,
   },
+  {
+    href: '/publicar/agente',
+    icon: UserRound,
+    badge: 'Cuenta propia',
+    title: 'Soy agente',
+    subtitle: 'Corredor de propiedades por cuenta propia',
+    description:
+      'Registra tu actividad como agente independiente y publica tu stock desde tu propia cuenta, sin una empresa detrás.',
+    bullets: [
+      'Sin razón social: emites boleta de honorarios',
+      'Tu perfil público eres tú y tu zona de trabajo',
+      'Panel de publicaciones desde tu cuenta',
+    ],
+    cta: 'Registrarme como agente',
+    tone: 'violet' as const,
+  },
 ];
 
 const tones = {
@@ -101,6 +120,13 @@ const tones = {
     cta: 'text-emerald-700',
     bar: 'bg-emerald-500',
   },
+  violet: {
+    ring: 'hover:border-violet-300',
+    icon: 'bg-violet-50 text-violet-700',
+    badge: 'bg-violet-100 text-violet-800',
+    cta: 'text-violet-700',
+    bar: 'bg-violet-500',
+  },
 } as const;
 
 export default function PublicarPage() {
@@ -115,13 +141,13 @@ export default function PublicarPage() {
             ¿Quién publica?
           </h1>
           <p className="mt-4 text-base leading-relaxed text-slate-600">
-            Rix7 trabaja con corredoras registradas y verificadas. Elige tu caso y te
-            llevamos al flujo que corresponde: licitación para propietarios, o
-            registro de empresa para corredoras e inmobiliarias.
+            Rix7 trabaja con corredores registrados y verificados. Elige tu caso y te llevamos al
+            flujo que corresponde: recibir propuestas para los propietarios, registro de empresa para
+            corredoras e inmobiliarias, o registro como agente independiente.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
           {options.map((option) => {
             const tone = tones[option.tone];
             return (
@@ -168,15 +194,15 @@ export default function PublicarPage() {
         <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
-            <div>
-              <p className="text-sm font-bold text-slate-900">
-                Verificamos cada corredora antes de publicar
-              </p>
-              <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                Una propiedad nunca se publica sin una corredora responsable. Por eso el
-                registro de empresas pasa por revisión.
-              </p>
-            </div>
+          <div>
+            <p className="text-sm font-bold text-slate-900">
+              Verificamos a cada corredor antes de publicar
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-slate-500">
+              Una propiedad nunca se publica sin un corredor responsable. Por eso los registros
+              —de empresa y de agente— pasan por revisión.
+            </p>
+          </div>
           </div>
           <Link
             href="/socio"

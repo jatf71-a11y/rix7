@@ -4,9 +4,9 @@ import { ArrowLeft, BadgeCheck, Clock3, Handshake } from 'lucide-react';
 import PropietarioForm from '@/components/solicitudes/PropietarioForm';
 
 /**
- * Licitación de propietarios.
+ * Propuestas para propietarios.
  *
- * El propietario no publica: entra al sistema de licitación. El formulario deja
+ * El propietario no publica: pide recibir propuestas. El formulario deja
  * la propiedad y el contacto; la revisión y la competencia entre corredoras
  * ocurren después. Así se respeta la regla del portal —solo corredoras
  * registradas y verificadas publican— sin dejar afuera a quien todavía no tiene
@@ -14,9 +14,9 @@ import PropietarioForm from '@/components/solicitudes/PropietarioForm';
  */
 
 export const metadata: Metadata = {
-  title: 'Licitación para propietarios | Rix7',
+  title: 'Recibe propuestas para tu propiedad | Rix7',
   description:
-    'Ingresa tu propiedad a licitación y deja que corredoras de propiedades verificadas compitan por representarte.',
+    'Ingresa tu propiedad y recibe propuestas de corredoras de propiedades verificadas que compiten por representarte.',
 };
 
 export default function PublicarPropietarioPage() {
@@ -36,7 +36,7 @@ export default function PublicarPropietarioPage() {
             Sin corredora
           </span>
           <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-            Pon tu propiedad a licitación
+            Recibe propuestas para tu propiedad
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
             Cuéntanos qué propiedad tienes y qué buscas. Revisamos los datos e invitamos
@@ -60,7 +60,7 @@ export default function PublicarPropietarioPage() {
             {
               icon: Clock3,
               title: 'Solicitud revisada',
-              detail: 'El equipo revisa los datos antes de abrir la licitación.',
+              detail: 'El equipo revisa los datos antes de compartirla con las corredoras.',
             },
           ].map((item) => (
             <div

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, Building, Landmark, PanelsTopLeft } from 'lucide-react';
-import CompanyRegistrationForm from '@/components/solicitudes/CompanyRegistrationForm';
+import RegistrationForm from '@/components/solicitudes/RegistrationForm';
 
 /**
  * Registro de inmobiliarias.
@@ -76,7 +76,7 @@ export default function RegistroInmobiliariaPage() {
         </div>
 
         <div className="mt-8">
-          <CompanyRegistrationForm kind="inmobiliaria" />
+          <RegistrationForm kind="inmobiliaria" />
         </div>
 
         <p className="mt-8 text-center text-[11px] leading-relaxed text-slate-400">

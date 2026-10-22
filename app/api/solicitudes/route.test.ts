@@ -29,7 +29,7 @@ vi.mock('@/lib/supabase/auth-guard', () => ({ requireAdmin }));
 let route: typeof import('./route');
 
 const valida = {
-  kind: 'licitacion',
+  kind: 'propuestas',
   name: 'Ana Pérez',
   email: 'ana@example.cl',
   phone: '+56 9 1234 5678',
@@ -83,7 +83,7 @@ afterEach(() => {
 });
 
 describe('POST /api/solicitudes', () => {
-  it('registra una licitación válida y devuelve el folio', async () => {
+  it('registra una solicitud de propuestas válida y devuelve el folio', async () => {
     const response = await route.POST(post(valida));
 
     expect(response.status).toBe(201);
@@ -95,7 +95,7 @@ describe('POST /api/solicitudes', () => {
 
     expect(createSolicitud).toHaveBeenCalledWith(
       expect.objectContaining({
-        kind: 'licitacion',
+        kind: 'propuestas',
         name: 'Ana Pérez',
         payload: expect.objectContaining({
           commune: 'Providencia',
@@ -125,7 +125,7 @@ describe('POST /api/solicitudes', () => {
     expect(createSolicitud).not.toHaveBeenCalled();
   });
 
-  it('rechaza una licitación sin precio o sin ROL', async () => {
+  it('rechaza una solicitud de propuestas sin precio o sin ROL', async () => {
     const sinPrecio = await route.POST(post({ ...valida, expected_price: '' }));
     const sinRol = await route.POST(post({ ...valida, rol: '' }));
 
@@ -186,7 +186,7 @@ describe('GET /api/solicitudes', () => {
 
   it('devuelve el listado con su origen y si persiste', async () => {
     listSolicitudes.mockResolvedValue({
-      solicitudes: [{ id: 's1', kind: 'licitacion' }],
+      solicitudes: [{ id: 's1', kind: 'propuestas' }],
       source: 'supabase',
       persistent: true,
     });

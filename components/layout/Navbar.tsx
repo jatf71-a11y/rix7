@@ -83,9 +83,9 @@ function NavbarContent() {
             >
               Arrendar
             </Link>
-            {/* Publicar abre el selector de los tres caminos (propietario en
-                licitación, corredora o inmobiliaria): no todos publican una
-                ficha, así que no puede llevar directo al alta de socio. */}
+            {/* Publicar abre el selector de los caminos (propietario que
+                recibe propuestas, corredora o inmobiliaria): no todos publican
+                una ficha, así que no puede llevar directo al alta de socio. */}
             <Link
               href="/publicar"
               className="inline-flex items-center px-4 py-2 rounded-lg font-semibold bg-blue-600 text-white shadow-sm shadow-blue-500/20 transition-all hover:bg-blue-700"

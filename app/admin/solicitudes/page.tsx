@@ -10,6 +10,7 @@ import {
   Landmark,
   Loader2,
   RefreshCw,
+  UserRound,
 } from 'lucide-react';
 import {
   SOLICITUD_KIND_LABELS,
@@ -24,9 +25,9 @@ import {
 /**
  * Bandeja de solicitudes de «Publicar».
  *
- * Reúne los tres caminos en una sola lista porque el equipo los revisa en el
+ * Reúne los cuatro caminos en una sola lista porque el equipo los revisa en el
  * mismo lugar, pero no los mezcla: las pestañas y el color del tipo permiten
- * distinguir una licitación de propietario de un registro de empresa. El detalle
+ * distinguir una solicitud de propietario de un registro de empresa. El detalle
  * sale de `solicitudDetails`, que es el mismo módulo que valida los datos, así
  * que el panel no inventa campos que el formulario no pidió.
  *
@@ -42,8 +43,8 @@ const KIND_STYLE: Record<
   SolicitudKind,
   { label: string; badge: string; icon: typeof Home }
 > = {
-  licitacion: {
-    label: 'Licitación',
+  propuestas: {
+    label: 'Propietario',
     badge: 'bg-amber-100 text-amber-800',
     icon: Home,
   },
@@ -57,13 +58,19 @@ const KIND_STYLE: Record<
     badge: 'bg-emerald-100 text-emerald-800',
     icon: Landmark,
   },
+  agente: {
+    label: 'Agente',
+    badge: 'bg-violet-100 text-violet-800',
+    icon: UserRound,
+  },
 };
 
 const FILTERS: Array<{ value: 'todas' | SolicitudKind; label: string }> = [
   { value: 'todas', label: 'Todas' },
-  { value: 'licitacion', label: 'Licitaciones' },
+  { value: 'propuestas', label: 'Propietarios' },
   { value: 'corredora', label: 'Corredoras' },
   { value: 'inmobiliaria', label: 'Inmobiliarias' },
+  { value: 'agente', label: 'Agentes' },
 ];
 
 function formatDate(iso: string): string {
@@ -76,11 +83,14 @@ function formatDate(iso: string): string {
 }
 
 function solicitudTitle(solicitud: Solicitud): string {
-  if (solicitud.kind === 'licitacion') {
+  if (solicitud.kind === 'propuestas') {
     return `${solicitud.name} quiere ${
       solicitud.payload.operation === 'rent' ? 'arrendar' : 'vender'
     } una propiedad`;
   }
+  // Un agente es una persona: sin empresa no hay «Catedral Propiedades» que
+  // poner en el título, y el badge de tipo ya dice «Agente».
+  if (solicitud.kind === 'agente') return solicitud.name;
   return solicitud.company ?? solicitud.name;
 }
 
@@ -164,9 +174,10 @@ export default function AdminSolicitudesPage() {
   const counts = useMemo(() => {
     const base: Record<'todas' | SolicitudKind, number> = {
       todas: solicitudes.length,
-      licitacion: 0,
+      propuestas: 0,
       corredora: 0,
       inmobiliaria: 0,
+      agente: 0,
     };
     for (const solicitud of solicitudes) base[solicitud.kind] += 1;
     return base;
@@ -183,7 +194,7 @@ export default function AdminSolicitudesPage() {
         <div>
           <h1 className="text-2xl font-black text-slate-900">Solicitudes</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Licitaciones de propietarios y registros de corredoras e inmobiliarias.
+            Propietarios que buscan propuestas y registros de corredoras, inmobiliarias y agentes.
           </p>
         </div>
         <button

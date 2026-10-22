@@ -25,7 +25,7 @@ vi.mock('@/lib/supabase/server', () => ({
 import { createSolicitud, listSolicitudes, updateSolicitudStatus } from './solicitudesStore';
 
 const SOLICITUD = {
-  kind: 'licitacion' as const,
+  kind: 'propuestas' as const,
   name: 'Ana Pérez',
   email: 'ana@example.cl',
   phone: '+56 9 1234 5678',
@@ -64,7 +64,7 @@ describe('createSolicitud', () => {
     expect(insert).toHaveBeenCalledWith(
       expect.objectContaining({
         id: result.id,
-        kind: 'licitacion',
+        kind: 'propuestas',
         consent: true,
         payload: expect.objectContaining({ expected_price: 120_000_000 }),
       })
@@ -87,7 +87,7 @@ describe('createSolicitud', () => {
 describe('updateSolicitudStatus', () => {
   const FILA = {
     id: 's1',
-    kind: 'licitacion',
+    kind: 'propuestas',
     name: 'Ana Pérez',
     email: 'ana@example.cl',
     phone: '+56 9 1234 5678',

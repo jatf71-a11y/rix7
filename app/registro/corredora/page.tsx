@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, Building2, ChartNoAxesColumn, Globe2 } from 'lucide-react';
-import CompanyRegistrationForm from '@/components/solicitudes/CompanyRegistrationForm';
+import RegistrationForm from '@/components/solicitudes/RegistrationForm';
 
 /**
  * Registro de corredoras.
@@ -76,7 +76,7 @@ export default function RegistroCorredoraPage() {
         </div>
 
         <div className="mt-8">
-          <CompanyRegistrationForm kind="corredora" />
+          <RegistrationForm kind="corredora" />
         </div>
 
         <p className="mt-8 text-center text-[11px] leading-relaxed text-slate-400">

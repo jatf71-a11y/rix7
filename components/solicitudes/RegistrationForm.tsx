@@ -9,34 +9,68 @@ import {
   CheckCircle2,
   Loader2,
   Send,
+  UserRound,
 } from 'lucide-react';
 import { CHILE_REGIONS } from '@/lib/data/chileLocations';
 
 /**
- * Registro de una empresa (corredora o inmobiliaria).
+ * Registro inicial de quien va a publicar: corredora, inmobiliaria o **agente**
+ * independiente.
  *
- * Los dos caminos comparten la misma base —empresa, contacto y ubicación— pero
- * no son lo mismo: una corredora acredita su operación y una inmobiliaria su
- * stock o sus proyectos. El formulario definitivo de cada uno se va a definir
- * después; por eso hoy guarda un **registro inicial** con lo mínimo para
- * contactar y revisar, y manda `kind` para que la API y el panel los separen.
+ * Los tres caminos comparten la base —contacto, ubicación y cómo saber quién es
+ * quien escribe— pero no piden lo mismo: una empresa acredita su operación y su
+ * cargo; un agente trabaja por cuenta propia, no factura y emite boleta de
+ * honorarios con su RUT de persona natural, así que no hay razón social que
+ * pedirle. El formulario definitivo de cada camino se va a definir después;
+ * por eso hoy guarda un **registro inicial** con lo mínimo para contactar y
+ * revisar, y manda `kind` para que la API y el panel separen los tres.
  *
- * Lo que no se hace acá: prometer que la empresa ya quedó habilitada. El texto
- * de éxito habla de revisión y acreditación, no de publicación inmediata.
+ * Lo que no se hace acá: prometer que quien se registra ya quedó habilitado. El
+ * texto de éxito habla de revisión y acreditación, no de publicación inmediata.
+ *
+ * Toda la copia propia de cada camino vive en `COPY`, no en `if`s repartidos por
+ * el JSX: agregar un cuarto camino es agregar una entrada.
  */
 
 const inputClass =
   'w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100';
 const labelClass = 'mb-1.5 block text-xs font-bold text-slate-700';
 
-export type CompanyKind = 'corredora' | 'inmobiliaria';
+export type RegistrationKind = 'corredora' | 'inmobiliaria' | 'agente';
 
-const COPY = {
+interface KindCopy {
+  /** Ícono de la sección de identificación. */
+  icon: typeof Building2;
+  sectionTitle: string;
+  sectionBody: string;
+  companyLabel: string;
+  companyPlaceholder: string;
+  /** El RUT de una empresa (76…) y el de una persona natural (12…) no se parecen. */
+  rutPlaceholder: string;
+  websitePlaceholder: string;
+  contactTitle: string;
+  contactBody: string;
+  messagePlaceholder: string;
+  successTitle: string;
+  successBody: string;
+  steps: [string, string][];
+}
+
+const COPY: Record<RegistrationKind, KindCopy> = {
   corredora: {
+    icon: Building2,
+    sectionTitle: 'La empresa',
+    sectionBody: 'Estos datos nos permiten identificar y revisar la empresa.',
+    companyLabel: 'Nombre de la empresa',
+    companyPlaceholder: 'Ej: Catedral Propiedades',
+    rutPlaceholder: '76.123.456-7',
+    websitePlaceholder: 'https://tuempresa.cl',
+    contactTitle: 'Quién nos contacta',
+    contactBody: 'Una persona de la empresa que pueda responder por el registro.',
+    messagePlaceholder: 'Ej: corredora con foco en departamentos en Providencia, 4 agentes.',
     successTitle: 'Recibimos el registro de tu corredora',
     successBody:
       'Vamos a revisar los datos de la empresa y te contactaremos para completar la acreditación. Una vez verificada, tu corredora podrá publicar stock en Rix7.',
-    companyPlaceholder: 'Ej: Catedral Propiedades',
     steps: [
       ['Revisamos la empresa', 'Comprobamos los datos de la corredora y de quien la representa.'],
       ['Acreditamos la operación', 'Te pedimos los documentos que respaldan la corredora.'],
@@ -44,17 +78,47 @@ const COPY = {
     ],
   },
   inmobiliaria: {
+    icon: Building2,
+    sectionTitle: 'La empresa',
+    sectionBody: 'Estos datos nos permiten identificar y revisar la empresa.',
+    companyLabel: 'Nombre de la empresa',
+    companyPlaceholder: 'Ej: Inmobiliaria Los Andes',
+    rutPlaceholder: '76.123.456-7',
+    websitePlaceholder: 'https://tuempresa.cl',
+    contactTitle: 'Quién nos contacta',
+    contactBody: 'Una persona de la empresa que pueda responder por el registro.',
+    messagePlaceholder: 'Ej: inmobiliaria con dos proyectos en Ñuñoa y stock en arriendo.',
     successTitle: 'Recibimos el registro de tu inmobiliaria',
     successBody:
       'Vamos a revisar los datos de la empresa y te contactaremos para definir el perfil y el stock que publicará. Después de la acreditación, la inmobiliaria tendrá su espacio en Rix7.',
-    companyPlaceholder: 'Ej: Inmobiliaria Los Andes',
     steps: [
       ['Revisamos la empresa', 'Comprobamos la inmobiliaria y el tipo de stock que administra.'],
       ['Definimos el perfil', 'Acordamos proyectos, propiedades y datos públicos de la empresa.'],
       ['Habilitamos el acceso', 'Creamos la cuenta y el vínculo con el panel de publicación.'],
     ],
   },
-} as const;
+  agente: {
+    icon: UserRound,
+    sectionTitle: 'Tus datos de agente',
+    sectionBody:
+      'No se pide razón social ni boleta de actividad: trabajas por cuenta propia y emites boleta de honorarios con tu RUT de persona natural.',
+    companyLabel: 'Nombre comercial',
+    companyPlaceholder: 'Si operas bajo uno, déjalo acá',
+    rutPlaceholder: '12.345.678-5',
+    websitePlaceholder: 'https://tusitio.cl',
+    contactTitle: 'Tus datos de contacto',
+    contactBody: 'Con estos te contactamos para revisar el registro.',
+    messagePlaceholder: 'Ej: agente independiente en Ñuñoa y Providencia, 6 años en el mercado.',
+    successTitle: 'Recibimos tu registro como agente',
+    successBody:
+      'Vamos a revisar tus datos y te contactaremos para completar la acreditación. Una vez verificado, podrás publicar tu stock en Rix7 desde tu cuenta.',
+    steps: [
+      ['Revisamos tus datos', 'Confirmamos tu RUT y cómo operas hoy.'],
+      ['Definimos tu perfil público', 'Tu nombre, tu zona de trabajo y cómo te contactan.'],
+      ['Habilitamos tu acceso', 'Creamos tu cuenta con su panel de publicaciones.'],
+    ],
+  },
+};
 
 interface FormState {
   company: string;
@@ -89,8 +153,12 @@ interface Success {
   persisted: boolean;
 }
 
-export default function CompanyRegistrationForm({ kind }: { kind: CompanyKind }) {
+export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
   const copy = COPY[kind];
+  // Un agente es una persona: no hay nombre de empresa que pedirle ni cargo que
+  // declarar. Esconder los campos no es atajo visual, es la coherencia con el
+  // servidor, que tampoco los exige para este `kind` (ver `normalizeSolicitud`).
+  const asksCompany = kind !== 'agente';
   const [form, setForm] = useState<FormState>(INITIAL);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -196,34 +264,34 @@ export default function CompanyRegistrationForm({ kind }: { kind: CompanyKind })
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="mb-5 flex items-start gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
-            <Building2 className="h-4 w-4" />
+            <copy.icon className="h-4 w-4" />
           </span>
           <div>
-            <h2 className="text-sm font-black text-slate-900">La empresa</h2>
-            <p className="text-xs text-slate-500">
-              Estos datos nos permiten identificar y revisar la empresa.
-            </p>
+            <h2 className="text-sm font-black text-slate-900">{copy.sectionTitle}</h2>
+            <p className="text-xs text-slate-500">{copy.sectionBody}</p>
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label htmlFor="company" className={labelClass}>
-              Nombre de la empresa
-            </label>
-            <input
-              id="company"
-              type="text"
-              autoComplete="organization"
-              value={form.company}
-              onChange={(event) => update('company', event.target.value)}
-              placeholder={copy.companyPlaceholder}
-              className={inputClass}
-              required
-              minLength={2}
-              maxLength={160}
-            />
-          </div>
+          {asksCompany && (
+            <div className="sm:col-span-2">
+              <label htmlFor="company" className={labelClass}>
+                {copy.companyLabel}
+              </label>
+              <input
+                id="company"
+                type="text"
+                autoComplete="organization"
+                value={form.company}
+                onChange={(event) => update('company', event.target.value)}
+                placeholder={copy.companyPlaceholder}
+                className={inputClass}
+                required
+                minLength={2}
+                maxLength={160}
+              />
+            </div>
+          )}
 
           <div>
             <label htmlFor="rut" className={labelClass}>
@@ -234,7 +302,7 @@ export default function CompanyRegistrationForm({ kind }: { kind: CompanyKind })
               type="text"
               value={form.rut}
               onChange={(event) => update('rut', event.target.value)}
-              placeholder="76.123.456-7"
+              placeholder={copy.rutPlaceholder}
               className={inputClass}
               maxLength={20}
             />
@@ -250,7 +318,7 @@ export default function CompanyRegistrationForm({ kind }: { kind: CompanyKind })
               inputMode="url"
               value={form.website}
               onChange={(event) => update('website', event.target.value)}
-              placeholder="https://tuempresa.cl"
+              placeholder={copy.websitePlaceholder}
               className={inputClass}
               maxLength={300}
             />
@@ -302,10 +370,8 @@ export default function CompanyRegistrationForm({ kind }: { kind: CompanyKind })
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <h2 className="text-sm font-black text-slate-900">Quién nos contacta</h2>
-        <p className="mb-4 text-xs text-slate-500">
-          Una persona de la empresa que pueda responder por el registro.
-        </p>
+        <h2 className="text-sm font-black text-slate-900">{copy.contactTitle}</h2>
+        <p className="mb-4 text-xs text-slate-500">{copy.contactBody}</p>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -325,21 +391,23 @@ export default function CompanyRegistrationForm({ kind }: { kind: CompanyKind })
             />
           </div>
 
-          <div>
-            <label htmlFor="role" className={labelClass}>
-              Cargo <span className="font-normal text-slate-400">(opcional)</span>
-            </label>
-            <input
-              id="role"
-              type="text"
-              autoComplete="organization-title"
-              value={form.role}
-              onChange={(event) => update('role', event.target.value)}
-              placeholder="Ej: Gerente comercial"
-              className={inputClass}
-              maxLength={80}
-            />
-          </div>
+          {asksCompany && (
+            <div>
+              <label htmlFor="role" className={labelClass}>
+                Cargo <span className="font-normal text-slate-400">(opcional)</span>
+              </label>
+              <input
+                id="role"
+                type="text"
+                autoComplete="organization-title"
+                value={form.role}
+                onChange={(event) => update('role', event.target.value)}
+                placeholder="Ej: Gerente comercial"
+                className={inputClass}
+                maxLength={80}
+              />
+            </div>
+          )}
 
           <div>
             <label htmlFor="email" className={labelClass}>
@@ -379,7 +447,7 @@ export default function CompanyRegistrationForm({ kind }: { kind: CompanyKind })
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <label htmlFor="message" className={labelClass}>
-          Cuéntanos sobre la empresa{' '}
+          {asksCompany ? 'Cuéntanos sobre la empresa' : 'Cuéntanos sobre tu trabajo'}{' '}
           <span className="font-normal text-slate-400">(opcional)</span>
         </label>
         <textarea
@@ -388,11 +456,7 @@ export default function CompanyRegistrationForm({ kind }: { kind: CompanyKind })
           onChange={(event) => update('message', event.target.value)}
           rows={4}
           maxLength={1200}
-          placeholder={
-            kind === 'corredora'
-              ? 'Ej: corredora con foco en departamentos en Providencia, 4 agentes.'
-              : 'Ej: inmobiliaria con dos proyectos en Ñuñoa y stock en arriendo.'
-          }
+          placeholder={copy.messagePlaceholder}
           className={inputClass}
         />
         <p className="mt-1 text-right text-[11px] text-slate-400">{form.message.length}/1200</p>
