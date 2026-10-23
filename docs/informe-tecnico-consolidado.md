@@ -89,12 +89,15 @@ vuelve a estar verde (`scripts/notice-health.mjs`, con `issues: write`).
 | Región | `gru1` |
 | Cabeceras | `vercel.json` (CSP, HSTS, X-Frame-Options, cache de `_next/static`) |
 
-**Limitación clave del plan Hobby**: solo el **dueño de la cuenta** puede crear
-deployments, así que `git push` **no despliega**: se publica con
-`npm run deploy:prod`, que sube el árbol **sin metadata de git**. (Antes los
-commits además venían de una identidad que no era la dueña y Vercel los marcaba
-`BLOCKED`; desde el 2026-10-06 el autor es la cuenta dueña y el flujo oficial no
-cambió.)
+**Plan Hobby**: el **dueño de la cuenta** es quien crea los deployments. Un
+`git push` a `main` **sí despliega** —la integración de Git lo publica y mueve el
+alias de `rix7.cl`— pero ese deployment no lleva `RIX7_BUILD`, así que no se puede
+afirmar qué está publicado. Se publica con `npm run deploy`, que sube el árbol
+**sin metadata de git** e inyecta el identificador de la build. (Antes los commits
+venían de una identidad que no era la dueña y Vercel los marcaba `BLOCKED`; desde
+el 2026-10-06 el autor es la cuenta dueña. La teoría de que por eso el push no
+publicaba se cayó el 2026-10-23: el alias saltó a `rix7-hmxa0binc` sin
+identificador — ver [`AGENTS.md`](../AGENTS.md).)
 
 ### 3.3 Supabase — base de datos y autenticación
 
@@ -142,8 +145,10 @@ Todos los hosts que el navegador toca están declarados en la **CSP** de
 > `jtorres@catedralpropiedades.com` quedó verificado en la cuenta, así que los
 > commits viejos siguen atribuidos sin migrar nada.
 >
-> `npm run deploy:prod` sigue siendo el camino oficial de despliegue: en plan
-> Hobby solo el dueño crea deployments y `git push` no despliega.
+> `npm run deploy` sigue siendo el camino oficial de despliegue: en plan Hobby
+> solo el dueño crea deployments, y aunque un `git push` a `main` **sí** publica y
+> mueve el alias, lo hace sin el identificador de la build (ver
+> [`AGENTS.md`](../AGENTS.md)).
 
 ### 4.2 Dónde vive cada credencial (nunca el valor)
 
@@ -221,8 +226,9 @@ checkout**. La consolidación se hace una vez, en este orden:
 4. **Verificación antes del commit**: `tsc` → `vitest` → `knip` → `check:bundle`
    → `build` → `check:a11y` → `test:integration:nosupabase`. Los siete en verde
    es la definición de «versión final que funciona».
-5. **Push y PR** solo cuando el usuario lo pida. Con el plan Hobby, publicar es
-   `npm run deploy:prod`.
+5. **Push y PR** solo cuando el usuario lo pida. Ojo: un push a `main` **sí**
+   despliega y se lleva el alias de `rix7.cl`, sin identificador de build;
+   publicar en serio es `npm run deploy`.
 6. **Regla permanente**: una sola conversación por checkout a la vez. Si hace
    falta paralelizar, usar `git worktree` (checkouts separados) o los **slots**
    de dev (`npm run dev -- --port NNNN`, cada uno con su `distDir`).

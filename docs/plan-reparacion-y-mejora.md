@@ -66,8 +66,11 @@ velocímetros) no es el objetivo: es **el andamiaje que evita volver a romperlo*
 
 ### 2.3 Deuda conocida (no bloquea, anotada para no perderla)
 
-- Autor de los commits (`jtorres-ops`) ≠ dueño de Vercel (`jatf71-a11y`) → por eso
-  `git push` no despliega y se publica con `npm run deploy:prod`.
+- Autor de los commits (`jtorres-ops`) ≠ dueño de Vercel (`jatf71-a11y`). La
+  teoría era que por eso `git push` no desplegaba; el 2026-10-23 un push a `main`
+  desplegó, movió el alias de `rix7.cl` y no inyectó el identificador de la build.
+  La deuda real es esa: después de cada push hay que correr `npm run deploy` (ver
+  [`AGENTS.md`](../AGENTS.md)).
 - Dominio `rix7.cl` sin apuntar; `SITE_URL` cae al default.
 - Turbopack no es viable (MapLibre + Sentry).
 - `fase3/velocimetros` **no está en el remoto**: la feature de velocímetros solo
@@ -122,7 +125,7 @@ Sigue `docs/runbook-supabase-real.md` (ya escrito). Resumen:
 | 1.4 | `npm run db:status` → `npm run db:push` → `npm run db:status` (aplica **0010, 0011, 0012**). |
 | 1.5 | Ejecutar `supabase/seed.sql` a mano en el SQL Editor (`properties` y `partners` > 0). |
 | 1.6 | Variables en **Vercel → Production + Preview + Development**. |
-| 1.7 | `npm run deploy:prod` (recordar: `git push` **no** despliega). |
+| 1.7 | `npm run deploy:prod` (recordar: un `git push` a `main` publica, pero sin identificador de build). |
 
 **Punto de control 1** — contra producción:
 
@@ -168,7 +171,7 @@ punto de partida del desarrollo normal.
 |---|---|
 | 3.1 | Abrir el PR de la rama única contra `main`, con el cuerpo que recorra los temas (infra, a11y, integración, velocímetros, docs). |
 | 3.2 | Fusionar. `main` queda al día y **es la referencia**. |
-| 3.3 | (Higiene) Unificar el autor de los commits con la cuenta de GitHub, o invitar a `jtorres-ops` como miembro → así `git push` vuelve a desplegar y `deploy:prod` deja de ser obligatorio. |
+| 3.3 | (Higiene) Unificar el autor de los commits con la cuenta de GitHub, o invitar a `jtorres-ops` como miembro. Eso no cambia nada del despliegue: el push ya publica (sin identificador de build), y después de cada push hay que correr `npm run deploy`. |
 | 3.4 | (Opcional) Apuntar `rix7.cl` y actualizar `SITE_URL` + redirect URLs de Supabase. |
 
 **Punto de control 3 (el final claro):**

@@ -27,8 +27,11 @@ Tiempo estimado: **30–45 min**, casi todo esperando la creación del proyecto 
 
 > **Cuidado con el orden.** Las credenciales públicas (`NEXT_PUBLIC_*`) se
 > **incrustan en el build**: cambiarlas en Vercel **no basta**, hay que
-> **volver a desplegar**. En este proyecto el deploy es `npm run deploy:prod`
-> (`git push` **no** despliega: el plan Hobby bloquea al autor de los commits).
+> **volver a desplegar**. En este proyecto el deploy es `npm run deploy` (para
+> solo republicar el árbol con su identificador, `npm run deploy:prod`). Un
+> `git push` a `main` **sí** publica y mueve el alias de `rix7.cl`, pero lo hace
+> **sin el identificador de la build**: no sirve para dar un cambio de variables
+> por hecho (ver [`AGENTS.md`](../AGENTS.md)).
 
 ---
 
@@ -183,7 +186,7 @@ a **Production, Preview y Development**:
 Luego **despliega** para que el build tome las claves nuevas:
 
 ```bash
-npm run deploy:prod       # NO `git push`
+npm run deploy:prod       # republica con el identificador; el push no lo inyecta
 ```
 
 > **Todo junto y con preflight.** Reemplazar las tres variables de un proyecto por

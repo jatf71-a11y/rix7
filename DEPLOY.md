@@ -100,18 +100,21 @@ SELECT * FROM get_properties_filtered(-76, -56, -66, -17, null, null, null, null
 
 ## 5. Cómo se publica: `deploy:prod`
 
-- Con el repo conectado, cada `git push` a `main` generaría un deploy de
-  **Production** y cada PR uno de **Preview** con su URL propia — **pero en este
-  repositorio eso no llega a publicar** (ver el aviso de abajo).
+- Con el repo conectado, cada `git push` a `main` crea un deploy de **Production**
+  y cada PR uno de **Preview** con su URL propia. Ese deployment de Production
+  **sí queda en vivo** y **se lleva el alias** de `rix7.cl` y `www.rix7.cl` (ver
+  el aviso de abajo).
 - Variables `NEXT_PUBLIC_*` nuevas **requieren re-deploy** para incluirse en el bundle del cliente.
 
-> ⚠️ **En este repositorio el push no publica.** Los commits van firmados por un
-autor que no es miembro del equipo Hobby de Vercel, y ese plan solo deja crear
-deployments al dueño de la cuenta: Vercel acepta el push, compila y descarta el
-deployment con «the commit author doesn't have permission to create deployments».
-El camino real es el comando de abajo (el porqué completo está en la cabecera de
-[`scripts/deploy-prod.mjs`](scripts/deploy-prod.mjs): publica el árbol de trabajo
-**sin metadata de git**, así el deployment queda atribuido a la cuenta dueña).
+> ⚠️ **Un push a `main` publica, pero sin identificador.** La integración de Git
+> despliega a producción y mueve el alias, así que el sitio queda sirviendo el
+> commit nuevo; lo que no lleva es `RIX7_BUILD`, la versión ni el tag, porque esas
+> variables las inyecta el comando del repositorio. `/api/health` responde
+> entonces `build: null` y no se puede afirmar qué está publicado. Pasó el
+> 2026-10-23 con `6f6951c`: el alias saltó a `rix7-hmxa0binc` y la build dejó de
+> identificarse. **Después de cada push a `main`, corré `npm run deploy`**; para
+> saber si el alias se movió, `npx vercel alias ls` muestra qué deployment sirve
+> `rix7.cl` (el detalle está en [`AGENTS.md`](AGENTS.md)).
 
 ### Un solo dominio: `rix7.cl`
 
@@ -272,7 +275,8 @@ npm run release:prod
 ```
 
 El tag se crea local; el deploy no lo empuja. Si querés que quede en GitHub,
-`git push --tags` (el push no publica, ver sección 5).
+`git push --tags` (eso sube el tag; si además empujás `main`, ese push sí despliega
+—sin identificador— y se lleva el alias, ver sección 5).
 
 ### De quién es la **cuenta** de la base: `npm run check:cuenta`
 
@@ -363,7 +367,9 @@ release se detuvo ahí · **2** el comando se usó mal (un argumento desconocido
   `npm run smoke:prod -- --write --email tu@correo.cl`, que manda un correo real.
   El informe final lo dice en vez de dar por probado lo que no se probó.
 - **No hace `git push`.** El deploy publica el árbol de trabajo, no el commit;
-  el informe avisa si quedaron cambios sin commitear o commits sin empujar.
+  el informe avisa si quedaron cambios sin commitear o commits sin empujar. No
+  confundir con que el push no publique: un push a `main` sí despliega —sin
+  identificador—, así que después de empujar hay que correr el release (§5).
 - **No revierte.** Si el deploy salió bien y la verificación falla, el camino es
   la sección 8 (Rollback), y el informe lo dice: distingue «no se publicó nada
   nuevo» de «ya se publicó, pero la verificación falló».
@@ -449,7 +455,8 @@ está publicado: esto es el paso que hay que hacer. Si falló antes del deploy, 
 hay nada que revertir.
 
 Para revertir código: `git revert <commit>` y volver a publicar con
-`npm run release:prod` (el push **no** despliega, ver la sección 5).
+`npm run release:prod` (un push a `main` **sí** despliega y se lleva el alias, pero
+sin identificador: publicá con el comando del repo, ver la sección 5).
 
 ---
 
@@ -483,7 +490,7 @@ va atrás, sin entrar al panel de Vercel.
 | Detalle 404 de propiedades que sí existen en DB | RPC `get_property_by_id` no existe en la DB | Aplica las migraciones: `npm run db:push` (la crea `0005_properties_rpc.sql`) |
 | Mapa en blanco + errores CSP en consola | CSP bloqueando tiles | Verifica que `*.tile.openstreetmap.org` sigue en `img-src` de `vercel.json` |
 | Error de build en Vercel | Type error local no detectado | Corre `npx tsc --noEmit && npm run build` antes de push |
-| `/api/health` responde `"build": null` | el despliegue se publicó sin el comando del repo (o es anterior al identificador) | publica con `npm run release:prod`, o al menos `npm run deploy:prod` desde el repo |
+| `/api/health` responde `"build": null` | el despliegue se publicó sin el comando del repo: el deployment automático de un `git push` a `main`, un `vercel --prod` a mano, o una build anterior al identificador | publica con `npm run release:prod`; `npx vercel alias ls` dice qué deployment sirve `rix7.cl` (ver §5 y [`AGENTS.md`](AGENTS.md)) |
 | Un release falla en la verificación diciendo que producción no coincide con el árbol | el alias todavía sirve el deployment anterior, o el árbol cambió mientras corría el release | el informe dice cuál de las dos cosas fue; si es lo segundo, volvé a correr `npm run release:prod` |
 | Funciones lentas en Chile | DB en región lejana a `gru1` | Aloja la DB en la región más cercana a São Paulo (Supabase ofrece `South America (São Paulo)`) |
 

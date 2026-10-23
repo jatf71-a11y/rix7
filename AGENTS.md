@@ -24,10 +24,54 @@ inventes un camino más corto.
   propia URL. Un rojo así se arregla mirando el alias, no repitiendo a ciegas.
 - `npm run deploy:prod` existe pero **solo publica** (sin build, sin esquema, sin
   verificación): no es «el deploy». `vercel --prod` a mano, tampoco.
-- `git push` **no publica** en este proyecto (plan Hobby: los deployments de un
-  autor que no es miembro del equipo los descarta Vercel). El deploy publica el
-  árbol de trabajo, así que lo que se publica es lo que hay en disco, incluidos
-  los cambios sin commitear; el informe lo dice (`dirty`).
+- `git push` **sí publica** en este proyecto: un push a `main` hace que la
+  integración de Git despliegue a producción y **mueva el alias** de `rix7.cl` y
+  `www.rix7.cl` a ese deployment. Ese deployment no lleva `RIX7_BUILD`, así que
+  `/api/health` responde `build: null` aunque el código sea correcto: el sitio
+  sigue sirviendo, pero ya no se puede afirmar cuál es. Pasó el 2026-10-23 con el
+  commit `6f6951c`: el alias saltó a `rix7-hmxa0binc` y la build dejó de
+  identificarse. **Después de cualquier push a `main`, corré `npm run deploy`** y
+  no des por buena la producción hasta que `check:health` confirme el
+  identificador. No confíes en «el push no despliega».
+- El deploy publica el árbol de trabajo, así que lo que se publica es lo que hay
+  en disco, incluidos los cambios sin commitear; el informe lo dice (`dirty`).
+
+## Si producción deja de identificarse
+
+Los tres síntomas, de más barato a más preciso:
+
+```bash
+curl -s https://rix7.cl/api/health
+# mirá "build" y "release": si son null, ese deployment no se identifica.
+```
+
+```bash
+npm run check:health
+# · Identificador de la build: el despliegue no publica identificador de la build (RIX7_BUILD).
+```
+
+Esa línea es una **nota**, no un rojo: `check:health` sale con 0 igual, porque no
+poder identificar la build no es una caída. Verde acá **no** significa
+«identificado»; hay que leer esa línea.
+
+```bash
+npx vercel alias ls
+```
+
+La columna `source` de `rix7.cl` y `www.rix7.cl` dice qué deployment sirve el
+dominio. Si no es el que publicó el último release —por ejemplo, un
+`rix7-git-main-*`— la integración de Git se llevó el alias.
+
+El arreglo es volver a publicar con el comando del repositorio:
+
+```bash
+npm run deploy
+```
+
+Eso reinyecta `RIX7_BUILD`, versión y tag, reasigna el alias y la verificación del
+release lo comprueba en `rix7.cl`. Si el alias se mueve cada vez que se pusea, la
+causa está en la integración de Git de Vercel —publica a producción y se queda
+con el dominio— y se corta desde el panel de Vercel, no desde el repo.
 
 ## Después de desplegar
 

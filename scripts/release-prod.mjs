@@ -55,12 +55,13 @@
  *   lista. Un `--no-db` no lo saltea: es la red que evita publicar código contra
  *   columnas que no existen (el incidente que documenta `0015`).
  * - **deploy**: `scripts/deploy-prod.mjs`, que publica el árbol de trabajo sin
- *   metadata de git (el bloqueo de autor del plan Hobby) y corre la guardia de
- *   secretos antes de copiar nada. En este repositorio `git push` **no** publica:
- *   el plan Hobby descarta los deployments cuyo commit firma alguien que no es
- *   miembro del equipo (§5 del runbook). Publica además el **identificador de la
- *   build** (el hash de este árbol, ver `scripts/build-id.mjs`), que es lo que
- *   hace comprobable la última pregunta.
+ *   metadata de git —así el deployment se atribuye a la cuenta dueña, la única
+ *   que crea deployments en el plan Hobby— y corre la guardia de secretos antes
+ *   de copiar nada. Un `git push` a `main` **sí** publica y se lleva el alias,
+ *   pero sin el **identificador de la build**, la versión ni el tag: deja
+ *   `/api/health` respondiendo `build: null` (pasó el 2026-10-23 con `6f6951c`).
+ *   Por eso este paso publica además el identificador (el hash de este árbol, ver
+ *   `scripts/build-id.mjs`), que es lo que hace comprobable la última pregunta.
  * - **verificación**: `runSmoke` (portada, panel, alta), `runCheck` (críticos
  *   de `/api/health`) y la **comparación del identificador** contra
  *   **`https://rix7.cl`**, que es la única URL pública de producción: si el
@@ -255,7 +256,7 @@ export const RELEASE_STEPS = [
     title: 'Deploy a producción',
     script: 'scripts/deploy-prod.mjs',
     flag: '--no-deploy',
-    why: 'publica el árbol de trabajo sin metadata de git (el plan Hobby bloquea los commits de otro autor) tras correr la guardia de secretos, y publica el identificador de la build junto con la versión y el tag para que lo publicado se pueda comparar con el repo.',
+    why: 'publica el árbol de trabajo sin metadata de git —así el deployment se atribuye a la cuenta dueña, la única que crea deployments en el plan Hobby— tras correr la guardia de secretos, y publica el identificador de la build junto con la versión y el tag para que lo publicado se pueda comparar con el repo.',
     hint: 'si falló por `.vercel/project.json`, corre `npx vercel link`; si falló por la guardia de secretos, mira los hallazgos de arriba. Un deploy fallido **no** deja nada a medio publicar: Vercel conserva el anterior.',
   },
   {

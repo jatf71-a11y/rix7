@@ -2,20 +2,23 @@
 /**
  * Publica el proyecto a producción en Vercel.
  *
- * ¿Por qué no basta con `git push`?
- * El proyecto vive en un equipo Hobby y, en ese plan, **solo el dueño de la
- * cuenta puede crear deployments**. Los commits de este repositorio van
- * firmados por un autor que no es miembro del equipo, así que Vercel acepta el
- * push, compila y después descarta el deployment con:
+ * ¿Por qué un script y no solo `git push`?
  *
- *   "The deployment was blocked because the commit author doesn't have
- *    permission to create deployments for this project."
+ * Un push a `main` **sí publica** en este proyecto: la integración de Git crea el
+ * deployment de producción y **se lleva el alias** de `rix7.cl` y `www.rix7.cl`.
+ * Lo que no hace es publicar la identidad —ese deployment no lleva `RIX7_BUILD`,
+ * así que `/api/health` responde `build: null` y no se puede afirmar qué está en
+ * vivo (pasó el 2026-10-23 con el commit `6f6951c`)—, ni publicar el árbol de
+ * trabajo con sus cambios sin commitear, ni correr la guardia de secretos antes
+ * de subir nada.
  *
- * Este script publica **sin metadata de git**: copia el árbol de trabajo a un
- * directorio temporal del sistema (sin `.git`, `node_modules` ni `.next`),
- * bloquea el descubrimiento del repositorio con `GIT_CEILING_DIRECTORIES` y
- * despliega desde ahí. El deployment queda atribuido a la cuenta dueña —que sí
- * tiene permiso— y Vercel lo promueve a producción automáticamente.
+ * Este script publica **con identidad y desde el árbol de trabajo**: copia el
+ * árbol a un directorio temporal del sistema (sin `.git`, `node_modules` ni
+ * `.next`), bloquea el descubrimiento del repositorio con
+ * `GIT_CEILING_DIRECTORIES` y despliega desde ahí. Al quedar **sin metadata de
+ * git**, el deployment se atribuye a la cuenta dueña —la única que crea
+ * deployments en el plan Hobby— y Vercel lo promueve a producción
+ * automáticamente.
  *
  * Antes de copiar nada corre la guardia de secretos (`check-secrets.mjs`). Los
  * `.env*` ya quedan fuera de la copia, pero un secreto suelto en un archivo
@@ -314,7 +317,8 @@ function main() {
   fs.copyFileSync(projectFile, path.join(staging, '.vercel', 'project.json'));
 
   // `GIT_CEILING_DIRECTORIES` impide que git ascienda hasta el repositorio real:
-  // sin esa metadata, el deployment lo crea la cuenta dueña y no queda bloqueado.
+  // sin esa metadata, el deployment se atribuye a la cuenta dueña, que es la única
+  // que crea deployments en el plan Hobby.
   // En Windows `npx` es un shim `.cmd`, y desde el parche de CVE-2024-27980 Node no
   // lanza `.cmd`/`.bat` directamente: `spawnSync` falla con EINVAL y deja `status`
   // en `null`. Se pasa por `cmd.exe /c` en vez de `shell: true`, que es la forma
