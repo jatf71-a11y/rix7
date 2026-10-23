@@ -37,6 +37,37 @@ export function describeAuthError(raw: unknown): string {
   return message;
 }
 
+/**
+ * Mensaje para un intento de acceso con correo y contraseña.
+ *
+ * Es la puerta del panel de administración. Supabase responde en inglés y con
+ * el mismo texto para «no existe la cuenta» y «la contraseña no es esa», a
+ * propósito: distinguirlos le diría a un atacante qué correos existen. Acá se
+ * conserva esa ambigüedad y se traduce a algo que la persona entienda.
+ */
+export function describePasswordSignInError(raw: unknown): string {
+  const message = typeof raw === 'string' ? raw : raw instanceof Error ? raw.message : '';
+  const text = message.toLowerCase();
+
+  if (text.includes('invalid login credentials')) {
+    return 'El correo o la contraseña no son correctos.';
+  }
+
+  if (text.includes('email not confirmed')) {
+    return 'La cuenta todavía no está confirmada. Revisa el correo de verificación.';
+  }
+
+  if (text.includes('too many') || text.includes('rate limit')) {
+    return 'Demasiados intentos seguidos. Espera unos minutos y vuelve a probar.';
+  }
+
+  if (!message || /fetch|network|load failed|connection/i.test(message)) {
+    return 'No pudimos conectar con el servicio de acceso. Revisa tu conexión e intenta de nuevo.';
+  }
+
+  return message;
+}
+
 /** Datos de error que Supabase deja en la URL al volver de un acceso externo. */
 export interface AuthUrlError {
   /** Mensaje ya listo para mostrar. */

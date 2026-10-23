@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   AlertCircle,
@@ -63,7 +63,7 @@ const COPY: Record<RegistrationKind, KindCopy> = {
     sectionBody: 'Estos datos nos permiten identificar y revisar la empresa.',
     companyLabel: 'Nombre de la empresa',
     companyPlaceholder: 'Ej: Catedral Propiedades',
-    rutPlaceholder: '76.123.456-7',
+    rutPlaceholder: '76.123.456-0',
     websitePlaceholder: 'https://tuempresa.cl',
     contactTitle: 'Quién nos contacta',
     contactBody: 'Una persona de la empresa que pueda responder por el registro.',
@@ -83,7 +83,7 @@ const COPY: Record<RegistrationKind, KindCopy> = {
     sectionBody: 'Estos datos nos permiten identificar y revisar la empresa.',
     companyLabel: 'Nombre de la empresa',
     companyPlaceholder: 'Ej: Inmobiliaria Los Andes',
-    rutPlaceholder: '76.123.456-7',
+    rutPlaceholder: '76.123.456-0',
     websitePlaceholder: 'https://tuempresa.cl',
     contactTitle: 'Quién nos contacta',
     contactBody: 'Una persona de la empresa que pueda responder por el registro.',
@@ -120,6 +120,20 @@ const COPY: Record<RegistrationKind, KindCopy> = {
   },
 };
 
+/**
+ * Alcance geográfico del registro.
+ *
+ * Antes se preguntaba región y comuna de la oficina; lo que sirve para asignar
+ * trabajo es si la corredora, inmobiliaria o agente opera en todo Chile o solo
+ * en algunas regiones. `''` es «todavía no eligió» y el formulario lo exige.
+ */
+type Coverage = '' | 'nacional' | 'regional';
+
+const COVERAGE_OPTIONS: { value: Exclude<Coverage, ''>; title: string; detail: string }[] = [
+  { value: 'nacional', title: 'Nacional', detail: 'Trabajas en todo Chile.' },
+  { value: 'regional', title: 'Regional', detail: 'Trabajas en regiones específicas.' },
+];
+
 interface FormState {
   company: string;
   rut: string;
@@ -127,8 +141,8 @@ interface FormState {
   role: string;
   email: string;
   phone: string;
-  region: string;
-  commune: string;
+  coverage: Coverage;
+  regions: string[];
   website: string;
   message: string;
   consent: boolean;
@@ -141,8 +155,8 @@ const INITIAL: FormState = {
   role: '',
   email: '',
   phone: '',
-  region: '',
-  commune: '',
+  coverage: '',
+  regions: [],
   website: '',
   message: '',
   consent: false,
@@ -164,19 +178,35 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<Success | null>(null);
 
-  const communes = useMemo(() => {
-    const region = CHILE_REGIONS.find((item) => item.name === form.region);
-    return region?.communes.map((commune) => commune.name) ?? [];
-  }, [form.region]);
-
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
+  function toggleRegion(name: string, checked: boolean) {
+    setForm((current) => ({
+      ...current,
+      regions: checked
+        ? Array.from(new Set([...current.regions, name]))
+        : current.regions.filter((region) => region !== name),
+    }));
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSending(true);
     setError(null);
+
+    // Las casillas de región no pueden usar `required` por separado (haría
+    // falta marcarlas todas), así que el grupo se valida acá antes de viajar.
+    if (!form.coverage) {
+      setError('Indica si tu alcance es nacional o regional.');
+      return;
+    }
+    if (form.coverage === 'regional' && form.regions.length === 0) {
+      setError('Marca al menos una región donde trabajas.');
+      return;
+    }
+
+    setSending(true);
 
     try {
       const response = await fetch('/api/solicitudes', {
@@ -295,7 +325,7 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
 
           <div>
             <label htmlFor="rut" className={labelClass}>
-              RUT <span className="font-normal text-slate-400">(opcional)</span>
+              RUT
             </label>
             <input
               id="rut"
@@ -304,8 +334,14 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
               onChange={(event) => update('rut', event.target.value)}
               placeholder={copy.rutPlaceholder}
               className={inputClass}
+              required
+              minLength={8}
               maxLength={20}
+              aria-describedby="rut-ayuda"
             />
+            <p id="rut-ayuda" className="mt-1 text-[11px] text-slate-400">
+              Obligatorio, con dígito verificador. Ej: {copy.rutPlaceholder}
+            </p>
           </div>
 
           <div>
@@ -324,48 +360,79 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
             />
           </div>
 
-          <div>
-            <label htmlFor="region" className={labelClass}>
-              Región <span className="font-normal text-slate-400">(opcional)</span>
-            </label>
-            <select
-              id="region"
-              value={form.region}
-              onChange={(event) => {
-                update('region', event.target.value);
-                update('commune', '');
-              }}
-              className={inputClass}
-            >
-              <option value="">Selecciona una región</option>
-              {CHILE_REGIONS.map((region) => (
-                <option key={region.code} value={region.name}>
-                  {region.name}
-                </option>
-              ))}
-            </select>
+          <div className="sm:col-span-2">
+            <fieldset>
+              <legend className={labelClass}>Alcance geográfico</legend>
+              <p className="mb-2 text-xs text-slate-500">
+                ¿Dónde trabajas? Lo usamos para asignarte propiedades y consultas de tu zona.
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {COVERAGE_OPTIONS.map((option) => {
+                  const selected = form.coverage === option.value;
+                  return (
+                    <label
+                      key={option.value}
+                      className={`flex cursor-pointer items-start gap-2.5 rounded-xl border px-3.5 py-3 transition-colors ${
+                        selected
+                          ? 'border-blue-400 bg-blue-50/60'
+                          : 'border-slate-300 bg-white hover:border-slate-400'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="coverage"
+                        value={option.value}
+                        checked={selected}
+                        onChange={() => update('coverage', option.value)}
+                        className="mt-0.5 h-4 w-4 shrink-0 border-slate-300 text-blue-600 focus:ring-blue-500"
+                        required
+                      />
+                      <span>
+                        <span className="block text-sm font-semibold text-slate-900">
+                          {option.title}
+                        </span>
+                        <span className="block text-[11px] leading-relaxed text-slate-500">
+                          {option.detail}
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
           </div>
 
-          <div>
-            <label htmlFor="commune" className={labelClass}>
-              Comuna <span className="font-normal text-slate-400">(opcional)</span>
-            </label>
-            <input
-              id="commune"
-              type="text"
-              list="comunas-empresa"
-              value={form.commune}
-              onChange={(event) => update('commune', event.target.value)}
-              placeholder={form.region ? 'Elige o escribe la comuna' : 'Primero elige la región'}
-              className={inputClass}
-              maxLength={80}
-            />
-            <datalist id="comunas-empresa">
-              {communes.map((commune) => (
-                <option key={commune} value={commune} />
-              ))}
-            </datalist>
-          </div>
+          {form.coverage === 'regional' && (
+            <fieldset className="rounded-xl border border-slate-200 bg-slate-50 p-4 sm:col-span-2">
+              <legend className="px-1 text-xs font-bold text-slate-700">
+                Regiones donde trabajas
+              </legend>
+              <p className="text-xs text-slate-500">Marca todas las regiones que cubres.</p>
+              <div className="mt-3 grid gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+                {CHILE_REGIONS.map((region) => (
+                  <label
+                    key={region.code}
+                    className="flex items-center gap-2 text-xs text-slate-700"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={form.regions.includes(region.name)}
+                      onChange={(event) => toggleRegion(region.name, event.target.checked)}
+                      className="h-4 w-4 shrink-0 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    {region.name}
+                  </label>
+                ))}
+              </div>
+              <p className="mt-2 text-[11px] text-slate-400">
+                {form.regions.length === 0
+                  ? 'Sin regiones seleccionadas'
+                  : form.regions.length === 1
+                    ? '1 región seleccionada'
+                    : `${form.regions.length} regiones seleccionadas`}
+              </p>
+            </fieldset>
+          )}
         </div>
       </section>
 

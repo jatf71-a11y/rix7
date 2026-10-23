@@ -57,6 +57,7 @@ const HEALTHY = {
   SUPABASE_ACCESS_TOKEN: PAT,
   RESEND_API_KEY: RESEND_KEY,
   ALERTS_FROM_EMAIL: 'Rix7 <avisos@rix7.cl>',
+  SOLICITUDES_EMAIL_TO: 'equipo@rix7.cl',
   ALERTS_CRON_SECRET: 'a'.repeat(40),
   NEXT_PUBLIC_Sentry_DSN: undefined,
   NEXT_PUBLIC_SENTRY_DSN: 'https://abc123@o4507.ingest.sentry.io/4507',

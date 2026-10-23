@@ -262,6 +262,8 @@ export const solicitudPostSchema = z
     rut: z.unknown().optional(),
     role: z.unknown().optional(),
     website: z.unknown().optional(),
+    coverage: z.unknown().optional(),
+    regions: z.unknown().optional(),
   })
   .passthrough();
 

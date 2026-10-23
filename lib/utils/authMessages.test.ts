@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   describeAuthError,
+  describePasswordSignInError,
   hasAuthError,
   parseAuthErrorFromUrl,
   stripAuthError,
@@ -38,6 +39,27 @@ describe('describeAuthError', () => {
     expect(describeAuthError(null)).toMatch(/conexión/i);
     expect(describeAuthError(42)).toMatch(/conexión/i);
     expect(describeAuthError(undefined)).toMatch(/conexión/i);
+  });
+});
+
+describe('describePasswordSignInError', () => {
+  it('no distingue «no existe la cuenta» de «la contraseña no es esa»', () => {
+    const message = describePasswordSignInError('Invalid login credentials');
+
+    expect(message).toBe('El correo o la contraseña no son correctos.');
+    // El mismo texto para los dos casos: no se delata qué correos existen.
+    expect(message).not.toMatch(/cuenta no existe|no encontramos/i);
+  });
+
+  it('explica una cuenta sin confirmar y un exceso de intentos', () => {
+    expect(describePasswordSignInError('Email not confirmed')).toMatch(/confirmada/i);
+    expect(describePasswordSignInError('Request rate limit reached')).toMatch(/Demasiados intentos/i);
+  });
+
+  it('traduce la falta de conexión y deja pasar lo que no reconoce', () => {
+    expect(describePasswordSignInError('Failed to fetch')).toMatch(/conexión/i);
+    expect(describePasswordSignInError(new Error('boom'))).toBe('boom');
+    expect(describePasswordSignInError(null)).toMatch(/conexión/i);
   });
 });
 

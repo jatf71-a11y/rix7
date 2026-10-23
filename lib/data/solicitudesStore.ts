@@ -200,6 +200,46 @@ export async function updateSolicitudStatus(
   }
 }
 
+export interface SolicitudCountResult {
+  /** Solicitudes en estado `nueva`, sin revisar todavía. */
+  count: number;
+  source: 'supabase' | 'memory';
+  /** false = desarrollo sin Supabase: el número sale de la copia en memoria. */
+  persistent: boolean;
+}
+
+/**
+ * Cuenta las solicitudes que todavía nadie revisó, para el badge del panel.
+ *
+ * Es una consulta `head` (sin filas) con `count: 'exact'`: el panel necesita el
+ * número en cada navegación, no traer otra vez las 300 solicitudes para contar
+ * unas pocas. Va con la sesión, así que la RLS de SELECT sigue siendo la que
+ * autoriza; sin Supabase se cuenta la copia en memoria.
+ */
+export async function countSolicitudesNuevas(): Promise<SolicitudCountResult> {
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = await sessionClient();
+      const { count, error } = await supabase
+        .from('solicitudes')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'nueva');
+
+      if (!error && typeof count === 'number') {
+        return { count, source: 'supabase', persistent: true };
+      }
+    } catch {
+      // Igual que el listado: si la base no responde, se muestra lo que haya.
+    }
+  }
+
+  return {
+    count: readDevSolicitudes().filter((solicitud) => solicitud.status === 'nueva').length,
+    source: 'memory',
+    persistent: false,
+  };
+}
+
 /** Listado para el panel, del más reciente al más antiguo. */
 export async function listSolicitudes(
   kind?: SolicitudKind,

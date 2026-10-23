@@ -267,6 +267,18 @@ export const CREDENTIALS = [
     shape: shapeEmail,
   },
   {
+    id: 'solicitudes_email_to',
+    label: 'Solicitudes: correo del equipo',
+    vars: ['SOLICITUDES_EMAIL_TO'],
+    severity: 'degraded',
+    impact:
+      'Las solicitudes de corredora, inmobiliaria y agente se guardan y aparecen en /admin/solicitudes, pero nadie recibe el aviso por correo.',
+    where: 'Es un valor, no un secreto: la bandeja del equipo que revisa los registros',
+    link: null,
+    save: 'Vercel (variable de entorno, Production)',
+    shape: shapeEmail,
+  },
+  {
     id: 'sentry_dsn',
     label: 'Monitoreo: DSN de Sentry',
     vars: ['NEXT_PUBLIC_SENTRY_DSN', 'SENTRY_DSN'],

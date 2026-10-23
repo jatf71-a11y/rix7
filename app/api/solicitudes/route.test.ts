@@ -10,12 +10,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const { createSolicitud, listSolicitudes, updateSolicitudStatus, requireAdmin } = vi.hoisted(() => ({
-  createSolicitud: vi.fn(),
-  listSolicitudes: vi.fn(),
-  updateSolicitudStatus: vi.fn(),
-  requireAdmin: vi.fn(),
-}));
+const { createSolicitud, listSolicitudes, updateSolicitudStatus, requireAdmin, sendEmail } =
+  vi.hoisted(() => ({
+    createSolicitud: vi.fn(),
+    listSolicitudes: vi.fn(),
+    updateSolicitudStatus: vi.fn(),
+    requireAdmin: vi.fn(),
+    sendEmail: vi.fn(),
+  }));
 
 vi.mock('@/lib/data/solicitudesStore', () => ({
   createSolicitud,
@@ -23,10 +25,27 @@ vi.mock('@/lib/data/solicitudesStore', () => ({
   updateSolicitudStatus,
 }));
 vi.mock('@/lib/supabase/auth-guard', () => ({ requireAdmin }));
+vi.mock('@/lib/email/sendEmail', () => ({
+  sendEmail: (...args: unknown[]) => sendEmail(...args),
+  isEmailConfigured: () => true,
+}));
 
 // El rate limit vive en estado de módulo: cada test arranca con el contador en
 // cero (`vi.resetModules()` + import dinámico).
 let route: typeof import('./route');
+
+const registro = {
+  kind: 'corredora',
+  name: 'Camila Rojas',
+  email: 'camila@example.cl',
+  phone: '+56 2 2345 6789',
+  consent: true,
+  company: 'Catedral Propiedades',
+  rut: '76.123.456-0',
+  role: 'Gerente comercial',
+  coverage: 'regional',
+  regions: ['Valparaíso', 'Región Metropolitana de Santiago'],
+};
 
 const valida = {
   kind: 'propuestas',
@@ -68,6 +87,9 @@ beforeEach(async () => {
   updateSolicitudStatus.mockReset();
   requireAdmin.mockReset();
   createSolicitud.mockResolvedValue({ ok: true, id: 's1', persisted: true });
+  sendEmail.mockReset();
+  sendEmail.mockResolvedValue({ sent: true, skipped: false });
+  vi.stubEnv('SOLICITUDES_EMAIL_TO', 'equipo@example.cl');
   listSolicitudes.mockResolvedValue({ solicitudes: [], source: 'supabase', persistent: true });
   updateSolicitudStatus.mockResolvedValue({
     ok: true,
@@ -109,6 +131,45 @@ describe('POST /api/solicitudes', () => {
   it('no requiere sesión: quien publica todavía no tiene cuenta', async () => {
     await route.POST(post(valida));
     expect(requireAdmin).not.toHaveBeenCalled();
+  });
+
+  it('avisa por correo al equipo cuando entra un registro de empresa', async () => {
+    const response = await route.POST(post(registro));
+
+    expect(response.status).toBe(201);
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+
+    const [mail] = sendEmail.mock.calls[0];
+    expect(mail.to).toBe('equipo@example.cl');
+    expect(mail.subject).toContain('Corredora');
+    expect(mail.text).toContain('RUT: 76.123.456-0');
+    expect(mail.text).toContain('Valparaíso');
+  });
+
+  it('una solicitud de propietario no manda aviso al equipo', async () => {
+    await route.POST(post(valida));
+
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('sin destinatario configurado guarda igual y no inventa el envío', async () => {
+    vi.stubEnv('SOLICITUDES_EMAIL_TO', '');
+
+    const response = await route.POST(post(registro));
+
+    expect(response.status).toBe(201);
+    expect(createSolicitud).toHaveBeenCalled();
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('si el aviso falla, la solicitud igual queda guardada', async () => {
+    sendEmail.mockRejectedValue(new Error('Resend caído'));
+
+    const response = await route.POST(post(registro));
+
+    expect(response.status).toBe(201);
+    await expect(response.json()).resolves.toMatchObject({ success: true, id: 's1' });
+    expect(createSolicitud).toHaveBeenCalledTimes(1);
   });
 
   it('rechaza un tipo desconocido sin llegar al store', async () => {

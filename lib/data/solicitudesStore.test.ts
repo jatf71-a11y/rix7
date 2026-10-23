@@ -22,7 +22,12 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: async () => ({ from: sessionFrom }),
 }));
 
-import { createSolicitud, listSolicitudes, updateSolicitudStatus } from './solicitudesStore';
+import {
+  countSolicitudesNuevas,
+  createSolicitud,
+  listSolicitudes,
+  updateSolicitudStatus,
+} from './solicitudesStore';
 
 const SOLICITUD = {
   kind: 'propuestas' as const,
@@ -52,6 +57,40 @@ beforeEach(() => {
   chain.select.mockReset().mockReturnValue(chain);
   chain.maybeSingle.mockReset();
   sessionFrom.mockReset().mockReturnValue(chain);
+});
+
+describe('countSolicitudesNuevas', () => {
+  it('pide el total con una consulta head y solo de las nuevas', async () => {
+    const select = vi.fn();
+    const eq = vi.fn();
+    const countChain = { select, eq };
+    sessionFrom.mockReturnValue(countChain);
+    select.mockReturnValue(countChain);
+    eq.mockResolvedValue({ count: 4, error: null });
+
+    const result = await countSolicitudesNuevas();
+
+    expect(result).toEqual({ count: 4, source: 'supabase', persistent: true });
+    expect(sessionFrom).toHaveBeenCalledWith('solicitudes');
+    expect(select).toHaveBeenCalledWith('id', { count: 'exact', head: true });
+    expect(eq).toHaveBeenCalledWith('status', 'nueva');
+  });
+
+  it('si la base falla no inventa el número: cuenta la copia en memoria', async () => {
+    isSupabaseConfigured.mockReturnValue(false);
+
+    const before = await countSolicitudesNuevas();
+    const created = await createSolicitud(SOLICITUD);
+    const afterCreate = await countSolicitudesNuevas();
+
+    expect(before.persistent).toBe(false);
+    expect(afterCreate.count).toBe(before.count + 1);
+
+    // Revisar una solicitud la saca del contador: solo se cuentan las «nuevas».
+    await updateSolicitudStatus(String(created.id), 'contactada');
+    const afterReview = await countSolicitudesNuevas();
+    expect(afterReview.count).toBe(before.count);
+  });
 });
 
 describe('createSolicitud', () => {

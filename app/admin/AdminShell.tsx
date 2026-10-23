@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -69,6 +69,40 @@ export default function AdminShell({
   release: DeployedRelease;
 }) {
   const pathname = usePathname();
+  /**
+   * Solicitudes en estado `nueva`, el número del badge de la navegación.
+   *
+   * `null` es «todavía no se sabe» (mientras carga o si la consulta falla): no
+   * se pinta un 0 que mienta. Se vuelve a pedir en cada navegación del panel y
+   * cuando la bandeja avisa que cambió un estado.
+   */
+  const [nuevas, setNuevas] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const response = await fetch('/api/admin/solicitudes/count', { cache: 'no-store' });
+        if (!response.ok) return;
+        const body = await response.json().catch(() => null);
+        if (!cancelled && typeof body?.count === 'number') setNuevas(body.count);
+      } catch {
+        // El badge es un extra: sin número, el panel sigue siendo el mismo.
+      }
+    }
+
+    load();
+    const refresh = () => {
+      void load();
+    };
+    window.addEventListener('rix7:solicitudes-actualizadas', refresh);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('rix7:solicitudes-actualizadas', refresh);
+    };
+  }, [pathname]);
 
   const build = release.build;
   const commit = build?.commit ? build.commit.slice(0, 7) : null;
@@ -114,7 +148,20 @@ export default function AdminShell({
               >
                 <item.icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
                 <span>{item.label}</span>
-                {isActive && <ChevronRight className="w-3 h-3 ml-auto text-blue-400" />}
+                <span className="ml-auto flex items-center gap-1.5">
+                  {item.href === '/admin/solicitudes' && nuevas !== null && nuevas > 0 && (
+                    <span
+                      title={`${nuevas} solicitud${nuevas === 1 ? '' : 'es'} nueva${
+                        nuevas === 1 ? '' : 's'
+                      } sin revisar`}
+                      aria-label={`${nuevas} solicitudes nuevas sin revisar`}
+                      className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold leading-4 text-white"
+                    >
+                      {nuevas > 99 ? '99+' : nuevas}
+                    </span>
+                  )}
+                  {isActive && <ChevronRight className="w-3 h-3 text-blue-400" />}
+                </span>
               </Link>
             );
           })}

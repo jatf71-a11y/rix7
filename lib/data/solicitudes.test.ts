@@ -32,10 +32,10 @@ const CORREDORA = {
   phone: '+56 2 2345 6789',
   consent: true,
   company: 'Catedral Propiedades',
-  rut: '76.123.456-7',
+  rut: '76.123.456-0',
   role: 'Gerente comercial',
-  region: 'Región Metropolitana de Santiago',
-  commune: 'Santiago',
+  coverage: 'regional',
+  regions: ['Región Metropolitana de Santiago'],
   website: 'https://catedral.cl',
 };
 
@@ -46,8 +46,7 @@ const AGENTE = {
   phone: '+56 9 8765 4321',
   consent: true,
   rut: '12.345.678-5',
-  region: 'Región Metropolitana de Santiago',
-  commune: 'Ñuñoa',
+  coverage: 'nacional',
 };
 
 describe('normalizeSolicitud', () => {
@@ -84,10 +83,81 @@ describe('normalizeSolicitud', () => {
 
     expect(corredora.solicitud.company).toBe('Catedral Propiedades');
     expect(corredora.solicitud.payload).toMatchObject({
-      rut: '76.123.456-7',
+      rut: '76.123.456-0',
       website: 'https://catedral.cl',
+      coverage: 'regional',
+      regions: ['Región Metropolitana de Santiago'],
     });
     expect(inmobiliaria.solicitud.kind).toBe('inmobiliaria');
+  });
+
+  it('exige el RUT en corredora, inmobiliaria y agente', () => {
+    const sinRut = normalizeSolicitud({ ...CORREDORA, rut: '' });
+    const soloEspacios = normalizeSolicitud({ ...CORREDORA, rut: '   ' });
+    const agente = normalizeSolicitud({ ...AGENTE, rut: undefined });
+
+    expect(sinRut.ok).toBe(false);
+    expect(soloEspacios.ok).toBe(false);
+    expect(agente.ok).toBe(false);
+    if (!sinRut.ok) expect(sinRut.error).toContain('RUT');
+    if (!agente.ok) expect(agente.error).toContain('RUT');
+  });
+
+  it('rechaza un RUT con dígito verificador inválido', () => {
+    const result = normalizeSolicitud({ ...CORREDORA, rut: '76.123.456-7' });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toContain('RUT');
+  });
+
+  it('guarda el RUT en forma canónica, sin importar cómo lo escribieron', () => {
+    const result = normalizeSolicitud({ ...CORREDORA, rut: '761234560' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.solicitud.payload.rut).toBe('76.123.456-0');
+  });
+
+  it('exige el alcance geográfico en los tres registros', () => {
+    const sinAlcance = normalizeSolicitud({ ...CORREDORA, coverage: '' });
+    const inventado = normalizeSolicitud({ ...AGENTE, coverage: 'global' });
+
+    expect(sinAlcance.ok).toBe(false);
+    expect(inventado.ok).toBe(false);
+    if (!sinAlcance.ok) expect(sinAlcance.error).toContain('alcance');
+  });
+
+  it('un alcance regional exige al menos una región válida', () => {
+    const sinRegiones = normalizeSolicitud({ ...CORREDORA, regions: [] });
+    const noEsLista = normalizeSolicitud({ ...CORREDORA, regions: 'Valparaíso' });
+    const desconocida = normalizeSolicitud({ ...CORREDORA, regions: ['Marte'] });
+
+    expect(sinRegiones.ok).toBe(false);
+    expect(noEsLista.ok).toBe(false);
+    expect(desconocida.ok).toBe(false);
+    if (!sinRegiones.ok) expect(sinRegiones.error).toContain('región');
+    if (!desconocida.ok) expect(desconocida.error).toContain('regiones');
+  });
+
+  it('ordena y deduplica las regiones, e ignora la lista si el alcance es nacional', () => {
+    const regional = normalizeSolicitud({
+      ...CORREDORA,
+      regions: ['Valparaíso', 'Región Metropolitana de Santiago', 'Valparaíso'],
+    });
+    const nacional = normalizeSolicitud({
+      ...AGENTE,
+      coverage: 'nacional',
+      regions: ['Valparaíso'],
+    });
+
+    expect(regional.ok).toBe(true);
+    expect(nacional.ok).toBe(true);
+    if (regional.ok) {
+      expect(regional.solicitud.payload.regions).toEqual([
+        'Región Metropolitana de Santiago',
+        'Valparaíso',
+      ]);
+    }
+    if (nacional.ok) expect(nacional.solicitud.payload.regions).toEqual([]);
   });
 
   it('exige el consentimiento de privacidad', () => {
@@ -275,10 +345,10 @@ describe('rowToSolicitud y detalles', () => {
       company: 'Inmobiliaria Los Andes',
       message: null,
       payload: {
-        rut: '76.123.456-7',
+        rut: '76.123.456-0',
         role: 'Gerente',
-        region: null,
-        commune: null,
+        coverage: 'regional',
+        regions: ['Región Metropolitana de Santiago', 'Valparaíso'],
         website: 'https://losandes.cl',
       },
       status: 'nueva',
@@ -287,10 +357,39 @@ describe('rowToSolicitud y detalles', () => {
 
     expect(solicitudDetails(solicitud)).toEqual([
       { label: 'Empresa', value: 'Inmobiliaria Los Andes' },
-      { label: 'RUT', value: '76.123.456-7' },
+      { label: 'RUT', value: '76.123.456-0' },
       { label: 'Cargo', value: 'Gerente' },
-      { label: 'Ubicación', value: '—' },
+      { label: 'Alcance', value: 'Regional' },
+      { label: 'Regiones', value: 'Región Metropolitana de Santiago, Valparaíso' },
       { label: 'Sitio web', value: 'https://losandes.cl' },
+    ]);
+  });
+
+  it('una solicitud anterior al alcance conserva su ubicación en el detalle', () => {
+    const solicitud: Solicitud = {
+      id: 's4',
+      kind: 'corredora',
+      name: 'Camila Rojas',
+      email: 'camila@example.cl',
+      phone: '+56 2 2345 6789',
+      company: 'Corredora Antigua',
+      message: null,
+      payload: {
+        rut: '76.123.456-0',
+        role: null,
+        region: 'Valparaíso',
+        commune: 'Viña del Mar',
+        website: null,
+      },
+      status: 'nueva',
+      createdAt: '2026-10-19T12:00:00.000Z',
+    };
+
+    expect(solicitudDetails(solicitud)).toEqual([
+      { label: 'Empresa', value: 'Corredora Antigua' },
+      { label: 'RUT', value: '76.123.456-0' },
+      { label: 'Cargo', value: '—' },
+      { label: 'Ubicación', value: 'Viña del Mar, Valparaíso' },
     ]);
   });
 
@@ -306,8 +405,8 @@ describe('rowToSolicitud y detalles', () => {
       payload: {
         rut: '12.345.678-5',
         role: null,
-        region: 'Región Metropolitana de Santiago',
-        commune: 'Ñuñoa',
+        coverage: 'nacional',
+        regions: [],
         website: null,
       },
       status: 'nueva',
@@ -316,7 +415,7 @@ describe('rowToSolicitud y detalles', () => {
 
     expect(solicitudDetails(solicitud)).toEqual([
       { label: 'RUT', value: '12.345.678-5' },
-      { label: 'Ubicación', value: 'Ñuñoa, Región Metropolitana de Santiago' },
+      { label: 'Alcance', value: 'Nacional' },
     ]);
   });
 });

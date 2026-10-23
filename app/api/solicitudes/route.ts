@@ -13,6 +13,9 @@ import {
 } from '@/lib/data/solicitudes';
 import { requireAdmin } from '@/lib/supabase/auth-guard';
 import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
+import { buildSolicitudEmail, notifyOnSolicitud, type NotifiableSolicitud } from '@/lib/email/solicitudEmail';
+import { sendEmail } from '@/lib/email/sendEmail';
+import { SITE_URL } from '@/lib/site';
 
 /**
  * `/api/solicitudes` — el otro extremo del botón «Publicar».
@@ -34,6 +37,12 @@ import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
  *
  * La respuesta no finge persistencia: `persisted:false` significa que se guardó
  * solo en memoria (desarrollo sin Supabase) y el panel lo muestra.
+ *
+ * Además, un registro de corredora, inmobiliaria o agente dispara un aviso por
+ * correo a la bandeja del equipo (`SOLICITUDES_EMAIL_TO`) con los datos que se
+ * acaban de guardar. Es **después** del alta y nunca la condiciona: si falta el
+ * correo o Resend falla, la solicitud sigue guardada y el panel la muestra; el
+ * fallo queda en el log. Una solicitud de propietario no manda aviso.
  */
 
 const RATE_LIMIT_MAX = 12;
@@ -148,8 +157,44 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (notifyOnSolicitud(validation.solicitud)) {
+    await notifyTeam(validation.solicitud, stored.id ?? null);
+  }
+
   return NextResponse.json(
     { success: true, id: stored.id ?? null, persisted: stored.persisted },
     { status: 201 }
   );
+}
+
+/**
+ * Avisa al equipo de una solicitud ya guardada.
+ *
+ * No lanza: la solicitud es lo importante y ya está en la base, así que un
+ * problema con el correo se anota y se sigue. Sin destinatario configurado se
+ * dice en el log en vez de inventar un envío, igual que el resto del correo del
+ * sitio.
+ */
+async function notifyTeam(solicitud: NotifiableSolicitud, id: string | null): Promise<void> {
+  const to = process.env.SOLICITUDES_EMAIL_TO?.trim();
+  if (!to) {
+    console.info('[solicitudes] aviso sin enviar: falta SOLICITUDES_EMAIL_TO.');
+    return;
+  }
+
+  try {
+    const email = buildSolicitudEmail({ solicitud, id, siteUrl: SITE_URL });
+    const result = await sendEmail({ to, ...email });
+
+    if (result.sent) {
+      console.info('[solicitudes] aviso enviado:', solicitud.kind, id ?? 'sin folio');
+    } else {
+      console.warn(
+        '[solicitudes] aviso no enviado:',
+        result.skipped ? 'falta RESEND_API_KEY' : result.error
+      );
+    }
+  } catch (error) {
+    console.error('[solicitudes] error al avisar por correo:', error);
+  }
 }

@@ -160,6 +160,10 @@ export default function AdminSolicitudesPage() {
       setSolicitudes((prev) =>
         prev.map((solicitud) => (solicitud.id === id ? (body.solicitud as Solicitud) : solicitud))
       );
+
+      // El badge de la navegación cuenta las «nuevas»: este es el aviso para
+      // que se actualice sin recargar el panel.
+      window.dispatchEvent(new Event('rix7:solicitudes-actualizadas'));
     } catch {
       setActionError({ id, message: 'Sin conexión con el servidor.' });
     } finally {

@@ -21,7 +21,9 @@
  * hecho; el cliente se puede saltar.
  */
 
+import { CHILE_REGIONS } from '@/lib/data/chileLocations';
 import { isValidRol, ROL_MAX_LENGTH } from '@/lib/utils/rol';
+import { normalizeRut } from '@/lib/utils/rut';
 
 export type SolicitudKind = 'propuestas' | 'corredora' | 'inmobiliaria' | 'agente';
 
@@ -40,6 +42,25 @@ export const SOLICITUD_KINDS: readonly SolicitudKind[] = [
   'inmobiliaria',
   'agente',
 ];
+
+/**
+ * Alcance geográfico del registro: en todo Chile o en regiones concretas.
+ *
+ * Reemplaza a la pareja región/comuna del registro de empresas y agentes. Lo
+ * que el equipo necesita para asignar trabajo no es la comuna de una oficina,
+ * sino dónde opera la corredora: si es nacional, o en qué regiones trabaja.
+ */
+export type SolicitudCoverage = 'nacional' | 'regional';
+
+export const SOLICITUD_COVERAGES: readonly SolicitudCoverage[] = ['nacional', 'regional'];
+
+export const SOLICITUD_COVERAGE_LABELS: Record<SolicitudCoverage, string> = {
+  nacional: 'Nacional',
+  regional: 'Regional',
+};
+
+/** Nombres válidos de región, los mismos del selector del formulario. */
+const SOLICITUD_REGION_NAMES = new Set(CHILE_REGIONS.map((region) => region.name));
 
 export type SolicitudStatus = 'nueva' | 'en_revision' | 'contactada' | 'cerrada';
 
@@ -124,14 +145,18 @@ export interface SolicitudInput {
   address?: unknown;
   /** ROL de propiedad (SII): identifica el inmueble de la solicitud. */
   rol?: unknown;
-  // Registro de empresa
+  // Registro de empresa o agente
   rut?: unknown;
   role?: unknown;
   website?: unknown;
+  /** `nacional` o `regional`; obligatorio en corredora, inmobiliaria y agente. */
+  coverage?: unknown;
+  /** Nombres de región cuando el alcance es regional. */
+  regions?: unknown;
 }
 
 /** Valores JSON-safe que se guardan en `payload`. */
-export type SolicitudPayload = Record<string, string | number | null>;
+export type SolicitudPayload = Record<string, string | number | string[] | null>;
 
 export interface NormalizedSolicitud {
   kind: SolicitudKind;
@@ -203,6 +228,11 @@ export function isSolicitudKind(value: unknown): value is SolicitudKind {
 /** ¿Es uno de los cuatro estados del ciclo de revisión? */
 export function isSolicitudStatus(value: unknown): value is SolicitudStatus {
   return typeof value === 'string' && (SOLICITUD_STATUSES as readonly string[]).includes(value);
+}
+
+/** ¿Es un alcance geográfico válido? */
+export function isSolicitudCoverage(value: unknown): value is SolicitudCoverage {
+  return typeof value === 'string' && (SOLICITUD_COVERAGES as readonly string[]).includes(value);
 }
 
 /**
@@ -407,17 +437,53 @@ export function normalizeSolicitud(input: SolicitudInput): SolicitudValidation {
       : requiredText(input.company, SOLICITUD_LIMITS.company, 'El nombre de la empresa', 2);
   if (!company.ok) return company;
 
-  const rut = optionalText(input.rut, SOLICITUD_LIMITS.rut, 'El RUT');
+  // El RUT dejó de ser opcional: identifica a la empresa —o a la persona, en
+  // el caso del agente— y es lo que permite acreditar el registro. Se valida
+  // con módulo 11 y se guarda en forma canónica, no como lo escribió cada uno.
+  const rut = requiredText(input.rut, SOLICITUD_LIMITS.rut, 'El RUT', 8);
   if (!rut.ok) return rut;
+
+  const normalizedRut = normalizeRut(rut.value);
+  if (!normalizedRut) {
+    return {
+      ok: false,
+      error: 'RUT inválido: revisa el dígito verificador (ej: 76.123.456-0).',
+    };
+  }
 
   const role = optionalText(input.role, SOLICITUD_LIMITS.role, 'El cargo');
   if (!role.ok) return role;
 
-  const region = optionalText(input.region, SOLICITUD_LIMITS.region, 'La región');
-  if (!region.ok) return region;
+  // Alcance en vez de una comuna: lo que importa para asignar solicitudes es
+  // si trabaja en todo Chile o solo en algunas regiones.
+  if (!isSolicitudCoverage(input.coverage)) {
+    return { ok: false, error: 'Indica si tu alcance es nacional o regional.' };
+  }
+  const coverage = input.coverage;
 
-  const commune = optionalText(input.commune, SOLICITUD_LIMITS.commune, 'La comuna');
-  if (!commune.ok) return commune;
+  let regions: string[] = [];
+  if (coverage === 'regional') {
+    if (!Array.isArray(input.regions)) {
+      return { ok: false, error: 'Selecciona al menos una región donde trabajas.' };
+    }
+
+    const selected = new Set<string>();
+    for (const value of input.regions) {
+      const name = text(value);
+      if (!SOLICITUD_REGION_NAMES.has(name)) {
+        return { ok: false, error: 'Una de las regiones seleccionadas no es válida.' };
+      }
+      selected.add(name);
+    }
+
+    if (selected.size === 0) {
+      return { ok: false, error: 'Selecciona al menos una región donde trabajas.' };
+    }
+
+    // Orden alfabético y sin repetidos: el panel y el correo muestran siempre
+    // la misma lista, sin importar el orden en que se marcaron las casillas.
+    regions = Array.from(selected).sort((a, b) => a.localeCompare(b, 'es-CL'));
+  }
 
   const website = optionalText(input.website, SOLICITUD_LIMITS.website, 'El sitio web');
   if (!website.ok) return website;
@@ -435,10 +501,10 @@ export function normalizeSolicitud(input: SolicitudInput): SolicitudValidation {
       company: company.value,
       message: message.value,
       payload: {
-        rut: rut.value,
+        rut: normalizedRut,
         role: role.value,
-        region: region.value,
-        commune: commune.value,
+        coverage,
+        regions,
         website: website.value,
       },
       consent: true,
@@ -520,16 +586,29 @@ export function solicitudDetails(solicitud: Solicitud): SolicitudDetail[] {
     ];
   }
 
+  // Los registros anteriores al alcance geográfico guardaron región y comuna;
+  // se siguen mostrando para que una solicitud vieja no aparezca sin ubicación.
+  const legacyLocation = [payload.commune, payload.region].filter(Boolean).join(', ');
+  const coverageDetails: SolicitudDetail[] = isSolicitudCoverage(payload.coverage)
+    ? [{ label: 'Alcance', value: SOLICITUD_COVERAGE_LABELS[payload.coverage] }]
+    : legacyLocation
+      ? [{ label: 'Ubicación', value: legacyLocation }]
+      : [{ label: 'Alcance', value: '—' }];
+
+  if (payload.coverage === 'regional' && Array.isArray(payload.regions)) {
+    const regions = payload.regions.filter(
+      (region): region is string => typeof region === 'string'
+    );
+    if (regions.length > 0) coverageDetails.push({ label: 'Regiones', value: regions.join(', ') });
+  }
+
   // Un agente es una persona, no una empresa: sin «Empresa» ni «Cargo», que en
   // su caso serían campos vacíos permanentes. El RUT es lo que lo identifica y
   // con lo que emite la boleta de honorarios.
   if (solicitud.kind === 'agente') {
     return [
       { label: 'RUT', value: payload.rut ? String(payload.rut) : '—' },
-      {
-        label: 'Ubicación',
-        value: [payload.commune, payload.region].filter(Boolean).join(', ') || '—',
-      },
+      ...coverageDetails,
       ...(payload.website ? [{ label: 'Sitio web', value: String(payload.website) }] : []),
     ];
   }
@@ -538,10 +617,7 @@ export function solicitudDetails(solicitud: Solicitud): SolicitudDetail[] {
     { label: 'Empresa', value: solicitud.company ?? '—' },
     { label: 'RUT', value: payload.rut ? String(payload.rut) : '—' },
     { label: 'Cargo', value: payload.role ? String(payload.role) : '—' },
-    {
-      label: 'Ubicación',
-      value: [payload.commune, payload.region].filter(Boolean).join(', ') || '—',
-    },
+    ...coverageDetails,
     ...(payload.website ? [{ label: 'Sitio web', value: String(payload.website) }] : []),
   ];
 }
