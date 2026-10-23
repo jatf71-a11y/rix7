@@ -24,7 +24,7 @@ Configúralas en **Vercel → Project → Settings → Environment Variables** (
 | `NEXT_PUBLIC_DEFAULT_MAP_LAT` | — | `-33.4190` | Centro inicial del mapa (Santiago) |
 | `NEXT_PUBLIC_DEFAULT_MAP_LNG` | — | `-70.5870` | Centro inicial del mapa (Santiago) |
 | `NEXT_PUBLIC_DEFAULT_MAP_ZOOM` | — | `12` | Zoom inicial del mapa |
-| `ADMIN_HOST` | — | `admin.rix7.cl` | Host del panel. En producción `/admin` del dominio público redirige ahí; no lleva `NEXT_PUBLIC_` |
+| `ADMIN_HOST` | — | *(sin definir)* | Solo para separar el panel en un subdominio propio. Sin definir, el panel se sirve en `rix7.cl/admin` (estado actual). No lleva `NEXT_PUBLIC_` |
 
 > **Sin Supabase configurado la app sigue funcionando**: las APIs caen al catálogo nacional en memoria (modo demo). En Vercel deja las variables apuntando a tu proyecto real para datos en vivo.
 
@@ -113,38 +113,33 @@ El camino real es el comando de abajo (el porqué completo está en la cabecera 
 [`scripts/deploy-prod.mjs`](scripts/deploy-prod.mjs): publica el árbol de trabajo
 **sin metadata de git**, así el deployment queda atribuido a la cuenta dueña).
 
-### Un dominio público y el admin separado
+### Un solo dominio: `rix7.cl`
 
-El portal se publica en `https://rix7.cl`. El panel **no** vive en ese dominio:
-se sirve en `https://admin.rix7.cl`, y `/admin` en el dominio público responde
-un `307` hacia ese host. La navbar tampoco tiene enlace al panel; y en el host
-del admin la puerta se comprueba en el servidor con `requireAdmin`.
+**Producción es `https://rix7.cl` y nada más.** Es la URL que se verifica en cada
+release, la que usa el smoke y la única que hay que mirar para saber si algo
+funciona. `www.rix7.cl` redirige al dominio principal (`vercel.json`), y las URLs
+`*.vercel.app` —incluido `rix7.vercel.app`— son alias del mismo deployment, no un
+entorno aparte: sirven para revisar o volver atrás, **no** para aprobar un
+deploy.
+
+El panel **vive en el mismo dominio**: `rix7.cl/admin`. La navbar no lo enlaza,
+tiene `robots.noindex` y la puerta se comprueba en el servidor con `requireAdmin`;
+sin sesión de admin se sirve solo la pantalla de acceso.
 
 | Puerta | URL | Acceso |
 | --- | --- | --- |
 | Portal | `https://rix7.cl` | público |
-| Admin | `https://admin.rix7.cl/admin` | sesión con rol admin |
+| Admin | `https://rix7.cl/admin` | sesión con rol admin |
 | Socios | `https://rix7.cl/socio` | sesión con rol member y corredora vinculada |
 
-El host se puede cambiar con `ADMIN_HOST` (por defecto `admin.rix7.cl`). Para
-que funcione en producción:
-
-1. Agregar `admin.rix7.cl` como dominio del proyecto en Vercel y crear el DNS
-   que indique Vercel (CNAME).
-2. Agregar `https://admin.rix7.cl/**` en Supabase → Authentication → URL
-   Configuration → Redirect URLs. El login se hace en el host del panel y las
-   cookies de sesión son host-only: sin esa URL, el enlace mágico o Google
-   vuelve al host equivocado.
-3. Publicar. La redirección solo se activa con `VERCEL_ENV=production`; en local
-   y en preview `/admin` sigue disponible para probar.
-
-`ADMIN_HOST` no lleva `NEXT_PUBLIC_`: es una decisión del servidor. Si se cambia
-el dominio, se cambia esa variable y se agrega el nuevo host a Supabase.
-
-`www.rix7.cl` redirige al dominio principal y `rix7.vercel.app` es un alias del
-mismo deployment, no un entorno aparte. Las URLs `*.vercel.app` con hash
-(`rix7-<hash>.vercel.app`) son snapshots inmutables de un deploy concreto: sirven
-para revisar o volver atrás, pero no son «la versión publicada».
+Separar el panel en un subdominio propio (`admin.rix7.cl`) es **opcional y hoy
+no está hecho**: exige tres cosas a la vez —dominio del proyecto en Vercel con su
+DNS, `https://admin.rix7.cl/**` en Supabase → Authentication → Redirect URLs, y
+`ADMIN_HOST=admin.rix7.cl` en Vercel—. Si falta cualquiera de las tres, la
+redirección deja el panel inalcanzable, que es lo que pasó antes. Por eso el
+valor por defecto de `ADMIN_HOST` es «sin host propio»: sin él no hay `307`
+hacia ningún lado. `ADMIN_HOST` no lleva `NEXT_PUBLIC_`: es una decisión del
+servidor.
 
 Para **revisar antes de publicar** se usa el preview local (`npm run dev`) o la
 URL de un deployment de preview; ninguno de los dos reemplaza a producción.
@@ -155,9 +150,14 @@ no el `version` de `package.json`.
 ### El comando
 
 ```bash
-npm run release:prod   # build + migraciones + esquema + deploy + verificación (sección 6)
+npm run deploy         # el comando: build + migraciones + esquema + deploy a rix7.cl + verificación
+npm run release:prod   # idéntico (`deploy` es el nombre corto del mismo script)
 npm run deploy:prod    # solo publica, sin build ni verificación
 ```
+
+`npm run deploy` publica y **verifica en `https://rix7.cl`**: si el dominio
+público no quedó sirviendo el árbol publicado, sale en rojo aunque el deployment
+nuevo responda bien en su URL `*.vercel.app`.
 
 Para **cambiar de proyecto Supabase** (URL y claves nuevas) hay un comando aparte:
 `npm run corte:supabase` comprueba las tres variables contra la base —forma,

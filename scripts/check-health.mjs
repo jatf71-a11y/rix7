@@ -68,8 +68,14 @@ import {
   readReleaseIdentity,
 } from './release-identity.mjs';
 
-/** Producción por defecto; se cambia con `--url` o `HEALTH_URL`. */
-export const DEFAULT_HEALTH_URL = 'https://rix7.vercel.app';
+/**
+ * Producción por defecto; se cambia con `--url` o `HEALTH_URL`.
+ *
+ * Es el dominio público y no el alias `rix7.vercel.app`: apuntar la comprobación
+ * al alias deja pasar un deployment que responde bien ahí mientras `rix7.cl`
+ * sirve otra cosa, que es justo lo que no se quiere dejar pasar.
+ */
+export const DEFAULT_HEALTH_URL = 'https://rix7.cl';
 
 /** Tiempo máximo de espera de la respuesta, en milisegundos. */
 export const FETCH_TIMEOUT_MS = 15000;

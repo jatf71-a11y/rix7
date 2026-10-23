@@ -13,9 +13,9 @@
  *    que no, o al revés. Por eso el plan devuelve `error` y el script sale 2
  *    **antes** de tocar nada.
  * 3. **La URL que se verifica de verdad.** Un release puede salir verde
- *    verificando el deployment anterior: por eso `--url` manda, después el alias
- *    que publicó el deploy, después la URL del deployment, y solo al final el
- *    dominio por defecto.
+ *    verificando el deployment anterior: `--url` manda, y en producción el
+ *    release verifica siempre `https://rix7.cl`, el dominio público, no la URL
+ *    del deployment (`*.vercel.app`).
  * 4. **El reintento de la verificación**, porque un alias recién promovido puede
  *    tardar unos segundos en propagarse y un rojo por eso no es información.
  */
@@ -31,6 +31,7 @@ import {
   formatDuration,
   formatPlan,
   formatReleaseSummary,
+  isTransientDeployFailure,
   missingTargets,
   normalizeBaseUrl,
   parseDeployUrls,
@@ -798,5 +799,25 @@ describe('informe', () => {
   it('sin deploy en el plan, no promete una comparación que no va a hacer', () => {
     const text = formatPlan(planRelease({ argv: ['--no-deploy'] }));
     expect(text).not.toContain('compara el identificador de la build');
+  });
+});
+
+describe('isTransientDeployFailure', () => {
+  it('reconoce el rechazo intermitente del CLI que ya pasó una vez', () => {
+    expect(isTransientDeployFailure('Error: Not authorized')).toBe(true);
+    expect(isTransientDeployFailure('HTTP 403: Forbidden')).toBe(false);
+  });
+
+  it('reconoce límites de tasa y cortes de red', () => {
+    expect(isTransientDeployFailure('429 Too Many Requests')).toBe(true);
+    expect(isTransientDeployFailure('socket hang up')).toBe(true);
+    expect(isTransientDeployFailure('etimedout')).toBe(true);
+  });
+
+  it('no reintenta un fallo que no se arregla solo', () => {
+    expect(isTransientDeployFailure('Build failed: Type error')).toBe(false);
+    expect(isTransientDeployFailure('Error: The file does not exist')).toBe(false);
+    expect(isTransientDeployFailure('')).toBe(false);
+    expect(isTransientDeployFailure(null)).toBe(false);
   });
 });

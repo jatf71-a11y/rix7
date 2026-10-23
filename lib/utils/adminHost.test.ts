@@ -45,14 +45,40 @@ describe('isLoopbackHost', () => {
 });
 
 describe('adminHostRedirect', () => {
-  it('en producción manda el admin del dominio público a su host', () => {
+  it('el host por defecto no separa el panel: se sirve en el mismo dominio', () => {
+    expect(DEFAULT_ADMIN_HOST).toBe('');
+  });
+
+  it('sin host propio configurado no redirige: el panel vive en rix7.cl/admin', () => {
     expect(
       adminHostRedirect({
         pathname: '/admin/registros',
         host: 'rix7.cl',
         production: true,
       })
-    ).toBe(DEFAULT_ADMIN_HOST);
+    ).toBeNull();
+  });
+
+  it('con ADMIN_HOST apuntando al mismo dominio tampoco redirige (no hay bucle)', () => {
+    expect(
+      adminHostRedirect({
+        pathname: '/admin',
+        host: 'rix7.cl',
+        adminHost: 'rix7.cl',
+        production: true,
+      })
+    ).toBeNull();
+  });
+
+  it('con ADMIN_HOST propio, en producción manda el admin a ese host', () => {
+    expect(
+      adminHostRedirect({
+        pathname: '/admin/registros',
+        host: 'rix7.cl',
+        adminHost: 'admin.rix7.cl',
+        production: true,
+      })
+    ).toBe('admin.rix7.cl');
   });
 
   it('en producción deja pasar el admin cuando ya está en su host', () => {

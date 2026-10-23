@@ -143,6 +143,29 @@ describe('judgeAdminPage', () => {
   it('rechaza un 200 que no es la pantalla de registros', () => {
     expect(judgeAdminPage(200, '<html><title>Rix7</title></html>').level).toBe('fail');
   });
+
+  it('acepta la pantalla de acceso: sin sesión el panel no muestra la tabla', () => {
+    const verdict = judgeAdminPage(
+      200,
+      '<!doctype html><html><head><title>Panel | Rix7</title></head><body><h1>Acceso al panel</h1></body></html>'
+    );
+
+    expect(verdict.level).toBe('ok');
+    expect(verdict.detail).toContain('pide sesión');
+  });
+
+  it('acepta el HTML que sirve el servidor: la tarjeta va con ssr:false y solo llega el esqueleto', () => {
+    // La forma real de la respuesta sin sesión (verificado contra rix7.cl): el
+    // título del layout más el marcador de carga de `AdminAccess`, sin la tabla
+    // ni la tarjeta, que se hidratan en el cliente.
+    const verdict = judgeAdminPage(
+      200,
+      '<!doctype html><html><head><title>Panel | Rix7</title></head><body><p>Verificando el acceso…</p></body></html>'
+    );
+
+    expect(verdict.level).toBe('ok');
+    expect(verdict.detail).toContain('pide sesión');
+  });
 });
 
 describe('judgeRegistroGuard', () => {

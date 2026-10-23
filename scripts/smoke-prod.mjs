@@ -34,7 +34,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /** Producción por defecto; se cambia con `--url` o `SMOKE_URL`. */
-const DEFAULT_BASE_URL = 'https://rix7.vercel.app';
+const DEFAULT_BASE_URL = 'https://rix7.cl';
 
 /** Identidad de la fila de prueba: se ve de lejos y se puede borrar. */
 export const SMOKE_NAME = 'Prueba de humo (no es una persona)';
@@ -42,7 +42,22 @@ export const SMOKE_PHONE = '+56 9 0000 0000';
 
 /** Marcas de identidad de cada página. */
 export const HOME_MARKER = 'Rix7';
+/** La tabla del panel: solo se ve con sesión de admin. */
 export const ADMIN_MARKER = 'Registros';
+/**
+ * La puerta del panel: lo que el servidor manda a una visita **sin** sesión.
+ *
+ * El layout de `/admin` comprueba el rol en el servidor y, si no lo hay, sirve
+ * `AdminAccess`. Esa tarjeta se importa con `ssr: false`, así que en el HTML del
+ * servidor aparecen su esqueleto de carga y, en el cliente, la tarjeta; ninguna
+ * de las dos es la tabla. Se aceptan las dos marcas porque cuál de ellas llega
+ * depende de si el `fetch` ejecutó el cliente, y en los dos casos es el mismo
+ * estado: la ruta existe y pide sesión.
+ *
+ * Exigir la tabla del panel hacía fallar la verificación de un deploy sano y
+ * mandaba a buscar el problema en el deploy. Ver `judgeAdminPage`.
+ */
+export const ADMIN_GATE_MARKERS = ['Verificando el acceso', 'Acceso al panel'];
 export const SOCIO_MARKER = 'Panel de socios';
 
 /** Señales de que lo que llegó es una pantalla de error, no la página. */
@@ -110,9 +125,19 @@ export function judgeHome(status, html) {
  * Una redirección cuenta como buena: la página existe y el panel pide la sesión.
  * Un 404 significa que el deploy no trajo la ruta, que es justo lo que hay que
  * detectar; un 200 sin la marca de la página, que llegó otra cosa.
+ *
+ * Sin sesión lo que se sirve es la **pantalla de acceso** (`ADMIN_GATE_MARKERS`),
+ * no la tabla: la ruta existe, el guard del servidor está puesto y no se filtró
+ * ninguna sección. Eso es un verde; la tabla solo aparece con sesión de admin.
  */
 export function judgeAdminPage(status, html) {
-  return judgeAdminPageLike(status, html, ADMIN_MARKER, 'la pantalla de registros');
+  return judgeAdminPageLike(
+    status,
+    html,
+    ADMIN_MARKER,
+    'la pantalla de registros',
+    ADMIN_GATE_MARKERS
+  );
 }
 
 /**
@@ -173,7 +198,7 @@ export function judgeSocioPanel(status, html) {
  * su marca. Se separa para que los dos paneles no se juzguen distinto —que es
  * como una comprobación nueva termina siendo más laxa que la vieja.
  */
-function judgeAdminPageLike(status, html, marker, what) {
+function judgeAdminPageLike(status, html, marker, what, gateMarkers = []) {
   if (status === 404) {
     return { level: 'fail', detail: 'HTTP 404: la ruta no está desplegada' };
   }
@@ -188,6 +213,12 @@ function judgeAdminPageLike(status, html, marker, what) {
     return { level: 'fail', detail: 'devolvió 200 pero el cuerpo es una pantalla de error' };
   }
   if (!html.includes(marker)) {
+    // La pantalla de acceso es el estado correcto sin sesión. Se distingue en
+    // el detalle para que el informe no diga «200 · la tabla» cuando lo que se
+    // vio fue la puerta.
+    if (gateMarkers.some((gate) => html.includes(gate))) {
+      return { level: 'ok', detail: '200 · existe y pide sesión (pantalla de acceso)' };
+    }
     return { level: 'fail', detail: `devolvió 200 pero no es ${what}` };
   }
   return { level: 'ok', detail: `200 · ${(html.length / 1024).toFixed(1)} kB` };

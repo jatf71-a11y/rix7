@@ -213,7 +213,7 @@ function NavbarContent() {
           </Link>
 
           {/* El admin no tiene enlace en el sitio público: se entra por
-              admin.rix7.cl. Tampoco se muestra a un usuario con rol admin,
+              rix7.cl/admin. Tampoco se muestra a un usuario con rol admin,
               porque el acceso no debe depender de recordar una ruta. */}
 
           {/* Badge tipo de cambio (Banco Central de Chile), al borde derecho */}
@@ -281,7 +281,7 @@ function NavbarContent() {
               <Building2 className="w-4 h-4" />
               <span>Socios</span>
             </Link>
-            {/* El admin no aparece en el menú móvil: vive en admin.rix7.cl. */}
+            {/* El admin no aparece en el menú móvil: vive en rix7.cl/admin. */}
           </nav>
 
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">

@@ -62,11 +62,15 @@
  *   build** (el hash de este árbol, ver `scripts/build-id.mjs`), que es lo que
  *   hace comprobable la última pregunta.
  * - **verificación**: `runSmoke` (portada, panel, alta), `runCheck` (críticos
- *   de `/api/health`) y la **comparación del identificador** contra la URL
- *   **recién publicada**: si lo que está en vivo no es el hash del árbol, ese
- *   release no publicó lo que cree. Se reintenta unas veces porque un deploy
- *   recién promovido puede tardar unos segundos en propagarse por el borde, y un
- *   rojo por eso no es información.
+ *   de `/api/health`) y la **comparación del identificador** contra
+ *   **`https://rix7.cl`**, que es la única URL pública de producción: si el
+ *   alias no quedó apuntando a lo recién publicado, la comparación del hash lo
+ *   detecta y el release falla en vez de aprobar una build que nadie ve. La URL
+ *   del deployment se imprime como referencia. Se reintenta unas veces porque un
+ *   deploy recién promovido puede tardar unos segundos en propagarse por el
+ *   borde, y un rojo por eso no es información. Un fallo del deploy por un
+ *   rechazo transitorio del CLI (`Not authorized`, 429, timeout) también se
+ *   reintenta una vez: ver `isTransientDeployFailure`.
  *
  * ## El identificador de la build
  *
@@ -163,6 +167,34 @@ export const RETRY_DELAY_MS = 10_000;
 
 /** Intentos de verificación por defecto (el primero más los reintentos). */
 export const DEFAULT_ATTEMPTS = 3;
+
+/**
+ * Intentos del paso de deploy. Dos: el original más un reintento.
+ *
+ * No es un «por si acaso»: Vercel contestó `Error: Not authorized` con la sesión
+ * perfectamente válida (el CLI respondía `whoami` y el proyecto estaba
+ * linkeado), y el mismo comando, sin tocar nada, pasó al segundo intento. Un
+ * deploy fallido no deja nada a medio publicar —Vercel conserva el anterior— y
+ * reintentarlo crea otro deployment, así que el reintento es seguro.
+ */
+export const DEPLOY_ATTEMPTS = 2;
+
+/**
+ * ¿El deploy falló por algo que se arregla reintentando?
+ *
+ * Se mira la salida porque es lo único que hay: el CLI no distingue un 403
+ * transitorio de uno real con un código propio. Deliberadamente angosto —un
+ * fallo de compilación o un `--prod` rechazado por configuración no entran acá—
+ * para que el reintento no tape un error de verdad.
+ *
+ * @param {string | null | undefined} output
+ * @returns {boolean}
+ */
+export function isTransientDeployFailure(output) {
+  return /not authorized|unauthorized|rate limit|too many requests|\b429\b|ECONNRESET|ETIMEDOUT|socket hang up|ENOTFOUND/i.test(
+    String(output ?? '')
+  );
+}
 
 /**
  * Los pasos del release, en orden. `flag` es el `--no-…` que lo saltea y
@@ -265,6 +297,7 @@ const URL_SOURCE_LABEL = {
   flag: '--url',
   alias: 'alias de producción del deploy',
   deployment: 'URL del deployment recién creado',
+  site: 'dominio público de producción (rix7.cl)',
   default: `dominio por defecto (${DEFAULT_SITE_URL})`,
 };
 
@@ -808,8 +841,8 @@ function usage() {
       '  npm run release:prod -- --url https://ejemplo.cl --no-build --no-db --no-deploy',
       '',
       'Opciones:',
-      '  --url <url>      a qué URL verificar (por defecto: el alias del deploy,',
-      '                   o rix7.cl si no se pudo leer de la salida de Vercel)',
+      '  --url <url>      a qué URL verificar. Sin esta bandera, producción se',
+      '                   verifica siempre en https://rix7.cl',
       '  --attempts <n>   intentos de verificación, entero ≥ 1 (por defecto 3)',
       '  --with-tests     agrega el primer paso: `tsc --noEmit` y `vitest run`',
       '                   (opt-in: el build typechequea, pero no corre la suite)',
@@ -962,7 +995,14 @@ async function main() {
       verifiedTree = readTreeBuildId();
       verifiedRelease = readReleaseIdentity();
 
-      const target = resolveVerifyUrl({ override: plan.url, ...urls });
+      // Producción se verifica en el **dominio público**, no en la URL del
+      // deployment. `rix7.cl` es la única URL que ve la gente: si el alias quedó
+      // apuntando a otro deployment, la comparación del identificador lo
+      // detecta y el release falla, en vez de aprobar una build que nadie está
+      // viendo. La URL del deployment se imprime como referencia, no aprueba.
+      const target = plan.url
+        ? resolveVerifyUrl({ override: plan.url })
+        : { url: normalizeBaseUrl(DEFAULT_SITE_URL), source: 'site', label: URL_SOURCE_LABEL.site };
       console.log(`\n${position} ${step.title} · ${target.url}`);
       console.log(`  · URL: ${target.label}`);
       if (urls.deployment && urls.deployment !== target.url) {
@@ -989,7 +1029,24 @@ async function main() {
     }
 
     console.log(`\n${position} ${step.title}${describeStepTarget(step)}`);
-    const result = await runStep(step);
+    let result = await runStep(step);
+
+    // Un rechazo transitorio de Vercel no dice nada del código: se reintenta una
+    // vez antes de dar el release por fallido (ver `DEPLOY_ATTEMPTS`).
+    if (
+      step.id === 'deploy' &&
+      result.code !== 0 &&
+      !result.error &&
+      DEPLOY_ATTEMPTS > 1 &&
+      isTransientDeployFailure(result.output)
+    ) {
+      console.log(
+        `  ↻ El deploy falló por un rechazo transitorio de Vercel;` +
+          ` reintento (2/${DEPLOY_ATTEMPTS}) en ${Math.round(RETRY_DELAY_MS / 1000)} s…`
+      );
+      await sleep(RETRY_DELAY_MS);
+      result = await runStep(step);
+    }
 
     if (result.error) {
       fail(step, { detail: `no se pudo lanzar el script: ${result.error.message}`, deployed });

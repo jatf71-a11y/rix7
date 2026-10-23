@@ -3,9 +3,11 @@ import { updateSession } from './lib/supabase/middleware';
 import { adminHostRedirect, adminRedirectUrl } from './lib/utils/adminHost';
 
 export async function middleware(request: NextRequest) {
-  // El panel no se sirve desde el dominio público: `/admin` en rix7.cl
-  // redirige a admin.rix7.cl. En local y en preview no se aplica, para poder
-  // probar el panel sin DNS ni dominio adicional.
+  // El panel se sirve en el mismo dominio (`rix7.cl/admin`) y se protege en el
+  // servidor por rol. La redirección a un host propio solo existe si alguien
+  // define `ADMIN_HOST` con otro host (ver `lib/utils/adminHost.ts`); así no
+  // queda un 307 colgado hacia un subdominio que no resuelve. En local y en
+  // preview no se aplica, para poder probar el panel sin DNS.
   const production = process.env.VERCEL_ENV
     ? process.env.VERCEL_ENV === 'production'
     : process.env.NODE_ENV === 'production';

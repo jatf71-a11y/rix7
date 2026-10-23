@@ -1,22 +1,30 @@
 /**
- * El admin vive fuera del sitio público.
+ * Dónde vive el panel de administración.
  *
- * El portal se publica en `rix7.cl`; el panel en `admin.rix7.cl`. La ruta
- * `/admin` del dominio público ya no muestra el panel: redirige al subdominio.
- * Así el enlace no existe en la web pública, el crawler no lo encuentra y quien
- * llegue por un enlace viejo termina en el host correcto, donde además se exige
- * sesión con rol admin.
+ * Hoy vive en el **mismo dominio** que el portal: `rix7.cl/admin`. La puerta la
+ * comprueba el servidor (`requireAdmin`), la ruta no está enlazada desde el
+ * sitio público ni aparece en buscadores (`noindex`) y sin sesión de admin solo
+ * se sirve la pantalla de acceso.
  *
- * `ADMIN_HOST` permite cambiar el host sin tocar código (por ejemplo, un dominio
- * distinto en una migración). Si no está, el valor por defecto es
- * `admin.rix7.cl`.
+ * Antes la intención era un subdominio propio (`admin.rix7.cl`) con `/admin`
+ * redirigiendo ahí. Mientras el subdominio no existía —no estaba en Vercel, no
+ * tenía DNS y no estaba en las Redirect URLs de Supabase— la redirección dejaba
+ * el panel **inalcanzable**. Separarlo exige tres cosas a la vez y ninguna es
+ * opcional; hasta que se hagan las tres, el panel se sirve donde ya funciona.
+ *
+ * `ADMIN_HOST` sigue existiendo para hacer esa separación sin tocar código: si
+ * se define con un host **distinto** del público, en producción `/admin`
+ * redirige ahí. Sin definir —o apuntando al mismo host— no hay redirección.
  *
  * Este módulo es puro: el middleware lo usa y los tests lo ejercitan sin
  * levantar Next.
  */
 
-/** Host del panel cuando `ADMIN_HOST` no está definido. */
-export const DEFAULT_ADMIN_HOST = 'admin.rix7.cl';
+/**
+ * Host propio del panel. Vacío (el valor por defecto) significa «el mismo
+ * dominio»: sin redirección, el panel se sirve en `rix7.cl/admin`.
+ */
+export const DEFAULT_ADMIN_HOST = '';
 
 /**
  * Normaliza un host de encabezado HTTP o de variable de entorno.
@@ -76,7 +84,8 @@ export interface AdminHostRedirectInput {
  *
  * - en producción (en local y preview se puede probar `/admin` sin DNS);
  * - para rutas del panel;
- * - cuando el host no es ya el del panel ni uno local.
+ * - cuando hay un `ADMIN_HOST` propio configurado;
+ * - cuando el host actual no es ya el del panel ni uno local.
  */
 export function adminHostRedirect({
   pathname,
@@ -87,7 +96,10 @@ export function adminHostRedirect({
   if (!production) return null;
   if (!isAdminPath(pathname)) return null;
 
+  // Sin host propio configurado no hay a dónde redirigir: el panel se sirve en
+  // el mismo dominio, que es el estado publicado (`rix7.cl/admin`).
   const target = normalizeHost(adminHost) || DEFAULT_ADMIN_HOST;
+  if (!target) return null;
   const current = normalizeHost(host);
 
   if (!current || current === target || isLoopbackHost(current)) return null;

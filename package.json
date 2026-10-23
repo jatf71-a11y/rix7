@@ -1,6 +1,6 @@
 {
   "name": "rix7-portal-inmobiliario",
-  "version": "10.1.0",
+  "version": "10.2.0",
   "private": true,
   "engines": {
     "node": "24.x"
@@ -46,6 +46,7 @@
     "vercel:sync": "node scripts/vercel-sync-env.mjs",
     "corte:supabase": "node scripts/corte-supabase.mjs",
     "accesos:socias": "node scripts/accesos-socias.mjs",
+    "deploy": "node scripts/release-prod.mjs",
     "deploy:prod": "node scripts/deploy-prod.mjs",
     "release:prod": "node scripts/release-prod.mjs",
     "postinstall": "node scripts/sync-maplibre.mjs && node scripts/sync-leaflet-icons.mjs && node scripts/patch-next-og.mjs"
