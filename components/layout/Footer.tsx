@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { SITE_NAME } from '@/lib/site';
+import manifest from '../../package.json';
+import { readDeployedRelease } from '@/lib/utils/deployedRelease';
 
 /**
  * Footer global del portal (hallazgo #6): sin él, las páginas legales quedaban
@@ -11,6 +13,11 @@ import { SITE_NAME } from '@/lib/site';
  */
 export function Footer() {
   const year = new Date().getFullYear();
+  // La release que se está viendo: el tag que el deployment publica y, si no lo
+  // publica (un preview, un despliegue sin el comando del repo), la versión con
+  // la que se compiló este código. Nunca se inventa un tag que no existe.
+  const release = readDeployedRelease(process.env, manifest.version);
+  const versionLabel = release.tag ?? release.version;
 
   return (
     <footer className="border-t border-slate-200 bg-white">
@@ -69,9 +76,15 @@ export function Footer() {
           <p className="text-xs text-slate-500">
             © {year} {SITE_NAME}. Todos los derechos reservados.
           </p>
-          <p className="text-xs text-slate-500">
-            Los avisos publicados son responsabilidad de cada publicante.
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-1">
+            <p className="text-xs text-slate-500">
+              Los avisos publicados son responsabilidad de cada publicante.
+            </p>
+            <p className="text-xs text-slate-500">
+              Versión{' '}
+              <span className="font-semibold text-slate-600">{versionLabel}</span>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
