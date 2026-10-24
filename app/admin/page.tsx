@@ -150,7 +150,7 @@ export default function AdminDashboard() {
                 <Users className="w-4 h-4 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-900">Gestionar Empresas</p>
+                <p className="text-sm font-semibold text-slate-900">Gestionar Socios</p>
                 <p className="text-xs text-slate-500">Agregar, editar o eliminar socios estratégicos</p>
               </div>
             </Link>
@@ -164,7 +164,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-slate-900">Nuevo Socio</p>
-                <p className="text-xs text-slate-500">Registrar una nueva empresa corredora</p>
+                <p className="text-xs text-slate-500">Registrar una corredora, inmobiliaria o agente</p>
               </div>
             </Link>
 

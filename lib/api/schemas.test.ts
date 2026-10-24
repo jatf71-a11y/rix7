@@ -148,12 +148,21 @@ describe('lib/api/schemas', () => {
   });
 
   describe('partnerPostSchema', () => {
-    const valid = { name: 'Corredora Sur', slug: 'corredora-sur' };
+    const valid = { name: 'Corredora Sur', slug: 'corredora-sur', kind: 'corredora' };
 
-    it('acepta el mínimo (nombre y slug); el contacto ausente lo resuelve la ruta', () => {
+    it('acepta el mínimo (nombre, slug y categoría); el contacto ausente lo resuelve la ruta', () => {
       const data = ok(partnerPostSchema, valid);
       expect(data.name).toBe('Corredora Sur');
+      expect(data.kind).toBe('corredora');
       expect(data.contact).toBeUndefined();
+    });
+
+    it('exige una de las tres categorías y rechaza cualquier otra', () => {
+      expect(fails(partnerPostSchema, { name: 'X', slug: 'x' })).toMatch(/kind es obligatorio/);
+      expect(fails(partnerPostSchema, { ...valid, kind: 'portal' })).toBeTruthy();
+      for (const kind of ['corredora', 'inmobiliaria', 'agente'] as const) {
+        expect(ok(partnerPostSchema, { ...valid, kind }).kind).toBe(kind);
+      }
     });
 
     it('completa los campos del contacto si viene parcial', () => {
@@ -176,7 +185,15 @@ describe('lib/api/schemas', () => {
     it('exige id y tolera el resto parcial', () => {
       const data = ok(partnerPutSchema, { id: 'corredora-sur', name: 'Nuevo Nombre' });
       expect(data.name).toBe('Nuevo Nombre');
+      expect(data.kind).toBeUndefined();
       expect(fails(partnerPutSchema, { name: 'Sin id' })).toBeTruthy();
+    });
+
+    it('permite cambiar la categoría y dejarla sin clasificar con null', () => {
+      expect(ok(partnerPutSchema, { id: 'x', kind: 'agente' }).kind).toBe('agente');
+      expect(ok(partnerPutSchema, { id: 'x', kind: null }).kind).toBeNull();
+      expect(fails(partnerPutSchema, { id: 'x', kind: 'portal' })).toBeTruthy();
+      expect(fails(partnerPutSchema, { id: 'x', kind: 'otra' })).toBeTruthy();
     });
   });
 

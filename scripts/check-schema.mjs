@@ -73,6 +73,15 @@ export const REQUIRED_SCHEMA = [
       'es la bandeja de Publicar: sin la tabla, las solicitudes de propietarios y los registros de empresa no se pueden guardar',
   },
   {
+    id: 'partners.kind',
+    kind: 'column',
+    table: 'partners',
+    column: 'kind',
+    migration: '0024_socios_tipo',
+    because:
+      'el panel de Socios filtra por categoría y las lecturas piden la columna: sin ella, el listado de socios y el carrusel de la portada fallan',
+  },
+  {
     id: 'leads.source',
     kind: 'column',
     table: 'leads',

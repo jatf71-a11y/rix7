@@ -70,12 +70,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, slug, logo, description, website, color, contact } = validation.data;
+    const { name, slug, kind, logo, description, website, color, contact } = validation.data;
 
     const newPartner: Partner = {
       id: slugify(slug),
       slug: slugify(slug),
       name,
+      kind,
       logo: logo || '',
       description: description || '',
       website: website || undefined,

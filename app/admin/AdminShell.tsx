@@ -24,7 +24,7 @@ const sidebarItems = [
     icon: LayoutDashboard,
   },
   {
-    label: 'Empresas / Socios',
+    label: 'Socios',
     href: '/admin/empresas',
     icon: Users,
   },

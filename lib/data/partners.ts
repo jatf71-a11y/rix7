@@ -1,3 +1,27 @@
+/**
+ * Las tres categorías de socio del portal: una corredora, una inmobiliaria o un
+ * agente independiente. El panel filtra por esta columna y el alta exige una.
+ */
+export const PARTNER_KINDS = ['corredora', 'inmobiliaria', 'agente'] as const;
+
+export type PartnerKind = (typeof PARTNER_KINDS)[number];
+
+export const PARTNER_KIND_LABELS: Record<PartnerKind, string> = {
+  corredora: 'Corredora',
+  inmobiliaria: 'Inmobiliaria',
+  agente: 'Agente',
+};
+
+/** Valida un valor que viene de la base o de un formulario. */
+export function isPartnerKind(value: unknown): value is PartnerKind {
+  return typeof value === 'string' && (PARTNER_KINDS as readonly string[]).includes(value);
+}
+
+/** Etiqueta visible. `null` es una ficha histórica que nadie clasificó. */
+export function partnerKindLabel(kind: PartnerKind | null | undefined): string {
+  return kind ? PARTNER_KIND_LABELS[kind] : 'Sin clasificar';
+}
+
 export interface PartnerContact {
   /** Central de la corredora (mesa de ventas). Se usa en "Llamar". */
   phone: string;
@@ -33,12 +57,18 @@ export interface Partner {
    * filtrarlo.
    */
   feedEnabled?: boolean;
+  /**
+   * Categoría del socio: corredora, inmobiliaria o agente. `null`/ausente =
+   * ficha sin clasificar.
+   */
+  kind?: PartnerKind | null;
 }
 
 export const partners: Partner[] = [
   {
     id: 'catedral',
     slug: 'catedral',
+    kind: 'corredora',
     name: 'Catedral Propiedades',
     logo: '/logos/catedral.png',
     description: 'Corredora de propiedades con atención personalizada y trato cercano',
@@ -52,6 +82,7 @@ export const partners: Partner[] = [
   {
     id: 'cushman-wakefield',
     slug: 'cushman-wakefield',
+    kind: 'inmobiliaria',
     name: 'Cushman & Wakefield',
     logo: '/logos/cushmanwakefield.png',
     description: 'Líder mundial en servicios inmobiliarios comerciales',
@@ -66,6 +97,7 @@ export const partners: Partner[] = [
   {
     id: 'cbre',
     slug: 'cbre',
+    kind: 'inmobiliaria',
     name: 'CBRE Chile',
     logo: '/logos/cbre.png',
     description: 'La consultora inmobiliaria más grande del mundo',
@@ -80,6 +112,7 @@ export const partners: Partner[] = [
   {
     id: 'colliers',
     slug: 'colliers',
+    kind: 'inmobiliaria',
     name: 'Colliers International',
     logo: '/logos/colliers.png',
     description: 'Servicios inmobiliarios y de gestión de inversiones',
@@ -94,6 +127,7 @@ export const partners: Partner[] = [
   {
     id: 'jll-chile',
     slug: 'jll-chile',
+    kind: 'inmobiliaria',
     name: 'JLL Chile',
     logo: '/logos/jll.ico',
     description: 'Consultoría inmobiliaria y gestión de inversiones',
@@ -108,6 +142,7 @@ export const partners: Partner[] = [
   {
     id: 'savills',
     slug: 'savills',
+    kind: 'inmobiliaria',
     name: 'Savills Chile',
     logo: '/logos/savills.png',
     description: 'Asesoría inmobiliaria de prestigio internacional',
@@ -122,6 +157,7 @@ export const partners: Partner[] = [
   {
     id: 'torre-blanca',
     slug: 'torre-blanca',
+    kind: 'inmobiliaria',
     name: 'Torre Blanca SpA',
     logo: '/logos/torreblanca.svg',
     description: 'Desarrolladora inmobiliaria con más de 30 años de trayectoria',
@@ -136,6 +172,7 @@ export const partners: Partner[] = [
   {
     id: 'inelbrok',
     slug: 'inelbrok',
+    kind: 'corredora',
     name: 'Inelbrok',
     logo: '/logos/inelbrok.svg',
     description: 'Corredora de propiedades con presencia nacional',
@@ -145,48 +182,6 @@ export const partners: Partner[] = [
       phone: '+56 2 2000 0008',
       whatsapp: '+56 9 0000 0008',
       email: 'contacto@inelbrok.cl',
-    },
-  },
-  {
-    id: '.portal-inmobiliario',
-    slug: 'portal-inmobiliario',
-    name: 'Portal Inmobiliario',
-    logo: '/logos/portalinmobiliario.png',
-    description: 'El portal líder de propiedades en Chile',
-    website: 'https://www.portalinmobiliario.com',
-    color: '#FF6600',
-    contact: {
-      phone: '+56 2 2000 0009',
-      whatsapp: '+56 9 0000 0009',
-      email: 'contacto@portalinmobiliario.com',
-    },
-  },
-  {
-    id: 'toctoc',
-    slug: 'toctoc',
-    name: 'Toctoc.com',
-    logo: '/logos/toctoc.png',
-    description: 'Plataforma digital de compra y arriendo de propiedades',
-    website: 'https://www.toctoc.com',
-    color: '#00C853',
-    contact: {
-      phone: '+56 2 2000 0010',
-      whatsapp: '+56 9 0000 0010',
-      email: 'contacto@toctoc.com',
-    },
-  },
-  {
-    id: 'yapo',
-    slug: 'yapo',
-    name: 'Yapo.cl',
-    logo: '/logos/yapo.png',
-    description: 'Portal de clasificados con sección inmobiliaria líder',
-    website: 'https://www.yapo.cl',
-    color: '#FFC107',
-    contact: {
-      phone: '+56 2 2000 0011',
-      whatsapp: '+56 9 0000 0011',
-      email: 'contacto@yapo.cl',
     },
   },
 ];

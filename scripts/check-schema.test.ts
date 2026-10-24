@@ -117,6 +117,7 @@ describe('el buscador como requisito', () => {
 /** Todas las respuestas de un proyecto al día. */
 const HEALTHY_ROUTES: Record<string, () => Response> = {
   [`${BASE}/rest/v1/solicitudes?select=kind&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/partners?select=kind&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/leads?select=source&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/share_events?select=channel&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/properties?select=rol&limit=1`]: () => jsonResponse(200, []),
@@ -178,6 +179,7 @@ describe('schemaPlan', () => {
   it('el manifiesto cubre lo que el código desplegado da por existente', () => {
     const ids = schemaPlan(REQUIRED_SCHEMA, BASE).map((probe) => probe.id);
     expect(ids).toContain('properties.rol');
+    expect(ids).toContain('partners.kind');
     expect(ids).toContain('solicitudes.kind');
     expect(ids).toContain('kyb_applications.status');
     expect(ids).toContain('rix7_partner_id()');
@@ -191,6 +193,7 @@ describe('schemaPlan', () => {
         '0018_solicitudes',
         '0022_gastos_contribuciones_garantia',
         '0023_fuente_contribuciones',
+        '0024_socios_tipo',
         '0026_kyb_onboarding',
       ])
     );
@@ -340,8 +343,9 @@ describe('runSchemaCheck', () => {
 
   it('el caso de producción: las 0014 y 0015 sin aplicar', async () => {
     const { fetchImpl } = server({
-      // 0016 y 0018 aplicadas: el caso que se estudia es el de las 0014 y 0015.
+      // 0016, 0018 y 0024 aplicadas: el caso que se estudia es el de las 0014 y 0015.
       [`${BASE}/rest/v1/solicitudes?select=kind&limit=1`]: () => jsonResponse(200, []),
+      [`${BASE}/rest/v1/partners?select=kind&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/leads?select=source&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/share_events?select=channel&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/properties?select=rol&limit=1`]: () => jsonResponse(400, MISSING_COLUMN),

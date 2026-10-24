@@ -10,7 +10,6 @@
  */
 import { describe, it, expect } from 'vitest';
 import {
-  DEV_COUNT_LABEL,
   SAMPLE_PROPERTY,
   formatReport,
   normalizeBaseUrl,
@@ -69,7 +68,7 @@ const healthyRoutes: FakeRoute = (url, init = {}) => {
       : { status: 200, body: { success: true, views: 1, counted: false, persisted: false } };
   }
   if (path.startsWith('/properties/')) {
-    return { status: 200, body: `<html><span>${DEV_COUNT_LABEL} · se pierde al reiniciar</span></html>` };
+    return { status: 200, body: '<html><span>ficha</span></html>' };
   }
   return { status: 404, body: { error: 'no encontrado' } };
 };
@@ -237,18 +236,6 @@ describe('runIntegration · el contrato se rompe', () => {
     });
     expect(report.ok).toBe(false);
     expect(report.checks.some((c) => c.name.includes('persisted:false') && c.status === 'fail')).toBe(true);
-  });
-
-  it('falla si la ficha deja de rotular el conteo de prueba', async () => {
-    const report = await run((url: string, init) => {
-      const path = new URL(url).pathname;
-      if (path.startsWith('/properties/')) {
-        return { status: 200, body: '<html><span>Visitas a esta ficha</span></html>' };
-      }
-      return healthyRoutes(url, init);
-    });
-    expect(report.ok).toBe(false);
-    expect(report.checks.some((c) => c.name.includes('rotula el conteo de prueba') && c.status === 'fail')).toBe(true);
   });
 
   it('un servidor caído no lanza: marca todas las comprobaciones en rojo', async () => {

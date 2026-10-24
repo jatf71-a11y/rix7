@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { PropertyGallery } from '@/components/properties/PropertyGallery';
-import { PropertyGauges } from '@/components/properties/PropertyGauges';
 import { ContactAgentForm } from '@/components/properties/ContactAgentForm';
 
 // ═══ Leaflet se carga dinámicamente (solo cliente) ═══
@@ -52,14 +51,11 @@ import {
 } from 'lucide-react';
 import { Property } from '@/lib/types/property';
 import type { Partner } from '@/lib/data/partners';
-import type { RentInsights } from '@/lib/utils/propertyInsights';
 
 interface PropertyDetailClientProps {
   property: Property;
   /** Corredora resuelta por el servidor (vive en Supabase, no en el bundle). */
   partner?: Partner;
-  /** Velocímetros de la ficha en arriendo, resueltos en el servidor. */
-  insights?: RentInsights;
 }
 
 /**
@@ -69,7 +65,7 @@ interface PropertyDetailClientProps {
  * (`app/properties/[id]/page.tsx`), así que el HTML inicial llega con los
  * datos y no hay un segundo viaje del navegador a `/api/properties/[id]`.
  */
-export function PropertyDetailClient({ property, partner, insights }: PropertyDetailClientProps) {
+export function PropertyDetailClient({ property, partner }: PropertyDetailClientProps) {
   const [copyOk, setCopyOk] = useState(false);
   const { format } = useCurrency();
 
@@ -400,15 +396,6 @@ export function PropertyDetailClient({ property, partner, insights }: PropertyDe
               city={property.city}
             />
 
-            {/* Velocímetros de precio vs. mercado y demanda (arriendo) */}
-            {isRent && insights && (
-              <PropertyGauges
-                propertyId={property.id}
-                market={insights.market}
-                initialViews={insights.views}
-                initialViewsPersisted={insights.viewsPersisted}
-              />
-            )}
           </div>
 
           {/* Columna Derecha (Formulario de Contacto al Agente) */}

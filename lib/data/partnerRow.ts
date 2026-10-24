@@ -1,4 +1,4 @@
-import type { Partner } from './partners';
+import { isPartnerKind, type Partner, type PartnerKind } from './partners';
 
 /**
  * Traducción entre la fila de `public.partners` y el `Partner` que consume la
@@ -22,6 +22,8 @@ export interface PartnerRow {
   contact_whatsapp: string | null;
   contact_email: string | null;
   sort_order?: number | null;
+  /** Categoría del socio: corredora, inmobiliaria o agente (NULL = sin clasificar). */
+  kind?: string | null;
   /** Feed XML para agregadores (#14): activo o no. */
   feed_enabled?: boolean | null;
   /** Hash SHA-256 del token del feed. NUNCA se expone: si se filtrara la tabla,
@@ -42,6 +44,8 @@ export interface PartnerWriteRow {
   contact_whatsapp: string;
   contact_email: string;
   sort_order: number;
+  /** Categoría del socio; NULL solo para fichas históricas sin clasificar. */
+  kind: PartnerKind | null;
   /** Feed XML para agregadores (#14): activo o no (el hash va aparte). */
   feed_enabled: boolean;
 }
@@ -51,7 +55,7 @@ export const DEFAULT_PARTNER_COLOR = '#3B82F6';
 
 /** Columnas que se piden en cada lectura. */
 export const PARTNER_COLUMNS =
-  'id, slug, name, logo, description, website, color, contact_phone, contact_whatsapp, contact_email, sort_order, feed_enabled, feed_token_hash';
+  'id, slug, name, logo, description, website, color, contact_phone, contact_whatsapp, contact_email, sort_order, kind, feed_enabled, feed_token_hash';
 
 /** Fila de la base → objeto de la app. Los nulos se normalizan, no se propagan. */
 export function rowToPartner(row: PartnerRow): Partner {
@@ -69,6 +73,8 @@ export function rowToPartner(row: PartnerRow): Partner {
     whatsapp: row.contact_whatsapp ?? '',
     email: row.contact_email ?? '',
   },
+  // Una categoría desconocida no se propaga: se muestra «Sin clasificar».
+  kind: isPartnerKind(row.kind) ? row.kind : null,
   // Estado del feed: sí. El hash del token no viaja jamás al cliente.
   feedEnabled: row.feed_enabled ?? false,
 };
@@ -89,6 +95,7 @@ export function partnerToRow(partner: Partner, sortOrder = 0): PartnerWriteRow {
     contact_whatsapp: partner.contact?.whatsapp ?? '',
     contact_email: partner.contact?.email ?? '',
     sort_order: sortOrder,
+    kind: partner.kind ?? null,
     feed_enabled: partner.feedEnabled ?? false,
   };
 }
@@ -111,6 +118,8 @@ export function partnerPatchToRow(updates: Partial<Partner>): Partial<PartnerWri
   // no con una cadena vacía guardada.
   if (updates.website !== undefined) row.website = updates.website || null;
   if (updates.color !== undefined) row.color = updates.color || DEFAULT_PARTNER_COLOR;
+  // `null` limpia la categoría a propósito (dejar sin clasificar una ficha).
+  if (updates.kind !== undefined) row.kind = updates.kind ?? null;
 
   if (updates.contact !== undefined) {
     row.contact_phone = updates.contact.phone ?? '';

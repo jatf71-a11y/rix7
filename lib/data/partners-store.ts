@@ -176,7 +176,7 @@ export async function createPartner(partner: Partner): Promise<PartnerWriteResul
       return {
         ok: false,
         persisted: false,
-        error: 'Ya existe una corredora con ese id.',
+        error: 'Ya existe un socio con ese id.',
         reason: 'duplicate',
       };
     }
@@ -198,7 +198,7 @@ export async function createPartner(partner: Partner): Promise<PartnerWriteResul
       return {
         ok: false,
         persisted: true,
-        error: duplicate ? 'Ya existe una corredora con ese id o slug.' : error?.message ?? 'No se pudo crear.',
+        error: duplicate ? 'Ya existe un socio con ese id o slug.' : error?.message ?? 'No se pudo crear.',
         reason: duplicate ? 'duplicate' : 'database',
       };
     }
@@ -220,7 +220,7 @@ export async function updatePartner(
       return {
         ok: false,
         persisted: false,
-        error: 'Corredora no encontrada.',
+        error: 'Socio no encontrado.',
         reason: 'not_found',
       };
     }
@@ -244,7 +244,7 @@ export async function updatePartner(
       return {
         ok: false,
         persisted: true,
-        error: 'Corredora no encontrada.',
+        error: 'Socio no encontrado.',
         reason: 'not_found',
       };
     }
@@ -263,7 +263,7 @@ export async function deletePartner(id: string): Promise<PartnerWriteResult> {
       return {
         ok: false,
         persisted: false,
-        error: 'Corredora no encontrada.',
+        error: 'Socio no encontrado.',
         reason: 'not_found',
       };
     }
@@ -286,7 +286,7 @@ export async function deletePartner(id: string): Promise<PartnerWriteResult> {
       return {
         ok: false,
         persisted: true,
-        error: 'Corredora no encontrada.',
+        error: 'Socio no encontrado.',
         reason: 'not_found',
       };
     }

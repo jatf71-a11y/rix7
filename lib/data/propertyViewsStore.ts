@@ -9,8 +9,8 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
  *   tiene cuenta. Las dos RPC son `SECURITY DEFINER`, así que la tabla no
  *   necesita política de escritura ni de lectura pública.
  * - Sin Supabase configurado, las visitas se cuentan en memoria del proceso: se
- *   **pierden al reiniciar**, y sirven solo para ver el velocímetro funcionando
- *   en desarrollo.
+ *   **pierden al reiniciar**, y sirven solo para probar el contador en
+ *   desarrollo.
  */
 
 export interface PropertyViewResult {

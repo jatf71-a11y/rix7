@@ -5,7 +5,7 @@
  * guarda. Lo que se cuida acá es lo que se rompe en silencio —las páginas
  * públicas se sirven con ISR, así que una invalidación que falta no se ve como
  * un error, se ve como una página vieja— y el caso que ya sorprendió una vez:
- * el id de una corredora **no** es su slug (`.portal-inmobiliario`).
+ * el id de una corredora **no** es su slug (`.ficha-historica`).
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
@@ -35,16 +35,16 @@ describe('revalidatePublicationSurfaces', () => {
     expect(revalidatePath).toHaveBeenCalledWith('/compartir/p1');
   });
 
-  it('invalida por slug y no por id: `.portal-inmobiliario` no es una URL', async () => {
+  it('invalida por slug y no por id: `.ficha-historica` no es una URL', async () => {
     getPartnerById.mockResolvedValue({
-      id: '.portal-inmobiliario',
-      slug: 'portal-inmobiliario',
+      id: '.ficha-historica',
+      slug: 'ficha-historica',
     });
 
-    const paths = await revalidatePublicationSurfaces('.portal-inmobiliario', 'p1');
+    const paths = await revalidatePublicationSurfaces('.ficha-historica', 'p1');
 
-    expect(paths).toContain('/empresas/portal-inmobiliario');
-    expect(paths).not.toContain('/empresas/.portal-inmobiliario');
+    expect(paths).toContain('/empresas/ficha-historica');
+    expect(paths).not.toContain('/empresas/.ficha-historica');
   });
 
   it('sin ficha que invalidar (alta sin id) tira solo la página de empresa', async () => {

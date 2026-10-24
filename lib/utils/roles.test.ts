@@ -90,8 +90,8 @@ describe('decideAdminAccess', () => {
 describe('resolvePartnerId', () => {
   it('lee la corredora de app_metadata', () => {
     expect(resolvePartnerId({ app_metadata: { partner_id: 'catedral' } })).toBe('catedral');
-    expect(resolvePartnerId({ app_metadata: { partner_id: '  .portal-inmobiliario ' } })).toBe(
-      '.portal-inmobiliario'
+    expect(resolvePartnerId({ app_metadata: { partner_id: '  .ficha-historica ' } })).toBe(
+      '.ficha-historica'
     );
   });
 

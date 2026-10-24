@@ -17,11 +17,38 @@ import {
   Copy,
   RefreshCw,
 } from 'lucide-react';
-import { Partner } from '@/lib/data/partners';
+import { isPartnerKind, partnerKindLabel, type Partner, type PartnerKind } from '@/lib/data/partners';
 import { slugify } from '@/lib/utils/text';
 import SocioAccounts from './SocioAccounts';
 
+/** Pestañas de la sección: las tres categorías de socio, más «Todos». */
+type KindFilter = 'todos' | PartnerKind;
+
+const KIND_TABS: Array<{ value: KindFilter; label: string }> = [
+  { value: 'todos', label: 'Todos' },
+  { value: 'corredora', label: 'Corredoras' },
+  { value: 'inmobiliaria', label: 'Inmobiliarias' },
+  { value: 'agente', label: 'Agentes' },
+];
+
+/** Color del distintivo de cada categoría; el gris es «Sin clasificar». */
+const KIND_BADGE: Record<PartnerKind, string> = {
+  corredora: 'bg-blue-50 text-blue-700 border-blue-100',
+  inmobiliaria: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+  agente: 'bg-violet-50 text-violet-700 border-violet-100',
+};
+
+const KIND_BADGE_NONE = 'bg-slate-100 text-slate-500 border-slate-200';
+
+const KIND_EMPTY: Record<KindFilter, string> = {
+  todos: 'No hay socios registrados',
+  corredora: 'No hay corredoras registradas',
+  inmobiliaria: 'No hay inmobiliarias registradas',
+  agente: 'No hay agentes registrados',
+};
+
 const EMPTY_FORM: Omit<Partner, 'id'> = {
+  kind: null,
   slug: '',
   name: '',
   logo: '',
@@ -49,6 +76,7 @@ function AdminEmpresasPage() {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [kindFilter, setKindFilter] = useState<KindFilter>('todos');
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   /**
    * Estado del feed XML por corredora (hallazgo #14). El token en claro solo
@@ -119,12 +147,18 @@ function AdminEmpresasPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const filteredPartners = partners.filter(
+  const visiblePartners = partners.filter((p) => kindFilter === 'todos' || p.kind === kindFilter);
+
+  const filteredPartners = visiblePartners.filter(
     (p) =>
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.slug.toLowerCase().includes(search.toLowerCase()) ||
       p.description.toLowerCase().includes(search.toLowerCase())
   );
+
+  const countFor = (value: KindFilter) =>
+    value === 'todos' ? partners.length : partners.filter((p) => p.kind === value).length;
+
 
   const openNewForm = () => {
     setEditingId(null);
@@ -135,6 +169,7 @@ function AdminEmpresasPage() {
   const openEditForm = (partner: Partner) => {
     setEditingId(partner.id);
     setForm({
+      kind: partner.kind ?? null,
       slug: partner.slug,
       name: partner.name,
       logo: partner.logo,
@@ -158,6 +193,13 @@ function AdminEmpresasPage() {
       return;
     }
 
+    // Un socio nuevo sin categoría no aparecería en ninguna de las tres
+    // pestañas. Al editar se permite dejarla vacía (fichas históricas).
+    if (!editingId && !form.kind) {
+      showToast('error', 'Elige el tipo de socio: corredora, inmobiliaria o agente');
+      return;
+    }
+
     setSaving(true);
     try {
       if (editingId) {
@@ -172,8 +214,8 @@ function AdminEmpresasPage() {
           showToast(
             'success',
             result.persisted === false
-              ? 'Actualizada solo en memoria (sin Supabase configurado)'
-              : 'Empresa actualizada correctamente'
+              ? 'Actualizado solo en memoria (sin Supabase configurado)'
+              : 'Socio actualizado correctamente'
           );
           closeForm();
           loadPartners();
@@ -192,8 +234,8 @@ function AdminEmpresasPage() {
           showToast(
             'success',
             result.persisted === false
-              ? 'Creada solo en memoria (sin Supabase configurado)'
-              : 'Empresa creada correctamente'
+              ? 'Creado solo en memoria (sin Supabase configurado)'
+              : 'Socio creado correctamente'
           );
           closeForm();
           loadPartners();
@@ -251,8 +293,8 @@ function AdminEmpresasPage() {
         showToast(
           'success',
           result.persisted === false
-            ? 'Eliminada solo en memoria (sin Supabase configurado)'
-            : 'Empresa eliminada'
+            ? 'Eliminado solo en memoria (sin Supabase configurado)'
+            : 'Socio eliminado'
         );
         loadPartners();
       } else {
@@ -275,7 +317,7 @@ function AdminEmpresasPage() {
             <p className="font-semibold">Modo de prueba: los cambios no se guardan</p>
             <p className="mt-0.5 text-amber-700">
               No hay un proyecto Supabase configurado, así que las altas y ediciones viven solo
-              en memoria y se pierden al reiniciar el servidor. Se listan las corredoras del
+              en memoria y se pierden al reiniciar el servidor. Se listan los socios del
               catálogo del código.
             </p>
           </div>
@@ -286,9 +328,9 @@ function AdminEmpresasPage() {
         <div className="flex items-start gap-2 px-4 py-3 mb-5 rounded-lg border border-blue-200 bg-blue-50 text-sm text-blue-800">
           <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <div>
-            <p className="font-semibold">La tabla de corredoras está vacía</p>
+            <p className="font-semibold">La tabla de socios está vacía</p>
             <p className="mt-0.5 text-blue-700">
-              Supabase está configurado, pero todavía no tiene las corredoras. Se muestran las del
+              Supabase está configurado, pero todavía no tiene los socios. Se muestran los del
               catálogo hasta que ejecutes <code className="font-mono">supabase/seed.sql</code>.
             </p>
           </div>
@@ -318,9 +360,9 @@ function AdminEmpresasPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-black text-slate-900">Empresas / Socios</h1>
+          <h1 className="text-2xl font-black text-slate-900">Socios</h1>
           <p className="text-sm text-slate-500 mt-1">
-            {partners.length} empresas registradas en el portal
+            {partners.length} socios registrados en el portal
           </p>
         </div>
         <button
@@ -328,8 +370,36 @@ function AdminEmpresasPage() {
           className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm shadow-blue-500/20 transition-all"
         >
           <Plus className="w-4 h-4" />
-          <span>Nueva Empresa</span>
+          <span>Nuevo Socio</span>
         </button>
+      </div>
+
+      {/* Categorías: corredoras, inmobiliarias y agentes */}
+      <div className="flex flex-wrap items-center gap-1 mb-5 border-b border-slate-200">
+        {KIND_TABS.map((tab) => {
+          const active = kindFilter === tab.value;
+          return (
+            <button
+              key={tab.value}
+              onClick={() => setKindFilter(tab.value)}
+              aria-pressed={active}
+              className={`-mb-px flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors ${
+                active
+                  ? 'border-blue-600 text-blue-700'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              {tab.label}
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-4 ${
+                  active ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'
+                }`}
+              >
+                {countFor(tab.value)}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Search */}
@@ -339,7 +409,7 @@ function AdminEmpresasPage() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar empresa por nombre, slug o descripción..."
+          placeholder="Buscar socio por nombre, slug o descripción..."
           className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
         />
       </div>
@@ -365,7 +435,7 @@ function AdminEmpresasPage() {
         <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
           <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
           <p className="text-sm font-medium text-slate-500">
-            {search ? 'No se encontraron empresas con ese criterio' : 'No hay empresas registradas'}
+            {search ? 'No se encontraron socios con ese criterio' : KIND_EMPTY[kindFilter]}
           </p>
         </div>
       ) : (
@@ -394,6 +464,13 @@ function AdminEmpresasPage() {
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-bold text-slate-900 truncate">{partner.name}</h3>
                   <p className="text-xs text-slate-400 font-mono">/{partner.slug}</p>
+                  <span
+                    className={`mt-1 inline-block rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                      partner.kind ? KIND_BADGE[partner.kind] : KIND_BADGE_NONE
+                    }`}
+                  >
+                    {partnerKindLabel(partner.kind)}
+                  </span>
                 </div>
               </div>
 
@@ -580,7 +657,7 @@ function AdminEmpresasPage() {
             {/* Modal Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
               <h2 className="text-lg font-bold text-slate-900">
-                {editingId ? 'Editar Empresa' : 'Nueva Empresa'}
+                {editingId ? 'Editar Socio' : 'Nuevo Socio'}
               </h2>
               <button
                 onClick={closeForm}
@@ -595,7 +672,7 @@ function AdminEmpresasPage() {
               {/* Name */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Nombre de la Empresa *
+                  Nombre *
                 </label>
                 <input
                   type="text"
@@ -608,9 +685,38 @@ function AdminEmpresasPage() {
                       slug: prev.slug || slugify(name),
                     }));
                   }}
-                  placeholder="Ej: Catedral Bienes Raíces SpA"
+                  placeholder="Ej: Catedral Propiedades o Camila Rojas"
                   className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
+              </div>
+
+              {/* Tipo de socio: define la pestaña en la que aparece */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Tipo de socio *
+                </label>
+                <select
+                  value={form.kind ?? ''}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      kind: isPartnerKind(e.target.value) ? e.target.value : null,
+                    }))
+                  }
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">
+                    {editingId ? 'Sin clasificar' : 'Elige una categoría'}
+                  </option>
+                  <option value="corredora">Corredora</option>
+                  <option value="inmobiliaria">Inmobiliaria</option>
+                  <option value="agente">Agente</option>
+                </select>
+                <p className="mt-1 text-[10px] text-slate-400">
+                  {editingId
+                    ? 'Una ficha histórica puede quedar sin clasificar.'
+                    : 'El socio aparecerá en la pestaña de su categoría.'}
+                </p>
               </div>
 
               {/* Slug */}
@@ -665,7 +771,7 @@ function AdminEmpresasPage() {
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-                  placeholder="Breve descripción de la empresa..."
+                  placeholder="Breve descripción del socio..."
                   rows={3}
                   className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                 />
@@ -697,7 +803,7 @@ function AdminEmpresasPage() {
 
                 <div>
                   <label className="block text-xs font-medium text-slate-600 mb-1">
-                    Teléfono de la corredora
+                    Teléfono del socio
                   </label>
                   <input
                     type="tel"
@@ -780,7 +886,7 @@ function AdminEmpresasPage() {
                 className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-semibold rounded-lg shadow-sm shadow-blue-500/20 transition-all"
               >
                 <Save className="w-4 h-4" />
-                {saving ? 'Guardando...' : editingId ? 'Actualizar' : 'Crear Empresa'}
+                {saving ? 'Guardando...' : editingId ? 'Actualizar' : 'Crear Socio'}
               </button>
             </div>
           </div>

@@ -6,14 +6,14 @@
 ![node](https://img.shields.io/badge/node-24.x-339933)
 ![next.js](https://img.shields.io/badge/next.js-14-000000)
 
-**Rix7** es un portal inmobiliario para Chile, construido **100 % con herramientas de código abierto y capas gratuitas** (sin APIs de pago de Google Maps ni Mapbox). Busca sobre un mapa GIS, compara con los **velociómetros de precio y demanda**, guarda favoritos en tu cuenta y recibe un correo cuando aparezca una propiedad que encaje con tu búsqueda.
+**Rix7** es un portal inmobiliario para Chile, construido **100 % con herramientas de código abierto y capas gratuitas** (sin APIs de pago de Google Maps ni Mapbox). Busca sobre un mapa GIS, guarda favoritos en tu cuenta y recibe un correo cuando aparezca una propiedad que encaje con tu búsqueda.
 
 🌐 **En producción:** [rix7.vercel.app](https://rix7.vercel.app) · 📦 Última versión: [v10.0.0](https://github.com/jatf71-a11y/rix7/releases/tag/v10.0.0)
 
 ### ✨ Qué lo distingue
 
 - **Mapa GIS propio**: MapLibre GL sobre teselas de OpenStreetMap, heatmap de densidad por precio, 16 regiones con comunas y filtrado por cercanía — todo sin API key de mapas de pago.
-- **Velociómetros de precio y demanda** en cada ficha, con selector CLP/UF/USD y tasas oficiales del Banco Central.
+- **Precios en CLP, UF y US$** con tasas oficiales del Banco Central.
 - **Alertas por correo**: guardas una búsqueda y, cuando entra una propiedad que coincide, llega el aviso — un correo, una vez, con línea base en la primera corrida.
 - **Landing compartible** (`/compartir/[id]`): resumen para quien no conoce la propiedad, tarjeta vertical 4:5 descargable para WhatsApp y sector dibujado en SVG sin iframes, con la dirección exacta protegida.
 - **Dos puertas y ninguna contraseña**: Google o enlace mágico, con favoritos y búsquedas guardadas que viajan con la cuenta.
@@ -190,7 +190,7 @@ Aperturas de las landings, cruzadas con los contactos que ya guarda `leads`. La 
 **Cambiar de proyecto** —pasar producción a otra URL y otras claves— es `npm run corte:supabase`: antes de tocar Vercel valida que las tres variables sean del proyecto correcto, sondea la base con cada clave (la de servicio contra la misma API que usa el panel) y recién entonces las aplica en los tres entornos, despliega y verifica. Se detiene en el primer fallo y dice si Vercel llegó a tocarse; con `-- --dry-run` corre solo la comprobación.
 
 **Devolver el acceso a socias y corredoras** después del corte es `npm run accesos:socias`. El portal no usa contraseñas (se entra con Google o con un enlace al correo), así que lo que hay que reponer es la cuenta **con su rol y su corredora ya escritos** —si no, la primera en entrar queda de Visita y `/socio` le responde «sin corredora vinculada»—. El comando lee el catálogo de corredoras y las cuentas del proyecto, muestra el plan persona por persona (**no escribe nada**), y con `-- --aplicar --enviar` crea cada cuenta, verifica contra la base y genera y manda su enlace de un solo uso por lotes con Resend —no por Supabase, que está limitado a 2 correos por hora—. Se detiene en el primer fallo, no le escribe a nadie cuya cuenta no haya quedado verificada, y no repite un envío ya anotado. El plan completo, con lo que hay que armar antes (las direcciones que el proyecto no conoce), está en [`docs/runbook-accesos-socias.md`](docs/runbook-accesos-socias.md).
-2. Ejecuta [`supabase/seed.sql`](supabase/seed.sql) en el SQL Editor para sembrar propiedades reales en Vitacura, Las Condes, Lo Barnechea, Providencia, Ñuñoa, Peñalolén y Chicureo, y las **11 corredoras inscritas** (`public.partners`).
+2. Ejecuta [`supabase/seed.sql`](supabase/seed.sql) en el SQL Editor para sembrar propiedades reales en Vitacura, Las Condes, Lo Barnechea, Providencia, Ñuñoa, Peñalolén y Chicureo, y los **socios inscritos** (`public.partners`).
 3. Copia tus credenciales en `.env.local` y publica: `npm run deploy`.
 
 **Un solo comando para desplegar**: `npm run deploy` (idéntico a `npm run release:prod`) construye, aplica las migraciones pendientes, comprueba el esquema contra la base real, despliega y verifica la URL viva, **abortando en el primer paso que falle** (con `-- --with-tests` además corre tipos y la suite completa antes de construir, para no publicar con un test rojo). Las migraciones van antes del deploy y el esquema se comprueba entre las dos: aplicar una migración no es lo mismo que comprobar que quedó aplicada, y publicar código que la base no soporta es el error que dejó el panel de corredoras en vivo contra columnas inexistentes. El detalle de cada paso, las banderas (`--dry-run`, `--no-db`, `--no-schema`, `--url …`) y qué **no** hace están en [`DEPLOY.md`](DEPLOY.md). Ojo: en este repositorio **`git push` sí publica**. La integración de Git despliega `main` a producción y **se lleva el alias** de `rix7.cl`, pero ese deployment no lleva el identificador de la build (`/api/health` responde `build: null`): después de cada push hay que correr `npm run deploy` para que producción vuelva a identificarse y se pueda verificar. El detalle está en [`AGENTS.md`](AGENTS.md).

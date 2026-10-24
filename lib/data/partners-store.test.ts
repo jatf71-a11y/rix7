@@ -203,12 +203,9 @@ describe('listPartners', () => {
 });
 
 describe('getPartnerById', () => {
-  it('sin Supabase resuelve desde el catálogo, incluido el id con punto', async () => {
+  it('sin Supabase resuelve desde el catálogo', async () => {
     const catedral = await store.getPartnerById('catedral');
     expect(catedral?.name).toBe('Catedral Propiedades');
-
-    const portal = await store.getPartnerById('.portal-inmobiliario');
-    expect(portal?.slug).toBe('portal-inmobiliario');
   });
 
   it('con Supabase devuelve la fila de la base', async () => {
@@ -245,8 +242,8 @@ describe('getPartnerBySlug', () => {
   });
 
   it('sin Supabase resuelve desde el catálogo', async () => {
-    const partner = await store.getPartnerBySlug('yapo');
-    expect(partner?.name).toBe('Yapo.cl');
+    const partner = await store.getPartnerBySlug('inelbrok');
+    expect(partner?.name).toBe('Inelbrok');
   });
 });
 
@@ -300,12 +297,12 @@ describe('escrituras sin Supabase (modo desarrollo)', () => {
   });
 
   it('elimina en memoria', async () => {
-    const result = await store.deletePartner('yapo');
+    const result = await store.deletePartner('inelbrok');
     expect(result.ok).toBe(true);
     expect(result.persisted).toBe(false);
 
     const listado = await store.listPartners();
-    expect(listado.partners.some((p) => p.id === 'yapo')).toBe(false);
+    expect(listado.partners.some((p) => p.id === 'inelbrok')).toBe(false);
   });
 });
 

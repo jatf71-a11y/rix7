@@ -814,7 +814,7 @@ export const MANUAL_PROPERTIES: Property[] = [
   },
 
   // ─────────────────────────────────────────────────────────────────
-  // TOCTOC.COM (3 venta, 3 arriendo)
+  // TEMUCO / CONCEPCIÓN (3 venta, 3 arriendo) — atribuidas a Catedral
   // ─────────────────────────────────────────────────────────────────
   {
     id: 'proy-terreno-temuco',
@@ -843,7 +843,7 @@ export const MANUAL_PROPERTIES: Property[] = [
     agent_phone: '+56 9 5555 1234',
     created_at: '2026-09-03T10:00:00Z',
     featured: true,
-    partner_id: 'toctoc',
+    partner_id: 'catedral',
   },
   {
     id: 'toctoc-venta-depto-temuco',
@@ -872,7 +872,7 @@ export const MANUAL_PROPERTIES: Property[] = [
     agent_phone: '+56 9 8765 4321',
     created_at: '2026-09-02T10:00:00Z',
     featured: true,
-    partner_id: 'toctoc',
+    partner_id: 'catedral',
   },
   {
     id: 'toctoc-venta-casa-concepcion',
@@ -901,7 +901,7 @@ export const MANUAL_PROPERTIES: Property[] = [
     agent_phone: '+56 9 5555 1234',
     created_at: '2026-09-01T10:00:00Z',
     featured: true,
-    partner_id: 'toctoc',
+    partner_id: 'catedral',
   },
   // Arriendo
   {
@@ -931,7 +931,7 @@ export const MANUAL_PROPERTIES: Property[] = [
     agent_phone: '+56 9 8765 4321',
     created_at: '2026-09-05T10:00:00Z',
     featured: true,
-    partner_id: 'toctoc',
+    partner_id: 'catedral',
   },
   {
     id: 'toctoc-arriendo-casa-concepcion',
@@ -960,7 +960,7 @@ export const MANUAL_PROPERTIES: Property[] = [
     agent_phone: '+56 9 5555 1234',
     created_at: '2026-09-04T10:00:00Z',
     featured: true,
-    partner_id: 'toctoc',
+    partner_id: 'catedral',
   },
   {
     id: 'toctoc-arriendo-local-temuco',
@@ -989,7 +989,7 @@ export const MANUAL_PROPERTIES: Property[] = [
     agent_phone: '+56 9 8765 4321',
     created_at: '2026-09-03T10:00:00Z',
     featured: true,
-    partner_id: 'toctoc',
+    partner_id: 'catedral',
   },
   {
     id: 'cbre-parking-el-golf',

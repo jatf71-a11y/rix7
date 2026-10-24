@@ -393,10 +393,13 @@ INSERT INTO public.properties (
 -- ==============================================================================
 -- CORREDORAS INSCRITAS (PARTNERS)
 -- ==============================================================================
--- Migración de las 11 corredoras que antes vivían en memoria en
+-- Migración de los socios que antes vivían en memoria en
 -- `lib/data/partners.ts`. Los teléfonos son PLACEHOLDER con el patrón de
 -- relleno del proyecto (+56 2 2000 00XX / +56 9 0000 00XX): reemplazarlos por
 -- los reales de cada corredora desde /admin/empresas.
+--
+-- Los portales de la competencia (Portal Inmobiliario, Toctoc, Yapo) ya no
+-- están en la semilla: la migración 0025 los da de baja.
 --
 -- `ON CONFLICT DO NOTHING` a propósito: la semilla solo crea las que faltan y
 -- nunca pisa lo que el equipo haya editado desde el panel.
@@ -434,20 +437,18 @@ INSERT INTO public.partners (
 
     ('inelbrok', 'inelbrok', 'Inelbrok', '/logos/inelbrok.svg',
      'Corredora de propiedades con presencia nacional', 'https://www.inelbrok.cl', '#E67E22',
-     '+56 2 2000 0008', '+56 9 0000 0008', 'contacto@inelbrok.cl', 7),
-
-    ('.portal-inmobiliario', 'portal-inmobiliario', 'Portal Inmobiliario', '/logos/portalinmobiliario.png',
-     'El portal líder de propiedades en Chile', 'https://www.portalinmobiliario.com', '#FF6600',
-     '+56 2 2000 0009', '+56 9 0000 0009', 'contacto@portalinmobiliario.com', 8),
-
-    ('toctoc', 'toctoc', 'Toctoc.com', '/logos/toctoc.png',
-     'Plataforma digital de compra y arriendo de propiedades', 'https://www.toctoc.com', '#00C853',
-     '+56 2 2000 0010', '+56 9 0000 0010', 'contacto@toctoc.com', 9),
-
-    ('yapo', 'yapo', 'Yapo.cl', '/logos/yapo.png',
-     'Portal de clasificados con sección inmobiliaria líder', 'https://www.yapo.cl', '#FFC107',
-     '+56 2 2000 0011', '+56 9 0000 0011', 'contacto@yapo.cl', 10)
+     '+56 2 2000 0008', '+56 9 0000 0008', 'contacto@inelbrok.cl', 7)
 ON CONFLICT (id) DO NOTHING;
+
+-- Categorías de socio (`kind`, migración 0024). Va como UPDATE y no como
+-- columna del INSERT para que una base que ya tenía las filas también quede
+-- clasificada. `WHERE kind IS NULL` respeta lo que se haya cambiado a mano.
+UPDATE public.partners SET kind = 'corredora'
+    WHERE kind IS NULL AND id IN ('catedral', 'inelbrok');
+UPDATE public.partners SET kind = 'inmobiliaria'
+    WHERE kind IS NULL AND id IN (
+        'cushman-wakefield', 'cbre', 'colliers', 'jll-chile', 'savills', 'torre-blanca'
+    );
 
 -- Catálogo de las corredoras (fase 3, 2.1): las 35 fichas que
 -- atribuye `lib/data/propertyCatalog.ts`, cargadas como filas de la base.
@@ -702,14 +703,14 @@ INSERT INTO public.properties (
    'Rodrigo Altamirano', 'rodrigo.altamirano@rix7.cl', '+56 9 5555 1234', NULL,
    NULL, NULL, 'cushman-wakefield', '2026-09-03T10:00:00Z'),
 
-  -- toctoc (6)
+  -- Temuco / Concepción (6) — atribuidas a Catedral
   ('2452df8c-46b0-5761-a825-9ddb48928922', 'Parque Industrial Temuco — Terrenos Habilitados', 'Terrenos industriales de 2.000m² a 5.000m² con servicios básicos.', 45000000, 'land',
    'for_sale', 0, 0, 3500, 0,
    2028, 'Ruta 5 Sur km 830', 'Temuco', 'Región de La Araucanía', '4780000',
    ARRAY['https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80'], ARRAY['Servicios básicos', 'Closura perimetral', 'Acceso camionero', 'Zona industrial'],
    ST_SetSRID(ST_MakePoint(-72.6, -38.735), 4326)::geography,
    'Rodrigo Altamirano', 'rodrigo.altamirano@rix7.cl', '+56 9 5555 1234', NULL,
-   NULL, NULL, 'toctoc', '2026-09-03T10:00:00Z'),
+   NULL, NULL, 'catedral', '2026-09-03T10:00:00Z'),
 
   ('9aa9f014-c012-58ff-a17d-92e9b21ab4f5', 'Departamento 2D/1B Venta en Temuco', 'Departamento nuevo con vista al Lago.', 195000000, 'apartment',
    'for_sale', 2, 1, 65, 1,
@@ -717,7 +718,7 @@ INSERT INTO public.properties (
    ARRAY['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80'], ARRAY['Nuevo', 'Vista Lago', 'Bodega', 'Estacionamiento'],
    ST_SetSRID(ST_MakePoint(-72.598, -38.738), 4326)::geography,
    'Camila Undurraga', 'camila.undurraga@rix7.cl', '+56 9 8765 4321', NULL,
-   NULL, NULL, 'toctoc', '2026-09-02T10:00:00Z'),
+   NULL, NULL, 'catedral', '2026-09-02T10:00:00Z'),
 
   ('593b85d3-3deb-50ef-8e98-4f8349d563ce', 'Casa 3D/2B Venta en Concepción', 'Casaamiliar con jardín en sector residencial.', 320000000, 'house',
    'for_sale', 3, 2, 160, 2,
@@ -725,7 +726,7 @@ INSERT INTO public.properties (
    ARRAY['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'], ARRAY['Jardín', 'Quincho', 'Dos niveles', 'Zona residencial'],
    ST_SetSRID(ST_MakePoint(-73.055, -36.83), 4326)::geography,
    'Rodrigo Altamirano', 'rodrigo.altamirano@rix7.cl', '+56 9 5555 1234', NULL,
-   NULL, NULL, 'toctoc', '2026-09-01T10:00:00Z'),
+   NULL, NULL, 'catedral', '2026-09-01T10:00:00Z'),
 
   ('12410d01-200c-5c11-8947-192c9d45b55b', 'Departamento 2D/1B Arriendo en Temuco', 'Departamento céntrico cerca de la Universidad.', 380000, 'apartment',
    'for_rent', 2, 1, 55, 0,
@@ -733,7 +734,7 @@ INSERT INTO public.properties (
    ARRAY['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80'], ARRAY['Céntrico', 'Cerca Universidad', 'Amoblado', 'Bodega'],
    ST_SetSRID(ST_MakePoint(-72.602, -38.736), 4326)::geography,
    'Camila Undurraga', 'camila.undurraga@rix7.cl', '+56 9 8765 4321', NULL,
-   NULL, NULL, 'toctoc', '2026-09-05T10:00:00Z'),
+   NULL, NULL, 'catedral', '2026-09-05T10:00:00Z'),
 
   ('143baf7d-6cab-5c11-9d35-5f21e2c70833', 'Casa 3D/2B Arriendo en Concepción', 'Casaamiliar con jardín cerca del centro.', 650000, 'house',
    'for_rent', 3, 2, 140, 2,
@@ -741,7 +742,7 @@ INSERT INTO public.properties (
    ARRAY['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'], ARRAY['Jardín', 'Cerca centro', 'Dos niveles', 'Zona tranquila'],
    ST_SetSRID(ST_MakePoint(-73.048, -36.828), 4326)::geography,
    'Rodrigo Altamirano', 'rodrigo.altamirano@rix7.cl', '+56 9 5555 1234', NULL,
-   NULL, NULL, 'toctoc', '2026-09-04T10:00:00Z'),
+   NULL, NULL, 'catedral', '2026-09-04T10:00:00Z'),
 
   ('b633effd-231f-567e-a9e9-935f93b49e8b', 'Local Comercial 100m² Arriendo en Temuco', 'Local comercial en zona de alto tránsito.', 550000, 'local',
    'for_rent', 0, 1, 100, 1,
@@ -749,7 +750,7 @@ INSERT INTO public.properties (
    ARRAY['https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80'], ARRAY['Alto tránsito', 'Amoblado', 'Calefacción', 'Estacionamiento'],
    ST_SetSRID(ST_MakePoint(-72.601, -38.737), 4326)::geography,
    'Camila Undurraga', 'camila.undurraga@rix7.cl', '+56 9 8765 4321', NULL,
-   NULL, NULL, 'toctoc', '2026-09-03T10:00:00Z'),
+   NULL, NULL, 'catedral', '2026-09-03T10:00:00Z'),
 
   -- colliers (1)
   ('5a3e4b40-1942-567f-8e4a-31273bd9245e', 'Estacionamiento Techado con TAG en Providencia', 'Estacionamiento individual con acceso directo y portón automático a pasos de Metro Manuel Montt.', 110000, 'parking',

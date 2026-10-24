@@ -70,10 +70,17 @@ describe('rowToPartner', () => {
     expect(rowToPartner({ ...row, slug: '' }).slug).toBe('catedral');
   });
 
-  it('conserva el id con punto de Portal Inmobiliario sin tocar el slug', () => {
-    const result = rowToPartner({ ...row, id: '.portal-inmobiliario', slug: 'portal-inmobiliario' });
-    expect(result.id).toBe('.portal-inmobiliario');
-    expect(result.slug).toBe('portal-inmobiliario');
+  it('conserva la categoría del socio y deja «sin clasificar» lo que no reconoce', () => {
+    expect(rowToPartner({ ...row, kind: 'agente' }).kind).toBe('agente');
+    expect(rowToPartner({ ...row, kind: 'portal' }).kind).toBeNull();
+    expect(rowToPartner({ ...row, kind: 'desconocida' }).kind).toBeNull();
+    expect(rowToPartner({ ...row, kind: null }).kind).toBeNull();
+  });
+
+  it('conserva un id que no es el slug, sin tocar el slug', () => {
+    const result = rowToPartner({ ...row, id: 'ficha-vieja', slug: 'corredora-sur' });
+    expect(result.id).toBe('ficha-vieja');
+    expect(result.slug).toBe('corredora-sur');
   });
 });
 
@@ -90,6 +97,11 @@ describe('partnerToRow', () => {
 
   it('convierte un sitio web ausente en NULL', () => {
     expect(partnerToRow({ ...partner, website: undefined }).website).toBeNull();
+  });
+
+  it('escribe la categoría y usa NULL cuando el socio no tiene una', () => {
+    expect(partnerToRow({ ...partner, kind: 'inmobiliaria' }).kind).toBe('inmobiliaria');
+    expect(partnerToRow(partner).kind).toBeNull();
   });
 
   it('tolera una corredora sin contacto (datos antiguos del catálogo)', () => {
@@ -122,6 +134,12 @@ describe('partnerPatchToRow', () => {
       website: null,
       color: DEFAULT_PARTNER_COLOR,
     });
+  });
+
+  it('puede cambiar la categoría y limpiarla con null', () => {
+    expect(partnerPatchToRow({ kind: 'corredora' })).toEqual({ kind: 'corredora' });
+    expect(partnerPatchToRow({ kind: null })).toEqual({ kind: null });
+    expect(partnerPatchToRow({ name: 'X' })).not.toHaveProperty('kind');
   });
 
   it('no incluye el id: el id identifica la fila, no se reescribe', () => {

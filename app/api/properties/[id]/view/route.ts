@@ -9,8 +9,9 @@ import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
  *
  * La ficha se sirve cacheada (ISR) y no podría contar nada sin volverse
  * dinámica, así que el navegador avisa en segundo plano al montar. El mismo
- * endpoint devuelve el total, para que el velocímetro muestre el número al día
- * sin una segunda consulta.
+ * endpoint devuelve el total, así quien lo consuma no necesita una segunda
+ * consulta. Hoy la ficha en arriendo no lo muestra: el velocímetro se retiró y
+ * el contrato de la ruta se conserva.
  *
  * Cuenta **aperturas**, no personas: no se guarda IP, ni user agent, ni ningún
  * identificador. El rate limit por IP frena a un script que quiera inflar una
@@ -18,9 +19,8 @@ import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
  *
  * Las dos ramas responden `persisted`: `false` significa que el total salió del
  * respaldo en memoria (desarrollo sin Supabase) y se perderá al reiniciar. Quien
- * pinta el número necesita saberlo para no presentar un conteo de prueba como si
- * fuera real; el velocímetro de la ficha (`PropertyGauges`) lo advierte en
- * pequeño cuando llega en `false`.
+ * pinte el número necesita saberlo para no presentar un conteo de prueba como si
+ * fuera real.
  */
 
 const RATE_LIMIT_MAX = 120;
@@ -48,8 +48,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     return NextResponse.json({ success: false, error: validation.error }, { status: 400 });
   }
 
-  // Si la IP se pasó del cupo, se deja de contar pero se responde el total: el
-  // velocímetro sigue mostrando un número en vez de un error.
+  // Si la IP se pasó del cupo, se deja de contar pero se responde el total: así
+  // el cliente recibe un número en vez de un error.
   const limited = rateLimiter.isLimited(clientIpFrom(request.headers));
   const counted = validation.data.counted && !limited;
 

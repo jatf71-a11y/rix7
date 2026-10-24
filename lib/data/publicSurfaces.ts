@@ -13,8 +13,8 @@ import { getPartnerById } from './partners-store';
  * Qué se invalida, y por qué cada una:
  *
  * 1. **`/empresas/<slug>`** — el listado de la corredora dueña. El slug **no**
- *    es el id: `.portal-inmobiliario` tiene slug `portal-inmobiliario`, así que
- *    se resuelve con la misma fuente que usa la página. Si el slug no se puede
+ *    siempre es el id (el catálogo tuvo fichas con punto en el id), así que se
+ *    resuelve con la misma fuente que usa la página. Si el slug no se puede
  *    resolver —base caída, id desconocido— se invalida el segmento entero
  *    (`/empresas/[slug]`): regenerar una página de más cuesta una consulta;
  *    dejar la vieja cuesta la confianza en el dato.

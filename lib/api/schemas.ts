@@ -26,6 +26,7 @@
 import { z } from 'zod';
 
 import { isValidRol, ROL_MAX_LENGTH } from '@/lib/utils/rol';
+import { PARTNER_KINDS } from '@/lib/data/partners';
 import { KYB_PLAN_IDS } from '@/lib/kyb/plans';
 
 /** Longitud máxima aceptada para ids de propiedad/usuario-style legibles. */
@@ -340,6 +341,16 @@ export const signupPostSchema = z
  * Los campos faltantes se completan con cadena vacía: es la misma forma que
  * espera `Partner` y la que la ruta escribía a mano antes de Zod.
  */
+/**
+ * Categoría del socio. El alta la exige: un socio nuevo sin categoría no
+ * aparece en ninguna de las tres pestañas del panel. En la edición se acepta
+ * `null` para poder dejar sin clasificar una ficha.
+ */
+const partnerKindSchema = z.enum(PARTNER_KINDS, {
+  required_error: 'kind es obligatorio',
+  invalid_type_error: 'tipo de socio inválido',
+});
+
 const partnerContactSchema = z
   .object({
     phone: z.string().max(40).default(''),
@@ -373,6 +384,7 @@ export const partnerPostSchema = z.object({
     .max(20)
     .refine((v) => /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v), 'color inválido')
     .optional(),
+  kind: partnerKindSchema,
   contact: partnerContactSchema,
 });
 
@@ -384,6 +396,7 @@ export const partnerPutSchema = z
   .object({
     id: z.string({ required_error: 'id is required' }).trim().min(1).max(120),
     name: z.string().trim().min(1).max(120).optional(),
+    kind: partnerKindSchema.nullable().optional(),
     slug: z
       .string()
       .trim()

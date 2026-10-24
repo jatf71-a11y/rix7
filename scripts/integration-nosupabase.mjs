@@ -29,7 +29,7 @@
  * | `GET  /api/leads`                   | `200` memory/no persistente (dev) o `503` fail-closed (prod) |
  * | `POST /api/properties/[id]/view`    | `202` con `persisted:false`           |
  * | `POST .../view` con `counted:false` | `200` con `persisted:false`           |
- * | ficha `/properties/[id]`            | 200, y el velocímetro rotula «Conteo de prueba» |
+ * | ficha `/properties/[id]`            | 200 |
  *
  * Las comprobaciones son **fail-closed** en un punto en particular: si `GET
  * /api/favorites` o `GET /api/leads` devolvieran datos sin sesión, la suite
@@ -91,11 +91,8 @@ export const DEFAULT_PORT = 3211;
 /** Cuánto se espera a que el servidor responda, en milisegundos. */
 export const READY_TIMEOUT_MS = 120000;
 
-/** Propiedad del catálogo en arriendo, con ficha y velocímetros. */
+/** Propiedad del catálogo en arriendo, con ficha. */
 export const SAMPLE_PROPERTY = 'scl-depto-marco-polo';
-
-/** Etiqueta que el velocímetro muestra cuando el conteo no persiste. */
-export const DEV_COUNT_LABEL = 'Conteo de prueba';
 
 // ═════════════════════════════════════════════════════════════════════════════
 // Núcleo puro (probado en integration-nosupabase.test.ts)
@@ -294,15 +291,11 @@ export async function runIntegration({ baseUrl = `http://localhost:${DEFAULT_POR
     else expect('POST .../view counted:false → 200 con persisted:false', '200|false', `${readOnly.status}|${readOnly.body?.persisted}`, String);
   }
 
-  // ── 6. La ficha muestra el conteo de prueba en su HTML ───────────────────
+  // ── 6. La ficha se sirve ─────────────────────────────────────────────────
   {
     const page = await request(fetchImpl, `${base}/properties/${SAMPLE_PROPERTY}`);
     if (!page.ok) fail('GET /properties/[id]', `no respondió: ${page.error}`);
-    else {
-      const html = typeof page.body === 'string' ? page.body : '';
-      expect('GET /properties/[id] → 200', 200, page.status, String);
-      expect('GET /properties/[id] rotula el conteo de prueba', true, html.includes(DEV_COUNT_LABEL), String);
-    }
+    else expect('GET /properties/[id] → 200', 200, page.status, String);
   }
 
   return { baseUrl: base, ok: checks.every((c) => c.status === 'ok'), checks };
