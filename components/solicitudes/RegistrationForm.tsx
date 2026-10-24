@@ -8,10 +8,14 @@ import {
   Building2,
   CheckCircle2,
   Loader2,
+  MailQuestion,
   Send,
+  ShieldCheck,
   UserRound,
 } from 'lucide-react';
 import { CHILE_REGIONS } from '@/lib/data/chileLocations';
+import { KYB_STATUS_LABELS, type KybQuestion, type KybStatus } from '@/lib/kyb/status';
+import { toKybPayload, usesKybFlow } from '@/lib/kyb/registration';
 
 /**
  * Registro inicial de quien va a publicar: corredora, inmobiliaria o **agente**
@@ -162,10 +166,24 @@ const INITIAL: FormState = {
   consent: false,
 };
 
-interface Success {
-  id: string | null;
-  persisted: boolean;
-}
+/**
+ * Resultado del envío.
+ *
+ * Una empresa recibe la **evaluación** (estado, y las preguntas si quedaron
+ * puntos por aclarar); un agente recibe la confirmación del contacto, porque su
+ * registro no pasa por el motor.
+ */
+type Success =
+  | { mode: 'solicitud'; id: string | null; persisted: boolean }
+  | {
+      mode: 'kyb';
+      id: string | null;
+      status: KybStatus;
+      questions: KybQuestion[];
+      persisted: boolean;
+      /** El acuse no salió: no se puede prometer un correo que no existe. */
+      emailSkipped: boolean;
+    };
 
 export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
   const copy = COPY[kind];
@@ -208,11 +226,14 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
 
     setSending(true);
 
+    // Una empresa va al alta evaluada; un agente, al registro de contactos.
+    const kyb = usesKybFlow(kind);
+
     try {
-      const response = await fetch('/api/solicitudes', {
+      const response = await fetch(kyb ? '/api/kyb' : '/api/solicitudes', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ kind, ...form }),
+        body: JSON.stringify(kyb ? toKybPayload(form, kind) : { kind, ...form }),
       });
       const body = await response.json().catch(() => null);
 
@@ -221,7 +242,19 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
         return;
       }
 
-      setSuccess({ id: body?.id ?? null, persisted: body?.persisted !== false });
+      if (kyb) {
+        setSuccess({
+          mode: 'kyb',
+          id: body?.data?.id ?? null,
+          status: body?.data?.status ?? 'Recibida',
+          questions: Array.isArray(body?.data?.questions) ? body.data.questions : [],
+          persisted: body?.persistent !== false,
+          emailSkipped: body?.email?.skipped === true,
+        });
+      } else {
+        setSuccess({ mode: 'solicitud', id: body?.id ?? null, persisted: body?.persisted !== false });
+      }
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
       setError('Sin conexión con el servidor. Intenta de nuevo.');
@@ -231,13 +264,99 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
   }
 
   if (success) {
+    // Una empresa ve el resultado de la verificación; un agente, la confirmación
+    // del contacto. El estado de la solicitud manda el texto: prometer «aceptada»
+    // cuando quedó pendiente sería el peor mensaje posible.
+    const accepted =
+      success.mode === 'kyb' && (success.status === 'En_Alta' || success.status === 'Aceptada');
+    const pending = success.mode === 'kyb' && !accepted;
+    const pendingBody =
+      success.mode === 'kyb' && success.questions.length > 0
+        ? 'La verificación automática encontró puntos que necesitan una aclaración. Te enviamos al correo de contacto las preguntas y el enlace para responderlas; cuando lo hagas, la evaluación se repite sola.'
+        : 'La verificación automática no alcanzó el mínimo para el alta automática. Te enviamos al correo de contacto los siguientes pasos.';
+
     return (
       <div className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm sm:p-8">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50">
-          <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-full ${
+            accepted ? 'bg-emerald-50' : success.mode === 'kyb' ? 'bg-blue-50' : 'bg-emerald-50'
+          }`}
+        >
+          {accepted ? (
+            <ShieldCheck className="h-6 w-6 text-emerald-600" />
+          ) : success.mode === 'kyb' ? (
+            <MailQuestion className="h-6 w-6 text-blue-600" />
+          ) : (
+            <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+          )}
         </div>
-        <h2 className="mt-5 text-xl font-black text-slate-900">{copy.successTitle}</h2>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">{copy.successBody}</p>
+
+        {success.mode === 'kyb' ? (
+          <>
+            <h2 className="mt-5 text-xl font-black text-slate-900">
+              {accepted ? 'Tu empresa quedó aceptada' : 'Recibimos tu registro'}
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+              {accepted
+                ? 'La verificación automática pasó y la empresa quedó aceptada. Te enviamos al correo de contacto el enlace para elegir el plan y habilitar el panel de publicaciones.'
+                : pendingBody}
+            </p>
+
+            {pending && success.questions.length > 0 && (
+              <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                  Lo que falta aclarar
+                </p>
+                <ul className="mt-2 space-y-1.5">
+                  {success.questions.map((question) => (
+                    <li
+                      key={question.id}
+                      className="flex gap-2 text-xs leading-relaxed text-slate-600"
+                    >
+                      <span aria-hidden="true" className="text-slate-400">
+                        ·
+                      </span>
+                      <span>{question.question}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-600">
+                {KYB_STATUS_LABELS[success.status]}
+              </span>
+              <span className="text-[11px] text-slate-400">El enlace del correo vale 7 días.</span>
+            </div>
+
+            {success.emailSkipped && (
+              <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                Este entorno no tiene configurado el envío de correo, así que el aviso no
+                salió. Guarda la referencia y escríbenos para continuar.
+              </p>
+            )}
+          </>
+        ) : (
+          <>
+            <h2 className="mt-5 text-xl font-black text-slate-900">{copy.successTitle}</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">{copy.successBody}</p>
+
+            <ol className="mt-6 space-y-4">
+              {copy.steps.map(([title, detail], index) => (
+                <li key={title} className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-50 text-xs font-bold text-blue-700">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{title}</p>
+                    <p className="text-xs leading-relaxed text-slate-500">{detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </>
+        )}
 
         {success.id && (
           <p className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
@@ -245,20 +364,6 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
             <span className="font-mono font-semibold text-slate-700">{success.id}</span>
           </p>
         )}
-
-        <ol className="mt-6 space-y-4">
-          {copy.steps.map(([title, detail], index) => (
-            <li key={title} className="flex gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-50 text-xs font-bold text-blue-700">
-                {index + 1}
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-slate-900">{title}</p>
-                <p className="text-xs leading-relaxed text-slate-500">{detail}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
 
         {!success.persisted && (
           <p className="mt-5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">

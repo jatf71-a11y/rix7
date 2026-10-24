@@ -12,6 +12,7 @@ import {
   UserPlus,
   ArrowLeft,
   ChevronRight,
+  ShieldCheck,
 } from 'lucide-react';
 
 import type { DeployedRelease } from '@/lib/utils/deployedRelease';
@@ -36,6 +37,11 @@ const sidebarItems = [
     label: 'Solicitudes',
     href: '/admin/solicitudes',
     icon: ClipboardList,
+  },
+  {
+    label: 'Alta de empresas',
+    href: '/admin/alta-empresas',
+    icon: ShieldCheck,
   },
   {
     label: 'Registros',

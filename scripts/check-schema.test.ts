@@ -128,6 +128,9 @@ const HEALTHY_ROUTES: Record<string, () => Response> = {
   [`${BASE}/rest/v1/properties?select=property_taxes_source&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/properties?select=property_taxes_checked_at&limit=1`]: () =>
     jsonResponse(200, []),
+  [`${BASE}/rest/v1/kyb_applications?select=status&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/kyb_applications?select=token_hash&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/kyb_evaluations?select=score&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/rpc/rix7_partner_id`]: () => jsonResponse(200, null),
   [`${BASE}/rest/v1/rpc/get_properties_filtered`]: () => jsonResponse(200, [{ id: 'p1' }]),
 };
@@ -176,6 +179,7 @@ describe('schemaPlan', () => {
     const ids = schemaPlan(REQUIRED_SCHEMA, BASE).map((probe) => probe.id);
     expect(ids).toContain('properties.rol');
     expect(ids).toContain('solicitudes.kind');
+    expect(ids).toContain('kyb_applications.status');
     expect(ids).toContain('rix7_partner_id()');
     expect(ids).toContain('get_properties_filtered(bbox)');
     expect(new Set(REQUIRED_SCHEMA.map((item) => item.migration))).toEqual(
@@ -187,6 +191,7 @@ describe('schemaPlan', () => {
         '0018_solicitudes',
         '0022_gastos_contribuciones_garantia',
         '0023_fuente_contribuciones',
+        '0026_kyb_onboarding',
       ])
     );
   });
@@ -352,6 +357,10 @@ describe('runSchemaCheck', () => {
         jsonResponse(200, []),
       [`${BASE}/rest/v1/properties?select=property_taxes_checked_at&limit=1`]: () =>
         jsonResponse(200, []),
+      // El alta de empresas (0026) sí está aplicada en este escenario.
+      [`${BASE}/rest/v1/kyb_applications?select=status&limit=1`]: () => jsonResponse(200, []),
+      [`${BASE}/rest/v1/kyb_applications?select=token_hash&limit=1`]: () => jsonResponse(200, []),
+      [`${BASE}/rest/v1/kyb_evaluations?select=score&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/rpc/rix7_partner_id`]: () => jsonResponse(404, MISSING_FUNCTION),
       [`${BASE}/rest/v1/rpc/get_properties_filtered`]: () => jsonResponse(200, []),
     });

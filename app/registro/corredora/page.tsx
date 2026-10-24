@@ -40,7 +40,8 @@ export default function RegistroCorredoraPage() {
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
             Para publicar en Rix7 tu corredora tiene que estar registrada y verificada.
-            Cuéntanos quiénes son y te contactamos para completar la acreditación.
+            Completa los datos: el RUT, el registro comercial, la reputación, el sitio y el
+            correo se verifican automáticamente al enviar.
           </p>
         </div>
 
@@ -80,8 +81,8 @@ export default function RegistroCorredoraPage() {
         </div>
 
         <p className="mt-8 text-center text-[11px] leading-relaxed text-slate-400">
-          El registro inicial no habilita la publicación por sí solo: primero revisamos
-          la empresa y completamos la acreditación con su equipo.
+          La verificación no habilita la publicación por sí sola: si la empresa queda
+          aceptada, eliges el plan y el panel queda habilitado.
         </p>
       </div>
     </div>

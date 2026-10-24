@@ -40,7 +40,8 @@ export default function RegistroInmobiliariaPage() {
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
             Si representas a una inmobiliaria o desarrolladora, registra la empresa para
-            publicar tus proyectos y stock propio con un perfil dentro de Rix7.
+            publicar tus proyectos y stock propio con un perfil dentro de Rix7. La
+            verificación de identidad, reputación y dominio es automática al enviar.
           </p>
         </div>
 
@@ -80,8 +81,8 @@ export default function RegistroInmobiliariaPage() {
         </div>
 
         <p className="mt-8 text-center text-[11px] leading-relaxed text-slate-400">
-          El registro inicial no habilita la publicación por sí solo: primero revisamos
-          la empresa y definimos con su equipo el perfil y el stock.
+          La verificación no habilita la publicación por sí sola: si la empresa queda
+          aceptada, eliges el plan y el panel queda habilitado.
         </p>
       </div>
     </div>

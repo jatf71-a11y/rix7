@@ -26,6 +26,7 @@
 import { z } from 'zod';
 
 import { isValidRol, ROL_MAX_LENGTH } from '@/lib/utils/rol';
+import { KYB_PLAN_IDS } from '@/lib/kyb/plans';
 
 /** Longitud máxima aceptada para ids de propiedad/usuario-style legibles. */
 const MAX_ID_LENGTH = 120;
@@ -614,3 +615,65 @@ export const feedTokenSchema = z
   .string()
   .trim()
   .regex(/^[0-9a-f]{32}$/, 'token de feed inválido');
+
+// ═══ /api/kyb (alta de empresas) ═══
+
+/**
+ * Alta pública de una empresa. La forma es la mínima para poder verificar; el
+ * dominio y la coherencia del correo los deriva `normalizeKybApplication`, que
+ * corre después y es la validación de verdad.
+ */
+export const kybApplicationPostSchema = z.object({
+  legalName: z.string({ required_error: 'La razón social es obligatoria.' }).trim().min(2).max(160),
+  rut: z.string({ required_error: 'El RUT es obligatorio.' }).trim().min(8).max(20),
+  website: z.string().trim().max(300).optional(),
+  email: z
+    .string({ required_error: 'El correo es obligatorio.' })
+    .trim()
+    .min(5)
+    .max(200)
+    .email('El correo no tiene un formato válido.'),
+  contactName: z.string({ required_error: 'El nombre del contacto es obligatorio.' }).trim().min(2).max(120),
+  phone: z.string({ required_error: 'El teléfono es obligatorio.' }).trim().min(6).max(40),
+  // Datos del registro de empresas: opcionales porque el alta directa no los pide.
+  coverage: z.enum(['nacional', 'regional']).optional(),
+  regions: z.array(z.string().trim().min(1).max(80)).max(16).optional(),
+  message: z.string().trim().max(1200).optional(),
+  registrationKind: z.enum(['corredora', 'inmobiliaria']).optional(),
+  contactRole: z.string().trim().max(80).optional(),
+  consent: z
+    .boolean({ required_error: 'Debes aceptar la verificación de datos.' })
+    .refine((value) => value === true, 'Debes aceptar la verificación de datos.'),
+});
+
+/** Token del correo KYB: 32 bytes en base64url (43 caracteres). */
+export const kybTokenSchema = z
+  .string({ required_error: 'Falta el token del enlace.' })
+  .trim()
+  .regex(/^[A-Za-z0-9_-]{43}$/, 'El enlace no es válido.');
+
+/** Respuestas a la ronda de preguntas. */
+export const kybAnswersPostSchema = z.object({
+  token: kybTokenSchema,
+  answers: z
+    .array(
+      z.object({
+        id: z.string().trim().min(1).max(80),
+        answer: z.string().trim().min(2, 'Cada respuesta necesita contenido.').max(2000),
+      })
+    )
+    .min(1)
+    .max(10),
+});
+
+/** Consulta del estado con el token del correo. */
+export const kybAccessPostSchema = z.object({ token: kybTokenSchema });
+
+/** Elección de plan y habilitación del panel. */
+export const kybActivatePostSchema = z.object({
+  token: kybTokenSchema,
+  plan: z.enum(KYB_PLAN_IDS, {
+    required_error: 'Elige un plan.',
+    invalid_type_error: 'El plan indicado no existe.',
+  }),
+});
