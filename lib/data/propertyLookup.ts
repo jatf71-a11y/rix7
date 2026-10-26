@@ -30,7 +30,15 @@ export async function fetchPropertyById(id: string): Promise<Property | null> {
   } catch {}
 
   try {
-    const res = await fetch(`${SITE_URL}/api/properties/${id}`, { cache: 'no-store' });
+    // `revalidate` y no `no-store`: quien llama a esto sin éxito (catálogo y
+    // Supabase no traían el id) casi siempre es la landing de `/compartir`, que
+    // se prerenderiza con `revalidate = 60`. Un fetch `no-store` dentro de un
+    // render estático es una contradicción que Next rechaza en producción con
+    // «Page changed from static to dynamic at runtime», y el visitante veía un
+    // 500 en vez de «Propiedad no encontrada». Con los mismos 60 s del enlace,
+    // el fetch participa del render y una propiedad recién publicada se ve
+    // dentro del mismo minuto.
+    const res = await fetch(`${SITE_URL}/api/properties/${id}`, { next: { revalidate: 60 } });
     if (res.ok) {
       const json = await res.json();
       if (json?.success && json.data) return json.data as Property;
