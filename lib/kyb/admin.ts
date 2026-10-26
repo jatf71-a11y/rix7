@@ -8,7 +8,7 @@
  */
 
 import type { KybCoverage } from './application';
-import type { KybCheck, KybStatus } from './status';
+import { canEvaluate, type KybCheck, type KybStatus } from './status';
 
 export type KybCheckStatus = KybCheck['status'];
 
@@ -48,12 +48,14 @@ export function scoreTone(score: number | null): string {
 /**
  * ¿Se puede pedir otra corrida del motor?
  *
- * `En_Alta` es terminal: la empresa ya tiene plan y panel, y volver a evaluar
- * solo podría moverla a un estado anterior. El endpoint responde 409 en ese
- * caso; el panel ni siquiera ofrece el botón.
+ * Se delega en `canEvaluate` para no tener dos listas de estados válidos: la
+ * tabla de transiciones ya dice que solo `Recibida`, `En_Evaluacion` y
+ * `Pendiente_Informacion` admiten una corrida, y `En_Alta` y `Rechazada` son
+ * terminales. El endpoint responde 409 en esos casos; el panel ni siquiera
+ * ofrece el botón.
  */
 export function canReevaluate(status: KybStatus): boolean {
-  return status !== 'En_Alta';
+  return canEvaluate(status);
 }
 
 /**

@@ -11,11 +11,16 @@ import {
   Loader2,
   RefreshCw,
 } from 'lucide-react';
-import { KYB_STATUSES, KYB_STATUS_LABELS, type KybEvaluation } from '@/lib/kyb/status';
+import {
+  KYB_STATUSES,
+  KYB_STATUS_LABELS,
+  type KybEvaluation,
+  type KybManualDecision,
+} from '@/lib/kyb/status';
 import type { KybStatus } from '@/lib/kyb/status';
 import { KYB_STATUS_TONES } from '@/lib/kyb/portal';
 import { formatKybDateTime, scoreTone } from '@/lib/kyb/admin';
-import type { KybApplication } from '@/lib/kyb/types';
+import type { KybApplication, KybDecision } from '@/lib/kyb/types';
 import KybEvaluationDetail from './KybEvaluationDetail';
 
 /**
@@ -47,7 +52,11 @@ interface ListBody {
 
 interface DetailBody {
   success?: boolean;
-  data?: { application: KybApplication; evaluation: KybEvaluation | null };
+  data?: {
+    application: KybApplication;
+    evaluation: KybEvaluation | null;
+    decisions?: KybDecision[];
+  };
   error?: string;
 }
 
@@ -62,10 +71,12 @@ export default function AdminAltaEmpresasPage() {
   const [detail, setDetail] = useState<{
     application: KybApplication;
     evaluation: KybEvaluation | null;
+    decisions: KybDecision[];
   } | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
   const [reevaluating, setReevaluating] = useState(false);
+  const [deciding, setDeciding] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -103,7 +114,11 @@ export default function AdminAltaEmpresasPage() {
         return;
       }
 
-      setDetail(body.data);
+      setDetail({
+        application: body.data.application,
+        evaluation: body.data.evaluation,
+        decisions: Array.isArray(body.data.decisions) ? body.data.decisions : [],
+      });
     } catch {
       setDetailError('Sin conexión con el servidor.');
     } finally {
@@ -168,6 +183,52 @@ export default function AdminAltaEmpresasPage() {
     [loadDetail]
   );
 
+  /**
+   * Aplica la decisión del equipo y recarga la ficha.
+   *
+   * La fila de la lista se actualiza con lo que devolvió el servidor y no con
+   * lo que el panel creía: después de decidir, el estado y el historial son del
+   * backend. `loadDetail` trae también la decisión recién registrada, con su
+   * autor.
+   */
+  const decide = useCallback(
+    async (
+      id: string,
+      input: { decision: KybManualDecision; note?: string; questions?: string[] }
+    ) => {
+      setDeciding(true);
+      setDetailError(null);
+
+      try {
+        const response = await fetch(`/api/kyb/${encodeURIComponent(id)}/decision`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(input),
+        });
+        const body = await response.json().catch(() => null);
+
+        if (!response.ok || !body?.success) {
+          setDetailError(body?.error ?? 'No se pudo aplicar la decisión.');
+          return;
+        }
+
+        setApplications((current) =>
+          current.map((application) =>
+            application.id === id
+              ? { ...application, status: body.data.status as KybStatus }
+              : application
+          )
+        );
+        await loadDetail(id);
+      } catch {
+        setDetailError('Sin conexión con el servidor.');
+      } finally {
+        setDeciding(false);
+      }
+    },
+    [loadDetail]
+  );
+
   const counts = useMemo(() => {
     const base: Record<Filter, number> = {
       todas: applications.length,
@@ -176,6 +237,7 @@ export default function AdminAltaEmpresasPage() {
       Pendiente_Informacion: 0,
       Aceptada: 0,
       En_Alta: 0,
+      Rechazada: 0,
     };
     for (const application of applications) base[application.status] += 1;
     return base;
@@ -377,9 +439,12 @@ export default function AdminAltaEmpresasPage() {
                       <KybEvaluationDetail
                         application={detail.application}
                         evaluation={detail.evaluation}
+                        decisions={detail.decisions}
                         reevaluating={reevaluating}
+                        deciding={deciding}
                         error={detailError}
                         onReevaluate={() => void reevaluate(application.id)}
+                        onDecide={(input) => void decide(application.id, input)}
                       />
                     ) : (
                       detailError && (

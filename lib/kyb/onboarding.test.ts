@@ -22,10 +22,11 @@ vi.mock('./provisioning', () => ({ provisionCompanyPanel }));
 import {
   activateKybPlan,
   answerKybQuestions,
+  decideApplication,
   kybStatusByToken,
   submitKybApplication,
 } from './onboarding';
-import { getApplication } from './store';
+import { getApplication, listDecisions, updateApplication } from './store';
 import type { TaxAdapter } from './adapters/tax';
 import type { ReputationAdapter } from './adapters/reputation';
 
@@ -234,5 +235,130 @@ describe('flujo KYB', () => {
     const result = await activateKybPlan({ token, plan: 'basico' });
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/no sirve para activar/);
+  });
+});
+
+describe('decisiones del equipo', () => {
+  /** Solicitud que el motor dejó pendiente: el caso normal de una revisión. */
+  async function pendiente() {
+    const informal = { ...empresa, website: '', email: 'ana.torres@gmail.com' };
+    const submitted = await submitKybApplication(informal, { deps });
+    return submitted.applicationId as string;
+  }
+
+  it('aprobar a mano deja la solicitud en alta, con token de activación', async () => {
+    const id = await pendiente();
+
+    const result = await decideApplication({
+      id,
+      decision: 'Aceptada',
+      note: 'Verificamos el registro por teléfono con la corredora.',
+      decidedBy: 'equipo@rix7.cl',
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.status).toBe('En_Alta');
+
+    const stored = await getApplication(id);
+    expect(stored.data?.status).toBe('En_Alta');
+    expect(stored.data?.tokenPurpose).toBe('activation');
+
+    const subject = (sendEmail.mock.calls.at(-1)?.[0] as { subject: string }).subject;
+    expect(subject).toMatch(/aceptada/i);
+
+    const decisions = await listDecisions(id);
+    expect(decisions).toHaveLength(1);
+    expect(decisions[0]).toMatchObject({
+      decision: 'Aceptada',
+      statusBefore: 'Pendiente_Informacion',
+      statusAfter: 'En_Alta',
+      decidedBy: 'equipo@rix7.cl',
+    });
+  });
+
+  it('rechazar con motivo cierra la solicitud y mata el token', async () => {
+    const id = await pendiente();
+
+    const result = await decideApplication({
+      id,
+      decision: 'Rechazada',
+      note: 'El RUT declarado no coincide con el registro comercial y el sitio no acredita actividad.',
+      decidedBy: 'equipo@rix7.cl',
+    });
+
+    expect(result.ok).toBe(true);
+
+    const stored = await getApplication(id);
+    expect(stored.data?.status).toBe('Rechazada');
+    expect(stored.data?.tokenHash).toBeNull();
+    expect(stored.data?.tokenPurpose).toBeNull();
+
+    const email = sendEmail.mock.calls.at(-1)?.[0] as { text: string };
+    expect(email.text).toContain('no coincide con el registro');
+
+    const decisions = await listDecisions(id);
+    expect(decisions[0].decision).toBe('Rechazada');
+    expect(decisions[0].note).toContain('RUT');
+  });
+
+  it('rechazar sin motivo no toca la solicitud', async () => {
+    const id = await pendiente();
+
+    const result = await decideApplication({
+      id,
+      decision: 'Rechazada',
+      decidedBy: 'equipo@rix7.cl',
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.code).toBe('invalid');
+
+    const stored = await getApplication(id);
+    expect(stored.data?.status).toBe('Pendiente_Informacion');
+    expect(await listDecisions(id)).toHaveLength(0);
+  });
+
+  it('pedir información a mano abre una ronda con esas preguntas', async () => {
+    const submitted = await submitKybApplication(empresa, { deps });
+    const id = submitted.applicationId as string;
+    // Se vuelve a evaluación para probar la decisión que exige preguntas: es el
+    // estado desde el que el panel la ofrece.
+    await updateApplication(id, { status: 'En_Evaluacion' });
+
+    const result = await decideApplication({
+      id,
+      decision: 'Pendiente_Informacion',
+      questions: [
+        '¿Cuál es el domicilio comercial de la corredora?',
+        '¿Quién figura como representante legal?',
+      ],
+      decidedBy: 'equipo@rix7.cl',
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.status).toBe('Pendiente_Informacion');
+
+    const stored = await getApplication(id);
+    expect(stored.data?.tokenPurpose).toBe('answers');
+
+    const email = sendEmail.mock.calls.at(-1)?.[0] as { text: string };
+    expect(email.text).toContain('¿Cuál es el domicilio comercial');
+
+    const decisions = await listDecisions(id);
+    expect(decisions[0].questions).toHaveLength(2);
+  });
+
+  it('no se decide sobre una solicitud que ya terminó', async () => {
+    const submitted = await submitKybApplication(empresa, { deps });
+
+    const result = await decideApplication({
+      id: submitted.applicationId as string,
+      decision: 'Rechazada',
+      note: 'Motivo suficientemente largo para pasar la validación.',
+      decidedBy: 'equipo@rix7.cl',
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.code).toBe('conflict');
   });
 });

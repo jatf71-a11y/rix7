@@ -186,6 +186,15 @@ export const REQUIRED_SCHEMA = [
     because: 'el panel muestra el puntaje y el historial de corridas del motor; sin la tabla, la evaluación no deja rastro',
   },
   {
+    id: 'kyb_decisions.decided_by',
+    kind: 'column',
+    table: 'kyb_decisions',
+    column: 'decided_by',
+    migration: '0027_kyb_rechazo_y_decisiones',
+    because:
+      'las decisiones del equipo (aprobar, pedir información, rechazar) se registran con su autor; sin la tabla no queda quién decidió ni el motivo del rechazo',
+  },
+  {
     id: 'rix7_partner_id()',
     kind: 'rpc',
     name: 'rix7_partner_id',

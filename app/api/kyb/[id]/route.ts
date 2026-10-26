@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getApplication, latestEvaluation } from '@/lib/kyb/store';
+import { getApplication, latestEvaluation, listDecisions } from '@/lib/kyb/store';
 import { requireAdmin } from '@/lib/supabase/auth-guard';
 
 /**
  * `/api/kyb/[id]` — detalle de una solicitud para el equipo.
  *
- * Incluye la última evaluación con sus verificaciones: es lo que explica por
- * qué la solicitud está donde está, y sin eso el panel solo tendría un estado.
+ * Incluye la última evaluación con sus verificaciones y el historial de
+ * decisiones del equipo: lo primero explica por qué la solicitud está donde
+ * está, lo segundo quién la puso ahí. Sin eso el panel solo tendría un estado.
  */
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   const guard = await requireAdmin();
@@ -21,12 +22,14 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   }
 
   const evaluation = await latestEvaluation(params.id);
+  const decisions = await listDecisions(params.id);
 
   return NextResponse.json({
     success: true,
     data: {
       application: application.data,
       evaluation: evaluation.ok ? evaluation.data : null,
+      decisions,
     },
   });
 }

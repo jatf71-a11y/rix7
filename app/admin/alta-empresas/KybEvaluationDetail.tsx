@@ -10,8 +10,9 @@ import {
   KYB_CHECK_TONES,
   scoreTone,
 } from '@/lib/kyb/admin';
-import type { KybEvaluation } from '@/lib/kyb/status';
-import type { KybApplication } from '@/lib/kyb/types';
+import type { KybEvaluation, KybManualDecision } from '@/lib/kyb/status';
+import type { KybApplication, KybDecision } from '@/lib/kyb/types';
+import DecisionPanel from './DecisionPanel';
 
 /**
  * Ficha de evaluación de una solicitud.
@@ -25,17 +26,27 @@ import type { KybApplication } from '@/lib/kyb/types';
 interface KybEvaluationDetailProps {
   application: KybApplication;
   evaluation: KybEvaluation | null;
+  decisions: KybDecision[];
   reevaluating: boolean;
+  deciding: boolean;
   error: string | null;
   onReevaluate: () => void;
+  onDecide: (input: {
+    decision: KybManualDecision;
+    note?: string;
+    questions?: string[];
+  }) => void;
 }
 
 export default function KybEvaluationDetail({
   application,
   evaluation,
+  decisions,
   reevaluating,
+  deciding,
   error,
   onReevaluate,
+  onDecide,
 }: KybEvaluationDetailProps) {
   const summary = evaluation ? checkSummary(evaluation.checks) : null;
   const blocked = !canReevaluate(application.status);
@@ -174,6 +185,13 @@ export default function KybEvaluationDetail({
           Re-evalúa para correr el motor y dejar registrado el resultado.
         </p>
       )}
+
+      <DecisionPanel
+        application={application}
+        decisions={decisions}
+        deciding={deciding}
+        onDecide={onDecide}
+      />
 
       <dl className="mt-5 grid gap-3 sm:grid-cols-2">
         <div>

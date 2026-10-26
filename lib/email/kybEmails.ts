@@ -250,6 +250,63 @@ export function buildKybAcceptedEmail({
   };
 }
 
+/**
+ * Rechazo del alta.
+ *
+ * Es el único correo del flujo que cierra la puerta, así que lleva el motivo
+ * escrito por el equipo tal cual: sin él, la empresa no tiene nada que corregir
+ * ni forma de discutirlo. La invitación a responder el correo no es cortesía —
+ * un rechazo por un dato mal leído se arregla así, sin volver a empezar.
+ */
+export function buildKybRejectedEmail({
+  legalName,
+  contactName,
+  reason,
+  siteUrl,
+}: {
+  legalName: string;
+  contactName: string;
+  reason: string;
+  siteUrl: string;
+}): BuiltKybEmail {
+  const first = contactName.trim().split(/\s+/)[0] || '';
+  const greeting = first ? `Hola ${first},` : 'Hola,';
+
+  const text = [
+    greeting,
+    '',
+    `Revisamos la solicitud de ${legalName} y, por ahora, no podemos darle curso.`,
+    '',
+    'Motivo:',
+    reason,
+    '',
+    'Si crees que hay un error o tienes antecedentes que no consideramos, responde este',
+    'correo y lo revisamos.',
+    '',
+    'Rix7 — Alta de empresas',
+    siteUrl,
+  ].join('\n');
+
+  return {
+    subject: `Sobre el alta de ${legalName} en Rix7`,
+    text,
+    html: shell({
+      siteUrl,
+      title: 'No pudimos continuar con el alta',
+      intro: `${escapeHtml(greeting)} revisamos la solicitud de <strong>${escapeHtml(legalName)}</strong> y, por ahora, no podemos darle curso.`,
+      body: `
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px 16px;color:#7f1d1d;font-size:13px;line-height:1.65">
+          <strong style="display:block;margin-bottom:4px">Motivo</strong>
+          ${escapeHtml(reason)}
+        </div>
+        <p style="margin:18px 0 0;color:#64748b;font-size:12px;line-height:1.6">
+          Si crees que hay un error o tienes antecedentes que no consideramos, responde este
+          correo y lo revisamos.
+        </p>`,
+    }),
+  };
+}
+
 export function buildKybEvaluatingEmail({
   legalName,
   siteUrl,

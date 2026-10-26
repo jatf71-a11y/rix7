@@ -1,10 +1,11 @@
 /**
  * Tipos y máquina de estados del onboarding KYB.
  *
- * El flujo tiene cinco estados y un único camino permitido entre ellos; el
- * motor de evaluación es el que decide si una solicitud avanza a `Aceptada` o
- * vuelve a la empresa con preguntas. `En_Alta` es terminal: la empresa ya tiene
- * su token, elige plan y su panel queda habilitado.
+ * El motor de evaluación decide si una solicitud avanza a `Aceptada` o vuelve a
+ * la empresa con preguntas, y el equipo puede decidir a mano sobre una solicitud
+ * ya evaluada. `En_Alta` es terminal por el lado bueno: la empresa ya tiene su
+ * token, elige plan y su panel queda habilitado; `Rechazada` es terminal por el
+ * otro: el alta no prosperó y no se vuelve a evaluar.
  *
  * Este módulo es puro (sin Supabase, sin red): la tabla de transiciones se
  * prueba sola y es la que impide que una ruta mueva una solicitud a un estado
@@ -17,6 +18,7 @@ export const KYB_STATUSES = [
   'Pendiente_Informacion',
   'Aceptada',
   'En_Alta',
+  'Rechazada',
 ] as const;
 
 export type KybStatus = (typeof KYB_STATUSES)[number];
@@ -27,20 +29,42 @@ export const KYB_STATUS_LABELS: Record<KybStatus, string> = {
   Pendiente_Informacion: 'Pendiente de información',
   Aceptada: 'Aceptada',
   En_Alta: 'En alta',
+  Rechazada: 'Rechazada',
 };
 
-/** Estado del que no se sale: la empresa ya tiene panel y plan. */
+/** Estados de los que no se sale. */
+export const KYB_TERMINAL_STATUSES: readonly KybStatus[] = ['En_Alta', 'Rechazada'];
+
+/**
+ * El estado terminal «bueno». Se mantiene el nombre porque es el que usan el
+ * portal y la provisión del panel para saber si la empresa ya quedó dentro.
+ */
 export const KYB_TERMINAL_STATUS: KybStatus = 'En_Alta';
 
 const TRANSITIONS: Record<KybStatus, readonly KybStatus[]> = {
   Recibida: ['En_Evaluacion'],
-  En_Evaluacion: ['Aceptada', 'Pendiente_Informacion'],
-  // Volver a evaluar después de las respuestas es el único camino de salida.
-  Pendiente_Informacion: ['En_Evaluacion'],
+  // `Rechazada` es una decisión, no un resultado del motor: la toma el equipo
+  // sobre una solicitud que ya tiene evaluación, para que nunca se rechace algo
+  // que nadie miró.
+  En_Evaluacion: ['Aceptada', 'Pendiente_Informacion', 'Rechazada'],
+  // Volver a evaluar después de las respuestas es el camino normal. Aprobar y
+  // rechazar siguen disponibles: el equipo puede haber recibido el dato por
+  // otra vía, o la empresa puede no responder nunca.
+  Pendiente_Informacion: ['En_Evaluacion', 'Aceptada', 'Rechazada'],
   // El alta genera el token y deja la solicitud en manos de la empresa.
   Aceptada: ['En_Alta'],
   En_Alta: [],
+  Rechazada: [],
 };
+
+/** Decisiones que puede tomar una persona del equipo desde el panel. */
+export const KYB_MANUAL_DECISIONS = ['Aceptada', 'Pendiente_Informacion', 'Rechazada'] as const;
+
+export type KybManualDecision = (typeof KYB_MANUAL_DECISIONS)[number];
+
+export function isKybManualDecision(value: unknown): value is KybManualDecision {
+  return typeof value === 'string' && (KYB_MANUAL_DECISIONS as readonly string[]).includes(value);
+}
 
 export function isKybStatus(value: unknown): value is KybStatus {
   return typeof value === 'string' && (KYB_STATUSES as readonly string[]).includes(value);

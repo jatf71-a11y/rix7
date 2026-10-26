@@ -68,9 +68,12 @@ function render(overrides: Partial<KybApplication> = {}, reevaluating = false) {
     React.createElement(KybEvaluationDetail, {
       application: { ...application, ...overrides },
       evaluation,
+      decisions: [],
       reevaluating,
+      deciding: false,
       error: null,
       onReevaluate: () => {},
+      onDecide: () => {},
     })
   );
 }
@@ -117,9 +120,12 @@ describe('ficha de evaluación', () => {
       React.createElement(KybEvaluationDetail, {
         application,
         evaluation: null,
+        decisions: [],
         reevaluating: false,
+        deciding: false,
         error: null,
         onReevaluate: () => {},
+        onDecide: () => {},
       })
     );
     expect(sinEvaluacion).toContain('Re-evalúa para correr el motor');

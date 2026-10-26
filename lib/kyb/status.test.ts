@@ -13,14 +13,31 @@ describe('transiciones KYB', () => {
   it('no permite saltos ni retrocesos', () => {
     expect(canTransition('Recibida', 'Aceptada')).toBe(false);
     expect(canTransition('Aceptada', 'En_Evaluacion')).toBe(false);
-    expect(canTransition('Pendiente_Informacion', 'Aceptada')).toBe(false);
+    expect(canTransition('Pendiente_Informacion', 'Recibida')).toBe(false);
     expect(canTransition('En_Alta', 'Recibida')).toBe(false);
   });
 
-  it('En_Alta es terminal', () => {
-    const terminal = assertTransition('En_Alta', 'Aceptada');
-    expect(terminal.ok).toBe(false);
-    if (!terminal.ok) expect(terminal.error).toMatch(/No se puede pasar/);
+  it('permite rechazar solo desde una solicitud ya evaluada', () => {
+    expect(canTransition('En_Evaluacion', 'Rechazada')).toBe(true);
+    expect(canTransition('Pendiente_Informacion', 'Rechazada')).toBe(true);
+    expect(canTransition('Recibida', 'Rechazada')).toBe(false);
+    expect(canTransition('Aceptada', 'Rechazada')).toBe(false);
+    expect(canTransition('En_Alta', 'Rechazada')).toBe(false);
+  });
+
+  it('desde pendiente el equipo también puede aprobar a mano', () => {
+    expect(canTransition('Pendiente_Informacion', 'Aceptada')).toBe(true);
+    expect(canTransition('Pendiente_Informacion', 'En_Evaluacion')).toBe(true);
+  });
+
+  it('En_Alta y Rechazada son terminales', () => {
+    const alta = assertTransition('En_Alta', 'Aceptada');
+    expect(alta.ok).toBe(false);
+    if (!alta.ok) expect(alta.error).toMatch(/No se puede pasar/);
+
+    const rechazada = assertTransition('Rechazada', 'En_Evaluacion');
+    expect(rechazada.ok).toBe(false);
+    expect(canTransition('Rechazada', 'Aceptada')).toBe(false);
   });
 
   it('explica cuando la solicitud ya está en ese estado', () => {
@@ -35,6 +52,7 @@ describe('transiciones KYB', () => {
     expect(canEvaluate('Pendiente_Informacion')).toBe(true);
     expect(canEvaluate('Aceptada')).toBe(false);
     expect(canEvaluate('En_Alta')).toBe(false);
+    expect(canEvaluate('Rechazada')).toBe(false);
   });
 
   it('reconoce los estados válidos', () => {

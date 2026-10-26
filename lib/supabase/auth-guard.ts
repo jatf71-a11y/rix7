@@ -9,7 +9,15 @@ import {
 } from '@/lib/utils/roles';
 
 export type GuardResult =
-  | { ok: true; role: AccountRole; devBypass: boolean }
+  | {
+      ok: true;
+      role: AccountRole;
+      devBypass: boolean;
+      /** Id de la cuenta, para dejar rastro de quién hizo qué. */
+      userId: string | null;
+      /** Correo de la cuenta: es el nombre con el que se firma una decisión. */
+      email: string | null;
+    }
   | { ok: false; response: NextResponse };
 
 /**
@@ -49,6 +57,8 @@ export async function requireAdmin(): Promise<GuardResult> {
 
   let authenticated = false;
   let role: AccountRole = 'visitor';
+  let userId: string | null = null;
+  let email: string | null = null;
 
   if (configured) {
     try {
@@ -58,6 +68,8 @@ export async function requireAdmin(): Promise<GuardResult> {
       } = await supabase.auth.getUser();
       authenticated = !!user;
       role = resolveRole(user);
+      userId = user?.id ?? null;
+      email = typeof user?.email === 'string' ? user.email : null;
     } catch {
       // Sin poder verificar la sesión no se autoriza nada.
       return {
@@ -83,7 +95,7 @@ export async function requireAdmin(): Promise<GuardResult> {
   }
 
   // Sin proyecto configurado el acceso vino del bypass, que equivale a admin.
-  return { ok: true, role: configured ? role : 'admin', devBypass };
+  return { ok: true, role: configured ? role : 'admin', devBypass, userId, email };
 }
 
 /**

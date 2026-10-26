@@ -16,6 +16,7 @@ import { isServiceRoleConfigured } from '@/lib/supabase/admin';
 import type { NormalizedKybApplication } from './application';
 import { isKybPlanId } from './plans';
 import {
+  isKybManualDecision,
   isKybStatus,
   isKybTokenPurpose,
   type KybEvaluation,
@@ -24,8 +25,11 @@ import {
 } from './status';
 import {
   KYB_COLUMNS,
+  KYB_DECISION_COLUMNS,
   type KybApplication,
   type KybApplicationRow,
+  type KybDecision,
+  type KybDecisionRow,
   type KybEvaluationRecord,
   type KybEvaluationRow,
   type KybInformationRequest,
@@ -47,13 +51,20 @@ interface MemoryDb {
   applications: KybApplication[];
   evaluations: KybEvaluationRecord[];
   requests: KybInformationRequest[];
+  decisions: KybDecision[];
   counter: number;
 }
 
 const memory = globalThis as typeof globalThis & { __rix7Kyb?: MemoryDb };
 
 function db(): MemoryDb {
-  memory.__rix7Kyb ??= { applications: [], evaluations: [], requests: [], counter: 0 };
+  memory.__rix7Kyb ??= {
+    applications: [],
+    evaluations: [],
+    requests: [],
+    decisions: [],
+    counter: 0,
+  };
   return memory.__rix7Kyb;
 }
 
@@ -396,6 +407,97 @@ export async function latestEvaluation(
   } catch (error) {
     return { ok: false, persisted: true, error: messageOf(error) };
   }
+}
+
+/**
+ * Guarda una decisión del equipo.
+ *
+ * Se escribe **después** de mover el estado: si el movimiento falla, no queda
+ * un historial que diga que alguien decidió algo que nunca pasó. El autor viaja
+ * como texto (correo de la cuenta de administración) y no como FK.
+ */
+export async function recordDecision(
+  record: Omit<KybDecision, 'id' | 'createdAt'>
+): Promise<KybResult<KybDecision>> {
+  const stored: KybDecision = {
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+    ...record,
+  };
+
+  if (kybSource() === 'memory') {
+    db().decisions = [stored, ...db().decisions];
+    return { ok: true, data: stored, persisted: false };
+  }
+
+  try {
+    const supabase = await serviceClient();
+    const { error } = await supabase.from('kyb_decisions').insert({
+      id: stored.id,
+      application_id: stored.applicationId,
+      decision: stored.decision,
+      status_before: stored.statusBefore,
+      status_after: stored.statusAfter,
+      note: stored.note,
+      questions: stored.questions,
+      decided_by: stored.decidedBy,
+      created_at: stored.createdAt,
+    });
+    if (error) return { ok: false, persisted: true, error: error.message };
+    return { ok: true, data: stored, persisted: true };
+  } catch (error) {
+    return { ok: false, persisted: true, error: messageOf(error) };
+  }
+}
+
+/**
+ * Historial de decisiones de una solicitud, de la más reciente a la más vieja.
+ *
+ * Devuelve `[]` si la tabla no responde: el panel puede mostrar la evaluación
+ * sin el historial, y perder la pantalla entera por un historial vacío sería
+ * peor que mostrarla incompleta.
+ */
+export async function listDecisions(applicationId: string, limit = 20): Promise<KybDecision[]> {
+  if (kybSource() === 'memory') {
+    return db()
+      .decisions.filter((decision) => decision.applicationId === applicationId)
+      .slice(0, limit);
+  }
+
+  try {
+    const supabase = await serviceClient();
+    const { data, error } = await supabase
+      .from('kyb_decisions')
+      .select(KYB_DECISION_COLUMNS)
+      .eq('application_id', applicationId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error || !data) return [];
+    return (data as KybDecisionRow[])
+      .map(rowToDecision)
+      .filter((decision): decision is KybDecision => decision !== null);
+  } catch {
+    return [];
+  }
+}
+
+function rowToDecision(row: KybDecisionRow): KybDecision | null {
+  // Una fila con una decisión que el código no conoce no se muestra: el panel
+  // no puede ofrecer acciones sobre algo que no entiende.
+  if (!isKybManualDecision(row.decision)) return null;
+
+  return {
+    id: row.id,
+    applicationId: row.application_id,
+    decision: row.decision,
+    statusBefore: isKybStatus(row.status_before) ? row.status_before : 'Recibida',
+    statusAfter: isKybStatus(row.status_after) ? row.status_after : 'Recibida',
+    note: row.note,
+    questions: Array.isArray(row.questions) ? row.questions : [],
+    decidedBy: row.decided_by,
+    createdAt: row.created_at,
+  };
 }
 
 export async function createInformationRequest(

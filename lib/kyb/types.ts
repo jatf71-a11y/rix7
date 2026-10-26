@@ -10,6 +10,7 @@ import type { KybPlanId } from './plans';
 import type {
   KybCheck,
   KybEvaluation,
+  KybManualDecision,
   KybQuestion,
   KybStatus,
   KybTokenPurpose,
@@ -103,6 +104,44 @@ export interface KybInformationRequest {
   requestedAt: string;
   answeredAt: string | null;
 }
+
+/**
+ * Una decisión tomada por una persona del equipo.
+ *
+ * No es una corrida del motor: `kyb_evaluations` mide lo que encontró la
+ * verificación, esto registra quién resolvió la solicitud y por qué. El panel
+ * muestra las dos cosas juntas porque una decisión sin la evaluación detrás es
+ * imposible de revisar.
+ */
+export interface KybDecision {
+  id: string;
+  applicationId: string;
+  decision: KybManualDecision;
+  statusBefore: KybStatus;
+  statusAfter: KybStatus;
+  /** Motivo del rechazo o comentario de la decisión; `null` si no se escribió. */
+  note: string | null;
+  /** Preguntas enviadas cuando la decisión fue «Pendiente_Informacion». */
+  questions: KybQuestion[];
+  /** Correo de la cuenta que decidió, o `dev` sin Supabase configurado. */
+  decidedBy: string;
+  createdAt: string;
+}
+
+export interface KybDecisionRow {
+  id: string;
+  application_id: string;
+  decision: string;
+  status_before: string;
+  status_after: string;
+  note: string | null;
+  questions: KybQuestion[] | null;
+  decided_by: string;
+  created_at: string;
+}
+
+export const KYB_DECISION_COLUMNS =
+  'id, application_id, decision, status_before, status_after, note, questions, decided_by, created_at';
 
 export interface KybInformationRequestRow {
   id: string;

@@ -48,10 +48,16 @@ describe('puntaje', () => {
 });
 
 describe('re-evaluación', () => {
-  it('solo se bloquea en el estado terminal', () => {
+  it('solo se ofrece mientras el flujo admite una corrida', () => {
+    const evaluables = ['Recibida', 'En_Evaluacion', 'Pendiente_Informacion'];
     for (const status of KYB_STATUSES) {
-      expect(canReevaluate(status)).toBe(status !== 'En_Alta');
+      expect(canReevaluate(status), status).toBe(evaluables.includes(status));
     }
+  });
+
+  it('una solicitud rechazada no vuelve al motor', () => {
+    expect(canReevaluate('Rechazada')).toBe(false);
+    expect(canReevaluate('En_Alta')).toBe(false);
   });
 });
 

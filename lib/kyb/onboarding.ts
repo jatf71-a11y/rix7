@@ -23,7 +23,9 @@ import {
   buildKybEvaluatingEmail,
   buildKybPendingEmail,
   buildKybReceivedEmail,
+  buildKybRejectedEmail,
 } from '@/lib/email/kybEmails';
+import { normalizeDecision } from './decisions';
 import { SITE_URL } from '@/lib/site';
 import { getKybPlan, isKybPlanId, type KybPlanId } from './plans';
 import {
@@ -32,6 +34,7 @@ import {
   findByTokenHash,
   getApplication,
   latestInformationRequest,
+  recordDecision,
   saveAnswers,
   saveEvaluation,
   tokenAllows,
@@ -281,6 +284,161 @@ export async function evaluateById(
     evaluation,
     questions: evaluation.questions,
     email,
+  };
+}
+
+export interface DecideResult {
+  ok: boolean;
+  application?: KybApplication;
+  status?: KybStatus;
+  questions?: KybQuestion[];
+  email?: EmailOutcome;
+  error?: string;
+  /**
+   * Por qué falló, para que la ruta elija el estado HTTP sin adivinar por el
+   * texto: `invalid` es una entrada mal armada (400), `conflict` es un estado
+   * que no admite la decisión (409) y `not_found` no existe (404).
+   */
+  code?: 'invalid' | 'conflict' | 'not_found' | 'store';
+}
+
+/**
+ * Decisión manual del equipo sobre una solicitud ya evaluada.
+ *
+ * Aprobar, pedir información o rechazar: las tres hacen lo mismo que haría el
+ * motor en su rama correspondiente —mover el estado, emitir el token que
+ * corresponda, mandar el correo— con una diferencia: acá queda registrado
+ * **quién** decidió y con qué motivo. Sin ese registro, un alta aprobada a mano
+ * es indistinguible de una que pasó sola.
+ *
+ * `Aceptada` sigue el mismo camino de dos pasos que la aprobación automática
+ * (`Aceptada` → `En_Alta`, que es el estado desde el que la empresa elige plan),
+ * y `Rechazada` deja la solicitud sin token: el enlace que tuviera la empresa
+ * deja de servir en el mismo movimiento.
+ */
+export async function decideApplication({
+  id,
+  decision,
+  note,
+  questions,
+  decidedBy,
+}: {
+  id: string;
+  decision: unknown;
+  note?: unknown;
+  questions?: unknown;
+  decidedBy: string;
+}): Promise<DecideResult> {
+  const current = await getApplication(id);
+  if (!current.ok || !current.data) {
+    return {
+      ok: false,
+      code: current.found === false ? 'not_found' : 'store',
+      error: current.error ?? 'Solicitud no encontrada.',
+    };
+  }
+  const application = current.data;
+
+  const validated = normalizeDecision({ decision, note, questions });
+  if (!validated.ok) return { ok: false, code: 'invalid', error: validated.error };
+  const chosen = validated.data;
+
+  // La tabla de transiciones es la que manda: si el estado no admite esta
+  // decisión, el panel tiene un dato viejo y hay que recargarlo.
+  const transition = assertTransition(application.status, chosen.decision);
+  if (!transition.ok) return { ok: false, code: 'conflict', error: transition.error };
+
+  const before = application.status;
+  let email: EmailOutcome | undefined;
+  let after: KybStatus = chosen.decision;
+
+  if (chosen.decision === 'Rechazada') {
+    const updated = await updateApplication(id, {
+      status: 'Rechazada',
+      // El token muere con la solicitud: si la empresa tenía el enlace de
+      // respuestas abierto, deja de servir.
+      tokenHash: null,
+      tokenPurpose: null,
+      tokenExpiresAt: null,
+    });
+    if (!updated.ok) {
+      return { ok: false, code: 'store', error: updated.error ?? 'No se pudo guardar el estado.' };
+    }
+
+    email = await notify(
+      application.email,
+      buildKybRejectedEmail({
+        legalName: application.legalName,
+        contactName: application.contactName,
+        reason: chosen.note ?? '',
+        siteUrl: SITE_URL,
+      })
+    );
+  } else if (chosen.decision === 'Aceptada') {
+    await updateApplication(id, { status: 'Aceptada' });
+
+    const inAlta = assertTransition('Aceptada', 'En_Alta');
+    if (!inAlta.ok) return { ok: false, code: 'conflict', error: inAlta.error };
+
+    const updated = await updateApplication(id, { status: 'En_Alta' });
+    if (!updated.ok) {
+      return { ok: false, code: 'store', error: updated.error ?? 'No se pudo guardar el estado.' };
+    }
+    after = 'En_Alta';
+
+    const { token } = await issueToken(id, 'activation');
+    email = await notify(
+      application.email,
+      buildKybAcceptedEmail({
+        legalName: application.legalName,
+        contactName: application.contactName,
+        token,
+        siteUrl: SITE_URL,
+      })
+    );
+  } else {
+    const updated = await updateApplication(id, { status: 'Pendiente_Informacion' });
+    if (!updated.ok) {
+      return { ok: false, code: 'store', error: updated.error ?? 'No se pudo guardar el estado.' };
+    }
+
+    await createInformationRequest(id, chosen.questions);
+    const { token } = await issueToken(id, 'answers');
+
+    email = await notify(
+      application.email,
+      buildKybPendingEmail({
+        legalName: application.legalName,
+        contactName: application.contactName,
+        questions: chosen.questions,
+        token,
+        siteUrl: SITE_URL,
+      })
+    );
+  }
+
+  const refreshed = await getApplication(id);
+
+  // El historial se escribe al final: si el estado no se movió, no queda una
+  // decisión registrada que nunca ocurrió. Si el registro falla, la decisión
+  // igual está hecha y se informa (`decisionPersisted`).
+  const recorded = await recordDecision({
+    applicationId: id,
+    decision: chosen.decision,
+    statusBefore: before,
+    statusAfter: after,
+    note: chosen.note,
+    questions: chosen.questions,
+    decidedBy,
+  });
+
+  return {
+    ok: true,
+    application: refreshed.data ?? application,
+    status: after,
+    questions: chosen.questions,
+    email,
+    ...(recorded.ok ? {} : { error: `La decisión se aplicó, pero no se pudo registrar en el historial: ${recorded.error}` }),
   };
 }
 

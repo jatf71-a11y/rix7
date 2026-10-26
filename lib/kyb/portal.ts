@@ -34,6 +34,7 @@ export const KYB_STATUS_TONES: Record<KybStatus, string> = {
   Pendiente_Informacion: 'border-orange-100 bg-orange-50 text-orange-700',
   Aceptada: 'border-emerald-100 bg-emerald-50 text-emerald-700',
   En_Alta: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+  Rechazada: 'border-red-100 bg-red-50 text-red-700',
 };
 
 /**
@@ -82,6 +83,11 @@ export function evaluatingCopy(status: KybStatus): StageCopy {
       return {
         title: 'Tu empresa quedó aceptada',
         body: 'Te enviamos al correo de la empresa el enlace para elegir el plan y habilitar el panel de publicaciones.',
+      };
+    case 'Rechazada':
+      return {
+        title: 'El alta no prosperó',
+        body: 'Te escribimos al correo de la empresa con el motivo de la decisión. Si crees que hay un error, responde ese correo y lo revisamos.',
       };
   }
 }

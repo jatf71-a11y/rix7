@@ -28,6 +28,8 @@ import { z } from 'zod';
 import { isValidRol, ROL_MAX_LENGTH } from '@/lib/utils/rol';
 import { PARTNER_KINDS } from '@/lib/data/partners';
 import { KYB_PLAN_IDS } from '@/lib/kyb/plans';
+import { KYB_MANUAL_DECISIONS } from '@/lib/kyb/status';
+import { KYB_DECISION_NOTE_MAX, KYB_DECISION_QUESTIONS_MAX } from '@/lib/kyb/decisions';
 
 /** Longitud máxima aceptada para ids de propiedad/usuario-style legibles. */
 const MAX_ID_LENGTH = 120;
@@ -677,6 +679,25 @@ export const kybAnswersPostSchema = z.object({
     )
     .min(1)
     .max(10),
+});
+
+/**
+ * Decisión del equipo sobre una solicitud evaluada.
+ *
+ * La forma mínima: la obligatoriedad de la nota (rechazo) y de las preguntas
+ * (pedir información) la resuelve `normalizeDecision`, que es donde se puede
+ * probar esa regla sin montar una ruta.
+ */
+export const kybDecisionPostSchema = z.object({
+  decision: z.enum(KYB_MANUAL_DECISIONS, {
+    required_error: 'Falta la decisión.',
+    invalid_type_error: 'La decisión no es válida.',
+  }),
+  note: z.string().trim().max(KYB_DECISION_NOTE_MAX).optional(),
+  questions: z
+    .array(z.string().trim().min(2).max(300))
+    .max(KYB_DECISION_QUESTIONS_MAX)
+    .optional(),
 });
 
 /** Consulta del estado con el token del correo. */

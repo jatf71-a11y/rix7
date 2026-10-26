@@ -132,6 +132,7 @@ const HEALTHY_ROUTES: Record<string, () => Response> = {
   [`${BASE}/rest/v1/kyb_applications?select=status&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/kyb_applications?select=token_hash&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/kyb_evaluations?select=score&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/kyb_decisions?select=decided_by&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/rpc/rix7_partner_id`]: () => jsonResponse(200, null),
   [`${BASE}/rest/v1/rpc/get_properties_filtered`]: () => jsonResponse(200, [{ id: 'p1' }]),
 };
@@ -182,6 +183,7 @@ describe('schemaPlan', () => {
     expect(ids).toContain('partners.kind');
     expect(ids).toContain('solicitudes.kind');
     expect(ids).toContain('kyb_applications.status');
+    expect(ids).toContain('kyb_decisions.decided_by');
     expect(ids).toContain('rix7_partner_id()');
     expect(ids).toContain('get_properties_filtered(bbox)');
     expect(new Set(REQUIRED_SCHEMA.map((item) => item.migration))).toEqual(
@@ -195,6 +197,7 @@ describe('schemaPlan', () => {
         '0023_fuente_contribuciones',
         '0024_socios_tipo',
         '0026_kyb_onboarding',
+        '0027_kyb_rechazo_y_decisiones',
       ])
     );
   });
@@ -365,6 +368,8 @@ describe('runSchemaCheck', () => {
       [`${BASE}/rest/v1/kyb_applications?select=status&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/kyb_applications?select=token_hash&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/kyb_evaluations?select=score&limit=1`]: () => jsonResponse(200, []),
+      // La 0027 (decisiones del equipo) también está aplicada acá.
+      [`${BASE}/rest/v1/kyb_decisions?select=decided_by&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/rpc/rix7_partner_id`]: () => jsonResponse(404, MISSING_FUNCTION),
       [`${BASE}/rest/v1/rpc/get_properties_filtered`]: () => jsonResponse(200, []),
     });
