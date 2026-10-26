@@ -67,6 +67,32 @@ function formatBuiltAt(iso: string): string {
   return `${iso.slice(0, 16).replace('T', ' ')} UTC`;
 }
 
+/**
+ * Distintivo de solicitudes nuevas.
+ *
+ * Vive aparte porque la navegación lo pinta en dos lugares —el lateral y la
+ * fila angosta— y el texto accesible no puede quedar distinto en cada uno.
+ * `null` es «todavía no se sabe»: no se pinta nada, en vez de un cero que
+ * mienta.
+ */
+function NewRequestsBadge({ count, compact = false }: { count: number | null; compact?: boolean }) {
+  if (count === null || count <= 0) return null;
+
+  const label = `${count} solicitud${count === 1 ? '' : 'es'} nueva${count === 1 ? '' : 's'} sin revisar`;
+
+  return (
+    <span
+      title={label}
+      aria-label={label}
+      className={`rounded-full bg-blue-600 text-[10px] font-bold leading-4 text-white ${
+        compact ? 'px-1.5 py-0.5' : 'px-2 py-0.5'
+      }`}
+    >
+      {count > 99 ? '99+' : count}
+    </span>
+  );
+}
+
 export default function AdminShell({
   children,
   release,
@@ -155,17 +181,7 @@ export default function AdminShell({
                 <item.icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
                 <span>{item.label}</span>
                 <span className="ml-auto flex items-center gap-1.5">
-                  {item.href === '/admin/solicitudes' && nuevas !== null && nuevas > 0 && (
-                    <span
-                      title={`${nuevas} solicitud${nuevas === 1 ? '' : 'es'} nueva${
-                        nuevas === 1 ? '' : 's'
-                      } sin revisar`}
-                      aria-label={`${nuevas} solicitudes nuevas sin revisar`}
-                      className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold leading-4 text-white"
-                    >
-                      {nuevas > 99 ? '99+' : nuevas}
-                    </span>
-                  )}
+                  {item.href === '/admin/solicitudes' && <NewRequestsBadge count={nuevas} />}
                   {isActive && <ChevronRight className="w-3 h-3 text-blue-400" />}
                 </span>
               </Link>
@@ -187,6 +203,45 @@ export default function AdminShell({
 
       {/* Main Content */}
       <main className="flex-1 p-6 lg:p-8 overflow-auto flex flex-col">
+        {/*
+          Navegación angosta.
+
+          Bajo `lg` el lateral no se muestra, así que hasta ahora el panel se
+          quedaba sin menú: se llegaba al dashboard y a ninguna otra sección sin
+          escribir la URL a mano (el alta de empresas, entre ellas). Es una fila
+          desplazable y no un menú plegado porque los destinos son siete y
+          cortos: con un gesto se ven todos, y no hay estado abierto/cerrado que
+          recordar. El distintivo de solicitudes nuevas se repite acá por el
+          mismo motivo que el menú.
+        */}
+        <nav
+          aria-label="Secciones del panel"
+          className="lg:hidden sticky top-0 z-20 -mx-6 -mt-6 mb-6 border-b border-slate-200 bg-white/95 px-3 py-2 backdrop-blur"
+        >
+          <ul className="flex items-center gap-1 overflow-x-auto">
+            {sidebarItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <li key={item.href} className="shrink-0">
+                  <Link
+                    href={item.href}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
+                      isActive ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    }`}
+                  >
+                    <item.icon className={`h-4 w-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
+                    <span>{item.label}</span>
+                    {item.href === '/admin/solicitudes' && (
+                      <NewRequestsBadge count={nuevas} compact />
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
         <div className="flex-1">{children}</div>
 
         {/*
