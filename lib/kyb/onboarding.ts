@@ -46,6 +46,7 @@ import { normalizeKybApplication, type KybApplicationInput } from './application
 import { provisionCompanyPanel } from './provisioning';
 import {
   assertTransition,
+  canDecideManually,
   canEvaluate,
   type KybEvaluation,
   type KybQuestion,
@@ -315,6 +316,11 @@ export interface DecideResult {
  * (`Aceptada` → `En_Alta`, que es el estado desde el que la empresa elige plan),
  * y `Rechazada` deja la solicitud sin token: el enlace que tuviera la empresa
  * deja de servir en el mismo movimiento.
+ *
+ * Pedir información sobre una solicitud **ya** pendiente no mueve el estado:
+ * abre otra ronda con las preguntas del equipo y emite un token nuevo. Es el
+ * caso normal en producción, porque el motor decide en la misma corrida del
+ * alta y ninguna solicitud queda detenida en `En_Evaluacion`.
  */
 export async function decideApplication({
   id,
@@ -344,9 +350,13 @@ export async function decideApplication({
   const chosen = validated.data;
 
   // La tabla de transiciones es la que manda: si el estado no admite esta
-  // decisión, el panel tiene un dato viejo y hay que recargarlo.
-  const transition = assertTransition(application.status, chosen.decision);
-  if (!transition.ok) return { ok: false, code: 'conflict', error: transition.error };
+  // decisión, el panel tiene un dato viejo y hay que recargarlo. La excepción es
+  // volver a pedir información sobre algo que ya está pendiente: no mueve el
+  // estado, así que `canDecideManually` lo admite y acá no hay transición.
+  if (!canDecideManually(application.status, chosen.decision)) {
+    const transition = assertTransition(application.status, chosen.decision);
+    if (!transition.ok) return { ok: false, code: 'conflict', error: transition.error };
+  }
 
   const before = application.status;
   let email: EmailOutcome | undefined;
@@ -397,9 +407,15 @@ export async function decideApplication({
       })
     );
   } else {
-    const updated = await updateApplication(id, { status: 'Pendiente_Informacion' });
-    if (!updated.ok) {
-      return { ok: false, code: 'store', error: updated.error ?? 'No se pudo guardar el estado.' };
+    // Si ya estaba pendiente, el estado no se toca: se abre otra ronda con las
+    // preguntas del equipo y se emite un token nuevo. La ronda anterior, si
+    // quedó abierta, deja de importar: su token se reemplaza en el mismo
+    // movimiento y `latestInformationRequest` devuelve esta.
+    if (application.status !== 'Pendiente_Informacion') {
+      const updated = await updateApplication(id, { status: 'Pendiente_Informacion' });
+      if (!updated.ok) {
+        return { ok: false, code: 'store', error: updated.error ?? 'No se pudo guardar el estado.' };
+      }
     }
 
     await createInformationRequest(id, chosen.questions);

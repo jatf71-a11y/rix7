@@ -49,7 +49,9 @@ const TRANSITIONS: Record<KybStatus, readonly KybStatus[]> = {
   En_Evaluacion: ['Aceptada', 'Pendiente_Informacion', 'Rechazada'],
   // Volver a evaluar después de las respuestas es el camino normal. Aprobar y
   // rechazar siguen disponibles: el equipo puede haber recibido el dato por
-  // otra vía, o la empresa puede no responder nunca.
+  // otra vía, o la empresa puede no responder nunca. Volver a pedir información
+  // queda fuera de la tabla porque no cambia de estado: lo resuelve
+  // `canDecideManually`.
   Pendiente_Informacion: ['En_Evaluacion', 'Aceptada', 'Rechazada'],
   // El alta genera el token y deja la solicitud en manos de la empresa.
   Aceptada: ['En_Alta'],
@@ -72,6 +74,23 @@ export function isKybStatus(value: unknown): value is KybStatus {
 
 export function canTransition(from: KybStatus, to: KybStatus): boolean {
   return TRANSITIONS[from].includes(to);
+}
+
+/**
+ * ¿La decisión del equipo se puede aplicar sobre este estado?
+ *
+ * Pedir información sobre una solicitud que **ya** está en
+ * «Pendiente_Informacion» no es una transición: la solicitud no se mueve de
+ * estado, se abre una ronda nueva con las preguntas del equipo y un token
+ * fresco. Sin esta excepción la decisión manual quedaba inalcanzable en la
+ * práctica, porque el motor decide en la misma corrida del alta y nunca deja
+ * una solicitud detenida en «En_Evaluacion». Aprobar y rechazar siguen
+ * exigiendo un paso real: el mismo estado solo se admite para volver a
+ * preguntar.
+ */
+export function canDecideManually(from: KybStatus, decision: KybManualDecision): boolean {
+  if (from === 'Pendiente_Informacion' && decision === 'Pendiente_Informacion') return true;
+  return canTransition(from, decision);
 }
 
 /**

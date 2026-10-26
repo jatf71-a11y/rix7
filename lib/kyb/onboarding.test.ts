@@ -146,6 +146,76 @@ describe('flujo KYB', () => {
     expect(subjects.some((subject) => /aceptada/i.test(subject))).toBe(true);
   });
 
+  it('vuelve a pedir información sobre una solicitud que ya está pendiente', async () => {
+    const informal = { ...empresa, website: '', email: 'ana.torres@gmail.com' };
+    const submitted = await submitKybApplication(informal, { deps });
+    expect(submitted.status).toBe('Pendiente_Informacion');
+    const firstToken = tokenFromLastEmail();
+
+    const asked = await decideApplication({
+      id: submitted.applicationId as string,
+      decision: 'Pendiente_Informacion',
+      note: 'La empresa escribió para precisar el domicilio.',
+      questions: ['¿Cuál es el domicilio comercial exacto donde opera la empresa?'],
+      decidedBy: 'equipo@rix7.cl',
+    });
+
+    expect(asked.ok).toBe(true);
+    expect(asked.status).toBe('Pendiente_Informacion');
+    expect(asked.questions).toEqual([
+      { id: 'manual_1', question: '¿Cuál es el domicilio comercial exacto donde opera la empresa?' },
+    ]);
+    // El correo sale igual que en el camino automático: es el de preguntas.
+    const mail = sendEmail.mock.calls.at(-1)?.[0] as { subject: string; text: string };
+    expect(mail.subject).toMatch(/falta información/i);
+    expect(mail.text).toContain('domicilio comercial exacto');
+
+    const stored = await getApplication(submitted.applicationId as string);
+    expect(stored.data?.status).toBe('Pendiente_Informacion');
+    expect(stored.data?.tokenPurpose).toBe('answers');
+
+    // El token de la ronda anterior murió con la ronda: no sirve para responder.
+    const old = await answerKybQuestions({
+      token: firstToken,
+      answers: [{ id: 'domain_web', answer: 'El dominio corporativo es torres.cl.' }],
+      deps,
+    });
+    expect(old.ok).toBe(false);
+
+    const secondToken = tokenFromLastEmail();
+    expect(secondToken).not.toBe(firstToken);
+
+    const answered = await answerKybQuestions({
+      token: secondToken,
+      answers: [{ id: 'manual_1', answer: 'Av. Providencia 1234, oficina 56, Santiago.' }],
+      deps,
+    });
+    expect(answered.ok).toBe(true);
+
+    const decisions = await listDecisions(submitted.applicationId as string);
+    expect(decisions[0]?.decision).toBe('Pendiente_Informacion');
+    expect(decisions[0]?.statusBefore).toBe('Pendiente_Informacion');
+    expect(decisions[0]?.statusAfter).toBe('Pendiente_Informacion');
+    expect(decisions[0]?.decidedBy).toBe('equipo@rix7.cl');
+    expect(decisions[0]?.questions).toHaveLength(1);
+    expect(decisions[0]?.note).toBe('La empresa escribió para precisar el domicilio.');
+  });
+
+  it('no deja pedir información sobre lo que ya terminó', async () => {
+    const submitted = await submitKybApplication(empresa, { deps });
+    expect(submitted.status).toBe('En_Alta');
+
+    const asked = await decideApplication({
+      id: submitted.applicationId as string,
+      decision: 'Pendiente_Informacion',
+      questions: ['¿Cuál es el domicilio comercial exacto donde opera la empresa?'],
+      decidedBy: 'equipo@rix7.cl',
+    });
+
+    expect(asked.ok).toBe(false);
+    expect(asked.code).toBe('conflict');
+  });
+
   it('rechaza respuestas incompletas sin re-evaluar', async () => {
     const informal = { ...empresa, website: '', email: 'ana.torres@gmail.com' };
     const submitted = await submitKybApplication(informal, { deps });

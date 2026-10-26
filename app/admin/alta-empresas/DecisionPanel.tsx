@@ -159,6 +159,9 @@ export default function DecisionPanel({
                     className="mt-1 w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs text-slate-800"
                     placeholder={'¿Cuál es el domicilio comercial de la empresa?\n¿Quién aparece como representante legal?'}
                   />
+                  <p className="mt-1 text-[10px] text-slate-500">
+                    Se abre una ronda nueva con un enlace nuevo: el que tuviera la empresa deja de servir.
+                  </p>
                 </label>
               )}
 

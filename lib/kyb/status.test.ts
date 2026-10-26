@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { assertTransition, canEvaluate, canTransition, isKybStatus } from './status';
+import {
+  assertTransition,
+  canDecideManually,
+  canEvaluate,
+  canTransition,
+  isKybStatus,
+} from './status';
 
 describe('transiciones KYB', () => {
   it('permite el camino del flujo', () => {
@@ -28,6 +34,18 @@ describe('transiciones KYB', () => {
   it('desde pendiente el equipo también puede aprobar a mano', () => {
     expect(canTransition('Pendiente_Informacion', 'Aceptada')).toBe(true);
     expect(canTransition('Pendiente_Informacion', 'En_Evaluacion')).toBe(true);
+  });
+
+  it('volver a pedir información no es una transición, pero se admite', () => {
+    expect(canTransition('Pendiente_Informacion', 'Pendiente_Informacion')).toBe(false);
+    expect(canDecideManually('Pendiente_Informacion', 'Pendiente_Informacion')).toBe(true);
+
+    // La excepción es solo para volver a preguntar: el resto sigue la tabla.
+    expect(canDecideManually('En_Evaluacion', 'Pendiente_Informacion')).toBe(true);
+    expect(canDecideManually('Recibida', 'Pendiente_Informacion')).toBe(false);
+    expect(canDecideManually('En_Alta', 'Pendiente_Informacion')).toBe(false);
+    expect(canDecideManually('En_Alta', 'Aceptada')).toBe(false);
+    expect(canDecideManually('Pendiente_Informacion', 'Rechazada')).toBe(true);
   });
 
   it('En_Alta y Rechazada son terminales', () => {

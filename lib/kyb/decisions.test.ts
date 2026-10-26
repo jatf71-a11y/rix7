@@ -14,8 +14,20 @@ describe('qué puede decidir el equipo', () => {
       'Pendiente_Informacion',
       'Rechazada',
     ]);
-    // Aprobar sigue disponible: el dato puede haber llegado por otra vía.
-    expect(decisionsFor('Pendiente_Informacion')).toEqual(['Aceptada', 'Rechazada']);
+    // Aprobar sigue disponible: el dato puede haber llegado por otra vía, y
+    // volver a preguntar también: no se mueve el estado, se abre otra ronda.
+    expect(decisionsFor('Pendiente_Informacion')).toEqual([
+      'Aceptada',
+      'Pendiente_Informacion',
+      'Rechazada',
+    ]);
+  });
+
+  it('volver a pedir información solo se ofrece sobre algo ya pendiente', () => {
+    expect(decisionsFor('En_Evaluacion')).toContain('Pendiente_Informacion');
+    // En los estados en los que no hay evaluación no hay nada que volver a pedir.
+    expect(decisionsFor('Recibida')).not.toContain('Pendiente_Informacion');
+    expect(decisionsFor('En_Alta')).not.toContain('Pendiente_Informacion');
   });
 
   it('no decide sobre lo que todavía no se evaluó ni sobre lo terminal', () => {

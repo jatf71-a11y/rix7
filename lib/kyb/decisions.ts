@@ -16,10 +16,13 @@
  *   dejaría el enlace sin ronda abierta que responder.
  * - **No se decide sobre lo que ya terminó.** `En_Alta` y `Rechazada` son
  *   terminales; `Aceptada` ya tiene su salto a `En_Alta` reservado.
+ * - **Volver a preguntar se puede.** Sobre una solicitud que ya está pendiente,
+ *   el equipo puede abrir otra ronda con sus propias preguntas; no es un cambio
+ *   de estado y por eso `canDecideManually` lo admite aparte de la tabla.
  */
 
 import {
-  canTransition,
+  canDecideManually,
   isKybManualDecision,
   KYB_MANUAL_DECISIONS,
   KYB_STATUS_LABELS,
@@ -42,7 +45,7 @@ const QUESTION_MIN = 10;
 
 /** Qué decisiones ofrece el panel para una solicitud en este estado. */
 export function decisionsFor(status: KybStatus): KybManualDecision[] {
-  return KYB_MANUAL_DECISIONS.filter((decision) => canTransition(status, decision));
+  return KYB_MANUAL_DECISIONS.filter((decision) => canDecideManually(status, decision));
 }
 
 /** Texto del botón, con el verbo en imperativo. */
