@@ -8,7 +8,13 @@
  */
 
 import type { KybCoverage } from './application';
-import { canEvaluate, type KybCheck, type KybStatus } from './status';
+import {
+  canEvaluate,
+  type KybCheck,
+  type KybCheckEvidence,
+  type KybEvidenceSource,
+  type KybStatus,
+} from './status';
 
 export type KybCheckStatus = KybCheck['status'];
 
@@ -17,9 +23,9 @@ export interface KybCheckTone {
   className: string;
 }
 
-/** Verde pasa, ámbar advierte, rojo falla. Mismo criterio que el motor. */
+/** Verde OK, ámbar advierte, rojo falla. Mismo criterio que el motor. */
 export const KYB_CHECK_TONES: Record<KybCheckStatus, KybCheckTone> = {
-  pass: { label: 'Pasa', className: 'bg-emerald-50 text-emerald-700 ring-emerald-100' },
+  pass: { label: 'OK', className: 'bg-emerald-50 text-emerald-700 ring-emerald-100' },
   warn: { label: 'Advertencia', className: 'bg-amber-50 text-amber-700 ring-amber-100' },
   fail: { label: 'Falla', className: 'bg-red-50 text-red-700 ring-red-100' },
 };
@@ -43,6 +49,41 @@ export function scoreTone(score: number | null): string {
   if (score >= 75) return 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100';
   if (score >= 50) return 'bg-amber-50 text-amber-700 ring-1 ring-amber-100';
   return 'bg-red-50 text-red-700 ring-1 ring-red-100';
+}
+
+/**
+ * Origen de cada verificación, en una línea.
+ *
+ * Existe por un caso concreto: en producción, sin `KYB_SEARCH_URL`, la
+ * advertencia de reputación **no** sale de una búsqueda real, y leer «3 reseñas
+ * negativas públicas» sin ese dato es creerle a una simulación. El panel tiene
+ * que poder decirlo, y también marcar cuáles de las seis verificaciones solo
+ * releen la solicitud en vez de comprobar algo afuera.
+ */
+export const KYB_EVIDENCE_LABELS: Record<KybEvidenceSource, string> = {
+  declared: 'Lo declarado en la solicitud',
+  sii: 'Registro del SII',
+  search: 'Búsqueda real en la web',
+  simulated: 'Simulación local: no hay proveedor externo configurado',
+};
+
+/**
+ * URL de una mención, solo si es `http(s)`.
+ *
+ * El enlace lo aporta un proveedor externo y termina en un `href`: un
+ * `javascript:` devuelto por el buscador se muestra como texto, no como enlace.
+ */
+export function evidenceHref(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+export function evidenceLabel(evidence: KybCheckEvidence): string {
+  return KYB_EVIDENCE_LABELS[evidence.source];
 }
 
 /**

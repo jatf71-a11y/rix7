@@ -57,11 +57,30 @@ const evaluation: KybEvaluation = {
       detail: '4 reseñas negativas públicas y ninguna señal de fraude.',
       weight: 20,
       question: '¿Qué medidas tomó la empresa para resolverlas?',
+      evidence: {
+        source: 'search',
+        mentions: [{ title: 'Reclamo en foros', url: 'https://foros.cl/reclamo' }],
+      },
     },
   ],
   questions: [{ id: 'reputation', question: '¿Qué medidas tomó la empresa para resolverlas?' }],
   reasons: ['Quedan 1 verificación(es) por aclarar; puntaje 90/100.'],
 };
+
+function renderEvaluation(evaluation: KybEvaluation) {
+  return renderToStaticMarkup(
+    React.createElement(KybEvaluationDetail, {
+      application,
+      evaluation,
+      decisions: [],
+      reevaluating: false,
+      deciding: false,
+      error: null,
+      onReevaluate: () => {},
+      onDecide: () => {},
+    })
+  );
+}
 
 function render(overrides: Partial<KybApplication> = {}, reevaluating = false) {
   return renderToStaticMarkup(
@@ -85,7 +104,7 @@ describe('ficha de evaluación', () => {
     expect(html).toContain('90');
     expect(html).toContain('/100');
     expect(html).toContain('2026-10-23 12:05 UTC');
-    expect(html).toContain('1 pasa');
+    expect(html).toContain('1 ok');
     expect(html).toContain('1 advierte');
   });
 
@@ -95,6 +114,49 @@ describe('ficha de evaluación', () => {
     expect(html).toContain('El RUT 76.543.210-3 tiene dígito verificador correcto.');
     expect(html).toContain('Reputación web');
     expect(html).toContain('4 reseñas negativas públicas');
+  });
+
+  it('cada advertencia dice de dónde salió el dato y con qué sustento', () => {
+    expect(html).toContain('Origen');
+    expect(html).toContain('Búsqueda real en la web');
+    expect(html).toContain('Menciones encontradas');
+    expect(html).toContain('Reclamo en foros');
+    expect(html).toContain('href="https://foros.cl/reclamo"');
+  });
+
+  it('la simulación se declara como tal, no se lee como hallazgo real', () => {
+    const simulada = renderEvaluation({
+      ...evaluation,
+      checks: evaluation.checks.map((check) =>
+        check.id === 'reputation'
+          ? { ...check, evidence: { source: 'simulated' as const, mentions: [] } }
+          : check
+      ),
+    });
+
+    expect(simulada).toContain('no hay proveedor externo configurado');
+    expect(simulada).not.toContain('Menciones encontradas');
+  });
+
+  it('una mención que no es http(s) se muestra como texto, no como enlace', () => {
+    const sospechosa = renderEvaluation({
+      ...evaluation,
+      checks: evaluation.checks.map((check) =>
+        check.id === 'reputation'
+          ? {
+              ...check,
+              evidence: {
+                source: 'search' as const,
+                mentions: [{ title: 'Foro sospechoso', url: 'javascript:alert(1)' }],
+              },
+            }
+          : check
+      ),
+    });
+
+    expect(sospechosa).toContain('Foro sospechoso');
+    expect(sospechosa).not.toContain('javascript:alert(1)"');
+    expect(sospechosa).not.toMatch(/<a[^>]*Foro sospechoso/);
   });
 
   it('explica la decisión y la pregunta que se envió', () => {

@@ -123,6 +123,77 @@ describe('evaluateKyb', () => {
     expect(evaluation.decision).toBe('Pendiente_Informacion');
   });
 
+  it('la advertencia dice de dónde salió el dato', async () => {
+    const simulated = await evaluateKyb(empresa, {}, {
+      tax: taxAdapter(),
+      reputation: reputationAdapter({ negativeReviews: 4 }),
+    });
+    expect(simulated.checks.find((check) => check.id === 'reputation')?.evidence).toEqual({
+      source: 'simulated',
+      mentions: [],
+    });
+
+    const search: ReputationAdapter = {
+      source: 'search',
+      async check() {
+        return {
+          source: 'search',
+          fraudFlags: [],
+          negativeReviews: 4,
+          mentions: [{ title: 'Reclamos en foros', url: 'https://foros.cl/reclamo' }],
+        };
+      },
+    };
+
+    const evaluated = await evaluateKyb(empresa, {}, { tax: taxAdapter(), reputation: search });
+    expect(evaluated.checks.find((check) => check.id === 'reputation')?.evidence).toEqual({
+      source: 'search',
+      mentions: [{ title: 'Reclamos en foros', url: 'https://foros.cl/reclamo' }],
+    });
+  });
+
+  it('la verificación fiscal señala el registro que la respondió', async () => {
+    const simulated = await evaluateKyb(empresa, {}, {
+      tax: taxAdapter(),
+      reputation: reputationAdapter(),
+    });
+    expect(simulated.checks.find((check) => check.id === 'tax_registry')?.evidence).toEqual({
+      source: 'simulated',
+    });
+
+    const sii: TaxAdapter = {
+      source: 'sii',
+      async verify() {
+        return {
+          source: 'sii',
+          exists: true,
+          active: true,
+          businessName: 'Catedral Propiedades SpA',
+          activity: 'Servicios inmobiliarios',
+          nameMatches: true,
+        };
+      },
+    };
+
+    const evaluated = await evaluateKyb(empresa, {}, { tax: sii, reputation: reputationAdapter() });
+    expect(evaluated.checks.find((check) => check.id === 'tax_registry')?.evidence).toEqual({
+      source: 'sii',
+    });
+  });
+
+  it('las verificaciones que solo releen la solicitud lo declaran', async () => {
+    const evaluation = await evaluateKyb(empresa, {}, {
+      tax: taxAdapter(),
+      reputation: reputationAdapter(),
+    });
+
+    for (const id of ['tax_rut', 'domain_web', 'email_corporate', 'email_domain_match']) {
+      expect(evaluation.checks.find((check) => check.id === id)?.evidence?.source, id).toBe(
+        'declared'
+      );
+    }
+  });
+
   it('un correo personal y sin sitio deja preguntas; las respuestas las resuelven', async () => {
     const informal: NormalizedKybApplication = {
       ...empresa,

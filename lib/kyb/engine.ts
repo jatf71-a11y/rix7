@@ -14,6 +14,12 @@
  *   verificación que no pasó. No existe un estado de rechazo: la empresa siempre
  *   tiene la posibilidad de aclarar, que es lo que pide el flujo.
  *
+ * Cada verificación viaja con `evidence.source`: de dónde salió el dato (el
+ * registro del SII, una búsqueda real, la simulación local o lo que declaró la
+ * empresa). El motor decide igual, pero el panel necesita poder decir por qué
+ * advierte algo y si el dato es una comprobación externa o solo una relectura de
+ * la solicitud.
+ *
  * Las respuestas a una ronda anterior no se descartan: una explicación válida
  * sube una verificación un escalón (fallo → advertencia, advertencia → pasa),
  * salvo en las fiscales, que se vuelven a consultar al registro y no se arreglan
@@ -128,6 +134,9 @@ export async function evaluateKyb(
       ? `El RUT ${application.rut} tiene dígito verificador correcto.`
       : 'El RUT no tiene un dígito verificador válido.',
     weight: WEIGHTS.taxRut,
+    // Solo formato: el RUT viene de la solicitud y se valida con su dígito
+    // verificador, no contra el registro (eso es la verificación siguiente).
+    evidence: { source: 'declared' },
     question: rutIsValid
       ? undefined
       : 'Confirma el RUT de la empresa con su dígito verificador (por ejemplo 76.123.456-0).',
@@ -156,6 +165,7 @@ export async function evaluateKyb(
         ? `Registro ${taxResult.source === 'sii' ? 'del SII' : 'simulado'}: ${application.legalName} activa.`
         : `Registro ${taxResult.source === 'sii' ? 'del SII' : 'simulado'}: ${problems.join(', ')}.`,
       weight: WEIGHTS.taxRegistry,
+      evidence: { source: taxResult.source },
       question: ok
         ? undefined
         : `No pudimos validar el registro de ${application.legalName} con el RUT ${application.rut}. ¿Confirmas la razón social exacta, el RUT y el giro con el que está inscrita?`,
@@ -168,6 +178,7 @@ export async function evaluateKyb(
       status: 'fail',
       detail: `No se pudo consultar el registro: ${detail}`,
       weight: WEIGHTS.taxRegistry,
+      evidence: { source: tax.source },
       question:
         'No pudimos consultar el registro comercial en este momento. ¿Nos confirmas la razón social, el RUT y el giro inscrito para reintentar la verificación?',
     });
@@ -189,6 +200,7 @@ export async function evaluateKyb(
         status: 'fail',
         detail: `Señales de fraude: ${reputationResult.fraudFlags.join(' ')}`,
         weight: WEIGHTS.reputation,
+        evidence: { source: reputationResult.source, mentions: reputationResult.mentions },
         question:
           'Encontramos menciones públicas que reportan problemas de fraude o impagos asociados a tu empresa. ¿Puedes entregar antecedentes que expliquen esas menciones?',
       });
@@ -199,6 +211,7 @@ export async function evaluateKyb(
         status: 'warn',
         detail: `${reputationResult.negativeReviews} reseñas negativas públicas y ninguna señal de fraude.`,
         weight: WEIGHTS.reputation,
+        evidence: { source: reputationResult.source, mentions: reputationResult.mentions },
         question: `Encontramos ${reputationResult.negativeReviews} reseñas negativas de clientes. ¿Qué medidas tomó la empresa para resolverlas?`,
       });
     } else {
@@ -211,6 +224,7 @@ export async function evaluateKyb(
             ? `Sin señales de fraude; ${reputationResult.negativeReviews} reseña(s) negativa(s) aislada(s).`
             : 'Sin señales de fraude ni reseñas negativas relevantes.',
         weight: WEIGHTS.reputation,
+        evidence: { source: reputationResult.source, mentions: reputationResult.mentions },
       });
     }
   } catch (error) {
@@ -221,6 +235,7 @@ export async function evaluateKyb(
       status: 'warn',
       detail: `No se pudo completar la búsqueda de reputación: ${detail}`,
       weight: WEIGHTS.reputation,
+      evidence: { source: reputation.source },
       question:
         'No pudimos revisar la reputación pública de la empresa. ¿Nos indicas sus perfiles oficiales (sitio, redes o directorios) para verificarlos?',
     });
@@ -235,6 +250,7 @@ export async function evaluateKyb(
       status: 'warn',
       detail: 'La solicitud no informa un sitio web.',
       weight: WEIGHTS.domainWeb,
+      evidence: { source: 'declared' },
       question:
         'No informaste un sitio web. ¿Cuál es el dominio oficial de la empresa donde podamos verificar su actividad?',
     });
@@ -245,6 +261,7 @@ export async function evaluateKyb(
       status: 'warn',
       detail: `El sitio usa un alojamiento gratuito (${normalizedSite}).`,
       weight: WEIGHTS.domainWeb,
+      evidence: { source: 'declared' },
       question: `El sitio de la empresa está alojado en un servicio gratuito (${normalizedSite}). ¿Tiene un dominio propio? Si es así, indícalo.`,
     });
   } else {
@@ -254,6 +271,7 @@ export async function evaluateKyb(
       status: 'pass',
       detail: `Dominio propio: ${normalizedSite}.`,
       weight: WEIGHTS.domainWeb,
+      evidence: { source: 'declared' },
     });
   }
 
@@ -265,6 +283,7 @@ export async function evaluateKyb(
       status: 'warn',
       detail: `El contacto usa un correo personal (${mailDomain}).`,
       weight: WEIGHTS.emailCorporate,
+      evidence: { source: 'declared' },
       question:
         'El correo de contacto es de un proveedor personal. ¿Cuál es el correo corporativo con el dominio de la empresa?',
     });
@@ -275,6 +294,7 @@ export async function evaluateKyb(
       status: 'pass',
       detail: `El contacto usa un dominio propio (${mailDomain}).`,
       weight: WEIGHTS.emailCorporate,
+      evidence: { source: 'declared' },
     });
   }
 
@@ -286,6 +306,7 @@ export async function evaluateKyb(
       status: 'warn',
       detail: 'Sin sitio web no hay dominio contra el cual comparar el correo.',
       weight: WEIGHTS.emailDomainMatch,
+      evidence: { source: 'declared' },
       question:
         'Sin sitio web no podemos comprobar que el correo pertenezca a la empresa. ¿Puedes indicar el dominio corporativo?',
     });
@@ -296,6 +317,7 @@ export async function evaluateKyb(
       status: 'pass',
       detail: `El correo (${mailDomain}) pertenece al dominio del sitio (${normalizedSite}).`,
       weight: WEIGHTS.emailDomainMatch,
+      evidence: { source: 'declared' },
     });
   } else {
     checks.push({
@@ -304,6 +326,7 @@ export async function evaluateKyb(
       status: 'fail',
       detail: `El correo (${mailDomain ?? 'sin dominio'}) no pertenece al dominio del sitio (${normalizedSite}).`,
       weight: WEIGHTS.emailDomainMatch,
+      evidence: { source: 'declared' },
       question: `El correo de contacto no pertenece al dominio ${normalizedSite}. ¿Por qué la empresa usa un correo de otro dominio y cuál es el correo corporativo oficial?`,
     });
   }

@@ -3,11 +3,13 @@ import {
   canReevaluate,
   checkSummary,
   coverageLabel,
+  evidenceHref,
   formatKybDateTime,
   KYB_CHECK_TONES,
+  KYB_EVIDENCE_LABELS,
   scoreTone,
 } from './admin';
-import { KYB_STATUSES, type KybCheck } from './status';
+import { KYB_STATUSES, type KybCheck, type KybEvidenceSource } from './status';
 
 function check(status: KybCheck['status']): KybCheck {
   return { id: status, label: status, status, detail: '', weight: 10 };
@@ -28,7 +30,7 @@ describe('resumen de verificaciones', () => {
   });
 
   it('cada estado tiene su etiqueta legible', () => {
-    expect(KYB_CHECK_TONES.pass.label).toBe('Pasa');
+    expect(KYB_CHECK_TONES.pass.label).toBe('OK');
     expect(KYB_CHECK_TONES.warn.label).toBe('Advertencia');
     expect(KYB_CHECK_TONES.fail.label).toBe('Falla');
   });
@@ -68,6 +70,28 @@ describe('fecha del panel', () => {
 
   it('una fecha inválida no rompe la ficha', () => {
     expect(formatKybDateTime('no-es-fecha')).toBe('—');
+  });
+});
+
+describe('origen de una verificación', () => {
+  it('todos los orígenes posibles tienen etiqueta', () => {
+    const sources: KybEvidenceSource[] = ['declared', 'sii', 'search', 'simulated'];
+    for (const source of sources) {
+      expect(KYB_EVIDENCE_LABELS[source], source).toBeTruthy();
+    }
+  });
+
+  it('la simulación no se lee como una comprobación externa', () => {
+    expect(KYB_EVIDENCE_LABELS.simulated).toMatch(/no hay proveedor externo/);
+    expect(KYB_EVIDENCE_LABELS.declared).not.toMatch(/proveedor/);
+  });
+
+  it('solo http(s) se convierte en enlace', () => {
+    expect(evidenceHref('https://foros.cl/reclamo')).toBe('https://foros.cl/reclamo');
+    expect(evidenceHref('http://foros.cl/reclamo')).toBe('http://foros.cl/reclamo');
+    expect(evidenceHref('javascript:alert(1)')).toBeNull();
+    expect(evidenceHref('data:text/html,<script>alert(1)</script>')).toBeNull();
+    expect(evidenceHref('foros.cl/reclamo')).toBeNull();
   });
 });
 

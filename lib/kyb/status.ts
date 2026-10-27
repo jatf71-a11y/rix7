@@ -131,6 +131,24 @@ export function isKybTokenPurpose(value: unknown): value is KybTokenPurpose {
   return value === 'answers' || value === 'activation';
 }
 
+/**
+ * De dónde salió el dato de una verificación.
+ *
+ * El motor no decide distinto por el origen, pero el panel sí: «3 reseñas
+ * negativas públicas» no significa lo mismo salido de una búsqueda real que de
+ * la simulación local, y una verificación que solo relee la solicitud no es una
+ * comprobación externa. Va dentro de la verificación para que la ficha pueda
+ * decirlo sin volver a consultar nada; la columna `checks` es JSONB, así que no
+ * hay migración de por medio.
+ */
+export type KybEvidenceSource = 'declared' | 'sii' | 'search' | 'simulated';
+
+export interface KybCheckEvidence {
+  source: KybEvidenceSource;
+  /** Páginas concretas que sustentan la verificación (solo búsqueda real). */
+  mentions?: { title: string; url: string }[];
+}
+
 /** Verificación individual del motor. */
 export interface KybCheck {
   /** Identificador estable: es la clave con la que llega la respuesta. */
@@ -142,6 +160,8 @@ export interface KybCheck {
   weight: number;
   /** Pregunta concreta para la empresa cuando no pasa. */
   question?: string;
+  /** Origen del dato, para que el panel explique la advertencia. */
+  evidence?: KybCheckEvidence;
 }
 
 export interface KybQuestion {

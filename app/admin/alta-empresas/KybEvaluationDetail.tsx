@@ -6,6 +6,8 @@ import {
   canReevaluate,
   checkSummary,
   coverageLabel,
+  evidenceHref,
+  evidenceLabel,
   formatKybDateTime,
   KYB_CHECK_TONES,
   scoreTone,
@@ -22,6 +24,34 @@ import DecisionPanel from './DecisionPanel';
  * cada estado. El puntaje y las verificaciones no se muestran a la empresa
  * (son información del equipo); esta es su pantalla.
  */
+
+/**
+ * Una mención pública de la búsqueda de reputación.
+ *
+ * El enlace solo se arma si la URL es `http(s)`: lo que devuelve el proveedor
+ * es dato externo y va a terminar en un `href`.
+ */
+function MentionItem({ title, url }: { title: string; url: string }) {
+  const href = evidenceHref(url);
+  const text = title.trim() || url;
+
+  return (
+    <li className="text-[11px] leading-relaxed">
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer nofollow"
+          className="text-blue-700 hover:underline"
+        >
+          {text}
+        </a>
+      ) : (
+        <span className="text-slate-600">{text}</span>
+      )}
+    </li>
+  );
+}
 
 interface KybEvaluationDetailProps {
   application: KybApplication;
@@ -111,7 +141,7 @@ export default function KybEvaluationDetail({
           {summary && (
             <div className="mt-4 flex flex-wrap gap-2 text-[10px] font-bold">
               <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">
-                {summary.pass} pasa
+                {summary.pass} ok
               </span>
               <span className="rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">
                 {summary.warn} advierte
@@ -142,6 +172,30 @@ export default function KybEvaluationDetail({
                     </span>
                   </div>
                   <p className="mt-1 text-[11px] leading-relaxed text-slate-600">{check.detail}</p>
+                  {check.evidence && (
+                    <p className="mt-1.5 text-[10px] text-slate-500">
+                      <span className="font-semibold uppercase tracking-wide text-slate-400">
+                        Origen
+                      </span>{' '}
+                      {evidenceLabel(check.evidence)}
+                    </p>
+                  )}
+                  {check.evidence?.mentions && check.evidence.mentions.length > 0 && (
+                    <div className="mt-2 rounded-lg bg-slate-50 px-2.5 py-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                        Menciones encontradas
+                      </p>
+                      <ul className="mt-1 space-y-1">
+                        {check.evidence.mentions.map((mention) => (
+                          <MentionItem
+                            key={mention.url}
+                            title={mention.title}
+                            url={mention.url}
+                          />
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                     Peso {check.weight} pts
                   </p>
