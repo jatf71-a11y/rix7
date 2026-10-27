@@ -32,15 +32,6 @@ export const KYB_STATUS_LABELS: Record<KybStatus, string> = {
   Rechazada: 'Rechazada',
 };
 
-/** Estados de los que no se sale. */
-export const KYB_TERMINAL_STATUSES: readonly KybStatus[] = ['En_Alta', 'Rechazada'];
-
-/**
- * El estado terminal «bueno». Se mantiene el nombre porque es el que usan el
- * portal y la provisión del panel para saber si la empresa ya quedó dentro.
- */
-export const KYB_TERMINAL_STATUS: KybStatus = 'En_Alta';
-
 const TRANSITIONS: Record<KybStatus, readonly KybStatus[]> = {
   Recibida: ['En_Evaluacion'],
   // `Rechazada` es una decisión, no un resultado del motor: la toma el equipo

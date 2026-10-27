@@ -647,21 +647,6 @@ export function tokenAllows(application: KybApplication, purpose: 'answers' | 'a
   return application.status === 'En_Alta' || application.status === 'Aceptada';
 }
 
-/** Resumen de estado para el titular del token (sin datos internos del motor). */
-export function publicStatus(application: KybApplication): {
-  status: KybStatus;
-  legalName: string;
-  plan: string | null;
-  panelEnabled: boolean;
-} {
-  return {
-    status: application.status,
-    legalName: application.legalName,
-    plan: application.plan,
-    panelEnabled: application.panelEnabled,
-  };
-}
-
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : 'Error inesperado en la base de datos.';
 }

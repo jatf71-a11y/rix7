@@ -77,6 +77,9 @@ const MIN_CLARIFICATION_LENGTH = 8;
 /** Reseñas negativas que convierten la reputación en advertencia. */
 const NEGATIVE_REVIEWS_THRESHOLD = 3;
 
+/** Puntaje mínimo desde el que el motor acepta sin intervención del equipo. */
+const KYB_SCORE_THRESHOLD = 75;
+
 /**
  * Peso de cada verificación. Suma 100 para que el puntaje sea comparable.
  *
@@ -598,7 +601,9 @@ export async function evaluateKyb(
 
   const hasFailure = resolved.some((check) => check.status === 'fail');
   const decision: KybEvaluation['decision'] =
-    !hasFailure && questions.length === 0 && score >= 75 ? 'Aceptada' : 'Pendiente_Informacion';
+    !hasFailure && questions.length === 0 && score >= KYB_SCORE_THRESHOLD
+      ? 'Aceptada'
+      : 'Pendiente_Informacion';
 
   if (decision === 'Aceptada') {
     reasons.push(
@@ -611,7 +616,9 @@ export async function evaluateKyb(
         : `Quedan ${questions.length} verificación(es) por aclarar; puntaje ${score}/100.`
     );
     if (questions.length === 0) {
-      reasons.push('El puntaje no alcanza el mínimo de 75 para el alta automática.');
+      reasons.push(
+        `El puntaje no alcanza el mínimo de ${KYB_SCORE_THRESHOLD} para el alta automática.`
+      );
     }
   }
 
@@ -624,5 +631,3 @@ export async function evaluateKyb(
     createdAt: new Date().toISOString(),
   };
 }
-
-export const KYB_SCORE_THRESHOLD = 75;
