@@ -14,7 +14,17 @@ import path from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 
 import { BUILD_ID_ENV, formatBuildIdValue } from './build-id.mjs';
-import { removeTreeWithRetry, stagingPathFor, sweepStaleStaging, vercelArgs } from './deploy-prod.mjs';
+import {
+  confirmDeployment,
+  deploymentUrlFrom,
+  deploymentVerdict,
+  latestProductionUrl,
+  removeTreeWithRetry,
+  runVercelCli,
+  stagingPathFor,
+  sweepStaleStaging,
+  vercelArgs,
+} from './deploy-prod.mjs';
 import { RELEASE_TAG_ENV, RELEASE_VERSION_ENV } from './release-identity.mjs';
 
 const SHA = '9d1c3ab77e5f1234567890abcdef1234567890ab';
@@ -85,6 +95,200 @@ describe('vercelArgs', () => {
 
     expect(args.join(' ')).not.toContain('rm -rf');
     expect(args.join(' ')).not.toContain('evil');
+  });
+});
+
+/**
+ * El corte del stream del CLI.
+ *
+ * El caso que motivó estos tests: el CLI pierde el stream del build remoto y sale
+ * con 1 aunque Vercel haya terminado y promovido el deployment (2026-10-27, dos
+ * veces). El release informaba «no se publicó nada nuevo» sobre algo que sí estaba
+ * sirviendo. Ahora la salida del CLI no decide sola: se le pregunta a Vercel por el
+ * deployment y, si está READY, la corrida sigue —con la verificación en vivo como
+ * árbitro de si rix7.cl sirve este árbol.
+ */
+/**
+ * El lanzamiento del CLI, sin Vercel.
+ *
+ * Es la pieza que cambió: antes `stdio: 'inherit'` no dejaba nada que leer, y sin
+ * salida no hay URL ni diagnóstico cuando el stream se corta. Lo que se prueba acá
+ * es el mecanismo —capturar, reemitir y no perder el código de salida— con un
+ * proceso cualquiera.
+ */
+describe('runVercelCli', () => {
+  it('captura la salida, la reemite y devuelve el código 0', async () => {
+    let eco = '';
+    const sink = { write: (chunk: string) => (eco += chunk) } as unknown as NodeJS.WritableStream;
+
+    const result = await runVercelCli(process.execPath, ['-e', 'console.log("hola desde el cli")'], {
+      out: sink,
+      err: sink,
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.error).toBeNull();
+    expect(result.output).toContain('hola desde el cli');
+    // Reemitida al instante: es lo que mantiene visible el progreso del build.
+    expect(eco).toContain('hola desde el cli');
+  });
+
+  it('no se traga el código de salida distinto de cero', async () => {
+    const sink = { write: () => {} } as unknown as NodeJS.WritableStream;
+
+    const result = await runVercelCli(process.execPath, ['-e', 'process.exit(3)'], { out: sink, err: sink });
+
+    expect(result.status).toBe(3);
+    expect(result.error).toBeNull();
+  });
+
+  it('un comando que no existe vuelve como error, no como cuelgue', async () => {
+    const sink = { write: () => {} } as unknown as NodeJS.WritableStream;
+
+    const result = await runVercelCli('rix7-no-existe-jamas', [], { out: sink, err: sink });
+
+    expect(result.error).toBeInstanceOf(Error);
+    expect(result.status).toBeNull();
+  });
+});
+
+describe('deploymentUrlFrom', () => {
+  const salida = [
+    'Vercel CLI 61.1.0 (Node.js 24.19.0)',
+    'Deploying rix7',
+    'Uploading [====================] (447.1KB/447.1KB)',
+    '  Inspect         https://vercel.com/ctd5/rix7/9HXMrVuLhtF6zEBp9s3LPKRugXog',
+    '  Production      https://rix7-fd7xcrhnz-ctd5.vercel.app',
+    'https://rix7-fd7xcrhnz-ctd5.vercel.appBuilding…',
+  ].join('\n');
+
+  it('toma el deployment de producción, no la página del panel', () => {
+    expect(deploymentUrlFrom(salida)).toBe('https://rix7-fd7xcrhnz-ctd5.vercel.app');
+  });
+
+  it('lee la línea con dos puntos y con colores de terminal', () => {
+    const conColor = '\u001b[36;1m  Production:\u001b[0m https://rix7-abc123-ctd5.vercel.app,';
+
+    expect(deploymentUrlFrom(conColor)).toBe('https://rix7-abc123-ctd5.vercel.app');
+  });
+
+  it('sin línea Production igual reconoce la URL del deployment', () => {
+    expect(deploymentUrlFrom('Building… https://rix7-abc123-ctd5.vercel.app')).toBe(
+      'https://rix7-abc123-ctd5.vercel.app'
+    );
+  });
+
+  it('sin ninguna URL no inventa una', () => {
+    expect(deploymentUrlFrom('Error: fetch failed')).toBeNull();
+    expect(deploymentUrlFrom(null)).toBeNull();
+  });
+});
+
+describe('deploymentVerdict', () => {
+  it('READY es publicado y ERROR es fallo', () => {
+    expect(deploymentVerdict('READY')).toBe('ready');
+    expect(deploymentVerdict('Error')).toBe('failed');
+    expect(deploymentVerdict('CANCELED')).toBe('failed');
+  });
+
+  it('construyendo es «todavía no»: se puede esperar', () => {
+    for (const state of ['QUEUED', 'BUILDING', 'INITIALIZING']) {
+      expect(deploymentVerdict(state), state).toBe('pending');
+    }
+  });
+
+  it('un estado que no sabemos leer no se toma por bueno', () => {
+    expect(deploymentVerdict(null)).toBe('unknown');
+    expect(deploymentVerdict('vaya-uno-a-saber')).toBe('unknown');
+  });
+});
+
+describe('latestProductionUrl', () => {
+  const ahora = 1_793_124_000_000;
+  const payload = {
+    deployments: [
+      { url: 'rix7-preview-ctd5.vercel.app', target: null, createdAt: ahora },
+      { url: 'rix7-viejo-ctd5.vercel.app', target: 'production', createdAt: ahora - 4 * 60 * 60 * 1000 },
+      { url: 'rix7-nuevo-ctd5.vercel.app', target: 'production', createdAt: ahora },
+      { url: 'rix7-medio-ctd5.vercel.app', target: 'production', createdAt: ahora - 30_000 },
+    ],
+  };
+
+  it('toma el deployment de producción más reciente de esta corrida', () => {
+    expect(latestProductionUrl(payload, { since: ahora })).toBe('https://rix7-nuevo-ctd5.vercel.app');
+  });
+
+  it('no confunde un preview ni uno viejo con el propio', () => {
+    const soloViejo = { deployments: [payload.deployments[1]] };
+
+    expect(latestProductionUrl(soloViejo, { since: ahora })).toBeNull();
+    expect(latestProductionUrl({ deployments: [payload.deployments[0]] }, { since: ahora })).toBeNull();
+  });
+
+  it('sin lista devuelve null en vez de lanzar', () => {
+    expect(latestProductionUrl(null, { since: ahora })).toBeNull();
+  });
+});
+
+describe('confirmDeployment', () => {
+  it('espera mientras construye y termina en ready', async () => {
+    const estados = ['BUILDING', 'BUILDING', 'READY'];
+    const esperas: number[] = [];
+
+    const outcome = await confirmDeployment({
+      url: 'https://rix7-abc-ctd5.vercel.app',
+      delayMs: 5000,
+      inspect: async () => ({ readyState: estados.shift(), aliases: ['rix7.cl'] }),
+      sleep: async (ms: number) => esperas.push(ms),
+      log: () => {},
+    });
+
+    expect(outcome.verdict).toBe('ready');
+    expect(outcome.attempts).toBe(3);
+    expect(esperas).toEqual([5000, 5000]);
+  });
+
+  it('un deployment en ERROR no se toma como publicado', async () => {
+    const outcome = await confirmDeployment({
+      url: 'https://rix7-abc-ctd5.vercel.app',
+      inspect: async () => ({ readyState: 'ERROR' }),
+      sleep: async () => {},
+      log: () => {},
+    });
+
+    expect(outcome.verdict).toBe('failed');
+    expect(outcome.attempts).toBe(1);
+  });
+
+  it('si nunca termina de construirse se rinde sin llamarlo publicado', async () => {
+    let consultas = 0;
+
+    const outcome = await confirmDeployment({
+      url: 'https://rix7-abc-ctd5.vercel.app',
+      attempts: 3,
+      inspect: async () => {
+        consultas += 1;
+        return { readyState: 'BUILDING' };
+      },
+      sleep: async () => {},
+      log: () => {},
+    });
+
+    expect(outcome.verdict).toBe('pending');
+    expect(consultas).toBe(3);
+  });
+
+  it('si Vercel no responde no se afirma que quedó publicado', async () => {
+    const outcome = await confirmDeployment({
+      url: 'https://rix7-abc-ctd5.vercel.app',
+      attempts: 2,
+      inspect: async () => null,
+      sleep: async () => {},
+      log: () => {},
+    });
+
+    expect(outcome.verdict).toBe('unknown');
+    expect(outcome.readyState).toBeNull();
   });
 });
 

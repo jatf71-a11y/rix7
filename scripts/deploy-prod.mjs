@@ -39,9 +39,22 @@
  * `cmd.exe` (ver abajo): un espacio, una comilla o un `|` y el valor llegaría
  * cortado o no llegaría.
  *
+ * ## Si el CLI se corta
+ *
+ * El CLI sale con error cuando pierde el stream del build remoto —un `fetch
+ * failed`— aunque Vercel haya terminado y promovido ese deployment: pasó dos
+ * veces el 2026-10-27, y en las dos el release informó «no se publicó nada
+ * nuevo» sobre algo que sí estaba sirviendo, salteándose además su propia
+ * verificación contra el árbol. Por eso el código de salida no decide solo: si no
+ * es cero, se le pregunta a Vercel por ese deployment —el de la línea `Production`
+ * de su propia salida, o el último de producción de `vercel ls` cuando el corte
+ * ocurrió durante la subida— y si está `READY` la corrida continúa, con la
+ * verificación en vivo como árbitro de si `rix7.cl` sirve este árbol. Un
+ * deployment en `ERROR` —o que no termina de construirse— sigue siendo un fallo.
+ *
  * Uso: npm run deploy:prod
  */
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -200,6 +213,187 @@ export function vercelArgs({ buildValue = null, version = null, tag = null } = {
   return args;
 }
 
+/**
+ * Qué dice del deployment el estado que informa Vercel.
+ *
+ * `pending` no es un veredicto: es «todavía no», y por eso se puede esperar.
+ * `unknown` tampoco lo es, pero no se espera: si Vercel no informa un estado que
+ * sepamos leer, insistir no lo va a aclarar.
+ *
+ * @param {unknown} readyState
+ * @returns {'ready' | 'failed' | 'pending' | 'unknown'}
+ */
+export function deploymentVerdict(readyState) {
+  const state = String(readyState ?? '').toUpperCase();
+  if (state === 'READY') return 'ready';
+  if (state === 'ERROR' || state === 'CANCELED') return 'failed';
+  if (state === 'QUEUED' || state === 'BUILDING' || state === 'INITIALIZING') return 'pending';
+  return 'unknown';
+}
+
+/**
+ * La URL del deployment que publicó el CLI, sacada de su propia salida.
+ *
+ * El CLI imprime `Production  https://rix7-<hash>-<team>.vercel.app` apenas
+ * termina de subir los archivos, **antes** del build remoto. Por eso, cuando el
+ * stream se corta a mitad del build, la URL ya está: es lo que permite preguntarle
+ * a Vercel cómo terminó en vez de creerle al código de salida.
+ *
+ * @param {string | null | undefined} output
+ * @returns {string | null}
+ */
+export function deploymentUrlFrom(output) {
+  const text = String(output ?? '')
+    // eslint-disable-next-line no-control-regex
+    .replace(/\u001b\[[0-9;]*[A-Za-z]/g, '')
+    .replace(/\r/g, '');
+
+  // `Production` y no `Inspect`: el segundo es la página del panel, que no sirve
+  // para preguntarle nada a la API.
+  const production = /^\s*Production\s*:?\s+(https?:\/\/\S+)/im.exec(text);
+  if (production) return production[1].replace(/[,)]+$/, '');
+
+  const any = /https:\/\/[a-z0-9-]+\.vercel\.app/i.exec(text);
+  return any ? any[0] : null;
+}
+
+/**
+ * La URL de producción más reciente de un `vercel ls --json`.
+ *
+ * Es el respaldo para el corte que ocurre **antes** de que el CLI imprima la
+ * línea `Production` (por ejemplo durante la subida): si el deployment se creó
+ * igual, está en la lista. Se acota por `since` para no confundirlo con uno viejo,
+ * y solo mira `target: production`.
+ *
+ * @param {unknown} payload
+ * @param {{ since?: number, slackMs?: number }} [options]
+ * @returns {string | null}
+ */
+export function latestProductionUrl(payload, { since = 0, slackMs = 60_000 } = {}) {
+  const deployments = Array.isArray(/** @type {any} */ (payload)?.deployments)
+    ? /** @type {any[]} */ (/** @type {any} */ (payload).deployments)
+    : [];
+
+  const candidates = deployments
+    .filter((deployment) => deployment && deployment.target === 'production' && deployment.url)
+    .filter((deployment) => Number(deployment.createdAt) >= since - slackMs)
+    .sort((a, b) => Number(b.createdAt) - Number(a.createdAt));
+
+  return candidates.length ? `https://${candidates[0].url}` : null;
+}
+
+/**
+ * Lanza el CLI capturando su salida **y** repitiéndola a la terminal.
+ *
+ * Antes era `spawnSync(..., { stdio: 'inherit' })`: nada que capturar y nada que
+ * leer cuando el stream se corta. Ahora la salida se acumula —de ahí sale la URL
+ * del deployment y el diagnóstico— y se reemite al instante para no perder el
+ * progreso del build, que dura minutos.
+ *
+ * @param {string} command
+ * @param {string[]} args
+ * @param {{ cwd?: string, env?: NodeJS.ProcessEnv, out?: NodeJS.WritableStream, err?: NodeJS.WritableStream }} [options]
+ * @returns {Promise<{ status: number | null, output: string, error: Error | null }>}
+ */
+export async function runVercelCli(command, args, { cwd, env, out = process.stdout, err = process.stderr } = {}) {
+  return new Promise((resolve) => {
+    const child = spawn(command, args, { cwd, env, stdio: ['ignore', 'pipe', 'pipe'] });
+    let output = '';
+
+    child.stdout?.on('data', (chunk) => {
+      output += chunk;
+      out.write(chunk);
+    });
+    child.stderr?.on('data', (chunk) => {
+      output += chunk;
+      err.write(chunk);
+    });
+
+    child.on('error', (error) => resolve({ status: null, output, error }));
+    child.on('close', (status) => resolve({ status, output, error: null }));
+  });
+}
+
+/** `npx vercel <args>` por el mismo camino que el deploy (`cmd.exe` en Windows). */
+function vercelSync(args) {
+  const isWindows = process.platform === 'win32';
+  const [command, argv] = isWindows ? ['cmd.exe', ['/c', 'npx', ...args]] : ['npx', args];
+  return spawnSync(command, argv, {
+    cwd: root,
+    encoding: 'utf8',
+    timeout: 90_000,
+    maxBuffer: 10 * 1024 * 1024,
+  });
+}
+
+/** El `--json` de `vercel inspect`, o `null` si no se pudo leer. */
+function inspectDeployment(url, { run = vercelSync } = {}) {
+  const result = run(['--yes', 'vercel', 'inspect', url, '--json']);
+  if (result?.status !== 0 || !result?.stdout) return null;
+  try {
+    return JSON.parse(result.stdout);
+  } catch {
+    return null;
+  }
+}
+
+/** El `--json` de `vercel ls`, o `null`. */
+function listDeployments({ run = vercelSync } = {}) {
+  const result = run(['--yes', 'vercel', 'ls', '--json']);
+  if (result?.status !== 0 || !result?.stdout) return null;
+  try {
+    return JSON.parse(result.stdout);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Pregunta cómo terminó el deployment, esperando mientras siga construyendo.
+ *
+ * El corte del stream puede ocurrir con el build a mitad de camino, así que un
+ * `BUILDING` no es un fallo: se espera. Lo que no se hace nunca es **deducir** el
+ * resultado del código de salida del CLI, que es justo el dato que el corte
+ * rompe.
+ *
+ * @param {{
+ *   url: string,
+ *   attempts?: number,
+ *   delayMs?: number,
+ *   inspect?: (url: string) => any,
+ *   sleep?: (ms: number) => Promise<unknown>,
+ *   log?: (...args: unknown[]) => void,
+ * }} options
+ * @returns {Promise<{ verdict: ReturnType<typeof deploymentVerdict>, readyState: string | null, info: any, attempts: number }>}
+ */
+export async function confirmDeployment({
+  url,
+  attempts = 8,
+  delayMs = 15_000,
+  inspect = inspectDeployment,
+  sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  log = console.log,
+} = /** @type {any} */ ({})) {
+  let readyState = null;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const info = await inspect(url);
+    readyState = typeof info?.readyState === 'string' ? info.readyState : null;
+    const verdict = deploymentVerdict(readyState);
+    if (verdict !== 'pending') return { verdict, readyState, info, attempts: attempt };
+
+    if (attempt < attempts) {
+      log(
+        `  · ${url} sigue en ${readyState}; espero ${Math.round(delayMs / 1000)} s` +
+          ` (${attempt}/${attempts})…`
+      );
+      await sleep(delayMs);
+    }
+  }
+
+  return { verdict: deploymentVerdict(readyState), readyState, info: null, attempts };
+}
+
 /** Rutas que no deben viajar al deployment. */
 const EXCLUDED = new Set([
   '.git',
@@ -234,7 +428,7 @@ function copyTree(from, to) {
  * resto de los scripts— porque así los tests pueden importar `vercelArgs` sin
  * que importar el módulo intente desplegar nada.
  */
-function main() {
+async function main() {
   // La copia mantiene el vínculo con el proyecto de Vercel.
   const projectFile = path.join(root, '.vercel', 'project.json');
   if (!fs.existsSync(projectFile)) {
@@ -327,9 +521,11 @@ function main() {
   const vercel = vercelArgs({ buildValue, version, tag });
   const [command, args] = isWindows ? ['cmd.exe', ['/c', 'npx', ...vercel]] : ['npx', vercel];
 
-  const result = spawnSync(command, args, {
+  // Desde acá se sabe cuándo empezó esta publicación: es lo que permite reconocer
+  // el deployment propio en `vercel ls` si el CLI se corta antes de imprimir su URL.
+  const startedAt = Date.now();
+  const result = await runVercelCli(command, args, {
     cwd: staging,
-    stdio: 'inherit',
     env: { ...process.env, GIT_CEILING_DIRECTORIES: root },
   });
 
@@ -350,7 +546,45 @@ function main() {
     process.exit(1);
   }
 
-  process.exit(result.status ?? 1);
+  const status = result.status ?? 1;
+
+  // Un `fetch failed` del CLI no dice nada del deployment: se corta el stream del
+  // build remoto y el proceso sale con 1 **aunque Vercel haya terminado y
+  // promovido lo publicado**. Pasó dos veces el 2026-10-27. Cuando el código de
+  // salida no es cero, se le pregunta a Vercel cómo quedó ese deployment; si está
+  // READY, la publicación ocurrió y la corrida sigue —la verificación en vivo es
+  // la que decide si `rix7.cl` sirve este árbol, y es la que no se puede saltear.
+  if (status !== 0) {
+    const url =
+      deploymentUrlFrom(result.output) ??
+      latestProductionUrl(listDeployments(), { since: startedAt });
+
+    if (url) {
+      console.log(`\n  ↻ El CLI terminó con ${status}; pregunto cómo quedó ${url}…`);
+      const outcome = await confirmDeployment({ url });
+
+      if (outcome.verdict === 'ready') {
+        console.warn(`\n⚠ El CLI de Vercel terminó con ${status}, pero el deployment sí quedó publicado:`);
+        console.warn(`    ${url} (READY)${describeAliases(outcome.info)}`);
+        console.warn('  La publicación se toma como hecha: la verificación en vivo comprueba si `rix7.cl` sirve este árbol.');
+        process.exit(0);
+      }
+
+      console.error(
+        `✖ El deployment ${url} no quedó sirviendo (estado: ${outcome.readyState ?? 'desconocido'}).`
+      );
+    } else {
+      console.error('✖ El CLI terminó con error y no se pudo identificar un deployment para comprobar.');
+    }
+  }
+
+  process.exit(status);
+}
+
+/** Los dominios que quedaron apuntando al deployment, si Vercel los informa. */
+function describeAliases(info) {
+  const aliases = Array.isArray(info?.aliases) ? info.aliases.filter((alias) => typeof alias === 'string') : [];
+  return aliases.length ? ` · dominios: ${aliases.slice(0, 6).join(', ')}` : '';
 }
 
 // Solo corre al ejecutarse: así los tests pueden importar `vercelArgs`.
@@ -358,5 +592,8 @@ if (
   process.argv[1] &&
   path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))
 ) {
-  main();
+  main().catch((error) => {
+    console.error(`✖ El deploy falló de forma inesperada: ${error instanceof Error ? error.message : error}`);
+    process.exit(1);
+  });
 }
