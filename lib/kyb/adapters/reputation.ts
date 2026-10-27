@@ -7,7 +7,14 @@
  *    red. Los dominios con `fraude` u `quejas` en el nombre fuerzan el caso
  *    respectivo, para poder demostrar el flujo sin claves.
  * 2. **Búsqueda real**: se activa con `KYB_SEARCH_URL` y `KYB_SEARCH_API_KEY`.
- *    Espera `{ flags: string[], negativeReviews: number, mentions: [{title,url}] }`.
+ *    Espera `{ flags: string[], negativeReviews: number, mentions: [{title,url}],
+ *    topics: string[] }`.
+ *
+ * `negativeTopics` responde «¿a qué se deben esas reseñas?»: un número de
+ * reseñas negativas no dice si son por demoras o por cobros, y el equipo necesita
+ * el motivo para pedir una aclaración con sentido. La búsqueda real las toma del
+ * proveedor (y si no las trae, se dice que no hay detalle en vez de inventarlo);
+ * la simulación usa un repertorio fijo, declarado como simulado.
  *
  * El motor no navega ni interpreta texto libre: consume estas señales. Cambiar
  * de proveedor de búsqueda no toca el motor.
@@ -29,6 +36,8 @@ export interface ReputationSignals {
   /** Motivos concretos («denuncia por fraude», «suplantación»). */
   fraudFlags: string[];
   negativeReviews: number;
+  /** Motivo de cada reseña negativa, en una frase («cobros no informados»). */
+  negativeTopics: string[];
   mentions: ReputationMention[];
 }
 
@@ -46,11 +55,28 @@ function seedOf(value: string): number {
 }
 
 /**
+ * Motivos que puede reportar la simulación: los reclamos típicos de una
+ * corredora. Son texto de demostración, y viajan con `source: 'simulated'` para
+ * que la ficha no los lea como un hallazgo real.
+ */
+const SIMULATED_TOPICS = [
+  'demoras en la entrega de la propiedad',
+  'cobros no informados en la comisión',
+  'falta de respuesta después de la visita',
+  'fotos que no coinciden con la propiedad',
+  'problemas con la devolución de la reserva',
+  'dificultad para dar con un ejecutivo por teléfono',
+];
+
+/**
  * Señales simuladas.
  *
  * `fraude`/`quejas` en el dominio son atajos explícitos para la demostración;
  * el resto sale del hash (1 de cada 19 con fraude, y entre 0 y 6 reseñas
- * negativas, de las cuales 3 o más son una advertencia).
+ * negativas, de las cuales 3 o más son una advertencia). Los motivos se toman
+ * del repertorio girando desde el mismo hash, para que la misma empresa reciba
+ * siempre los mismos: un panel que cambia de motivo en cada corrida no sirve
+ * para decidir.
  */
 export function simulatedReputation(input: ReputationInput): ReputationSignals {
   const domain = (input.domain ?? '').toLowerCase();
@@ -58,6 +84,10 @@ export function simulatedReputation(input: ReputationInput): ReputationSignals {
 
   const flagged = domain.includes('fraude') || seed % 19 === 0;
   const negativeReviews = domain.includes('quejas') ? 5 : seed % 7;
+  const negativeTopics = Array.from(
+    { length: Math.min(negativeReviews, SIMULATED_TOPICS.length) },
+    (_, index) => SIMULATED_TOPICS[(seed + index) % SIMULATED_TOPICS.length]
+  );
 
   return {
     source: 'simulated',
@@ -69,6 +99,7 @@ export function simulatedReputation(input: ReputationInput): ReputationSignals {
         ]
       : [],
     negativeReviews,
+    negativeTopics,
     mentions: [],
   };
 }
@@ -84,6 +115,7 @@ interface SearchPayload {
   flags?: unknown;
   negativeReviews?: unknown;
   mentions?: unknown;
+  topics?: unknown;
 }
 
 function mapper(raw: unknown): ReputationSignals {
@@ -98,6 +130,14 @@ function mapper(raw: unknown): ReputationSignals {
       ? Math.max(0, Math.round(payload.negativeReviews))
       : 0;
 
+  const negativeTopics = Array.isArray(payload.topics)
+    ? payload.topics
+        .filter((topic): topic is string => typeof topic === 'string')
+        .map((topic) => topic.trim())
+        .filter(Boolean)
+        .slice(0, 5)
+    : [];
+
   const mentions = Array.isArray(payload.mentions)
     ? payload.mentions
         .map((mention) => {
@@ -110,7 +150,7 @@ function mapper(raw: unknown): ReputationSignals {
         .slice(0, 5)
     : [];
 
-  return { source: 'search', fraudFlags: flags, negativeReviews, mentions };
+  return { source: 'search', fraudFlags: flags, negativeReviews, negativeTopics, mentions };
 }
 
 export function createSearchReputationAdapter({

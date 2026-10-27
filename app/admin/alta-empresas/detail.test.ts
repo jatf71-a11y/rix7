@@ -61,6 +61,27 @@ const evaluation: KybEvaluation = {
         source: 'search',
         mentions: [{ title: 'Reclamo en foros', url: 'https://foros.cl/reclamo' }],
       },
+      facts: [
+        {
+          label: 'Qué se buscó',
+          value: 'Catedral Propiedades SpA · 76.543.210-3 · catedralpropiedades.cl',
+        },
+        { label: 'Reseñas negativas', value: '4' },
+        { label: 'Umbral de advertencia', value: '3 reseñas negativas o más' },
+      ],
+    },
+    {
+      id: 'email_domain_match',
+      label: 'Correo y sitio coinciden',
+      status: 'fail',
+      detail: 'El correo (otrodominio.cl) no pertenece al dominio del sitio (catedralpropiedades.cl).',
+      weight: 10,
+      question: '¿Por qué la empresa usa un correo de otro dominio?',
+      facts: [
+        { label: 'Dominio del correo', value: 'otrodominio.cl' },
+        { label: 'Dominio del sitio', value: 'catedralpropiedades.cl' },
+        { label: 'Coinciden', value: 'no' },
+      ],
     },
   ],
   questions: [{ id: 'reputation', question: '¿Qué medidas tomó la empresa para resolverlas?' }],
@@ -122,6 +143,30 @@ describe('ficha de evaluación', () => {
     expect(html).toContain('Menciones encontradas');
     expect(html).toContain('Reclamo en foros');
     expect(html).toContain('href="https://foros.cl/reclamo"');
+  });
+
+  it('el encabezado nombra qué verificación advirtió y cuál falló', () => {
+    expect(html).toContain('1 advierte: Reputación web');
+    expect(html).toContain('1 falla: Correo y sitio coinciden');
+  });
+
+  it('muestra los datos concretos que revisó cada verificación', () => {
+    expect(html).toContain('Qué se buscó');
+    expect(html).toContain('Catedral Propiedades SpA · 76.543.210-3 · catedralpropiedades.cl');
+    expect(html).toContain('Umbral de advertencia');
+    expect(html).toContain('3 reseñas negativas o más');
+    expect(html).toContain('Dominio del correo');
+    expect(html).toContain('otrodominio.cl');
+  });
+
+  it('una verificación sin hechos guardados no inventa una lista vacía', () => {
+    const sinHechos = renderEvaluation({
+      ...evaluation,
+      checks: evaluation.checks.map((check) => ({ ...check, facts: undefined })),
+    });
+
+    expect(sinHechos).toContain('Reputación web');
+    expect(sinHechos).not.toContain('Qué se buscó');
   });
 
   it('la simulación se declara como tal, no se lee como hallazgo real', () => {

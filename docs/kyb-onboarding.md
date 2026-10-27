@@ -81,9 +81,19 @@ es la única regla que separa los dos caminos.
 
 `/admin/alta-empresas` (dentro de la sección «Alta de empresas» del panel) lista
 las solicitudes con su estado y puntaje. Al abrir una, muestra la última corrida
-del motor: cada verificación con su peso, el detalle de lo que encontró, los
-motivos de la decisión y las preguntas abiertas con la empresa, además de los
-datos operativos del registro.
+del motor: el resumen que **nombra** qué verificaciones advirtieron o fallaron, y
+cada verificación con su peso, el detalle de lo que encontró, los datos concretos
+que revisó (`facts`: el registro consultado, las reseñas contadas, **a qué se
+deben** y su umbral, el dominio de cada lado, el tramo de tamaño y la facturación
+aproximada del registro), de dónde salió el dato, los motivos de la decisión y las
+preguntas abiertas con la empresa, además de los datos operativos del registro.
+
+Cuando la reputación sale de la simulación, la ficha lo declara: sin un proveedor
+de búsqueda configurado (`KYB_SEARCH_URL`) las reseñas contadas no tienen páginas
+que mostrar detrás, la mención de cada hallazgo aparece recién con uno real y los
+motivos son el repertorio de la simulación, no un hallazgo. Una búsqueda real que
+no discrimine el motivo lo dice («sin detalle en la fuente consultada») en vez de
+rellenarlo.
 
 Desde ahí se puede **re-evaluar** (reintentar una verificación externa o correr el
 motor sobre una ficha histórica). `En_Alta` es terminal: la API responde 409 y el
@@ -93,17 +103,29 @@ panel no ofrece el botón.
 
 | Verificación | Peso | Fuente |
 | --- | --- | --- |
-| `tax_rut` | 20 | Módulo 11 local |
-| `tax_registry` | 25 | Adaptador fiscal (SII o simulación) |
-| `reputation` | 20 | Adaptador de búsqueda (o simulación) |
-| `domain_web` | 15 | Dominio informado, alojamiento propio |
-| `email_corporate` | 10 | Proveedor del correo |
-| `email_domain_match` | 10 | Correo vs. sitio |
+| `tax_rut` | 18 | Módulo 11 local |
+| `tax_registry` | 22 | Adaptador fiscal (SII o simulación) |
+| `reputation` | 18 | Adaptador de búsqueda (o simulación) |
+| `domain_web` | 14 | Dominio informado, alojamiento propio |
+| `email_corporate` | 9 | Proveedor del correo |
+| `email_domain_match` | 9 | Correo vs. sitio |
+| `company_size` | 10 | Dotación y ventas del adaptador fiscal |
+
+Los pesos suman 100; al sumar la séptima verificación, los seis originales se
+reescalaron manteniendo su proporción.
 
 Se acepta solo si ninguna verificación falla, no quedan preguntas y el puntaje
 llega a 75. Las respuestas de la empresa suben un escalón las verificaciones
 discutibles (`fail → warn`, `warn → pass`), salvo las fiscales, que se vuelven a
 consultar al registro.
+
+El **tramo de tamaño** se calcula por dotación de trabajadores (micro 1-9, pequeña
+10-49, mediana 50-199, grande 200 o más). Al lado, la ficha muestra la
+**facturación aproximada** del último ejercicio cerrado que publica el registro,
+como referencia de la escala: no decide el tramo y **nunca se le pide a la
+empresa** —si el registro no la publica, la ficha dice «sin dato»—. Si tampoco
+informa la dotación, el motor lo advierte y le pregunta a la empresa cuántas
+personas trabajan en ella.
 
 ## Adaptadores y variables
 
@@ -119,8 +141,16 @@ RUT/dominio), así que el flujo completo se puede probar sin claves.
 | `SUPABASE_SERVICE_ROLE_KEY` | Necesaria para guardar, emitir tokens y habilitar el panel. Sin ella el flujo corre en memoria y la activación responde 502. |
 | `RESEND_API_KEY` | Correos del flujo. Sin ella se responde `email.skipped` (no se finge el envío). |
 
-Contrato del endpoint fiscal: `{ exists, active, businessName, activity }`.
-Contrato de reputación: `{ flags: string[], negativeReviews: number, mentions: [{ title, url }] }`.
+Contrato del endpoint fiscal:
+`{ exists, active, businessName, activity, workers, revenueClp, revenueYear }`,
+donde `workers` es la dotación (entero ≥ 0) o `null` si el registro no la informa,
+y `revenueClp` son las ventas del ejercicio `revenueYear` en pesos. Un valor que no
+sea un número no negativo se trata como «sin dato», no se interpreta a la buena.
+
+Contrato de reputación:
+`{ flags: string[], negativeReviews: number, topics: string[], mentions: [{ title, url }] }`,
+donde `topics` es el motivo de cada reseña negativa («demoras en la entrega»,
+«cobros no informados»). Sin `topics` la ficha declara que no hay detalle.
 
 ## Tokens
 

@@ -39,6 +39,9 @@ const taxOk: TaxAdapter = {
       active: true,
       businessName: 'Catedral Propiedades SpA',
       activity: 'Servicios inmobiliarios',
+      workers: 12,
+      revenueClp: 612_000_000,
+      revenueYear: 2025,
       nameMatches: true,
     };
   },
@@ -47,7 +50,13 @@ const taxOk: TaxAdapter = {
 const reputationClean: ReputationAdapter = {
   source: 'simulated',
   async check() {
-    return { source: 'simulated', fraudFlags: [], negativeReviews: 0, mentions: [] };
+    return {
+      source: 'simulated',
+      fraudFlags: [],
+      negativeReviews: 0,
+      negativeTopics: [],
+      mentions: [],
+    };
   },
 };
 

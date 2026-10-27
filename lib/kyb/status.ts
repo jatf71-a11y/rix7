@@ -149,6 +149,19 @@ export interface KybCheckEvidence {
   mentions?: { title: string; url: string }[];
 }
 
+/**
+ * Un dato concreto que la verificación miró.
+ *
+ * Es el sustento de la verificación: `detail` dice qué concluyó («3 reseñas
+ * negativas») y el hecho dice con qué («reseñas negativas: 3», «umbral: 3 o
+ * más»). El equipo revisa advertencias, y una advertencia sin sus datos no se
+ * puede discutir con la empresa.
+ */
+export interface KybCheckFact {
+  label: string;
+  value: string;
+}
+
 /** Verificación individual del motor. */
 export interface KybCheck {
   /** Identificador estable: es la clave con la que llega la respuesta. */
@@ -162,6 +175,8 @@ export interface KybCheck {
   question?: string;
   /** Origen del dato, para que el panel explique la advertencia. */
   evidence?: KybCheckEvidence;
+  /** Datos concretos que la verificación usó, para que el panel los muestre. */
+  facts?: KybCheckFact[];
 }
 
 export interface KybQuestion {

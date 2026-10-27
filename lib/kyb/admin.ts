@@ -43,6 +43,20 @@ export function checkSummary(checks: KybCheck[]): KybCheckSummary {
   return summary;
 }
 
+/**
+ * Verificaciones que no pasaron, separadas por tono.
+ *
+ * El encabezado de la ficha las nombra por su etiqueta: «1 advierte» dice
+ * cuántas y no cuáles, y para saber de qué se trataba había que recorrer las
+ * siete verificaciones una por una.
+ */
+export function nonPassingChecks(checks: KybCheck[]): { warn: KybCheck[]; fail: KybCheck[] } {
+  return {
+    warn: checks.filter((check) => check.status === 'warn'),
+    fail: checks.filter((check) => check.status === 'fail'),
+  };
+}
+
 /** Puntaje 0..100 → tono. `null` es «todavía no se evaluó», no un cero. */
 export function scoreTone(score: number | null): string {
   if (score === null) return 'bg-slate-100 text-slate-500';
@@ -57,7 +71,7 @@ export function scoreTone(score: number | null): string {
  * Existe por un caso concreto: en producción, sin `KYB_SEARCH_URL`, la
  * advertencia de reputación **no** sale de una búsqueda real, y leer «3 reseñas
  * negativas públicas» sin ese dato es creerle a una simulación. El panel tiene
- * que poder decirlo, y también marcar cuáles de las seis verificaciones solo
+ * que poder decirlo, y también marcar cuáles de las siete verificaciones solo
  * releen la solicitud en vez de comprobar algo afuera.
  */
 export const KYB_EVIDENCE_LABELS: Record<KybEvidenceSource, string> = {

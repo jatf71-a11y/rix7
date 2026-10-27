@@ -83,8 +83,9 @@ export function buildKybReceivedEmail({
     '',
     `Recibimos la solicitud de alta de ${legalName} en Rix7.`,
     'La evaluación es automática: verificamos el RUT y el registro comercial, la reputación',
-    'pública, el sitio web y la coherencia del correo corporativo. No tienes que hacer nada',
-    'por ahora; te escribimos con el resultado.',
+    'pública, el sitio web, la coherencia del correo corporativo y el tamaño de la empresa',
+    '(dotación de trabajadores). No tienes que hacer nada por ahora; te escribimos con el',
+    'resultado.',
     '',
     'Si necesitamos algún dato adicional, te lo pediremos en un solo correo con preguntas',
     'concretas y un enlace para responderlas.',
@@ -102,9 +103,9 @@ export function buildKybReceivedEmail({
       intro: `${escapeHtml(greeting)} recibimos la solicitud de <strong>${escapeHtml(legalName)}</strong>. La evaluación es automática y no necesitas hacer nada por ahora.`,
       body: `
         <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px;color:#1e3a8a;font-size:13px;line-height:1.6">
-          Verificamos el RUT y el registro comercial, la reputación pública, el sitio web y la
-          coherencia del correo corporativo. Si hace falta un dato, te lo pedimos en un correo
-          con preguntas concretas.
+          Verificamos el RUT y el registro comercial, la reputación pública, el sitio web, la
+          coherencia del correo corporativo y el tamaño de la empresa (dotación de trabajadores).
+          Si hace falta un dato, te lo pedimos en un correo con preguntas concretas.
         </div>
         <p style="margin:18px 0 0;color:#64748b;font-size:12px;line-height:1.6">
           No compartas este correo: identifica el trámite de tu empresa.

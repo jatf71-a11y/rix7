@@ -71,7 +71,7 @@ export function evaluatingCopy(status: KybStatus): StageCopy {
     case 'En_Evaluacion':
       return {
         title: 'Estamos verificando tu empresa',
-        body: 'Revisamos el RUT y el registro comercial, la reputación pública, el sitio web y la coherencia del correo corporativo. No necesitas hacer nada por ahora.',
+        body: 'Revisamos el RUT y el registro comercial, la reputación pública, el sitio web, la coherencia del correo corporativo y el tamaño de la empresa. No necesitas hacer nada por ahora.',
       };
     case 'Pendiente_Informacion':
       return {

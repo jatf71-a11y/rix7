@@ -24,6 +24,16 @@
  * sube una verificación un escalón (fallo → advertencia, advertencia → pasa),
  * salvo en las fiscales, que se vuelven a consultar al registro y no se arreglan
  * con texto.
+ *
+ * El tamaño de la empresa se mide por **dotación** —los trabajadores que informa
+ * el registro—: ese número decide el tramo. Las ventas aproximadas del último
+ * ejercicio cerrado que publica el registro viajan al lado como referencia de la
+ * escala, y **no se le piden a la empresa**: cuando el registro no las publica, el
+ * panel dice «sin dato» y la verificación sigue dependiendo de la dotación.
+ *
+ * Cada verificación viaja además con sus `facts`: los datos concretos que miró
+ * (el registro consultado, las reseñas contadas, el umbral, el dominio de cada
+ * lado). El detalle explica la conclusión; los hechos permiten discutirla.
  */
 
 import { isValidRut } from '@/lib/utils/rut';
@@ -35,8 +45,12 @@ import {
   type NormalizedKybApplication,
 } from './application';
 import { defaultReputationAdapter, type ReputationAdapter } from './adapters/reputation';
-import { defaultTaxAdapter, type TaxAdapter } from './adapters/tax';
-import type { KybCheck, KybEvaluation, KybQuestion } from './status';
+import {
+  defaultTaxAdapter,
+  type TaxAdapter,
+  type TaxVerification,
+} from './adapters/tax';
+import type { KybCheck, KybCheckFact, KybEvaluation, KybQuestion } from './status';
 
 export interface KybEngineDeps {
   tax: TaxAdapter;
@@ -60,15 +74,66 @@ const FREE_HOSTING = [
 
 const MIN_CLARIFICATION_LENGTH = 8;
 
-/** Peso de cada verificación. Suma 100 para que el puntaje sea comparable. */
+/** Reseñas negativas que convierten la reputación en advertencia. */
+const NEGATIVE_REVIEWS_THRESHOLD = 3;
+
+/**
+ * Peso de cada verificación. Suma 100 para que el puntaje sea comparable.
+ *
+ * Al sumar la séptima verificación, los pesos de las seis originales se
+ * reescalaron (×0,9): la proporción con la que el motor venía decidiendo no
+ * cambia.
+ */
 const WEIGHTS = {
-  taxRut: 20,
-  taxRegistry: 25,
-  reputation: 20,
-  domainWeb: 15,
-  emailCorporate: 10,
-  emailDomainMatch: 10,
+  taxRut: 18,
+  taxRegistry: 22,
+  reputation: 18,
+  domainWeb: 14,
+  emailCorporate: 9,
+  emailDomainMatch: 9,
+  companySize: 10,
 } as const;
+
+export type KybSizeBandId = 'micro' | 'pequena' | 'mediana' | 'grande';
+
+export interface KybSizeBand {
+  id: KybSizeBandId;
+  label: string;
+}
+
+/**
+ * Tramo de tamaño por dotación: micro 1-9, pequeña 10-49, mediana 50-199 y
+ * grande 200 o más trabajadores.
+ *
+ * Son los tramos de la Ley 20.416 por número de trabajadores —no los de ventas—,
+ * que es justamente lo que el motor puede leer del registro sin pedirle a la
+ * empresa su nivel de facturación.
+ */
+/**
+ * Referencia de facturación: «≈ $612 millones al año (ejercicio 2025)», o
+ * «sin dato en el registro».
+ *
+ * Nunca se estima: la cifra sale de las ventas que publica el registro. El
+ * tramo lo sigue decidiendo la dotación, así que este número acompaña al tamaño
+ * en vez de definirlo.
+ */
+/** Lo que se muestra cuando el registro no publica ventas del ejercicio. */
+const NO_REVENUE = 'sin dato en el registro';
+
+function revenueLabel(registry: TaxVerification | null): string {
+  if (!registry || registry.revenueClp === null) return NO_REVENUE;
+  const millions = Math.round(registry.revenueClp / 1_000_000);
+  const amount = `$${new Intl.NumberFormat('es-CL').format(millions)} millones`;
+  return registry.revenueYear
+    ? `≈ ${amount} al año (ejercicio ${registry.revenueYear})`
+    : `≈ ${amount} al año`;
+}
+export function kybSizeBand(workers: number): KybSizeBand {
+  if (workers >= 200) return { id: 'grande', label: 'empresa grande (200 o más trabajadores)' };
+  if (workers >= 50) return { id: 'mediana', label: 'empresa mediana (50 a 199 trabajadores)' };
+  if (workers >= 10) return { id: 'pequena', label: 'pequeña empresa (10 a 49 trabajadores)' };
+  return { id: 'micro', label: 'microempresa (1 a 9 trabajadores)' };
+}
 
 function isFreeHosting(domain: string | null): boolean {
   if (!domain) return false;
@@ -90,10 +155,12 @@ function applyClarification(check: KybCheck, clarification: string | undefined):
   if (clarification.trim().length < MIN_CLARIFICATION_LENGTH) return check;
 
   const upgraded: KybCheck['status'] = check.status === 'fail' ? 'warn' : 'pass';
+  const answered = clarification.trim().slice(0, 240);
   return {
     ...check,
     status: upgraded,
-    detail: `${check.detail} La empresa respondió: «${clarification.trim().slice(0, 240)}»`,
+    detail: `${check.detail} La empresa respondió: «${answered}»`,
+    facts: [...(check.facts ?? []), { label: 'Respuesta de la empresa', value: answered }],
     ...(upgraded === 'pass' ? { question: undefined } : {}),
   };
 }
@@ -137,10 +204,19 @@ export async function evaluateKyb(
     // Solo formato: el RUT viene de la solicitud y se valida con su dígito
     // verificador, no contra el registro (eso es la verificación siguiente).
     evidence: { source: 'declared' },
+    facts: [
+      { label: 'RUT revisado', value: application.rut },
+      { label: 'Dígito verificador', value: rutIsValid ? 'correcto' : 'no válido' },
+    ],
     question: rutIsValid
       ? undefined
       : 'Confirma el RUT de la empresa con su dígito verificador (por ejemplo 76.123.456-0).',
   });
+
+  // El registro se consulta una sola vez y su resultado lo usan dos
+  // verificaciones: el registro comercial y el tamaño de la empresa (dotación).
+  let registry: TaxVerification | null = null;
+  let registryError: string | null = null;
 
   // ── 2. Registro comercial (SII o simulación) ────────────────────────────
   try {
@@ -148,6 +224,7 @@ export async function evaluateKyb(
       rut: application.rut,
       legalName: application.legalName,
     });
+    registry = taxResult;
 
     const problems: string[] = [];
     if (!taxResult.exists) problems.push('el RUT no figura en el registro');
@@ -166,12 +243,26 @@ export async function evaluateKyb(
         : `Registro ${taxResult.source === 'sii' ? 'del SII' : 'simulado'}: ${problems.join(', ')}.`,
       weight: WEIGHTS.taxRegistry,
       evidence: { source: taxResult.source },
+      facts: [
+        {
+          label: 'Registro consultado',
+          value: taxResult.source === 'sii' ? 'SII' : 'simulación local',
+        },
+        { label: 'Figura en el registro', value: taxResult.exists ? 'sí' : 'no' },
+        {
+          label: 'Situación',
+          value: !taxResult.exists ? 'sin registro' : taxResult.active ? 'activa' : 'no activa',
+        },
+        { label: 'Razón social registrada', value: taxResult.businessName ?? 'sin dato' },
+        { label: 'Giro', value: taxResult.activity ?? 'sin dato' },
+      ],
       question: ok
         ? undefined
         : `No pudimos validar el registro de ${application.legalName} con el RUT ${application.rut}. ¿Confirmas la razón social exacta, el RUT y el giro con el que está inscrita?`,
     });
   } catch (error) {
     const detail = error instanceof Error ? error.message : 'error inesperado';
+    registryError = detail;
     checks.push({
       id: 'tax_registry',
       label: 'Registro comercial',
@@ -179,6 +270,10 @@ export async function evaluateKyb(
       detail: `No se pudo consultar el registro: ${detail}`,
       weight: WEIGHTS.taxRegistry,
       evidence: { source: tax.source },
+      facts: [
+        { label: 'Registro consultado', value: tax.source === 'sii' ? 'SII' : 'simulación local' },
+        { label: 'Resultado', value: 'no respondió' },
+      ],
       question:
         'No pudimos consultar el registro comercial en este momento. ¿Nos confirmas la razón social, el RUT y el giro inscrito para reintentar la verificación?',
     });
@@ -193,6 +288,36 @@ export async function evaluateKyb(
       domain: normalizedSite,
     });
 
+    // El sustento de la advertencia: qué se buscó y qué se contó. Va en las
+    // cuatro ramas porque el equipo necesita el mismo dato tanto para discutir
+    // una advertencia como para confiar en un «sin señales».
+    const reputationFacts: KybCheckFact[] = [
+      {
+        label: 'Qué se buscó',
+        value: [application.legalName, application.rut, normalizedSite]
+          .filter(Boolean)
+          .join(' · '),
+      },
+      { label: 'Reseñas negativas', value: String(reputationResult.negativeReviews) },
+      // El motivo, cuando la fuente lo trae: «3 reseñas negativas» no dice si son
+      // por demoras o por cobros, y sin eso la aclaración que se le pide a la
+      // empresa queda a ciegas. Si la búsqueda no discrimina el motivo, se dice
+      // que no hay detalle en vez de rellenarlo.
+      {
+        label: 'Motivo de las reseñas',
+        value:
+          reputationResult.negativeTopics.length > 0
+            ? reputationResult.negativeTopics.join(' · ')
+            : reputationResult.negativeReviews > 0
+              ? 'sin detalle en la fuente consultada'
+              : 'sin reseñas negativas',
+      },
+      {
+        label: 'Señales de fraude',
+        value: reputationResult.fraudFlags.length > 0 ? reputationResult.fraudFlags.join(' ') : 'ninguna',
+      },
+    ];
+
     if (reputationResult.fraudFlags.length > 0) {
       checks.push({
         id: 'reputation',
@@ -201,10 +326,11 @@ export async function evaluateKyb(
         detail: `Señales de fraude: ${reputationResult.fraudFlags.join(' ')}`,
         weight: WEIGHTS.reputation,
         evidence: { source: reputationResult.source, mentions: reputationResult.mentions },
+        facts: reputationFacts,
         question:
           'Encontramos menciones públicas que reportan problemas de fraude o impagos asociados a tu empresa. ¿Puedes entregar antecedentes que expliquen esas menciones?',
       });
-    } else if (reputationResult.negativeReviews >= 3) {
+    } else if (reputationResult.negativeReviews >= NEGATIVE_REVIEWS_THRESHOLD) {
       checks.push({
         id: 'reputation',
         label: 'Reputación web',
@@ -212,6 +338,13 @@ export async function evaluateKyb(
         detail: `${reputationResult.negativeReviews} reseñas negativas públicas y ninguna señal de fraude.`,
         weight: WEIGHTS.reputation,
         evidence: { source: reputationResult.source, mentions: reputationResult.mentions },
+        facts: [
+          ...reputationFacts,
+          {
+            label: 'Umbral de advertencia',
+            value: `${NEGATIVE_REVIEWS_THRESHOLD} reseñas negativas o más`,
+          },
+        ],
         question: `Encontramos ${reputationResult.negativeReviews} reseñas negativas de clientes. ¿Qué medidas tomó la empresa para resolverlas?`,
       });
     } else {
@@ -225,6 +358,7 @@ export async function evaluateKyb(
             : 'Sin señales de fraude ni reseñas negativas relevantes.',
         weight: WEIGHTS.reputation,
         evidence: { source: reputationResult.source, mentions: reputationResult.mentions },
+        facts: reputationFacts,
       });
     }
   } catch (error) {
@@ -236,6 +370,15 @@ export async function evaluateKyb(
       detail: `No se pudo completar la búsqueda de reputación: ${detail}`,
       weight: WEIGHTS.reputation,
       evidence: { source: reputation.source },
+      facts: [
+        {
+          label: 'Qué se buscó',
+          value: [application.legalName, application.rut, normalizedSite]
+            .filter(Boolean)
+            .join(' · '),
+        },
+        { label: 'Resultado', value: 'no respondió' },
+      ],
       question:
         'No pudimos revisar la reputación pública de la empresa. ¿Nos indicas sus perfiles oficiales (sitio, redes o directorios) para verificarlos?',
     });
@@ -251,6 +394,7 @@ export async function evaluateKyb(
       detail: 'La solicitud no informa un sitio web.',
       weight: WEIGHTS.domainWeb,
       evidence: { source: 'declared' },
+      facts: [{ label: 'Sitio informado', value: 'ninguno' }],
       question:
         'No informaste un sitio web. ¿Cuál es el dominio oficial de la empresa donde podamos verificar su actividad?',
     });
@@ -262,6 +406,10 @@ export async function evaluateKyb(
       detail: `El sitio usa un alojamiento gratuito (${normalizedSite}).`,
       weight: WEIGHTS.domainWeb,
       evidence: { source: 'declared' },
+      facts: [
+        { label: 'Sitio informado', value: normalizedSite },
+        { label: 'Alojamiento', value: 'gratuito: no es un dominio propio' },
+      ],
       question: `El sitio de la empresa está alojado en un servicio gratuito (${normalizedSite}). ¿Tiene un dominio propio? Si es así, indícalo.`,
     });
   } else {
@@ -272,6 +420,10 @@ export async function evaluateKyb(
       detail: `Dominio propio: ${normalizedSite}.`,
       weight: WEIGHTS.domainWeb,
       evidence: { source: 'declared' },
+      facts: [
+        { label: 'Sitio informado', value: normalizedSite },
+        { label: 'Alojamiento', value: 'dominio propio' },
+      ],
     });
   }
 
@@ -284,6 +436,10 @@ export async function evaluateKyb(
       detail: `El contacto usa un correo personal (${mailDomain}).`,
       weight: WEIGHTS.emailCorporate,
       evidence: { source: 'declared' },
+      facts: [
+        { label: 'Dominio del correo', value: mailDomain ?? 'sin dominio' },
+        { label: 'Tipo', value: 'proveedor personal' },
+      ],
       question:
         'El correo de contacto es de un proveedor personal. ¿Cuál es el correo corporativo con el dominio de la empresa?',
     });
@@ -295,6 +451,10 @@ export async function evaluateKyb(
       detail: `El contacto usa un dominio propio (${mailDomain}).`,
       weight: WEIGHTS.emailCorporate,
       evidence: { source: 'declared' },
+      facts: [
+        { label: 'Dominio del correo', value: mailDomain ?? 'sin dominio' },
+        { label: 'Tipo', value: 'propio' },
+      ],
     });
   }
 
@@ -307,6 +467,10 @@ export async function evaluateKyb(
       detail: 'Sin sitio web no hay dominio contra el cual comparar el correo.',
       weight: WEIGHTS.emailDomainMatch,
       evidence: { source: 'declared' },
+      facts: [
+        { label: 'Dominio del correo', value: mailDomain ?? 'sin dominio' },
+        { label: 'Dominio del sitio', value: 'ninguno' },
+      ],
       question:
         'Sin sitio web no podemos comprobar que el correo pertenezca a la empresa. ¿Puedes indicar el dominio corporativo?',
     });
@@ -318,6 +482,11 @@ export async function evaluateKyb(
       detail: `El correo (${mailDomain}) pertenece al dominio del sitio (${normalizedSite}).`,
       weight: WEIGHTS.emailDomainMatch,
       evidence: { source: 'declared' },
+      facts: [
+        { label: 'Dominio del correo', value: mailDomain ?? 'sin dominio' },
+        { label: 'Dominio del sitio', value: normalizedSite },
+        { label: 'Coinciden', value: 'sí' },
+      ],
     });
   } else {
     checks.push({
@@ -327,7 +496,97 @@ export async function evaluateKyb(
       detail: `El correo (${mailDomain ?? 'sin dominio'}) no pertenece al dominio del sitio (${normalizedSite}).`,
       weight: WEIGHTS.emailDomainMatch,
       evidence: { source: 'declared' },
+      facts: [
+        { label: 'Dominio del correo', value: mailDomain ?? 'sin dominio' },
+        { label: 'Dominio del sitio', value: normalizedSite },
+        { label: 'Coinciden', value: 'no' },
+      ],
       question: `El correo de contacto no pertenece al dominio ${normalizedSite}. ¿Por qué la empresa usa un correo de otro dominio y cuál es el correo corporativo oficial?`,
+    });
+  }
+
+  // ── 7. Tamaño de la empresa (dotación del registro) ─────────────────────
+  // El tramo se calcula por número de trabajadores: es lo que el registro
+  // publica y no depende de que la empresa declare su nivel de facturación. Las
+  // ventas aproximadas del último ejercicio se muestran al lado, como referencia
+  // de la escala: no deciden el tramo y, si el registro no las trae, se dice que
+  // no hay dato en vez de pedírselas a la empresa.
+  const sizeFacts = (revenue: string): KybCheckFact[] => [
+    { label: 'Cómo se mide el tramo', value: 'dotación de trabajadores (Ley 20.416)' },
+    { label: 'Facturación aproximada', value: revenue },
+  ];
+
+  if (!registry) {
+    checks.push({
+      id: 'company_size',
+      label: 'Tamaño de la empresa',
+      status: 'warn',
+      detail: `No se pudo consultar la dotación: ${registryError ?? 'sin respuesta del registro'}`,
+      weight: WEIGHTS.companySize,
+      evidence: { source: tax.source },
+      facts: [
+        { label: 'Registro consultado', value: tax.source === 'sii' ? 'SII' : 'simulación local' },
+        { label: 'Resultado', value: 'no respondió' },
+        ...sizeFacts(revenueLabel(registry)),
+      ],
+      question:
+        'No pudimos leer en el registro cuántas personas trabajan en la empresa. ¿Cuál es su dotación actual (número de trabajadores)?',
+    });
+  } else if (registry.workers === null) {
+    checks.push({
+      id: 'company_size',
+      label: 'Tamaño de la empresa',
+      status: 'warn',
+      detail:
+        'El registro no informa la dotación de la empresa.' +
+        (registry.revenueClp === null
+          ? ''
+          : ` Sus ventas del último ejercicio fueron ${revenueLabel(registry)}.`),
+      weight: WEIGHTS.companySize,
+      evidence: { source: registry.source },
+      facts: [
+        { label: 'Dotación informada', value: 'sin dato' },
+        ...sizeFacts(revenueLabel(registry)),
+      ],
+      question:
+        'El registro público no informa cuántas personas trabajan en la empresa. ¿Cuál es su dotación actual (número de trabajadores)?',
+    });
+  } else if (registry.workers === 0) {
+    checks.push({
+      id: 'company_size',
+      label: 'Tamaño de la empresa',
+      status: 'warn',
+      detail: 'El registro informa 0 trabajadores con la empresa activa.',
+      weight: WEIGHTS.companySize,
+      evidence: { source: registry.source },
+      facts: [
+        { label: 'Dotación informada', value: '0 trabajadores' },
+        ...sizeFacts(revenueLabel(registry)),
+      ],
+      question:
+        'El registro informa la empresa activa sin trabajadores. ¿Cuántas personas trabajan hoy en ella, contando a los socios que la operan?',
+    });
+  } else {
+    const band = kybSizeBand(registry.workers);
+    checks.push({
+      id: 'company_size',
+      label: 'Tamaño de la empresa',
+      status: 'pass',
+      detail:
+        `El registro informa ${registry.workers} trabajador(es): ${band.label}` +
+        (revenueLabel(registry) === NO_REVENUE
+          ? ''
+          : `, con facturación aproximada de ${revenueLabel(registry)}`) +
+        '.',
+      weight: WEIGHTS.companySize,
+      evidence: { source: registry.source },
+      facts: [
+        { label: 'Dotación informada', value: `${registry.workers} trabajadores` },
+        { label: 'Tramo', value: band.label },
+        ...sizeFacts(revenueLabel(registry)),
+      ],
+      // La empresa puede corregir la dotación si el registro está atrasado; por
+      // eso la clave no empieza con `tax_`, que es lo que la vuelve intocable.
     });
   }
 
@@ -343,7 +602,7 @@ export async function evaluateKyb(
 
   if (decision === 'Aceptada') {
     reasons.push(
-      `Las seis verificaciones pasaron o quedaron resueltas; puntaje ${score}/100.`
+      `Las siete verificaciones pasaron o quedaron resueltas; puntaje ${score}/100.`
     );
   } else {
     reasons.push(

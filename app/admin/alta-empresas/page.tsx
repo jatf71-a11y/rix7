@@ -262,8 +262,8 @@ export default function AdminAltaEmpresasPage() {
         <div>
           <h1 className="text-2xl font-black text-slate-900">Alta de empresas</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Verificación automática de RUT, registro comercial, reputación, sitio y correo.
-            Abre una solicitud para ver por qué quedó en cada estado.
+          Verificación automática de RUT, registro comercial, reputación, sitio, correo y
+          tamaño de la empresa. Abre una solicitud para ver por qué quedó en cada estado.
           </p>
         </div>
         <button

@@ -7,6 +7,7 @@ import {
   formatKybDateTime,
   KYB_CHECK_TONES,
   KYB_EVIDENCE_LABELS,
+  nonPassingChecks,
   scoreTone,
 } from './admin';
 import { KYB_STATUSES, type KybCheck, type KybEvidenceSource } from './status';
@@ -25,7 +26,7 @@ describe('resumen de verificaciones', () => {
     });
   });
 
-  it('sin verificaciones el total es cero, no seis', () => {
+  it('sin verificaciones el total es cero, no siete', () => {
     expect(checkSummary([])).toEqual({ pass: 0, warn: 0, fail: 0, total: 0 });
   });
 
@@ -33,6 +34,23 @@ describe('resumen de verificaciones', () => {
     expect(KYB_CHECK_TONES.pass.label).toBe('OK');
     expect(KYB_CHECK_TONES.warn.label).toBe('Advertencia');
     expect(KYB_CHECK_TONES.fail.label).toBe('Falla');
+  });
+});
+
+describe('verificaciones que no pasaron', () => {
+  it('separa las que advierten de las que fallan, con su etiqueta', () => {
+    const outstanding = nonPassingChecks([
+      { ...check('pass'), label: 'RUT válido' },
+      { ...check('warn'), label: 'Reputación web' },
+      { ...check('fail'), label: 'Correo y sitio coinciden' },
+    ]);
+
+    expect(outstanding.warn.map((item) => item.label)).toEqual(['Reputación web']);
+    expect(outstanding.fail.map((item) => item.label)).toEqual(['Correo y sitio coinciden']);
+  });
+
+  it('sin problemas devuelve listas vacías, no nulas', () => {
+    expect(nonPassingChecks([check('pass')])).toEqual({ warn: [], fail: [] });
   });
 });
 

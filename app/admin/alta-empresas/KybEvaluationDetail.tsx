@@ -10,6 +10,7 @@ import {
   evidenceLabel,
   formatKybDateTime,
   KYB_CHECK_TONES,
+  nonPassingChecks,
   scoreTone,
 } from '@/lib/kyb/admin';
 import type { KybEvaluation, KybManualDecision } from '@/lib/kyb/status';
@@ -79,6 +80,7 @@ export default function KybEvaluationDetail({
   onDecide,
 }: KybEvaluationDetailProps) {
   const summary = evaluation ? checkSummary(evaluation.checks) : null;
+  const outstanding = evaluation ? nonPassingChecks(evaluation.checks) : null;
   const blocked = !canReevaluate(application.status);
 
   return (
@@ -145,9 +147,15 @@ export default function KybEvaluationDetail({
               </span>
               <span className="rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">
                 {summary.warn} advierte
+                {outstanding && outstanding.warn.length > 0
+                  ? `: ${outstanding.warn.map((check) => check.label).join(', ')}`
+                  : ''}
               </span>
               <span className="rounded-full bg-red-50 px-2.5 py-1 text-red-700">
                 {summary.fail} falla
+                {outstanding && outstanding.fail.length > 0
+                  ? `: ${outstanding.fail.map((check) => check.label).join(', ')}`
+                  : ''}
               </span>
             </div>
           )}
@@ -172,6 +180,23 @@ export default function KybEvaluationDetail({
                     </span>
                   </div>
                   <p className="mt-1 text-[11px] leading-relaxed text-slate-600">{check.detail}</p>
+                  {check.facts && check.facts.length > 0 && (
+                    <dl className="mt-2 space-y-1">
+                      {check.facts.map((fact) => (
+                        <div
+                          key={fact.label}
+                          className="flex items-baseline justify-between gap-3 rounded-lg bg-slate-50 px-2.5 py-1.5"
+                        >
+                          <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                            {fact.label}
+                          </dt>
+                          <dd className="text-right text-[11px] font-semibold text-slate-700">
+                            {fact.value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
                   {check.evidence && (
                     <p className="mt-1.5 text-[10px] text-slate-500">
                       <span className="font-semibold uppercase tracking-wide text-slate-400">
