@@ -5,9 +5,11 @@ import Link from 'next/link';
 import {
   AlertCircle,
   Building2,
+  Columns3,
   Home,
   Inbox,
   Landmark,
+  List,
   Loader2,
   RefreshCw,
   UserRound,
@@ -41,11 +43,16 @@ import {
  * vencida, RLS, fila borrada) se vea en la tarjeta en vez de quedar como un
  * estado que nunca se guardó.
  *
- * Acá no hay pipeline por etapa a propósito: el estado de esta bandeja lo mueve
- * una persona, mientras que la etapa del alta la escribe el motor de evaluación.
- * Un tablero con los mismos seis nombres en las dos pantallas haría creer que
- * una solicitud de «Publicar» está evaluada cuando nadie la evaluó; el pipeline
- * vive en `/admin/alta-empresas`.
+ * La bandeja se puede mirar de dos maneras: **lista** (el detalle completo, una
+ * tarjeta por solicitud) y **tablero** (una columna por etapa). El tablero no es
+ * otra fuente de datos ni otra ruta: agrupa las filas ya cargadas, así que los
+ * conteos de las columnas suman el total del filtro y mover una tarjeta no pide
+ * nada de nuevo. El filtro por tipo sigue valiendo en las dos vistas.
+ *
+ * Ojo con la diferencia: acá la etapa la **mueve una persona** desde el selector,
+ * mientras que en `/admin/alta-empresas` la escribe el motor de evaluación. Los
+ * dos tableros usan los mismos seis nombres, pero uno es una decisión y el otro
+ * un resultado; el de esta pantalla no dice que alguien evaluó nada.
  */
 
 const KIND_STYLE: Record<
@@ -82,6 +89,23 @@ const FILTERS: Array<{ value: 'todas' | SolicitudKind; label: string }> = [
   { value: 'agente', label: 'Agentes' },
 ];
 
+/**
+ * Acento de cada columna del tablero.
+ *
+ * El color no reemplaza la etiqueta —cada columna dice su nombre—: es lo que
+ * permite reconocer la etapa de un vistazo cuando el tablero está lleno. Los dos
+ * terminales (`En_Alta` y `Rechazada`) se distinguen del resto porque ahí ya no
+ * hay nada que hacer.
+ */
+const STATUS_STYLE: Record<SolicitudStatus, { column: string; dot: string }> = {
+  Recibida: { column: 'border-slate-200', dot: 'bg-slate-400' },
+  En_Evaluacion: { column: 'border-blue-200', dot: 'bg-blue-500' },
+  Pendiente_Informacion: { column: 'border-amber-200', dot: 'bg-amber-500' },
+  Aceptada: { column: 'border-emerald-200', dot: 'bg-emerald-500' },
+  En_Alta: { column: 'border-violet-200', dot: 'bg-violet-500' },
+  Rechazada: { column: 'border-rose-200', dot: 'bg-rose-400' },
+};
+
 function formatDate(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '—';
@@ -108,6 +132,9 @@ export default function AdminSolicitudesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'todas' | SolicitudKind>('todas');
+  // Arranca en el tablero: es la pregunta con la que se entra («¿en qué etapa
+  // está cada pedido?»). La lista, con el detalle completo, queda a un clic.
+  const [view, setView] = useState<'lista' | 'tablero'>('tablero');
   const [storage, setStorage] = useState<{ persistent: boolean; source: string } | null>(null);
   /** Id de la solicitud que está guardando su estado, para deshabilitar sólo esa. */
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -201,6 +228,22 @@ export default function AdminSolicitudesPage() {
     [filter, solicitudes]
   );
 
+  /**
+   * Las columnas del tablero, en el orden del alta.
+   *
+   * Sale de `SOLICITUD_STATUSES`, así que si el alta suma una etapa aparece acá
+   * sin tocar esta página. Las filas de una columna conservan el orden del
+   * listado (la más reciente arriba).
+   */
+  const board = useMemo(
+    () =>
+      SOLICITUD_STATUSES.map((status) => ({
+        status,
+        items: visible.filter((solicitud) => solicitud.status === status),
+      })),
+    [visible]
+  );
+
   return (
     <div className="max-w-6xl">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -210,15 +253,44 @@ export default function AdminSolicitudesPage() {
             Propietarios que buscan propuestas y registros de corredoras, inmobiliarias y agentes.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={load}
-          disabled={loading}
-          className="inline-flex items-center gap-2 self-start rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50 sm:self-auto"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Actualizar
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div
+            className="inline-flex rounded-lg border border-slate-300 p-0.5"
+            role="group"
+            aria-label="Cómo ver las solicitudes"
+          >
+            {([
+              { value: 'tablero' as const, label: 'Pipeline', icon: Columns3 },
+              { value: 'lista' as const, label: 'Lista', icon: List },
+            ]).map((option) => {
+              const active = view === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => setView(option.value)}
+                  className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                    active ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <option.icon className="h-3.5 w-3.5" />
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={load}
+            disabled={loading}
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            Actualizar
+          </button>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Filtrar por tipo de solicitud">
@@ -287,6 +359,100 @@ export default function AdminSolicitudesPage() {
               ? 'Cuando alguien use Publicar, su pedido va a aparecer acá.'
               : 'No hay pedidos de este tipo por ahora.'}
           </p>
+        </div>
+      ) : view === 'tablero' ? (
+        <div
+          className="mt-6 grid grid-flow-col auto-cols-[minmax(15rem,1fr)] gap-4 overflow-x-auto pb-3"
+          role="group"
+          aria-label="Solicitudes por etapa"
+        >
+          {board.map(({ status, items }) => (
+            <section
+              key={status}
+              aria-label={`${SOLICITUD_STATUS_LABELS[status]}: ${items.length} solicitud(es)`}
+              className={`flex min-h-[13rem] flex-col rounded-2xl border bg-slate-50/70 ${STATUS_STYLE[status].column}`}
+            >
+              <header className="flex items-center justify-between gap-2 border-b border-slate-200/70 px-3.5 py-2.5">
+                <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-slate-600">
+                  <span className={`h-2 w-2 rounded-full ${STATUS_STYLE[status].dot}`} aria-hidden="true" />
+                  {SOLICITUD_STATUS_LABELS[status]}
+                </span>
+                <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-slate-500 ring-1 ring-slate-200">
+                  {items.length}
+                </span>
+              </header>
+
+              <div className="flex flex-1 flex-col gap-2 p-2.5">
+                {items.length === 0 ? (
+                  <p className="rounded-xl border border-dashed border-slate-200 px-2 py-4 text-center text-[11px] text-slate-400">
+                    Sin solicitudes
+                  </p>
+                ) : (
+                  items.map((solicitud) => {
+                    const kind = KIND_STYLE[solicitud.kind];
+                    return (
+                      <article
+                        key={solicitud.id}
+                        className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span
+                            className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${kind.badge}`}
+                          >
+                            {kind.label}
+                          </span>
+                          <span className="text-[10px] text-slate-400">
+                            {formatDate(solicitud.createdAt)}
+                          </span>
+                        </div>
+
+                        <h3 className="mt-1.5 text-xs font-bold leading-snug text-slate-900">
+                          {solicitudTitle(solicitud)}
+                        </h3>
+                        <p className="mt-1 truncate text-[11px] text-slate-500">{solicitud.name}</p>
+                        <a
+                          href={`mailto:${solicitud.email}`}
+                          className="block truncate text-[11px] text-blue-700 hover:underline"
+                        >
+                          {solicitud.email}
+                        </a>
+
+                        <div className="mt-2 flex items-center gap-1.5">
+                          <label htmlFor={`estado-tablero-${solicitud.id}`} className="sr-only">
+                            Estado
+                          </label>
+                          <select
+                            id={`estado-tablero-${solicitud.id}`}
+                            value={solicitud.status}
+                            disabled={savingId === solicitud.id}
+                            onChange={(event) =>
+                              changeStatus(solicitud.id, event.target.value as SolicitudStatus)
+                            }
+                            className="w-full rounded-lg border border-slate-300 bg-white px-1.5 py-1 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
+                          >
+                            {SOLICITUD_STATUSES.map((option) => (
+                              <option key={option} value={option}>
+                                {SOLICITUD_STATUS_LABELS[option]}
+                              </option>
+                            ))}
+                          </select>
+                          {savingId === solicitud.id && (
+                            <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-slate-400" />
+                          )}
+                        </div>
+
+                        {actionError?.id === solicitud.id && (
+                          <p role="alert" className="mt-1.5 text-[10px] text-red-600">
+                            {actionError.message}
+                          </p>
+                        )}
+                      </article>
+                    );
+                  })
+                )}
+              </div>
+            </section>
+          ))}
         </div>
       ) : (
         <ul className="mt-6 space-y-4">
