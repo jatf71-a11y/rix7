@@ -7,7 +7,9 @@ import {
   Building2,
   ChevronDown,
   ChevronUp,
+  Columns3,
   Inbox,
+  List,
   Loader2,
   RefreshCw,
 } from 'lucide-react';
@@ -38,6 +40,13 @@ import KybEvaluationDetail from './KybEvaluationDetail';
  * El registro de corredoras e inmobiliarias crea estas solicitudes. Un agente
  * independiente sigue entrando por `/admin/solicitudes`: es una persona, no una
  * empresa que haya que verificar.
+ *
+ * La lista se puede mirar como **pipeline**: una columna por etapa del motor, con
+ * el puntaje de cada empresa y cuántas hay en cada una. Es la misma data que la
+ * lista —no otra consulta ni otra ruta—, así que los números de las columnas
+ * suman el total del filtro. La etapa de una empresa la escribe el motor y las
+ * decisiones del equipo, no un campo que alguien complete a mano: por eso el
+ * pipeline dice dónde está parada cada evaluación de verdad.
  */
 
 type Filter = 'todas' | KybStatus;
@@ -66,6 +75,10 @@ export default function AdminAltaEmpresasPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('todas');
+  // El pipeline arranca visible: es la pregunta que se hace al entrar («¿dónde
+  // está parado cada alta?»). La lista queda a un clic, y desde el pipeline se
+  // abre la ficha de una empresa ahí mismo.
+  const [view, setView] = useState<'lista' | 'tablero'>('tablero');
 
   const [openId, setOpenId] = useState<string | null>(null);
   const [detail, setDetail] = useState<{
@@ -251,6 +264,22 @@ export default function AdminAltaEmpresasPage() {
     [applications, filter]
   );
 
+  /**
+   * Las columnas del pipeline, en el orden del motor.
+   *
+   * Salen de `KYB_STATUSES`: si el alta suma una etapa, la columna aparece sin
+   * tocar esta página. Dentro de cada columna se conserva el orden del listado
+   * (la más reciente arriba).
+   */
+  const pipeline = useMemo(
+    () =>
+      KYB_STATUSES.map((status) => ({
+        status,
+        items: visible.filter((application) => application.status === status),
+      })),
+    [visible]
+  );
+
   const filters: Array<{ value: Filter; label: string }> = [
     { value: 'todas', label: 'Todas' },
     ...KYB_STATUSES.map((status) => ({ value: status as Filter, label: KYB_STATUS_LABELS[status] })),
@@ -266,17 +295,49 @@ export default function AdminAltaEmpresasPage() {
           tamaño de la empresa. Abre una solicitud para ver por qué quedó en cada estado.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => void load()}
-          disabled={loading}
-          className="inline-flex items-center gap-2 self-start rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50 sm:self-auto"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Actualizar
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div
+            className="inline-flex rounded-lg border border-slate-300 p-0.5"
+            role="group"
+            aria-label="Cómo ver las altas"
+          >
+            {([
+              { value: 'lista' as const, label: 'Lista', icon: List },
+              { value: 'tablero' as const, label: 'Pipeline', icon: Columns3 },
+            ]).map((option) => {
+              const active = view === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => setView(option.value)}
+                  className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                    active ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <option.icon className="h-3.5 w-3.5" />
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => void load()}
+            disabled={loading}
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            Actualizar
+          </button>
+        </div>
       </div>
 
+      {/* En el pipeline las columnas ya separan por etapa: repetir el filtro
+          arriba mostraría cinco columnas vacías por cada etapa elegida. */}
+      {view === 'lista' && (
       <div
         className="mt-6 flex flex-wrap gap-2"
         role="group"
@@ -308,6 +369,7 @@ export default function AdminAltaEmpresasPage() {
           );
         })}
       </div>
+      )}
 
       {!persistent && (
         <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
@@ -355,6 +417,83 @@ export default function AdminAltaEmpresasPage() {
             </Link>{' '}
             crea una solicitud evaluada.
           </p>
+        </div>
+      ) : view === 'tablero' ? (
+        <div
+          className="mt-6 grid grid-flow-col auto-cols-[minmax(15rem,1fr)] gap-4 overflow-x-auto pb-3"
+          role="group"
+          aria-label="Altas por etapa de evaluación"
+        >
+          {pipeline.map(({ status, items }) => (
+            <section
+              key={status}
+              aria-label={`${KYB_STATUS_LABELS[status]}: ${items.length} alta(s)`}
+              className="flex min-h-[13rem] flex-col rounded-2xl border border-slate-200 bg-slate-50/70"
+            >
+              <header className="flex items-center justify-between gap-2 border-b border-slate-200/70 px-3.5 py-2.5">
+                <span
+                  className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${KYB_STATUS_TONES[status]}`}
+                >
+                  {KYB_STATUS_LABELS[status]}
+                </span>
+                <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-slate-500 ring-1 ring-slate-200">
+                  {items.length}
+                </span>
+              </header>
+
+              <div className="flex flex-1 flex-col gap-2 p-2.5">
+                {items.length === 0 ? (
+                  <p className="rounded-xl border border-dashed border-slate-200 px-2 py-4 text-center text-[11px] text-slate-400">
+                    Sin altas
+                  </p>
+                ) : (
+                  items.map((application) => (
+                    <article
+                      key={application.id}
+                      className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${scoreTone(application.score)}`}
+                        >
+                          {application.score === null ? 'Sin puntaje' : `${application.score}/100`}
+                        </span>
+                        {application.panelEnabled && (
+                          <span className="text-[9px] font-bold uppercase tracking-wide text-blue-700">
+                            Panel
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="mt-1.5 text-xs font-bold leading-snug text-slate-900">
+                        {application.legalName}
+                      </h3>
+                      <p className="mt-0.5 text-[10px] text-slate-400">RUT {application.rut}</p>
+                      <p className="mt-1 truncate text-[11px] text-slate-500">
+                        {application.contactName}
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        {formatKybDateTime(application.createdAt)}
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // El detalle vive en la lista, con su evaluación completa:
+                          // desde el pipeline se abre esa ficha, no una copia.
+                          if (openId !== application.id) toggle(application);
+                          setView('lista');
+                        }}
+                        className="mt-2 w-full rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                      >
+                        Abrir ficha
+                      </button>
+                    </article>
+                  ))
+                )}
+              </div>
+            </section>
+          ))}
         </div>
       ) : (
         <ul className="mt-6 space-y-4">

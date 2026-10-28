@@ -313,14 +313,14 @@ describe('rowToSolicitud y detalles', () => {
       rol: '15234-67',
     },
     consent: true,
-    status: 'nueva',
+    status: 'Recibida',
     created_at: '2026-10-20T12:00:00.000Z',
   };
 
   it('traduce la fila y arma el detalle de una solicitud de propuestas', () => {
     const solicitud = rowToSolicitud(row);
 
-    expect(solicitud.status).toBe('nueva');
+    expect(solicitud.status).toBe('Recibida');
     expect(solicitudDetails(solicitud)).toEqual([
       { label: 'Operación', value: 'Venta' },
       { label: 'Tipo', value: 'Casa' },
@@ -351,7 +351,7 @@ describe('rowToSolicitud y detalles', () => {
         regions: ['Región Metropolitana de Santiago', 'Valparaíso'],
         website: 'https://losandes.cl',
       },
-      status: 'nueva',
+      status: 'Recibida',
       createdAt: '2026-10-20T12:00:00.000Z',
     };
 
@@ -381,7 +381,7 @@ describe('rowToSolicitud y detalles', () => {
         commune: 'Viña del Mar',
         website: null,
       },
-      status: 'nueva',
+      status: 'Recibida',
       createdAt: '2026-10-19T12:00:00.000Z',
     };
 
@@ -409,7 +409,7 @@ describe('rowToSolicitud y detalles', () => {
         regions: [],
         website: null,
       },
-      status: 'nueva',
+      status: 'Recibida',
       createdAt: '2026-10-21T12:00:00.000Z',
     };
 
@@ -424,22 +424,22 @@ describe('normalizeSolicitudPatch', () => {
   it('acepta un uuid y un estado del ciclo', () => {
     const uuid = '2c8f8e2a-1c7b-4f9d-9a1e-3b5c6d7e8f90';
 
-    expect(normalizeSolicitudPatch({ id: uuid, status: 'en_revision' })).toEqual({
+    expect(normalizeSolicitudPatch({ id: uuid, status: 'En_Evaluacion' })).toEqual({
       ok: true,
       id: uuid,
-      status: 'en_revision',
+      status: 'En_Evaluacion',
     });
   });
 
   it('acepta los ids de desarrollo sin Supabase', () => {
-    expect(normalizeSolicitudPatch({ id: 'memoria-3', status: 'cerrada' })).toMatchObject({
+    expect(normalizeSolicitudPatch({ id: 'memoria-3', status: 'Aceptada' })).toMatchObject({
       ok: true,
       id: 'memoria-3',
     });
   });
 
   it('recorta el id antes de usarlo', () => {
-    expect(normalizeSolicitudPatch({ id: '  s1  ', status: 'contactada' })).toMatchObject({
+    expect(normalizeSolicitudPatch({ id: '  s1  ', status: 'Pendiente_Informacion' })).toMatchObject({
       ok: true,
       id: 's1',
     });
@@ -451,13 +451,13 @@ describe('normalizeSolicitudPatch', () => {
   });
 
   it('rechaza un id vacío, demasiado largo o con caracteres raros', () => {
-    expect(normalizeSolicitudPatch({ id: '', status: 'cerrada' })).toMatchObject({ ok: false });
-    expect(normalizeSolicitudPatch({ id: 'x'.repeat(121), status: 'cerrada' })).toMatchObject({
+    expect(normalizeSolicitudPatch({ id: '', status: 'Aceptada' })).toMatchObject({ ok: false });
+    expect(normalizeSolicitudPatch({ id: 'x'.repeat(121), status: 'Aceptada' })).toMatchObject({
       ok: false,
     });
-    expect(normalizeSolicitudPatch({ id: "s1'; DROP TABLE", status: 'cerrada' })).toMatchObject({
+    expect(normalizeSolicitudPatch({ id: "s1'; DROP TABLE", status: 'Aceptada' })).toMatchObject({
       ok: false,
     });
-    expect(normalizeSolicitudPatch({ status: 'cerrada' })).toMatchObject({ ok: false });
+    expect(normalizeSolicitudPatch({ status: 'Aceptada' })).toMatchObject({ ok: false });
   });
 });

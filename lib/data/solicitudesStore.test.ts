@@ -73,7 +73,7 @@ describe('countSolicitudesNuevas', () => {
     expect(result).toEqual({ count: 4, source: 'supabase', persistent: true });
     expect(sessionFrom).toHaveBeenCalledWith('solicitudes');
     expect(select).toHaveBeenCalledWith('id', { count: 'exact', head: true });
-    expect(eq).toHaveBeenCalledWith('status', 'nueva');
+    expect(eq).toHaveBeenCalledWith('status', 'Recibida');
   });
 
   it('si la base falla no inventa el número: cuenta la copia en memoria', async () => {
@@ -87,7 +87,7 @@ describe('countSolicitudesNuevas', () => {
     expect(afterCreate.count).toBe(before.count + 1);
 
     // Revisar una solicitud la saca del contador: solo se cuentan las «nuevas».
-    await updateSolicitudStatus(String(created.id), 'contactada');
+    await updateSolicitudStatus(String(created.id), 'Pendiente_Informacion');
     const afterReview = await countSolicitudesNuevas();
     expect(afterReview.count).toBe(before.count);
   });
@@ -134,18 +134,18 @@ describe('updateSolicitudStatus', () => {
     message: null,
     payload: { commune: 'Providencia' },
     consent: true,
-    status: 'contactada',
+    status: 'Pendiente_Informacion',
     created_at: '2026-10-21T12:00:00Z',
   };
 
   it('actualiza con la sesión y devuelve la fila como la ve el panel', async () => {
     chain.maybeSingle.mockResolvedValue({ data: FILA, error: null });
 
-    const result = await updateSolicitudStatus('s1', 'contactada');
+    const result = await updateSolicitudStatus('s1', 'Pendiente_Informacion');
 
     expect(result).toMatchObject({ ok: true, found: true, persisted: true });
-    expect(result.solicitud).toMatchObject({ id: 's1', status: 'contactada' });
-    expect(chain.update).toHaveBeenCalledWith({ status: 'contactada' });
+    expect(result.solicitud).toMatchObject({ id: 's1', status: 'Pendiente_Informacion' });
+    expect(chain.update).toHaveBeenCalledWith({ status: 'Pendiente_Informacion' });
     expect(chain.eq).toHaveBeenCalledWith('id', 's1');
     // Sin `.select()` no se distingue «actualicé» de «no toqué ninguna fila».
     expect(chain.select).toHaveBeenCalled();
@@ -156,7 +156,7 @@ describe('updateSolicitudStatus', () => {
   it('una fila que no existe (o que la RLS no deja ver) es «no encontrada»', async () => {
     chain.maybeSingle.mockResolvedValue({ data: null, error: null });
 
-    const result = await updateSolicitudStatus('s9', 'cerrada');
+    const result = await updateSolicitudStatus('s9', 'Aceptada');
 
     expect(result).toMatchObject({ ok: false, found: false });
   });
@@ -167,7 +167,7 @@ describe('updateSolicitudStatus', () => {
       error: { message: 'new row violates row-level security policy' },
     });
 
-    const result = await updateSolicitudStatus('s1', 'cerrada');
+    const result = await updateSolicitudStatus('s1', 'Aceptada');
 
     expect(result).toMatchObject({ ok: false, found: true, persisted: true });
     expect(result.error).toBe('new row violates row-level security policy');
@@ -177,13 +177,13 @@ describe('updateSolicitudStatus', () => {
     isSupabaseConfigured.mockReturnValue(false);
     const created = await createSolicitud(SOLICITUD);
 
-    const result = await updateSolicitudStatus(String(created.id), 'en_revision');
+    const result = await updateSolicitudStatus(String(created.id), 'En_Evaluacion');
 
     expect(result).toMatchObject({ ok: true, found: true, persisted: false });
-    expect(result.solicitud?.status).toBe('en_revision');
+    expect(result.solicitud?.status).toBe('En_Evaluacion');
 
     const { solicitudes } = await listSolicitudes();
-    expect(solicitudes.find((s) => s.id === created.id)?.status).toBe('en_revision');
+    expect(solicitudes.find((s) => s.id === created.id)?.status).toBe('En_Evaluacion');
     // El cliente de sesión no se toca cuando no hay Supabase.
     expect(sessionFrom).not.toHaveBeenCalled();
   });

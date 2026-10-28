@@ -30,8 +30,9 @@ import { SITE_URL } from '@/lib/site';
  * listan con rol admin. El filtro `?kind=` es para las pestañas del panel; un
  * tipo desconocido se rechaza en vez de devolver todo como si nada.
  *
- * PATCH es **del equipo**: el ciclo de vida (`nueva`, `en_revision`,
- * `contactada`, `cerrada`) solo lo mueve quien revisa las solicitudes. La RLS de
+ * PATCH es **del equipo**: el estado (`Recibida`, `En_Evaluacion`,
+ * `Pendiente_Informacion`, `Aceptada`, `En_Alta`, `Rechazada` — los mismos del
+ * alta de empresas) solo lo mueve quien revisa las solicitudes. La RLS de
  * UPDATE exige `is_rix7_admin()`, así que además del guard la base vuelve a
  * negar el cambio a cualquier otra cuenta.
  *

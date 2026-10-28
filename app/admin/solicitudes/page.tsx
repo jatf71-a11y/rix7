@@ -31,12 +31,21 @@ import {
  * sale de `solicitudDetails`, que es el mismo módulo que valida los datos, así
  * que el panel no inventa campos que el formulario no pidió.
  *
- * El estado (`nueva`, `en_revision`, `contactada`, `cerrada`) se cambia desde
- * cada tarjeta: es el flujo de revisión, y es lo único que la bandeja escribe.
+ * El estado se cambia desde cada tarjeta y ofrece **los mismos seis valores del
+ * alta de empresas** —desde `Recibida` hasta `En_Alta`, con `Rechazada`—, porque
+ * el equipo pregunta lo mismo en las dos pantallas y dos vocabularios obligaban
+ * a traducir de cabeza. Se mueve a mano y sin reglas de transición: acá nadie
+ * dispara correos ni tokens, que es lo que el alta sí tiene que cuidar.
  * El cambio se manda a la API y se reemplaza la fila con la que devuelve la base
  * —no se pinta el estado elegido por adelantado— para que un rechazo (sesión
  * vencida, RLS, fila borrada) se vea en la tarjeta en vez de quedar como un
  * estado que nunca se guardó.
+ *
+ * Acá no hay pipeline por etapa a propósito: el estado de esta bandeja lo mueve
+ * una persona, mientras que la etapa del alta la escribe el motor de evaluación.
+ * Un tablero con los mismos seis nombres en las dos pantallas haría creer que
+ * una solicitud de «Publicar» está evaluada cuando nadie la evaluó; el pipeline
+ * vive en `/admin/alta-empresas`.
  */
 
 const KIND_STYLE: Record<

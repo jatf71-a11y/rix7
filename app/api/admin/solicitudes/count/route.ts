@@ -7,8 +7,9 @@ import { requireAdmin } from '@/lib/supabase/auth-guard';
  * `GET /api/admin/solicitudes/count` — cuántas solicitudes siguen sin revisar.
  *
  * Es el número del badge «Solicitudes» en el panel. Solo cuenta `status =
- * 'nueva'`: una solicitud en revisión ya la está mirando alguien y no debe
- * seguir empujando al equipo a entrar.
+ * 'Recibida'` —el estado con el que nace una solicitud—: una que ya pasó a
+ * `En_Evaluacion` la está mirando alguien y no debe seguir empujando al equipo a
+ * entrar.
  *
  * Es **del equipo**: el contador es pequeño, pero sale de datos personales, así
  * que pasa por el mismo guard que el listado. Sin sesión no se responde ni el

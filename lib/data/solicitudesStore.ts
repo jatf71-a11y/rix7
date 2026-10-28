@@ -77,7 +77,7 @@ export async function createSolicitud(
         company: solicitud.company,
         message: solicitud.message,
         payload: solicitud.payload,
-        status: 'nueva',
+        status: 'Recibida',
         createdAt: new Date().toISOString(),
       },
       ...readDevSolicitudes(),
@@ -223,7 +223,7 @@ export async function countSolicitudesNuevas(): Promise<SolicitudCountResult> {
       const { count, error } = await supabase
         .from('solicitudes')
         .select('id', { count: 'exact', head: true })
-        .eq('status', 'nueva');
+        .eq('status', 'Recibida');
 
       if (!error && typeof count === 'number') {
         return { count, source: 'supabase', persistent: true };
@@ -234,7 +234,7 @@ export async function countSolicitudesNuevas(): Promise<SolicitudCountResult> {
   }
 
   return {
-    count: readDevSolicitudes().filter((solicitud) => solicitud.status === 'nueva').length,
+    count: readDevSolicitudes().filter((solicitud) => solicitud.status === 'Recibida').length,
     source: 'memory',
     persistent: false,
   };

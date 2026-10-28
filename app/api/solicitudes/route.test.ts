@@ -95,7 +95,7 @@ beforeEach(async () => {
     ok: true,
     found: true,
     persisted: true,
-    solicitud: { id: 's1', status: 'contactada' },
+    solicitud: { id: 's1', status: 'Pendiente_Informacion' },
   });
   requireAdmin.mockResolvedValue({ ok: true, role: 'admin', devBypass: false });
 });
@@ -282,19 +282,19 @@ describe('PATCH /api/solicitudes', () => {
       response: Response.json({ success: false }, { status: 403 }),
     });
 
-    const response = await route.PATCH(patch({ id: 's1', status: 'contactada' }));
+    const response = await route.PATCH(patch({ id: 's1', status: 'Pendiente_Informacion' }));
 
     expect(response.status).toBe(403);
     expect(updateSolicitudStatus).not.toHaveBeenCalled();
   });
 
   it('cambia el estado y devuelve la fila actualizada', async () => {
-    const response = await route.PATCH(patch({ id: 's1', status: 'contactada' }));
+    const response = await route.PATCH(patch({ id: 's1', status: 'Pendiente_Informacion' }));
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(updateSolicitudStatus).toHaveBeenCalledWith('s1', 'contactada');
-    expect(body).toMatchObject({ success: true, solicitud: { id: 's1', status: 'contactada' } });
+    expect(updateSolicitudStatus).toHaveBeenCalledWith('s1', 'Pendiente_Informacion');
+    expect(body).toMatchObject({ success: true, solicitud: { id: 's1', status: 'Pendiente_Informacion' } });
   });
 
   it('rechaza un estado que no es del ciclo sin llegar al store', async () => {
@@ -305,7 +305,7 @@ describe('PATCH /api/solicitudes', () => {
   });
 
   it('rechaza un id con forma inválida sin llegar al store', async () => {
-    const response = await route.PATCH(patch({ id: 'x'.repeat(200), status: 'cerrada' }));
+    const response = await route.PATCH(patch({ id: 'x'.repeat(200), status: 'Aceptada' }));
 
     expect(response.status).toBe(400);
     expect(updateSolicitudStatus).not.toHaveBeenCalled();
@@ -326,7 +326,7 @@ describe('PATCH /api/solicitudes', () => {
       error: 'No encontramos esa solicitud.',
     });
 
-    const response = await route.PATCH(patch({ id: 's9', status: 'cerrada' }));
+    const response = await route.PATCH(patch({ id: 's9', status: 'Aceptada' }));
 
     expect(response.status).toBe(404);
     await expect(response.json()).resolves.toMatchObject({ success: false });
@@ -340,7 +340,7 @@ describe('PATCH /api/solicitudes', () => {
       error: 'deadlock detected',
     });
 
-    const response = await route.PATCH(patch({ id: 's1', status: 'cerrada' }));
+    const response = await route.PATCH(patch({ id: 's1', status: 'Aceptada' }));
 
     expect(response.status).toBe(500);
   });

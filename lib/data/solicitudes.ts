@@ -22,6 +22,7 @@
  */
 
 import { CHILE_REGIONS } from '@/lib/data/chileLocations';
+import { KYB_STATUSES, KYB_STATUS_LABELS, type KybStatus } from '@/lib/kyb/status';
 import { isValidRol, ROL_MAX_LENGTH } from '@/lib/utils/rol';
 import { normalizeRut } from '@/lib/utils/rut';
 
@@ -62,14 +63,23 @@ export const SOLICITUD_COVERAGE_LABELS: Record<SolicitudCoverage, string> = {
 /** Nombres válidos de región, los mismos del selector del formulario. */
 const SOLICITUD_REGION_NAMES = new Set(CHILE_REGIONS.map((region) => region.name));
 
-export type SolicitudStatus = 'nueva' | 'en_revision' | 'contactada' | 'cerrada';
+/**
+ * El estado de una solicitud es el del alta de empresas.
+ *
+ * La bandeja de «Publicar» tenía su propio ciclo —`nueva`, `en_revision`,
+ * `contactada`, `cerrada`— y el alta de empresas otro. Dos vocabularios para la
+ * misma pregunta («¿en qué quedó esto?») obligaban a traducir de cabeza al
+ * pasar de una pantalla a la otra, y a mantener dos listas de etiquetas. Ahora
+ * se toma el del alta, que ya es la máquina de estados con transiciones
+ * probadas: `lib/kyb/status.ts` es la única fuente y este módulo no la copia.
+ *
+ * No se importan las transiciones: la bandeja mueve el estado a mano y sin
+ * reglas, como antes; el alta es la que las exige porque cada movimiento suyo
+ * dispara correos y tokens.
+ */
+export type SolicitudStatus = KybStatus;
 
-export const SOLICITUD_STATUSES: readonly SolicitudStatus[] = [
-  'nueva',
-  'en_revision',
-  'contactada',
-  'cerrada',
-];
+export const SOLICITUD_STATUSES: readonly SolicitudStatus[] = KYB_STATUSES;
 
 /** Operación de la propiedad que se ofrece a las corredoras. */
 export type SolicitudOperation = 'sale' | 'rent';
@@ -120,12 +130,7 @@ export const SOLICITUD_KIND_LABELS: Record<SolicitudKind, string> = {
   agente: 'Agente independiente',
 };
 
-export const SOLICITUD_STATUS_LABELS: Record<SolicitudStatus, string> = {
-  nueva: 'Nueva',
-  en_revision: 'En revisión',
-  contactada: 'Contactada',
-  cerrada: 'Cerrada',
-};
+export const SOLICITUD_STATUS_LABELS: Record<SolicitudStatus, string> = KYB_STATUS_LABELS;
 
 /** Campos que llegan del navegador. Todos son `unknown` hasta validarlos. */
 export interface SolicitudInput {
@@ -528,9 +533,12 @@ export function rowToSolicitud(row: SolicitudRow): Solicitud {
     company: row.company,
     message: row.message,
     payload,
+    // Una fila con un estado que no está en la lista —de antes de la migración
+    // `0028`, que tradujo los viejos— cae en el primero del alta, no en un
+    // valor inventado.
     status: (SOLICITUD_STATUSES as readonly string[]).includes(row.status)
       ? (row.status as SolicitudStatus)
-      : 'nueva',
+      : 'Recibida',
     createdAt: row.created_at,
   };
 }
