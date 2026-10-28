@@ -89,7 +89,7 @@ aproximada del registro), de dónde salió el dato, los motivos de la decisión 
 preguntas abiertas con la empresa, además de los datos operativos del registro.
 
 Cuando la reputación sale de la simulación, la ficha lo declara: sin un proveedor
-de búsqueda configurado (`KYB_SEARCH_URL`) las reseñas contadas no tienen páginas
+de búsqueda configurado (`EXA_API_KEY` o `KYB_SEARCH_URL`) las reseñas contadas no tienen páginas
 que mostrar detrás, la mención de cada hallazgo aparece recién con uno real y los
 motivos son el repertorio de la simulación, no un hallazgo. Una búsqueda real que
 no discrimine el motivo lo dice («sin detalle en la fuente consultada») en vez de
@@ -130,14 +130,17 @@ personas trabajan en ella.
 ## Adaptadores y variables
 
 Sin configuración, ambos adaptadores son **simulados y deterministas** (hash del
-RUT/dominio), así que el flujo completo se puede probar sin claves.
+RUT/dominio), así que el flujo completo se puede probar sin claves. La reputación
+sí tiene un proveedor real conectado: con `EXA_API_KEY` la verificación busca en la
+web de verdad, y el detalle de qué cuenta y qué no está en el contrato de abajo.
 
 | Variable | Uso |
 | --- | --- |
 | `KYB_TAX_URL` | Endpoint de verificación fiscal. Sin ella, simulación. |
 | `KYB_TAX_TOKEN` | Bearer opcional para ese endpoint. |
-| `KYB_SEARCH_URL` | Endpoint de búsqueda de reputación. Sin ella, simulación. |
-| `KYB_SEARCH_API_KEY` | Bearer para la búsqueda. |
+| `EXA_API_KEY` | Búsqueda real de reputación (Exa). Sin ella, simulación. |
+| `KYB_SEARCH_URL` | Endpoint propio de reputación. Manda sobre `EXA_API_KEY`. |
+| `KYB_SEARCH_API_KEY` | Bearer para ese endpoint propio. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Necesaria para guardar, emitir tokens y habilitar el panel. Sin ella el flujo corre en memoria y la activación responde 502. |
 | `RESEND_API_KEY` | Correos del flujo. Sin ella se responde `email.skipped` (no se finge el envío). |
 
@@ -151,6 +154,25 @@ Contrato de reputación:
 `{ flags: string[], negativeReviews: number, topics: string[], mentions: [{ title, url }] }`,
 donde `topics` es el motivo de cada reseña negativa («demoras en la entrega»,
 «cobros no informados»). Sin `topics` la ficha declara que no hay detalle.
+
+Con **Exa** no hay contrato que respetar: el adaptador arma las consultas
+—razón social, RUT, el sitio propio y términos de fraude y de reclamo—, deduplica
+las páginas por URL y traduce cada una a la misma estructura. Dos precisiones que
+importan al leer una advertencia:
+
+- `negativeReviews` cuenta **páginas que nombran a la empresa y traen un término
+de reclamo**, no reseñas verificadas de una plataforma de opiniones. Por eso cada
+motivo viaja con el fragmento de la página que lo sustenta y la ficha muestra las
+URLs: el número sin la cita sería una acusación sin prueba.
+- Un término de **fraude** exige además que la página nombre a la empresa por su
+razón social, su dominio o su RUT. «Estafa» o «denuncia» sueltos aparecen en
+cualquier crónica policial; que esta empresa esté nombrada, no.
+
+Las consultas de fraude y de reclamo son las que deciden: si una no responde, la
+verificación no concluye y el motor lo reporta, en vez de afirmar «sin señales»
+habiendo buscado la mitad. Las de contexto (razón social, RUT y sitio propio) solo
+aportan páginas a la ficha, así que un tropiezo de red ahí no le pide nada a la
+empresa.
 
 ## Tokens
 

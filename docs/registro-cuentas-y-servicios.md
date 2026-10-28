@@ -11,6 +11,12 @@ en verde, y el catálogo sale de `vsqkjimpssdvlvdwrtnh`). Base de la revisión a
 **2026-10-14**, después del corte a la base propia
 (ver [recuperacion-base-2026-10-14.md](recuperacion-base-2026-10-14.md)).
 
+Revisión del **2026-10-27**: se sumó **Exa** como proveedor de búsqueda de la verificación de
+reputación del alta de empresas (sección 2). La credencial **todavía no está emitida** y el alta
+quedó **diferida al lanzamiento del sitio** (decisión del 2026-10-28): sin ella esa verificación
+queda en simulación, así que hoy no hay nada que recuperar. El código ya está conectado y probado;
+encenderla son tres comandos y están en la sección 2.
+
 ---
 
 ## 1. Las identidades (quién es quién)
@@ -37,6 +43,7 @@ a GitHub, por lo que solo puede iniciar sesión con la opción de GitHub»*.
 | **Vercel** | `jatf71-4430` (GitHub `jatf71-a11y`) | Hosting de `rix7.cl`, DNS del dominio y variables de entorno | `vercel` CLI, `VERCEL_OIDC_TOKEN` |
 | **GitHub** | `jatf71-a11y` | Repositorio, Actions (CI, avisos, health-check) y secrets del repo | `gh` CLI, `GITHUB_TOKEN` de Actions |
 | **Resend** | cuenta del equipo | Correo de bienvenida y avisos de búsquedas | `RESEND_API_KEY`, `ALERTS_FROM_EMAIL` |
+| **Exa** | cuenta del equipo, **sin emitir** (diferida al lanzamiento) | Búsqueda web de la verificación de reputación del alta de empresas (KYB); sin clave esa verificación es simulada y la ficha lo declara | `EXA_API_KEY` en `.env.local` y en Vercel, solo servidor |
 | **Sentry** | organización del equipo | Monitoreo de errores (opcional: sin DSN es no-op) | `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN`, `SENTRY_AUTH_TOKEN` |
 | **Google Workspace** | `catedralpropiedades.com` | Buzón del dominio; recibe los correos transaccionales y de recuperación | — |
 
@@ -67,6 +74,7 @@ Comprobado el 2026-10-15, con la clave que hoy está en `.env.local` (la de la c
 | `SUPABASE_SERVICE_ROLE_KEY` | `.env.local` + Vercel, solo servidor (**nunca** al navegador) | **Cuenta A** → Project Settings → API Keys (se emite con la forma nueva, `sb_secret_…`); guardada el 2026-10-15 con `npm run env:secret` | Acceso a la cuenta A (`npm run env:secret -- --name SUPABASE_SERVICE_ROLE_KEY`) |
 | `SUPABASE_ACCESS_TOKEN` | `.env.local` (ignorado por git), con `npm run db:token`; **y los secretos de GitHub**, para la sonda de titularidad (`npm run check:cuenta`, cada 6 h) | **Cuenta A** → Account → Tokens | Acceso a la cuenta A: es la única que ve el proyecto `vsqkjimpssdvlvdwrtnh` (el de la cuenta B quedó **revocado el 2026-10-06**). Para el CI conviene uno **de solo lectura con alcance** («Organization Projects → Read» y «Organization Members → Read»): alcanza para comprobar de quién es la base y no puede cambiar nada |
 | `RESEND_API_KEY`, `ALERTS_FROM_EMAIL` | Vercel (Secret/Config) | Resend → API Keys | Acceso a la cuenta de Resend |
+| `EXA_API_KEY` | `.env.local` + Vercel (se publica con `npm run vercel:sync -- --only EXA_API_KEY`, que nunca imprime valores) | Exa → Dashboard → API Keys (cuenta por crear) | Acceso a la cuenta de Exa; sin clave la reputación sigue simulada (hoy es el caso, por decisión del 2026-10-28: se enciende al lanzar) |
 | `ALERTS_CRON_SECRET` | Vercel + secrets de GitHub | Se genera | Volver a generarlo y actualizarlo en los dos lados |
 | `SENTRY_*` | Vercel (opcional) | Sentry → Auth Tokens | Acceso a la organización de Sentry |
 | `VERCEL_OIDC_TOKEN` | `.env.local` | Vercel CLI | `npx vercel env pull` o `vercel link` |

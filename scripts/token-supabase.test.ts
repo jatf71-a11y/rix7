@@ -248,6 +248,15 @@ describe('nextSteps', () => {
     expect(steps.indexOf('vercel:sync               ')).toBeLessThan(steps.indexOf('deploy:prod'));
   });
 
+  it('a una credencial de servidor le sigue publicarla en Vercel y desplegar', () => {
+    const steps = nextSteps('EXA_API_KEY').join('\n');
+    // Guardarla no es publicarla: Vercel la fija al desplegar, y sin ese deploy
+    // el runtime sigue en simulación sin avisar.
+    expect(steps).toContain('vercel:sync -- --only EXA_API_KEY');
+    expect(steps).toContain('npm run deploy');
+    expect(steps.indexOf('vercel:sync')).toBeLessThan(steps.indexOf('npm run deploy'));
+  });
+
   it('no sugiere nada para una variable que no conoce', () => {
     expect(nextSteps('OTRA_COSA')).toEqual([]);
   });

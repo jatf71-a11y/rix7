@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Copia las variables de Supabase desde un archivo local a **Vercel**, en los
- * tres entornos, sin imprimir ningún valor.
+ * Copia variables de un archivo local a **Vercel**, en los tres entornos, sin
+ * imprimir ningún valor.
  *
  * ¿Por qué existe? Porque el corte de base es el momento más delicado: hay que
  * cambiar `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` en
@@ -27,7 +27,12 @@
  *   npm run vercel:sync                        # .env.local → los 3 entornos
  *   npm run vercel:sync -- --dry-run           # dice qué haría, sin tocar nada
  *   npm run vercel:sync -- --only NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY
+ *   npm run vercel:sync -- --only EXA_API_KEY  # cualquier credencial de servidor
  *   npm run vercel:sync -- --env production    # solo un entorno
+ *
+ * El conjunto por defecto es el del corte de base; `--only` sirve para cualquier
+ * otra credencial de servidor, que es la forma de publicar una clave nueva sin
+ * que su valor pase por la terminal ni por el historial.
  *
  * Antes de correrlo de verdad: `npx vercel whoami` tiene que responder tu
  * usuario, y el proyecto tiene que estar enlazado (`.vercel/project.json`).
@@ -178,7 +183,7 @@ export function planSync({ values, vars = MANAGED_VARS, environments = ENVIRONME
  * @returns {string}
  */
 export function formatPlan(plan, { apply = false, ref = null } = {}) {
-  const lines = ['', '== Variables de Supabase en Vercel ==', ''];
+  const lines = ['', '== Variables en Vercel ==', ''];
   lines.push(`  Origen: ${plan.file}${ref ? ` · proyecto ${ref}` : ''}`);
   lines.push(`  Entornos: ${plan.environments.join(', ')}`);
   lines.push('');
@@ -370,11 +375,12 @@ function usage() {
   console.log(
     [
       '',
-      'Sincroniza las variables de Supabase de un archivo local con Vercel.',
+      'Sincroniza variables de un archivo local con Vercel.',
       '',
       '  npm run vercel:sync                        # .env.local → production, preview, development',
       '  npm run vercel:sync -- --dry-run           # informa sin cambiar nada',
       '  npm run vercel:sync -- --only NEXT_PUBLIC_SUPABASE_URL',
+      '  npm run vercel:sync -- --only EXA_API_KEY   # cualquier credencial de servidor',
       '  npm run vercel:sync -- --env production --file .env.produccion.local',
       '',
       'Los valores nunca se imprimen: solo el nombre de cada variable y su largo.',

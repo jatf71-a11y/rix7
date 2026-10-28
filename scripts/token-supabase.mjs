@@ -23,6 +23,11 @@
  *
  *   npm run env:secret -- --name SUPABASE_SERVICE_ROLE_KEY
  *
+ * Y cualquier credencial de servidor de otro proveedor, que después hay que
+ * publicar en Vercel (el script imprime los dos comandos):
+ *
+ *   npm run env:secret -- --name EXA_API_KEY     # búsqueda real de reputación (KYB)
+ *
  * El token se emite en https://supabase.com/dashboard/account/tokens y **debe
  * pertenecer a una cuenta con acceso al proyecto**: la API de administración
  * solo ve los proyectos de esa cuenta. Ese es el motivo por el que este paso no
@@ -80,6 +85,13 @@ export const SECRET_RULES = {
     hint: 'debería empezar con "eyJ" (clásica) o "sb_secret_" (nueva): no es la anon key',
   },
 };
+
+/**
+ * Credenciales de servidor de otros proveedores que este guardador también
+ * recibe. No llevan regla de forma —no hay una estable que se pueda afirmar—,
+ * pero sí llevan paso siguiente: publicarlas en Vercel y desplegar.
+ */
+export const SERVER_SECRETS = new Set(['EXA_API_KEY']);
 
 /**
  * ¿Tiene forma de token personal de Supabase?
@@ -256,6 +268,17 @@ export function nextSteps(name) {
       '  o paso a paso: npm run vercel:sync -- --dry-run   (dice qué cambiaría, sin tocar nada)',
       '                 npm run vercel:sync               (aplica las variables en Vercel)',
       '                 npm run deploy:prod               (las NEXT_PUBLIC_* van dentro del build)',
+    ];
+  }
+  // Credenciales de servidor de otros proveedores. Guardarlas no es publicarlas:
+  // Vercel fija las variables en cada deployment, así que sin estos dos pasos la
+  // clave queda solo en esta máquina y el proveedor no se entera. Es el error
+  // caro de este flujo, porque el runtime sigue funcionando —simulado— sin decir
+  // nada.
+  if (SERVER_SECRETS.has(name)) {
+    return [
+      `Siguiente paso:  npm run vercel:sync -- --only ${name}   (la publica en los 3 entornos, sin imprimir el valor)`,
+      '                 npm run deploy                           (Vercel la fija al desplegar; hasta entonces sigue simulando)',
     ];
   }
   return [];
