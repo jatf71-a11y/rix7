@@ -30,5 +30,19 @@ export function createServiceRoleClient(): SupabaseClient {
 
   return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
+    /**
+     * Lecturas **siempre frescas**.
+     *
+     * Next cachea los `fetch` GET por URL, y estas consultas son la misma URL
+     * para todos los que preguntan (`…?status=eq.Pendiente_Informacion`): sin
+     * esto, la página del token servía la lista de pendientes de la primera
+     * visita. En producción se vio así: un enlace ya respondido seguía abriendo
+     * el formulario, y un token recién emitido no habría aparecido. Son datos
+     * con estado (tokens, decisiones, duplicados): no hay nada que cachear.
+     */
+    global: {
+      fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+        fetch(input, { ...init, cache: 'no-store' }),
+    },
   });
 }

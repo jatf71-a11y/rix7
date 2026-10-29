@@ -153,8 +153,16 @@ export interface SolicitudInput {
   regions?: unknown;
 }
 
-/** Valores JSON-safe que se guardan en `payload`. */
-export type SolicitudPayload = Record<string, string | number | string[] | null>;
+/**
+ * Valores JSON-safe que se guardan en `payload`.
+ *
+ * Además de los campos de cada camino —texto, monto y listas— acá vive el
+ * resultado de la evaluación automática (`solicitud_evaluation`), las
+ * respuestas de cada ronda y el hash del token con el que se responden. Son
+ * objetos y listas de objetos, por eso el tipo es `unknown`: la forma concreta
+ * la fijan quien escribe y quien lee, no la columna.
+ */
+export type SolicitudPayload = Record<string, unknown>;
 
 export interface NormalizedSolicitud {
   kind: SolicitudKind;

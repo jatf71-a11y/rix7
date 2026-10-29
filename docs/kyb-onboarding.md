@@ -106,9 +106,42 @@ motor sobre una ficha histórica). `En_Alta` es terminal: la API responde 409 y 
 panel no ofrece el botón.
 
 El estado de una alta no se cambia con un selector: lo mueven las decisiones del
-equipo, que disparan correos y tokens. Solo los registros de agentes —que no se
-evalúan— conservan el selector a mano. `/admin/alta-empresas` ya no es una
+equipo, que disparan correos y tokens. `/admin/alta-empresas` ya no es una
 pantalla: redirige a Solicitudes para no romper enlaces guardados.
+
+### Los registros de socios también se evalúan solos
+
+Un registro de corredora, inmobiliaria o agente que llega por `/registro/*` o
+`/publicar/agente` no espera a que alguien lo mire: al guardarse corre el motor
+de [`lib/data/solicitudEvaluation.ts`](../lib/data/solicitudEvaluation.ts) y el
+autómata de [`lib/data/solicitudAutopilot.ts`](../lib/data/solicitudAutopilot.ts)
+lo mueve en la misma corrida.
+
+| Verificación | Peso | Qué mira |
+| --- | --- | --- |
+| `rut` | 20 | Módulo 11 sobre el RUT informado |
+| `correo` | 20 | Correo corporativo vs. proveedor gratuito (un agente puede usar Gmail) |
+| `sitio` | 25 | Sitio declarado y coincidencia de dominio con el correo |
+| `cobertura` | 15 | Nacional, o regional con al menos una región |
+| `contacto` | 10 | Teléfono con forma de número chileno |
+| `duplicado` | 10 | Mismo RUT o correo que otra solicitud |
+
+Se acepta con 80 puntos o más y sin verificaciones en rojo. Si no, queda en
+`Pendiente_Informacion`, se guardan las preguntas que fallaron y se emite un
+token de 7 días. Los dos caminos escriben al solicitante: el correo de
+«necesitamos algunos datos» lleva las preguntas y el enlace
+`/socios/responder/<token>`; el de aceptación dice qué sigue.
+
+Cuando la persona responde, `POST /api/solicitudes/answers` vuelve a correr el
+motor con lo aclarado, mueve el estado y avisa de nuevo. Si todavía falta algo,
+queda otra ronda con preguntas nuevas y un token fresco —el anterior deja de
+servir—. El resultado, las respuestas y el **hash** del token viven en la
+columna `payload` (JSONB), así que no hizo falta una migración.
+
+El panel muestra ese puntaje y el sustento de cada verificación en la tarjeta
+del registro, y conserva el selector de estado y **Re-evaluar** para las
+excepciones. Mover el estado a `Aceptada` o `Rechazada` a mano también manda
+correo: una decisión del equipo no puede dejar al solicitante en silencio.
 
 ## Verificaciones del motor
 

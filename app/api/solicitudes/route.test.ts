@@ -10,19 +10,38 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const { createSolicitud, listSolicitudes, updateSolicitudStatus, requireAdmin, sendEmail } =
-  vi.hoisted(() => ({
-    createSolicitud: vi.fn(),
-    listSolicitudes: vi.fn(),
-    updateSolicitudStatus: vi.fn(),
-    requireAdmin: vi.fn(),
-    sendEmail: vi.fn(),
-  }));
+const {
+  createSolicitud,
+  getSolicitud,
+  listSolicitudes,
+  updateSolicitudStatus,
+  requireAdmin,
+  sendEmail,
+  autopilotSolicitud,
+  notifyManualDecision,
+} = vi.hoisted(() => ({
+  createSolicitud: vi.fn(),
+  getSolicitud: vi.fn(),
+  listSolicitudes: vi.fn(),
+  updateSolicitudStatus: vi.fn(),
+  requireAdmin: vi.fn(),
+  sendEmail: vi.fn(),
+  autopilotSolicitud: vi.fn(),
+  notifyManualDecision: vi.fn(),
+}));
 
 vi.mock('@/lib/data/solicitudesStore', () => ({
   createSolicitud,
+  getSolicitud,
   listSolicitudes,
   updateSolicitudStatus,
+}));
+// El autómata se mockea: acá se prueba la ruta (que lo dispare y que no haga
+// fallar el alta), no las reglas del motor, que tienen su propio test.
+vi.mock('@/lib/data/solicitudAutopilot', () => ({
+  autopilotSolicitud,
+  notifyManualDecision,
+  isSocioRegistro: (kind: string) => kind === 'corredora' || kind === 'inmobiliaria' || kind === 'agente',
 }));
 vi.mock('@/lib/supabase/auth-guard', () => ({ requireAdmin }));
 vi.mock('@/lib/email/sendEmail', () => ({
@@ -87,6 +106,23 @@ beforeEach(async () => {
   updateSolicitudStatus.mockReset();
   requireAdmin.mockReset();
   createSolicitud.mockResolvedValue({ ok: true, id: 's1', persisted: true });
+  getSolicitud.mockReset();
+  getSolicitud.mockResolvedValue({
+    id: 's1',
+    kind: 'corredora',
+    status: 'Recibida',
+    name: 'Camila Rojas',
+    email: 'camila@example.cl',
+  });
+  autopilotSolicitud.mockReset();
+  autopilotSolicitud.mockResolvedValue({
+    ok: true,
+    status: 'Pendiente_Informacion',
+    evaluation: { decision: 'Pendiente_Informacion' },
+    questions: [{ id: 'sitio', question: '¿Cuál es el sitio?' }],
+  });
+  notifyManualDecision.mockReset();
+  notifyManualDecision.mockResolvedValue({ sent: true, skipped: false });
   sendEmail.mockReset();
   sendEmail.mockResolvedValue({ sent: true, skipped: false });
   vi.stubEnv('SOLICITUDES_EMAIL_TO', 'equipo@example.cl');
@@ -144,6 +180,32 @@ describe('POST /api/solicitudes', () => {
     expect(mail.subject).toContain('Corredora');
     expect(mail.text).toContain('RUT: 76.123.456-0');
     expect(mail.text).toContain('Valparaíso');
+  });
+
+  it('evalúa y mueve solo un registro de socio, y devuelve en qué quedó', async () => {
+    const response = await route.POST(post(registro));
+    const body = await response.json();
+
+    expect(autopilotSolicitud).toHaveBeenCalledTimes(1);
+    expect(body.autopilot).toMatchObject({
+      status: 'Pendiente_Informacion',
+      decision: 'Pendiente_Informacion',
+    });
+  });
+
+  it('un propietario no pasa por el autómata: su solicitud no es un registro', async () => {
+    await route.POST(post(valida));
+
+    expect(autopilotSolicitud).not.toHaveBeenCalled();
+  });
+
+  it('si el autómata falla, el alta igual queda guardada', async () => {
+    autopilotSolicitud.mockRejectedValue(new Error('motor caído'));
+
+    const response = await route.POST(post(registro));
+
+    expect(response.status).toBe(201);
+    await expect(response.json()).resolves.toMatchObject({ success: true, id: 's1' });
   });
 
   it('una solicitud de propietario no manda aviso al equipo', async () => {
@@ -330,6 +392,49 @@ describe('PATCH /api/solicitudes', () => {
 
     expect(response.status).toBe(404);
     await expect(response.json()).resolves.toMatchObject({ success: false });
+  });
+
+  it('avisa al solicitante cuando el equipo mueve el estado a rechazado', async () => {
+    updateSolicitudStatus.mockResolvedValue({
+      ok: true,
+      found: true,
+      persisted: true,
+      solicitud: {
+        id: 's1',
+        kind: 'corredora',
+        status: 'Rechazada',
+        name: 'Camila Rojas',
+        email: 'camila@example.cl',
+      },
+    });
+
+    const response = await route.PATCH(patch({ id: 's1', status: 'Rechazada' }));
+
+    expect(response.status).toBe(200);
+    expect(notifyManualDecision).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 's1', status: 'Rechazada' }),
+      'Rechazada'
+    );
+  });
+
+  it('no repite el correo si el estado no cambió', async () => {
+    getSolicitud.mockResolvedValue({
+      id: 's1',
+      kind: 'corredora',
+      status: 'Aceptada',
+      name: 'Camila Rojas',
+      email: 'camila@example.cl',
+    });
+    updateSolicitudStatus.mockResolvedValue({
+      ok: true,
+      found: true,
+      persisted: true,
+      solicitud: { id: 's1', kind: 'corredora', status: 'Aceptada' },
+    });
+
+    await route.PATCH(patch({ id: 's1', status: 'Aceptada' }));
+
+    expect(notifyManualDecision).not.toHaveBeenCalled();
   });
 
   it('distingue un fallo de la base (500) de una fila inexistente (404)', async () => {

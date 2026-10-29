@@ -3,9 +3,15 @@ import { solicitudPatchSchema, solicitudPostSchema } from '@/lib/api/schemas';
 import { validateInput } from '@/lib/api/validate';
 import {
   createSolicitud,
+  getSolicitud,
   listSolicitudes,
   updateSolicitudStatus,
 } from '@/lib/data/solicitudesStore';
+import {
+  autopilotSolicitud,
+  isSocioRegistro,
+  notifyManualDecision,
+} from '@/lib/data/solicitudAutopilot';
 import {
   isSolicitudKind,
   normalizeSolicitud,
@@ -44,6 +50,12 @@ import { SITE_URL } from '@/lib/site';
  * acaban de guardar. Es **después** del alta y nunca la condiciona: si falta el
  * correo o Resend falla, la solicitud sigue guardada y el panel la muestra; el
  * fallo queda en el log. Una solicitud de propietario no manda aviso.
+ *
+ * Un registro de socio, además, se **evalúa y se mueve solo** en la misma
+ * corrida (`lib/data/solicitudAutopilot.ts`): el sistema lo deja en `Aceptada` o
+ * en `Pendiente_Informacion` y le escribe al solicitante. Si el autómata no
+ * puede correr, la solicitud queda en `Recibida` —que es su estado real— y el
+ * panel la sigue mostrando para que alguien la mire.
  */
 
 const RATE_LIMIT_MAX = 12;
@@ -92,6 +104,9 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ success: false, error: patch.error }, { status: 400 });
   }
 
+  // Se lee el estado anterior para no volver a mandar el correo de una decisión
+  // que ya se había tomado (un doble clic en el selector no es una etapa nueva).
+  const previous = await getSolicitud(patch.id);
   const updated = await updateSolicitudStatus(patch.id, patch.status);
 
   if (!updated.ok) {
@@ -109,6 +124,23 @@ export async function PATCH(request: NextRequest) {
       { success: false, error: 'No se pudo actualizar la solicitud.', persisted: updated.persisted },
       { status: 500 }
     );
+  }
+
+  // El selector manual sigue existiendo para las excepciones. Cuando esa
+  // decisión deja el registro aprobado o rechazado, el solicitante se entera
+  // igual que si la hubiera tomado el autómata.
+  if (
+    updated.solicitud &&
+    previous?.status !== updated.solicitud.status &&
+    (updated.solicitud.status === 'Aceptada' ||
+      updated.solicitud.status === 'En_Alta' ||
+      updated.solicitud.status === 'Rechazada')
+  ) {
+    try {
+      await notifyManualDecision(updated.solicitud, updated.solicitud.status);
+    } catch (error) {
+      console.error('[solicitudes] no se pudo avisar la decisión manual:', error);
+    }
   }
 
   return NextResponse.json(
@@ -162,8 +194,37 @@ export async function POST(request: NextRequest) {
     await notifyTeam(validation.solicitud, stored.id ?? null);
   }
 
+  // Registro de socio: se evalúa y avanza (o pide datos) sin esperar a una
+  // persona. Nunca hace fallar el alta: la solicitud ya está guardada y lo peor
+  // que puede pasar es que quede en `Recibida` para que el equipo la mire.
+  let autopilot: { status?: string; decision?: string; questions?: unknown } | null = null;
+  if (isSocioRegistro(validation.solicitud.kind) && typeof stored.id === 'string') {
+    try {
+      const saved = await getSolicitud(stored.id);
+      if (saved) {
+        const result = await autopilotSolicitud(saved);
+        if (result.ok) {
+          autopilot = {
+            status: result.status,
+            decision: result.evaluation?.decision,
+            questions: result.questions ?? [],
+          };
+        } else {
+          console.warn('[solicitudes] el autómata no pudo evaluar:', result.error);
+        }
+      }
+    } catch (error) {
+      console.error('[solicitudes] error del autómata:', error);
+    }
+  }
+
   return NextResponse.json(
-    { success: true, id: stored.id ?? null, persisted: stored.persisted },
+    {
+      success: true,
+      id: stored.id ?? null,
+      persisted: stored.persisted,
+      ...(autopilot ? { autopilot } : {}),
+    },
     { status: 201 }
   );
 }

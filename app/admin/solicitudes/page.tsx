@@ -28,6 +28,10 @@ import {
   type SocioFilter,
   type SocioSolicitud,
 } from '@/lib/data/socios';
+import {
+  SOLICITUD_REVIEW_KEYS,
+  type SolicitudEvaluation,
+} from '@/lib/data/solicitudEvaluation';
 import { formatKybDateTime, scoreTone } from '@/lib/kyb/admin';
 import { KYB_STATUS_TONES } from '@/lib/kyb/portal';
 import type { KybEvaluation, KybManualDecision } from '@/lib/kyb/status';
@@ -53,8 +57,11 @@ import KybEvaluationDetail from '@/components/admin/kyb/KybEvaluationDetail';
  *   decisiones del equipo (`Aceptada`, `Pendiente_Informacion`, `Rechazada`),
  *   que disparan correos y tokens, así que desde acá no hay un selector de
  *   estado: se abre la ficha y se decide con la evaluación a la vista.
- * - un **registro de agente** es una persona sin empresa que verificar. No tiene
- *   puntaje y su estado se mueve a mano, igual que antes.
+ * - un **registro** (corredora, inmobiliaria o agente) también se evalúa solo,
+ *   con las reglas de `lib/data/solicitudEvaluation.ts`: al recibirse pasa a
+ *   `Aceptada` o a `Pendiente_Informacion`, se le escribe al solicitante y el
+ *   enlace del correo lo deja responder. La tarjeta muestra ese puntaje y el
+ *   selector queda para las excepciones que el equipo quiera mover a mano.
  *
  * La vista de tablero agrupa en columnas por etapa lo que ya está cargado, así
  * que los conteos suman el total del filtro y ninguna columna pide datos
@@ -145,6 +152,8 @@ export default function AdminSolicitudesPage() {
 
   /** Id del registro de agente que está guardando su estado. */
   const [savingId, setSavingId] = useState<string | null>(null);
+  /** Id del registro que se está volviendo a evaluar con el motor. */
+  const [reEvaluatingId, setReEvaluatingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<{ id: string; message: string } | null>(null);
 
   const load = useCallback(async () => {
@@ -297,6 +306,44 @@ export default function AdminSolicitudesPage() {
       setSavingId(null);
     }
   }, []);
+
+  /**
+   * Vuelve a pasar el motor sobre un registro.
+   *
+   * Es la salida del equipo cuando el dato ya se corrigió por otra vía (una
+   * llamada, un correo): la misma evaluación del alta, con su correo. Se recarga
+   * la bandeja porque el resultado y las preguntas viven en `payload`.
+   */
+  const reevaluateRegistro = useCallback(
+    async (id: string) => {
+      setReEvaluatingId(id);
+      setActionError(null);
+
+      try {
+        const response = await fetch(
+          `/api/admin/solicitudes/${encodeURIComponent(id)}/evaluate`,
+          { method: 'POST' }
+        );
+        const body = await response.json().catch(() => null);
+
+        if (!response.ok || !body?.success) {
+          setActionError({
+            id,
+            message: body?.error ?? 'No se pudo re-evaluar. Intenta de nuevo.',
+          });
+          return;
+        }
+
+        await load();
+        window.dispatchEvent(new Event('rix7:solicitudes-actualizadas'));
+      } catch {
+        setActionError({ id, message: 'Sin conexión con el servidor.' });
+      } finally {
+        setReEvaluatingId(null);
+      }
+    },
+    [load]
+  );
 
   const reevaluate = useCallback(
     async (id: string) => {
@@ -579,7 +626,7 @@ export default function AdminSolicitudesPage() {
             >
               inmobiliarias
             </Link>{' '}
-            crea una solicitud evaluada, y el de agentes, una para revisar a mano.
+            crea una solicitud que se evalúa sola y avisa por correo.
           </p>
         </div>
       ) : view === 'tablero' ? (
@@ -719,6 +766,8 @@ export default function AdminSolicitudesPage() {
               onStatusChange={(status) => void changeStatus(socio.id, status)}
               onReevaluate={() => void reevaluate(socio.id)}
               onDecide={(input) => void decide(socio.id, input)}
+              reevaluatingRegistro={reEvaluatingId === socio.id}
+              onReevaluateRegistro={() => void reevaluateRegistro(socio.id)}
             />
           ))}
         </ul>
@@ -744,6 +793,9 @@ interface SocioRowProps {
   onStatusChange: (status: SolicitudStatus) => void;
   onReevaluate: () => void;
   onDecide: (input: { decision: KybManualDecision; note?: string; questions?: string[] }) => void;
+  /** Registro: volver a pasar el motor con los datos que haya hoy. */
+  reevaluatingRegistro: boolean;
+  onReevaluateRegistro: () => void;
 }
 
 /**
@@ -770,10 +822,14 @@ function SocioRow({
   onStatusChange,
   onReevaluate,
   onDecide,
+  reevaluatingRegistro,
+  onReevaluateRegistro,
 }: SocioRowProps) {
   const kind = CATEGORY_STYLE[socio.category];
   const isAlta = socio.source === 'alta';
   const details = solicitud ? solicitudDetails(solicitud) : [];
+  const evaluation =
+    (solicitud?.payload[SOLICITUD_REVIEW_KEYS.evaluation] as SolicitudEvaluation | undefined) ?? null;
 
   return (
     <li className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -860,6 +916,23 @@ function SocioRow({
             </div>
           )}
 
+          {!isAlta && (
+            <button
+              type="button"
+              onClick={onReevaluateRegistro}
+              disabled={reevaluatingRegistro}
+              className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
+              title="Volver a pasar la evaluación automática y avisar el resultado"
+            >
+              {reevaluatingRegistro ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="h-3.5 w-3.5" />
+              )}
+              {reevaluatingRegistro ? 'Evaluando…' : 'Re-evaluar'}
+            </button>
+          )}
+
           {actionError && (
             <p role="alert" className="mt-1.5 max-w-[16rem] text-[11px] text-red-600 sm:text-right">
               {actionError}
@@ -906,7 +979,9 @@ function SocioRow({
           </div>
         )
       ) : (
-        <div className="grid gap-4 border-t border-slate-100 px-5 py-4 sm:grid-cols-2">
+        <div className="border-t border-slate-100">
+          {evaluation && <SolicitudEvaluationSummary evaluation={evaluation} />}
+          <div className="grid gap-4 px-5 py-4 sm:grid-cols-2">
           {details.map((item) => (
             <div key={item.label}>
               <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
@@ -924,8 +999,72 @@ function SocioRow({
               </p>
             </div>
           )}
+          </div>
         </div>
       )}
     </li>
+  );
+}
+
+/**
+ * Cómo quedó la evaluación automática de un registro.
+ *
+ * El equipo no ve un número suelto: ve qué se miró, qué advirtió y qué se le
+ * preguntó a la persona. Sin ese sustento, «62/100 · Pendiente de información»
+ * no dice nada y la única salida sería confiar en el motor a ciegas.
+ */
+function SolicitudEvaluationSummary({ evaluation }: { evaluation: SolicitudEvaluation }) {
+  const tone =
+    evaluation.decision === 'Aceptada'
+      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+      : 'bg-amber-50 text-amber-800 border-amber-200';
+
+  return (
+    <div className="bg-slate-50/70 px-5 py-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${scoreTone(evaluation.score)}`}>
+          {evaluation.score}/100
+        </span>
+        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${tone}`}>
+          {evaluation.decision === 'Aceptada' ? 'Aceptada por el motor' : 'Pidió información'}
+        </span>
+        <span className="text-[10px] text-slate-400">
+          Evaluación automática · {formatKybDateTime(evaluation.createdAt)}
+        </span>
+      </div>
+
+      <ul className="mt-3 space-y-1.5">
+        {evaluation.checks.map((check) => (
+          <li key={check.id} className="flex items-start gap-2 text-[11px] leading-relaxed">
+            <span
+              aria-hidden="true"
+              className={`mt-1 h-1.5 w-1.5 shrink-0 rounded-full ${
+                check.status === 'pass'
+                  ? 'bg-emerald-500'
+                  : check.status === 'warn'
+                    ? 'bg-amber-500'
+                    : 'bg-red-500'
+              }`}
+            />
+            <span className="text-slate-600">
+              <strong className="font-semibold text-slate-800">{check.label}:</strong> {check.detail}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {evaluation.questions.length > 0 && (
+        <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50/70 px-3 py-2">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-amber-800">
+            Se le preguntó al solicitante
+          </p>
+          <ol className="mt-1 list-decimal space-y-0.5 pl-4 text-[11px] leading-relaxed text-amber-900">
+            {evaluation.questions.map((question) => (
+              <li key={question.id}>{question.question}</li>
+            ))}
+          </ol>
+        </div>
+      )}
+    </div>
   );
 }
