@@ -143,20 +143,20 @@ export default function AdminDashboard() {
           </div>
           <div className="p-5 space-y-3">
             {/**
-             * El alta evaluada va primero: es la única sección del panel con
-             * trabajo pendiente que alguien tiene que mirar (una empresa espera
+             * Las solicitudes de socios van primero: es la única sección del panel
+             * con trabajo pendiente que alguien tiene que mirar (una empresa espera
              * su respuesta), y hasta ahora solo se alcanzaba desde el lateral.
              */}
             <Link
-              href="/admin/alta-empresas"
+              href="/admin/solicitudes"
               className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-violet-200 hover:bg-violet-50 transition-all group"
             >
               <div className="w-9 h-9 rounded-lg bg-violet-50 flex items-center justify-center group-hover:bg-violet-100 transition-colors">
                 <ShieldCheck className="w-4 h-4 text-violet-600" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-900">Alta de Empresas</p>
-                <p className="text-xs text-slate-500">Revisar la evaluación de corredoras e inmobiliarias</p>
+                <p className="text-sm font-semibold text-slate-900">Solicitudes de socios</p>
+                <p className="text-xs text-slate-500">Evaluación de corredoras, inmobiliarias y agentes</p>
               </div>
             </Link>
 

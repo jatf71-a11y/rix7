@@ -1,4 +1,5 @@
 import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SOCIO_SOLICITUD_KINDS } from './socios';
 import {
   SOLICITUD_COLUMNS,
   rowToSolicitud,
@@ -215,6 +216,10 @@ export interface SolicitudCountResult {
  * número en cada navegación, no traer otra vez las 300 solicitudes para contar
  * unas pocas. Va con la sesión, así que la RLS de SELECT sigue siendo la que
  * autoriza; sin Supabase se cuenta la copia en memoria.
+ *
+ * Solo cuenta los caminos que son un socio (`SOCIO_SOLICITUD_KINDS`): el
+ * propietario que pide propuestas se atiende en la sección de leads, así que
+ * sumarlo acá mandaría al equipo a una pantalla donde esa fila no está.
  */
 export async function countSolicitudesNuevas(): Promise<SolicitudCountResult> {
   if (isSupabaseConfigured()) {
@@ -223,7 +228,8 @@ export async function countSolicitudesNuevas(): Promise<SolicitudCountResult> {
       const { count, error } = await supabase
         .from('solicitudes')
         .select('id', { count: 'exact', head: true })
-        .eq('status', 'Recibida');
+        .eq('status', 'Recibida')
+        .in('kind', [...SOCIO_SOLICITUD_KINDS]);
 
       if (!error && typeof count === 'number') {
         return { count, source: 'supabase', persistent: true };
@@ -234,7 +240,11 @@ export async function countSolicitudesNuevas(): Promise<SolicitudCountResult> {
   }
 
   return {
-    count: readDevSolicitudes().filter((solicitud) => solicitud.status === 'Recibida').length,
+    count: readDevSolicitudes().filter(
+      (solicitud) =>
+        solicitud.status === 'Recibida' &&
+        (SOCIO_SOLICITUD_KINDS as readonly string[]).includes(solicitud.kind)
+    ).length,
     source: 'memory',
     persistent: false,
   };

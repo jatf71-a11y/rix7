@@ -123,13 +123,6 @@ export const SOLICITUD_PROPERTY_TYPE_LABELS: Record<SolicitudPropertyType, strin
   parking: 'Estacionamiento',
 };
 
-export const SOLICITUD_KIND_LABELS: Record<SolicitudKind, string> = {
-  propuestas: 'Propietario busca propuestas',
-  corredora: 'Registro de corredora',
-  inmobiliaria: 'Registro de inmobiliaria',
-  agente: 'Agente independiente',
-};
-
 export const SOLICITUD_STATUS_LABELS: Record<SolicitudStatus, string> = KYB_STATUS_LABELS;
 
 /** Campos que llegan del navegador. Todos son `unknown` hasta validarlos. */

@@ -329,6 +329,46 @@ export async function listApplications(limit = 200): Promise<
   }
 }
 
+export interface KybCountResult {
+  count: number;
+  source: KybSource;
+  /** false = desarrollo sin clave de servicio: el número sale de la memoria. */
+  persistent: boolean;
+}
+
+/**
+ * Cuántas altas están en un estado, para el badge del panel.
+ *
+ * Es una consulta `head` con `count: 'exact'`: el panel necesita el número en
+ * cada navegación, no traer las 200 altas otra vez para contarlas. Va con la
+ * clave de servicio, que es la que ya usa todo este store, y si la base no
+ * responde cae a la copia en memoria —diciéndolo— en lugar de devolver un 0 que
+ * apagaría el aviso sin que nadie haya revisado nada.
+ */
+export async function countApplicationsByStatus(status: KybStatus): Promise<KybCountResult> {
+  if (kybSource() === 'supabase') {
+    try {
+      const supabase = await serviceClient();
+      const { count, error } = await supabase
+        .from('kyb_applications')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', status);
+
+      if (!error && typeof count === 'number') {
+        return { count, source: 'supabase', persistent: true };
+      }
+    } catch {
+      // Igual que el listado: si la base no responde, se cuenta lo que haya.
+    }
+  }
+
+  return {
+    count: db().applications.filter((application) => application.status === status).length,
+    source: 'memory',
+    persistent: false,
+  };
+}
+
 export async function saveEvaluation(
   record: Omit<KybEvaluationRecord, 'id'>
 ): Promise<KybResult<KybEvaluationRecord>> {

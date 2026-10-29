@@ -79,8 +79,14 @@ es la única regla que separa los dos caminos.
 
 ## Panel del equipo
 
-`/admin/alta-empresas` (dentro de la sección «Alta de empresas» del panel) lista
-las solicitudes con su estado y puntaje. Al abrir una, muestra la última corrida
+La sección **Solicitudes** del panel (`/admin/solicitudes`) es una sola bandeja
+para los socios: las altas evaluadas de corredoras e inmobiliarias y los
+registros de agentes independientes, filtrados por categoría de socio y con
+vista de pipeline por etapa. Los propietarios que piden propuestas **no** están
+ahí: se revisan en **Leads → Propietarios** (`/admin/leads/propietarios`),
+porque no son el registro de un socio.
+
+Cada fila de alta muestra su estado y puntaje; al abrirla, la última corrida
 del motor: el resumen que **nombra** qué verificaciones advirtieron o fallaron, y
 cada verificación con su peso, el detalle de lo que encontró, los datos concretos
 que revisó (`facts`: el registro consultado, las reseñas contadas, **a qué se
@@ -98,6 +104,11 @@ rellenarlo.
 Desde ahí se puede **re-evaluar** (reintentar una verificación externa o correr el
 motor sobre una ficha histórica). `En_Alta` es terminal: la API responde 409 y el
 panel no ofrece el botón.
+
+El estado de una alta no se cambia con un selector: lo mueven las decisiones del
+equipo, que disparan correos y tokens. Solo los registros de agentes —que no se
+evalúan— conservan el selector a mano. `/admin/alta-empresas` ya no es una
+pantalla: redirige a Solicitudes para no romper enlaces guardados.
 
 ## Verificaciones del motor
 
@@ -214,7 +225,7 @@ en [`lib/kyb/portal.ts`](../lib/kyb/portal.ts), con test propio.
 ## Pruebas
 
 ```bash
-npx vitest run lib/kyb lib/email/kybEmails.test.ts app/api/kyb app/empresas/onboarding app/admin/alta-empresas
+npx vitest run lib/kyb lib/email/kybEmails.test.ts app/api/kyb app/empresas/onboarding components/admin/kyb lib/data/socios.test.ts
 ```
 
 Cubren la máquina de estados, la normalización, el motor con adaptadores

@@ -60,13 +60,15 @@ beforeEach(() => {
 });
 
 describe('countSolicitudesNuevas', () => {
-  it('pide el total con una consulta head y solo de las nuevas', async () => {
+  it('pide el total con una consulta head, solo de las nuevas y solo de socios', async () => {
     const select = vi.fn();
     const eq = vi.fn();
-    const countChain = { select, eq };
+    const inFilter = vi.fn();
+    const countChain = { select, eq, in: inFilter };
     sessionFrom.mockReturnValue(countChain);
     select.mockReturnValue(countChain);
-    eq.mockResolvedValue({ count: 4, error: null });
+    eq.mockReturnValue(countChain);
+    inFilter.mockResolvedValue({ count: 4, error: null });
 
     const result = await countSolicitudesNuevas();
 
@@ -74,13 +76,15 @@ describe('countSolicitudesNuevas', () => {
     expect(sessionFrom).toHaveBeenCalledWith('solicitudes');
     expect(select).toHaveBeenCalledWith('id', { count: 'exact', head: true });
     expect(eq).toHaveBeenCalledWith('status', 'Recibida');
+    // El propietario que pide propuestas vive en leads: no debe inflar el badge.
+    expect(inFilter).toHaveBeenCalledWith('kind', ['corredora', 'inmobiliaria', 'agente']);
   });
 
   it('si la base falla no inventa el número: cuenta la copia en memoria', async () => {
     isSupabaseConfigured.mockReturnValue(false);
 
     const before = await countSolicitudesNuevas();
-    const created = await createSolicitud(SOLICITUD);
+    const created = await createSolicitud({ ...SOLICITUD, kind: 'agente' });
     const afterCreate = await countSolicitudesNuevas();
 
     expect(before.persistent).toBe(false);
@@ -90,6 +94,16 @@ describe('countSolicitudesNuevas', () => {
     await updateSolicitudStatus(String(created.id), 'Pendiente_Informacion');
     const afterReview = await countSolicitudesNuevas();
     expect(afterReview.count).toBe(before.count);
+  });
+
+  it('no cuenta un pedido de propuestas: ese propietario está en leads', async () => {
+    isSupabaseConfigured.mockReturnValue(false);
+
+    const before = await countSolicitudesNuevas();
+    await createSolicitud(SOLICITUD);
+    const afterCreate = await countSolicitudesNuevas();
+
+    expect(afterCreate.count).toBe(before.count);
   });
 });
 

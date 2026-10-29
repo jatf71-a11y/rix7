@@ -19,6 +19,7 @@ import {
 } from '@/lib/data/leads';
 import type { Partner } from '@/lib/data/partners';
 import { describeReadFailure, type ReadFailure } from '@/lib/utils/readFailure';
+import LeadsTabs from './LeadsTabs';
 
 /** Colores del badge por canal, para leer la lista de un vistazo. */
 const CHANNEL_STYLES: Record<LeadChannel, string> = {
@@ -118,6 +119,8 @@ export default function AdminLeadsPage() {
 
   return (
     <div className="max-w-6xl">
+      <LeadsTabs />
+
       {/* No se pudo leer: se dice, en vez de mostrar una lista vacía */}
       {!loading && failure && (
         <div

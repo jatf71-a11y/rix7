@@ -12,7 +12,6 @@ import {
   UserPlus,
   ArrowLeft,
   ChevronRight,
-  ShieldCheck,
 } from 'lucide-react';
 
 import type { DeployedRelease } from '@/lib/utils/deployedRelease';
@@ -29,7 +28,7 @@ const sidebarItems = [
     icon: Users,
   },
   {
-    label: 'Contactos',
+    label: 'Leads',
     href: '/admin/leads',
     icon: Inbox,
   },
@@ -37,11 +36,6 @@ const sidebarItems = [
     label: 'Solicitudes',
     href: '/admin/solicitudes',
     icon: ClipboardList,
-  },
-  {
-    label: 'Alta de empresas',
-    href: '/admin/alta-empresas',
-    icon: ShieldCheck,
   },
   {
     label: 'Registros',
@@ -54,6 +48,23 @@ const sidebarItems = [
     icon: Link2,
   },
 ];
+
+/**
+ * ¿La ruta abierta pertenece a esta sección?
+ *
+ * Antes se comparaba literal contra el `href`, y una subsección como
+ * `/admin/leads/propietarios` dejaba el menú sin ninguna sección marcada. La
+ * regla es que el destino marque sus propias subrutas, pero no una ruta hermana
+ * que empiece igual (`/admin/leads` no debe marcar `/admin/leads-viejos`).
+ *
+ * `/admin` es la excepción: es la raíz del panel y prefijo de todas las
+ * secciones, así que marcarla por prefijo dejaría Dashboard encendido en cada
+ * pantalla.
+ */
+function isActivePath(pathname: string, href: string): boolean {
+  if (href === '/admin') return pathname === '/admin';
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 /**
  * Fecha de publicación de la build, en UTC y con formato propio.
@@ -102,7 +113,9 @@ export default function AdminShell({
 }) {
   const pathname = usePathname();
   /**
-   * Solicitudes en estado `nueva`, el número del badge de la navegación.
+   * Solicitudes de socios y altas KYB en estado `Recibida` —sin los
+   * propietarios, que se atienden en Leads—: el número del badge de la
+   * navegación.
    *
    * `null` es «todavía no se sabe» (mientras carga o si la consulta falla): no
    * se pinta un 0 que mienta. Se vuelve a pedir en cada navegación del panel y
@@ -167,7 +180,7 @@ export default function AdminShell({
         {/* Navigation */}
         <nav className="flex-1 space-y-1">
           {sidebarItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = isActivePath(pathname, item.href);
             return (
               <Link
                 key={item.href}
@@ -208,8 +221,8 @@ export default function AdminShell({
 
           Bajo `lg` el lateral no se muestra, así que hasta ahora el panel se
           quedaba sin menú: se llegaba al dashboard y a ninguna otra sección sin
-          escribir la URL a mano (el alta de empresas, entre ellas). Es una fila
-          desplazable y no un menú plegado porque los destinos son siete y
+          escribir la URL a mano (las altas, entre ellas). Es una fila
+          desplazable y no un menú plegado porque los destinos son seis y
           cortos: con un gesto se ven todos, y no hay estado abierto/cerrado que
           recordar. El distintivo de solicitudes nuevas se repite acá por el
           mismo motivo que el menú.
@@ -220,7 +233,7 @@ export default function AdminShell({
         >
           <ul className="flex items-center gap-1 overflow-x-auto">
             {sidebarItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = isActivePath(pathname, item.href);
               return (
                 <li key={item.href} className="shrink-0">
                   <Link
