@@ -195,6 +195,15 @@ export const REQUIRED_SCHEMA = [
       'las decisiones del equipo (aprobar, pedir información, rechazar) se registran con su autor; sin la tabla no queda quién decidió ni el motivo del rechazo',
   },
   {
+    id: 'plan_settings.value',
+    kind: 'column',
+    table: 'plan_settings',
+    column: 'value',
+    migration: '0030_plan_settings',
+    because:
+      'el panel de Planes guarda ahí los precios por plan y perfil; sin la tabla, guardar precios falla y la pantalla solo muestra los de partida',
+  },
+  {
     id: 'rix7_partner_id()',
     kind: 'rpc',
     name: 'rix7_partner_id',

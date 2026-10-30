@@ -53,7 +53,7 @@ describe('buildSolicitudEmail', () => {
   it('el agente no muestra empresa y su alcance nacional no inventa regiones', () => {
     const email = buildSolicitudEmail({ solicitud: AGENTE, id: null, siteUrl: 'https://rix7.cl' });
 
-    expect(email.subject).toBe('Nueva solicitud · Agente independiente · Diego Soto');
+    expect(email.subject).toBe('Nueva solicitud · Profesional independiente · Diego Soto');
     expect(email.text).toContain('Alcance: Nacional');
     expect(email.text).not.toContain('Empresa:');
     expect(email.text).not.toContain('Regiones:');

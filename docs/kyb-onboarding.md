@@ -76,7 +76,8 @@ formulario manda a `POST /api/kyb` y la pantalla de cierre muestra el resultado
 contactamos» genérico. El siguiente paso (elegir plan o responder) viaja al
 correo con un token nuevo.
 
-Un **agente independiente** sigue entrando por `/api/solicitudes`: es una persona
+Un **profesional independiente** (el `kind` que en la base sigue siendo `agente`)
+sigue entrando por `/api/solicitudes`: es una persona
 natural, sin razón social ni dominio que verificar, y su registro es un contacto
 para el equipo. `usesKybFlow` en [`lib/kyb/registration.ts`](../lib/kyb/registration.ts)
 es la única regla que separa los dos caminos.
@@ -85,7 +86,7 @@ es la única regla que separa los dos caminos.
 
 La sección **Solicitudes** del panel (`/admin/solicitudes`) es una sola bandeja
 para los socios: las altas evaluadas de corredoras e inmobiliarias y los
-registros de agentes independientes, filtrados por categoría de socio y con
+registros de profesionales independientes, filtrados por categoría de socio y con
 vista de pipeline por etapa. Los propietarios que piden propuestas **no** están
 ahí: se revisan en **Leads → Propietarios** (`/admin/leads/propietarios`),
 porque no son el registro de un socio.
@@ -114,9 +115,30 @@ El estado de una alta no se cambia con un selector: lo mueven las decisiones del
 equipo, que disparan correos y tokens. `/admin/alta-empresas` ya no es una
 pantalla: redirige a Solicitudes para no romper enlaces guardados.
 
+### Precios de los planes
+
+La sección **Planes** (`/admin/planes`) guarda en `plan_settings` (migración
+`0030_plan_settings`) el precio de cada **perfil** de socio: alta inicial,
+mensualidad base y usuarios incluidos. Sin fila guardada se usan los valores de
+partida de [`lib/kyb/planPricing.ts`](../lib/kyb/planPricing.ts) —profesional
+$19.990 / $14.990 / 1 usuario; corredora $49.990 / $39.990 / 5; inmobiliaria
+$99.990 / $99.990 / 15—, así que la pantalla abre con lo que definió el equipo.
+
+El **CCA** es la suma de todas las publicaciones de un socio, en UF, y se pasa a
+pesos con `$CCA = CCA × valor de la UF ÷ 1.000.000`; el resultado **es el monto
+en pesos**. Un CCA de 100.000 con una UF de $40.000 son $4.000 a cobrar. No se
+guarda: depende del stock publicado de cada socio y de la UF del día, que se trae
+de `/api/indicators`. La cuenta vive en `ccaAmountClp`.
+
+El precio configurado todavía **no** llega al paso de plan del alta: esa
+pantalla sigue leyendo el catálogo de [`lib/kyb/plans.ts`](../lib/kyb/plans.ts).
+La sección guarda y calcula; conectar el paso de plan con estos precios es el
+tramo siguiente.
+
 ### Los registros de socios también se evalúan solos
 
-Un registro de corredora, inmobiliaria o agente que llega por `/registro/*` o
+Un registro de corredora, inmobiliaria o profesional independiente que llega por
+`/registro/*` o
 `/publicar/agente` no espera a que alguien lo mire: al guardarse corre el motor
 de [`lib/data/solicitudEvaluation.ts`](../lib/data/solicitudEvaluation.ts) y el
 autómata de [`lib/data/solicitudAutopilot.ts`](../lib/data/solicitudAutopilot.ts)
@@ -125,7 +147,7 @@ lo mueve en la misma corrida.
 | Verificación | Peso | Qué mira |
 | --- | --- | --- |
 | `rut` | 20 | Módulo 11 sobre el RUT informado |
-| `correo` | 20 | Correo corporativo vs. proveedor gratuito (un agente puede usar Gmail) |
+| `correo` | 20 | Correo corporativo vs. proveedor gratuito (un independiente puede usar Gmail) |
 | `sitio` | 25 | Sitio declarado y coincidencia de dominio con el correo |
 | `cobertura` | 15 | Nacional, o regional con al menos una región |
 | `contacto` | 10 | Teléfono con forma de número chileno |

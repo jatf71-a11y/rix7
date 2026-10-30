@@ -272,7 +272,7 @@ export const CREDENTIALS = [
     vars: ['SOLICITUDES_EMAIL_TO'],
     severity: 'degraded',
     impact:
-      'Las solicitudes de corredora, inmobiliaria y agente se guardan y aparecen en /admin/solicitudes, pero nadie recibe el aviso por correo.',
+      'Las solicitudes de corredora, inmobiliaria y profesional independiente se guardan y aparecen en /admin/solicitudes, pero nadie recibe el aviso por correo.',
     where: 'Es un valor, no un secreto: la bandeja del equipo que revisa los registros',
     link: null,
     save: 'Vercel (variable de entorno, Production)',

@@ -4,24 +4,29 @@ import { ArrowLeft, BadgeCheck, ReceiptText, UserRound, Wallet } from 'lucide-re
 import RegistrationForm from '@/components/solicitudes/RegistrationForm';
 
 /**
- * Registro de agentes independientes.
+ * Registro de profesionales independientes.
+ *
+ * La ruta sigue siendo `/publicar/agente` y el `kind` de la solicitud también:
+ * renombrarlos obligaría a redirecciones y a una migración de datos. Lo que
+ * cambió es el nombre visible, que ahora es «profesional independiente».
  *
  * Es el cuarto camino de «Publicar» y el primero que no es una empresa: un
  * corredor que opera por cuenta propia, sin sociedad detrás. Por eso esta
  * pantalla no promete «página de empresa» ni «acreditación de equipo»: lo que
  * ofrece es una cuenta con panel de publicaciones y un perfil público.
  *
- * Lo que se **no** se le pide es tan importante como lo que se pide: no hay
- * razón social, ni boleta de actividad, ni RUT de empresa, porque un agente no
- * factura — emite boleta de honorarios con su RUT de persona natural. Decirlo
+ * Lo que **no** se le pide es tan importante como lo que se pide: no hay
+ * razón social, ni boleta de actividad, ni RUT de empresa, porque un
+ * profesional independiente no factura — emite boleta de honorarios con su RUT
+ * de persona natural. Decirlo
  * explícitamente evita que quien llega acá cierre la pestaña buscando un dato
  * que no tiene.
  */
 
 export const metadata: Metadata = {
-  title: 'Registro de agentes independientes | Rix7',
+  title: 'Registro de profesionales independientes | Rix7',
   description:
-    'Registra tu actividad como agente de propiedades por cuenta propia y publica tu stock en Rix7. Sin razón social: trabajas con tu RUT de persona natural.',
+    'Registra tu actividad como profesional independiente de propiedades y publica tu stock en Rix7. Sin razón social: trabajas con tu RUT de persona natural.',
 };
 
 export default function RegistroAgentePage() {
@@ -41,12 +46,12 @@ export default function RegistroAgentePage() {
             Cuenta propia
           </span>
           <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-            Regístrate como agente
+            Regístrate como profesional independiente
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
             Si eres corredor de propiedades y trabajas por cuenta propia, Rix7 te permite publicar
             tu stock desde tu propia cuenta. No pedimos razón social ni boleta de actividad: los
-            agentes emiten boleta de honorarios con su RUT de persona natural.
+            profesionales independientes emiten boleta de honorarios con su RUT de persona natural.
           </p>
         </div>
 

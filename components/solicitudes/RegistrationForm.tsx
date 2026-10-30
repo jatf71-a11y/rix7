@@ -18,12 +18,13 @@ import { KYB_STATUS_LABELS, type KybQuestion, type KybStatus } from '@/lib/kyb/s
 import { toKybPayload, usesKybFlow } from '@/lib/kyb/registration';
 
 /**
- * Registro inicial de quien va a publicar: corredora, inmobiliaria o **agente**
+ * Registro inicial de quien va a publicar: corredora, inmobiliaria o
+ * **profesional independiente**
  * independiente.
  *
  * Los tres caminos comparten la base —contacto, ubicación y cómo saber quién es
  * quien escribe— pero no piden lo mismo: una empresa acredita su operación y su
- * cargo; un agente trabaja por cuenta propia, no factura y emite boleta de
+ * cargo; un profesional independiente trabaja por cuenta propia, no factura y emite boleta de
  * honorarios con su RUT de persona natural, así que no hay razón social que
  * pedirle. El formulario definitivo de cada camino se va a definir después;
  * por eso hoy guarda un **registro inicial** con lo mínimo para contactar y
@@ -71,7 +72,7 @@ const COPY: Record<RegistrationKind, KindCopy> = {
     websitePlaceholder: 'https://tuempresa.cl',
     contactTitle: 'Quién nos contacta',
     contactBody: 'Una persona de la empresa que pueda responder por el registro.',
-    messagePlaceholder: 'Ej: corredora con foco en departamentos en Providencia, 4 agentes.',
+    messagePlaceholder: 'Ej: corredora con foco en departamentos en Providencia, 4 corredores.',
     successTitle: 'Recibimos el registro de tu corredora',
     successBody:
       'Vamos a revisar los datos de la empresa y te contactaremos para completar la acreditación. Una vez verificada, tu corredora podrá publicar stock en Rix7.',
@@ -103,7 +104,7 @@ const COPY: Record<RegistrationKind, KindCopy> = {
   },
   agente: {
     icon: UserRound,
-    sectionTitle: 'Tus datos de agente',
+    sectionTitle: 'Tus datos de profesional independiente',
     sectionBody:
       'No se pide razón social ni boleta de actividad: trabajas por cuenta propia y emites boleta de honorarios con tu RUT de persona natural.',
     companyLabel: 'Nombre comercial',
@@ -112,8 +113,9 @@ const COPY: Record<RegistrationKind, KindCopy> = {
     websitePlaceholder: 'https://tusitio.cl',
     contactTitle: 'Tus datos de contacto',
     contactBody: 'Con estos te contactamos para revisar el registro.',
-    messagePlaceholder: 'Ej: agente independiente en Ñuñoa y Providencia, 6 años en el mercado.',
-    successTitle: 'Recibimos tu registro como agente',
+    messagePlaceholder:
+      'Ej: profesional independiente en Ñuñoa y Providencia, 6 años en el mercado.',
+    successTitle: 'Recibimos tu registro como profesional independiente',
     successBody:
       'Vamos a revisar tus datos y te contactaremos para completar la acreditación. Una vez verificado, podrás publicar tu stock en Rix7 desde tu cuenta.',
     steps: [
@@ -128,7 +130,7 @@ const COPY: Record<RegistrationKind, KindCopy> = {
  * Alcance geográfico del registro.
  *
  * Antes se preguntaba región y comuna de la oficina; lo que sirve para asignar
- * trabajo es si la corredora, inmobiliaria o agente opera en todo Chile o solo
+ * trabajo es si la corredora, inmobiliaria o profesional independiente opera en todo Chile o solo
  * en algunas regiones. `''` es «todavía no eligió» y el formulario lo exige.
  */
 type Coverage = '' | 'nacional' | 'regional';
@@ -170,7 +172,8 @@ const INITIAL: FormState = {
  * Resultado del envío.
  *
  * Una empresa recibe la **evaluación** (estado, y las preguntas si quedaron
- * puntos por aclarar); un agente recibe la confirmación del contacto, porque su
+ * puntos por aclarar); un profesional independiente recibe la confirmación del
+ * contacto, porque su
  * registro no pasa por el motor.
  */
 type Success =
@@ -187,7 +190,7 @@ type Success =
 
 export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
   const copy = COPY[kind];
-  // Un agente es una persona: no hay nombre de empresa que pedirle ni cargo que
+  // Un profesional independiente es una persona: no hay nombre de empresa que pedirle ni cargo que
   // declarar. Esconder los campos no es atajo visual, es la coherencia con el
   // servidor, que tampoco los exige para este `kind` (ver `normalizeSolicitud`).
   const asksCompany = kind !== 'agente';
@@ -226,7 +229,7 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
 
     setSending(true);
 
-    // Una empresa va al alta evaluada; un agente, al registro de contactos.
+    // Una empresa va al alta evaluada; un independiente, al registro de contactos.
     const kyb = usesKybFlow(kind);
 
     try {
@@ -264,7 +267,7 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
   }
 
   if (success) {
-    // Una empresa ve el resultado de la verificación; un agente, la confirmación
+    // Una empresa ve el resultado de la verificación; un independiente, la confirmación
     // del contacto. El estado de la solicitud manda el texto: prometer «aceptada»
     // cuando quedó pendiente sería el peor mensaje posible.
     const accepted =

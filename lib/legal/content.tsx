@@ -145,7 +145,7 @@ export const terminos: LegalDocument = {
       body: [
         <>
           Al compartir una ficha se genera una landing pública con datos
-          acotados de la propiedad (sin contacto directo del agente y con
+          acotados de la propiedad (sin contacto directo del profesional y con
           ubicación aproximada). El enlace es personal de quien lo genera:
           puede caducar si el aviso se retira.
         </>,

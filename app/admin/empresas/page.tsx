@@ -28,7 +28,7 @@ const KIND_TABS: Array<{ value: KindFilter; label: string }> = [
   { value: 'todos', label: 'Todos' },
   { value: 'corredora', label: 'Corredoras' },
   { value: 'inmobiliaria', label: 'Inmobiliarias' },
-  { value: 'agente', label: 'Agentes' },
+  { value: 'agente', label: 'Profesionales' },
 ];
 
 /** Color del distintivo de cada categoría; el gris es «Sin clasificar». */
@@ -44,7 +44,7 @@ const KIND_EMPTY: Record<KindFilter, string> = {
   todos: 'No hay socios registrados',
   corredora: 'No hay corredoras registradas',
   inmobiliaria: 'No hay inmobiliarias registradas',
-  agente: 'No hay agentes registrados',
+  agente: 'No hay profesionales registrados',
 };
 
 const EMPTY_FORM: Omit<Partner, 'id'> = {
@@ -196,7 +196,7 @@ function AdminEmpresasPage() {
     // Un socio nuevo sin categoría no aparecería en ninguna de las tres
     // pestañas. Al editar se permite dejarla vacía (fichas históricas).
     if (!editingId && !form.kind) {
-      showToast('error', 'Elige el tipo de socio: corredora, inmobiliaria o agente');
+      showToast('error', 'Elige el tipo de socio: corredora, inmobiliaria o profesional independiente');
       return;
     }
 
@@ -374,7 +374,7 @@ function AdminEmpresasPage() {
         </button>
       </div>
 
-      {/* Categorías: corredoras, inmobiliarias y agentes */}
+      {/* Categorías: corredoras, inmobiliarias y profesionales independientes */}
       <div className="flex flex-wrap items-center gap-1 mb-5 border-b border-slate-200">
         {KIND_TABS.map((tab) => {
           const active = kindFilter === tab.value;
@@ -710,7 +710,7 @@ function AdminEmpresasPage() {
                   </option>
                   <option value="corredora">Corredora</option>
                   <option value="inmobiliaria">Inmobiliaria</option>
-                  <option value="agente">Agente</option>
+                  <option value="agente">Profesional</option>
                 </select>
                 <p className="mt-1 text-[10px] text-slate-400">
                   {editingId

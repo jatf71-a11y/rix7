@@ -156,7 +156,9 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-slate-900">Solicitudes de socios</p>
-                <p className="text-xs text-slate-500">Evaluación de corredoras, inmobiliarias y agentes</p>
+                <p className="text-xs text-slate-500">
+                  Evaluación de corredoras, inmobiliarias y profesionales independientes
+                </p>
               </div>
             </Link>
 
@@ -182,7 +184,9 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-slate-900">Nuevo Socio</p>
-                <p className="text-xs text-slate-500">Registrar una corredora, inmobiliaria o agente</p>
+                <p className="text-xs text-slate-500">
+                  Registrar una corredora, inmobiliaria o profesional independiente
+                </p>
               </div>
             </Link>
 

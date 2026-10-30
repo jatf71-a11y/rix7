@@ -8,6 +8,7 @@ import {
   Users,
   Inbox,
   ClipboardList,
+  Calculator,
   Link2,
   UserPlus,
   ArrowLeft,
@@ -36,6 +37,11 @@ const sidebarItems = [
     label: 'Solicitudes',
     href: '/admin/solicitudes',
     icon: ClipboardList,
+  },
+  {
+    label: 'Planes',
+    href: '/admin/planes',
+    icon: Calculator,
   },
   {
     label: 'Registros',
@@ -222,7 +228,7 @@ export default function AdminShell({
           Bajo `lg` el lateral no se muestra, así que hasta ahora el panel se
           quedaba sin menú: se llegaba al dashboard y a ninguna otra sección sin
           escribir la URL a mano (las altas, entre ellas). Es una fila
-          desplazable y no un menú plegado porque los destinos son seis y
+          desplazable y no un menú plegado porque los destinos son siete y
           cortos: con un gesto se ven todos, y no hay estado abierto/cerrado que
           recordar. El distintivo de solicitudes nuevas se repite acá por el
           mismo motivo que el menú.

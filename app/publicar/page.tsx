@@ -16,7 +16,8 @@ import {
  * Antes el botón llevaba directo al alta de una corredora. Eso dejaba afuera a
  * tres públicos reales: quien tiene una propiedad y todavía no contrató corredora
  * (que necesita recibir propuestas), las inmobiliarias, que no son corredoras, y los
- * agentes que trabajan por cuenta propia y no representan a ninguna empresa.
+ * profesionales independientes que trabajan por cuenta propia y no representan a
+ * ninguna empresa.
  * Acá se elige el camino antes de pedir datos; cada uno tiene su propio flujo y
  * su propio formulario.
  *
@@ -28,7 +29,7 @@ import {
 export const metadata: Metadata = {
   title: 'Publicar una propiedad | Rix7',
   description:
-    'Publica como propietario y recibe propuestas, o registra tu corredora, inmobiliaria o actividad de agente independiente para publicar en Rix7.',
+    'Publica como propietario y recibe propuestas, o registra tu corredora, inmobiliaria o actividad como profesional independiente para publicar en Rix7.',
 };
 
 const options = [
@@ -84,16 +85,16 @@ const options = [
     href: '/publicar/agente',
     icon: UserRound,
     badge: 'Cuenta propia',
-    title: 'Soy agente',
+    title: 'Soy profesional independiente',
     subtitle: 'Corredor de propiedades por cuenta propia',
     description:
-      'Registra tu actividad como agente independiente y publica tu stock desde tu propia cuenta, sin una empresa detrás.',
+      'Registra tu actividad como profesional independiente y publica tu stock desde tu propia cuenta, sin una empresa detrás.',
     bullets: [
       'Sin razón social: emites boleta de honorarios',
       'Tu perfil público eres tú y tu zona de trabajo',
       'Panel de publicaciones desde tu cuenta',
     ],
-    cta: 'Registrarme como agente',
+    cta: 'Registrarme como profesional',
     tone: 'violet' as const,
   },
 ];
@@ -143,7 +144,7 @@ export default function PublicarPage() {
           <p className="mt-4 text-base leading-relaxed text-slate-600">
             Rix7 trabaja con corredores registrados y verificados. Elige tu caso y te llevamos al
             flujo que corresponde: recibir propuestas para los propietarios, registro de empresa para
-            corredoras e inmobiliarias, o registro como agente independiente.
+            corredoras e inmobiliarias, o registro como profesional independiente.
           </p>
         </div>
 
@@ -200,7 +201,7 @@ export default function PublicarPage() {
             </p>
             <p className="mt-1 text-xs leading-relaxed text-slate-500">
               Una propiedad nunca se publica sin un corredor responsable. Por eso los registros
-              —de empresa y de agente— pasan por revisión.
+              —de empresa y de profesional independiente— pasan por revisión.
             </p>
           </div>
           </div>

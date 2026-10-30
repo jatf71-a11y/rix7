@@ -9,8 +9,12 @@
  * - `alta` es una solicitud de corredora o inmobiliaria que pasó por el motor de
  *   evaluación. Tiene puntaje, verificaciones y se mueve con decisiones, que
  *   disparan correos y tokens; el estado no se cambia a mano desde un selector.
- * - `registro` es el registro de un **agente independiente**, que no tiene
- *   empresa que verificar. Es una persona y el equipo lo mueve a mano.
+ * - `registro` es el registro de un **profesional independiente**, que no
+ *   tiene empresa que verificar. Es una persona y el equipo lo mueve a mano.
+ *
+ * El `kind` que viaja en la base sigue siendo `agente`: el nombre visible para
+ * el equipo y para quien se registra es «profesional independiente», pero
+ * renombrar la columna obligaría a una migración de datos sin beneficio.
  *
  * Un propietario que busca propuestas no es un socio: entra por «Publicar»
  * pidiendo que le compitan por su propiedad y vive en la sección de leads.
@@ -25,7 +29,8 @@ import type { Solicitud, SolicitudKind } from '@/lib/data/solicitudes';
 
 /**
  * Las tres categorías con las que el equipo reparte el trabajo —corredoras,
- * inmobiliarias y agentes— más `empresa`, que agrupa a las altas que no
+ * inmobiliarias y profesionales independientes— más `empresa`, que agrupa a
+ * las altas que no
  * declararon cómo se registraron (las que llegan por la API directa). No se
  * mete en «corredora» para no inventar un dato que la solicitud no tiene.
  */
@@ -34,7 +39,9 @@ export type SocioCategory = 'corredora' | 'inmobiliaria' | 'agente' | 'empresa';
 export const SOCIO_CATEGORY_LABELS: Record<SocioCategory, string> = {
   corredora: 'Corredora',
   inmobiliaria: 'Inmobiliaria',
-  agente: 'Agente',
+  // Forma corta: la etiqueta va en chips y distintivos, donde el nombre
+  // completo («profesional independiente») no cabe sin romper la fila.
+  agente: 'Profesional',
   empresa: 'Empresa sin tipo',
 };
 
@@ -46,12 +53,12 @@ export interface SocioSolicitud {
   source: SocioSource;
   category: SocioCategory;
   status: KybStatus;
-  /** Razón social de la empresa, o el nombre de la persona si es un agente. */
+  /** Razón social de la empresa, o el nombre de la persona si es independiente. */
   name: string;
   contactName: string;
   email: string;
   phone: string;
-  /** Solo las altas lo traen; el registro de agente no pide RUT de empresa. */
+  /** Solo las altas lo traen; el registro independiente no pide RUT de empresa. */
   rut: string | null;
   website: string | null;
   coverage: string | null;
@@ -112,7 +119,7 @@ export function socioFromApplication(application: KybApplication): SocioSolicitu
 /**
  * Una solicitud de «Publicar» vista como socio.
  *
- * Solo se llama con un agente: los demás caminos no son socios y filtrarlos
+ * Solo se llama con un profesional independiente: los demás caminos no son socios y filtrarlos
  * acá evita que un propietario termine en el tablero si alguien cambia el
  * filtro de la página.
  */

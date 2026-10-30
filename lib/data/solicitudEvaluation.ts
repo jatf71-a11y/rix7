@@ -177,7 +177,9 @@ export function evaluateSolicitud(
   const existing = options.existing ?? [];
   const payload = solicitud.payload;
 
-  const offerLabel = isAgent ? 'tu registro de agente' : `el registro de ${labelOf(kind)}`;
+  const offerLabel = isAgent
+    ? 'tu registro de profesional independiente'
+    : `el registro de ${labelOf(kind)}`;
   const checks: SolicitudCheck[] = [];
 
   // ── 1. RUT ────────────────────────────────────────────────────────────────
@@ -209,7 +211,7 @@ export function evaluateSolicitud(
     status: !freeMail || isAgent ? 'pass' : 'warn',
     detail: freeMail
       ? isAgent
-        ? 'Es un correo personal, que es lo esperable en un agente independiente.'
+        ? 'Es un correo personal, que es lo esperable en un profesional independiente.'
         : `El correo es de un proveedor gratuito (${emailDomain}).`
       : `El correo usa el dominio ${emailDomain}.`,
     weight: 20,
@@ -243,12 +245,13 @@ export function evaluateSolicitud(
       ],
     });
   } else if (isAgent) {
-    // El agente independiente no necesita sitio: su canal es el teléfono.
+    // El profesional independiente no necesita sitio: su canal es el teléfono.
     checks.push({
       id: 'sitio',
       label: 'Sitio web',
       status: 'pass',
-      detail: 'No declaró sitio web; no es un requisito para un agente independiente.',
+      detail:
+        'No declaró sitio web; no es un requisito para un profesional independiente.',
       weight: 25,
     });
   } else {

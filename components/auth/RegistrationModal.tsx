@@ -47,7 +47,7 @@ import {
  *    responder— en vez de un check que no puede cumplir esa promesa.
  *
  * Al guardar, la identidad queda en este dispositivo (`RegistrationProvider`):
- * el formulario «Contacta a un Agente» de cualquier ficha la lee de ahí y ya no
+ * el formulario «Contacta a un Profesional» de cualquier ficha la lee de ahí y ya no
  * vuelve a pedir los datos.
  */
 

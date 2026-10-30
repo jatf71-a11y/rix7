@@ -318,10 +318,10 @@ export function ContactAgentForm({ property, partner, source = 'ficha' }: Contac
         }
       : {
           // Texto corto a propósito: el anterior ("Completa tus datos para
-          // contactar a un Agente") forzaba dos líneas en la columna angosta y
-          // el corte caía a mitad de frase. La instrucción de completar los
-          // campos vive en el aviso de debajo, no en el botón.
-          text: fieldsComplete ? 'Enviar' : 'Contacta a un Agente',
+          // contactar a un profesional") forzaba dos líneas en la columna
+          // angosta y el corte caía a mitad de frase. La instrucción de
+          // completar los campos vive en el aviso de debajo, no en el botón.
+          text: fieldsComplete ? 'Enviar' : 'Contacta a un Profesional',
           className: 'bg-red-700 hover:bg-red-800 text-white shadow-md shadow-red-500/25',
           disabled: false,
         };

@@ -1,6 +1,6 @@
 /**
  * Correo interno: «entró una solicitud nueva de corredora, inmobiliaria o
- * agente».
+ * profesional independiente».
  *
  * El formulario de «Publicar» no promete un correo al equipo, pero hasta ahora
  * una solicitud solo existía si alguien abría `/admin/solicitudes`: el panel la
@@ -12,7 +12,7 @@
  * datos trae y que un nombre con `<` no rompa el HTML.
  *
  * Reglas:
- * - Solo los tres registros (corredora, inmobiliaria, agente). Una solicitud de
+ * - Solo los tres registros (corredora, inmobiliaria, profesional independiente). Una solicitud de
  *   propietario llega igual al panel y no manda correo, porque no es un alta de
  *   cuenta: es una propiedad que busca corredora.
  * - Todo lo que escribió la persona pasa por `escapeHtml` antes del HTML.
@@ -32,7 +32,7 @@ import {
 const KIND_SUBJECT: Record<Exclude<SolicitudKind, 'propuestas'>, string> = {
   corredora: 'Corredora',
   inmobiliaria: 'Inmobiliaria',
-  agente: 'Agente independiente',
+  agente: 'Profesional independiente',
 };
 
 /** Los tres caminos que avisan al equipo; `propuestas` queda fuera. */
@@ -156,7 +156,7 @@ export function buildSolicitudEmail({
         </a>
         <p style="margin:16px 0 0;color:#94a3b8;font-size:11px;line-height:1.6">
           ${id ? `Folio ${escapeHtml(id)}. ` : ''}Este aviso se envía solo por los registros de corredora,
-          inmobiliaria y agente; las solicitudes de propietario quedan en el panel sin correo.
+          inmobiliaria y profesional independiente; las solicitudes de propietario quedan en el panel sin correo.
         </p>
       </div>
     </div>

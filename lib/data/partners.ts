@@ -1,6 +1,8 @@
 /**
  * Las tres categorías de socio del portal: una corredora, una inmobiliaria o un
- * agente independiente. El panel filtra por esta columna y el alta exige una.
+ * profesional independiente. El panel filtra por esta columna y el alta exige
+ * una. El valor guardado sigue siendo `agente` (así nació la columna); el
+ * nombre que se muestra es «profesional independiente».
  */
 export const PARTNER_KINDS = ['corredora', 'inmobiliaria', 'agente'] as const;
 
@@ -9,7 +11,8 @@ export type PartnerKind = (typeof PARTNER_KINDS)[number];
 export const PARTNER_KIND_LABELS: Record<PartnerKind, string> = {
   corredora: 'Corredora',
   inmobiliaria: 'Inmobiliaria',
-  agente: 'Agente',
+  // Forma corta para pestañas y distintivos; el nombre completo se usa en prosa.
+  agente: 'Profesional',
 };
 
 /** Valida un valor que viene de la base o de un formulario. */
@@ -58,7 +61,8 @@ export interface Partner {
    */
   feedEnabled?: boolean;
   /**
-   * Categoría del socio: corredora, inmobiliaria o agente. `null`/ausente =
+   * Categoría del socio: corredora, inmobiliaria o profesional independiente.
+   * `null`/ausente =
    * ficha sin clasificar.
    */
   kind?: PartnerKind | null;

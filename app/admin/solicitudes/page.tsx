@@ -39,13 +39,15 @@ import type { KybApplication, KybDecision } from '@/lib/kyb/types';
 import KybEvaluationDetail from '@/components/admin/kyb/KybEvaluationDetail';
 
 /**
- * Panel de socios: los registros de agentes y las altas evaluadas, en un solo
+ * Panel de socios: los registros de profesionales independientes y las altas
+ * evaluadas, en un solo
  * lugar.
  *
  * Antes había dos pantallas para la misma pregunta —la bandeja de «Publicar» y
  * el alta de empresas— y el equipo tenía que recordar en cuál estaba cada
  * corredora. Acá se leen juntas y se separan por **categoría de socio**
- * (corredora, inmobiliaria, agente), que es como se reparte el trabajo.
+ * (corredora, inmobiliaria, profesional independiente), que es como se reparte
+ * el trabajo.
  *
  * Los propietarios que piden propuestas **no** están acá: entran por «Publicar»
  * con un pedido sobre una propiedad, no con un registro de socio, y viven en
@@ -57,7 +59,8 @@ import KybEvaluationDetail from '@/components/admin/kyb/KybEvaluationDetail';
  *   decisiones del equipo (`Aceptada`, `Pendiente_Informacion`, `Rechazada`),
  *   que disparan correos y tokens, así que desde acá no hay un selector de
  *   estado: se abre la ficha y se decide con la evaluación a la vista.
- * - un **registro** (corredora, inmobiliaria o agente) también se evalúa solo,
+ * - un **registro** (corredora, inmobiliaria o profesional independiente)
+ *   también se evalúa solo,
  *   con las reglas de `lib/data/solicitudEvaluation.ts`: al recibirse pasa a
  *   `Aceptada` o a `Pendiente_Informacion`, se le escribe al solicitante y el
  *   enlace del correo lo deja responder. La tarjeta muestra ese puntaje y el
@@ -152,7 +155,7 @@ export default function AdminSolicitudesPage() {
   const [reevaluating, setReevaluating] = useState(false);
   const [deciding, setDeciding] = useState(false);
 
-  /** Id del registro de agente que está guardando su estado. */
+  /** Id del registro independiente que está guardando su estado. */
   const [savingId, setSavingId] = useState<string | null>(null);
   /** Id del registro que se está volviendo a evaluar con el motor. */
   const [reEvaluatingId, setReEvaluatingId] = useState<string | null>(null);
@@ -183,7 +186,7 @@ export default function AdminSolicitudesPage() {
         okRegistros = registrosBody.persistent !== false;
       } else {
         failures.push(
-          registrosBody?.error ?? 'No se pudieron cargar los registros de agentes.'
+          registrosBody?.error ?? 'No se pudieron cargar los registros de profesionales independientes.'
         );
       }
 
@@ -478,7 +481,7 @@ export default function AdminSolicitudesPage() {
   );
 
   const memoria = [
-    storage.registros === false ? 'los registros de agentes' : null,
+    storage.registros === false ? 'los registros de profesionales independientes' : null,
     storage.altas === false ? 'las altas evaluadas' : null,
   ].filter((item): item is string => item !== null);
 
@@ -488,7 +491,8 @@ export default function AdminSolicitudesPage() {
         <div>
           <h1 className="text-2xl font-black text-slate-900">Solicitudes</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Corredoras, inmobiliarias y agentes, con la evaluación de su alta. Los propietarios que
+            Corredoras, inmobiliarias y profesionales independientes, con la evaluación de su alta.
+            Los propietarios que
             buscan propuestas están en{' '}
             <Link
               href="/admin/leads/propietarios"
@@ -780,7 +784,7 @@ export default function AdminSolicitudesPage() {
 
 interface SocioRowProps {
   socio: SocioSolicitud;
-  /** La fila original de «Publicar», para el detalle de un registro de agente. */
+  /** La fila original de «Publicar», para el detalle de un registro independiente. */
   solicitud: Solicitud | null;
   open: boolean;
   detail: DetailState | null;
@@ -804,7 +808,7 @@ interface SocioRowProps {
  * Una fila de la lista.
  *
  * Vive aparte para que el `map` del panel no cargue con el detalle de una
- * tarjeta: las de alta tienen ficha plegable y decisión; las de agente, los
+ * tarjeta: las de alta tienen ficha plegable y decisión; las independientes, los
  * campos del formulario y un selector. Comparten encabezado porque el equipo
  * las lee en la misma lista.
  */
