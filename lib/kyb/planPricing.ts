@@ -161,6 +161,55 @@ export function formatCcaAmount(amountClp: number): string {
   }).format(Number.isFinite(amountClp) ? amountClp : 0);
 }
 
+/**
+ * Número con la convención de Chile: punto de miles y coma decimal.
+ *
+ * Existe porque la calculadora del panel escribe y lee en esa convención, y el
+ * valor de la UF llega de `/api/indicators` como número de JavaScript (41242.32).
+ * Poner ese número crudo en el campo era el error que inflaba el CCA cien veces:
+ * el campo leía el punto como separador de miles. Todo lo que va a un input de
+ * la calculadora pasa por acá.
+ */
+export function formatDecimalInput(value: number, maxDecimals = 2): string {
+  if (!Number.isFinite(value)) return '';
+  return new Intl.NumberFormat('es-CL', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: maxDecimals,
+  }).format(value);
+}
+
+/**
+ * Lee un número escrito por una persona en convención chilena.
+ *
+ * Reglas, en orden:
+ *
+ * 1. Si hay coma, es decimal y los puntos son de miles: `41.242,32` → 41242.32.
+ * 2. Si no hay coma y los puntos agrupan de a tres, son de miles: `100.000` → 100000.
+ * 3. Cualquier otro punto es decimal (`41242.32` → 41242.32), que es la forma en
+ *    que otras fuentes —y el propio valor de la UF— escriben el número.
+ *
+ * Devuelve `null` cuando no hay ningún dígito, para que la pantalla distinga
+ * «vacío» de cero.
+ */
+export function parseDecimalInput(value: string): number | null {
+  const clean = String(value ?? '')
+    .replace(/[^\d.,]/g, '')
+    .trim();
+  if (!/\d/.test(clean)) return null;
+
+  let normalized: string;
+  if (clean.includes(',')) {
+    normalized = clean.replace(/\./g, '').replace(',', '.');
+  } else if (/^\d{1,3}(\.\d{3})+$/.test(clean)) {
+    normalized = clean.replace(/\./g, '');
+  } else {
+    normalized = clean;
+  }
+
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 // ── Validación ───────────────────────────────────────────────────────────────
 
 export interface NormalizePricingResult {

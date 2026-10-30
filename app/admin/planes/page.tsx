@@ -12,7 +12,9 @@ import {
   PRICING_PROFILES,
   ccaAmountClp,
   formatCcaAmount,
+  formatDecimalInput,
   normalizePlanPricing,
+  parseDecimalInput,
   profileLabel,
   profilePlan,
   type PlanPricingConfig,
@@ -65,14 +67,6 @@ function parseInteger(value: string): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-/** Decimal para el CCA y la UF, que sí llevan centavos. */
-function parseDecimal(value: string): number | null {
-  const clean = value.replace(/\./g, '').replace(',', '.').replace(/[^\d.]/g, '');
-  if (!clean) return null;
-  const parsed = Number.parseFloat(clean);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
 function sameConfig(a: PlanPricingConfig, b: PlanPricingConfig): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
@@ -89,8 +83,8 @@ export default function AdminPlanesPage() {
   const [toast, setToast] = useState<string | null>(null);
 
   // Calculadora del CCA: no se guarda, es una consulta rápida.
-  const [ccaUf, setCcaUf] = useState('100000');
-  const [ufValue, setUfValue] = useState(String(UF_FALLBACK));
+  const [ccaUf, setCcaUf] = useState(formatDecimalInput(100_000));
+  const [ufValue, setUfValue] = useState(formatDecimalInput(UF_FALLBACK));
   const [ufSource, setUfSource] = useState<'indicador' | 'manual'>('indicador');
 
   useEffect(() => {
@@ -135,7 +129,11 @@ export default function AdminPlanesPage() {
         const response = await fetch('/api/indicators', { cache: 'no-store' });
         const body = await response.json().catch(() => null);
         const value = Number(body?.uf?.value);
-        if (!cancelled && Number.isFinite(value) && value > 0) setUfValue(String(value));
+        // Formateada como se lee acá: el número crudo de la API trae punto
+        // decimal (41242.32) y en el campo el punto es de miles.
+        if (!cancelled && Number.isFinite(value) && value > 0) {
+          setUfValue(formatDecimalInput(value));
+        }
       } catch {
         // Se queda el valor de reserva; abajo se avisa.
       }
@@ -150,10 +148,10 @@ export default function AdminPlanesPage() {
   const dirty = useMemo(() => !!config && !!saved && !sameConfig(config, saved), [config, saved]);
 
   const ccaValue = useMemo(() => {
-    const uf = parseDecimal(ccaUf);
-    const rate = parseDecimal(ufValue);
+    const uf = parseDecimalInput(ccaUf);
+    const rate = parseDecimalInput(ufValue);
     if (uf === null || rate === null) return null;
-    return ccaAmountClp(uf, rate);
+    return { uf, rate, amount: ccaAmountClp(uf, rate) };
   }, [ccaUf, ufValue]);
 
   function updateProfile(profile: PartnerKind, patch: Partial<ProfilePlan>) {
@@ -443,8 +441,8 @@ export default function AdminPlanesPage() {
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
               <p className="mt-1 text-[10px] text-slate-400">
-                Suma de todas sus publicaciones. Ejemplo: un CCA de 100.000 con una UF de $40.000
-                da $4.000.
+                Suma de todas sus publicaciones, en UF. Ejemplo: un CCA de 100.000 con una UF de
+                $40.000 da $4.000.
               </p>
             </div>
 
@@ -471,6 +469,9 @@ export default function AdminPlanesPage() {
                   ? 'Valor del día traído de /api/indicators; se puede corregir a mano.'
                   : 'Valor escrito a mano para esta consulta.'}
               </p>
+              <p className="mt-1 text-[10px] text-slate-400">
+                Formato chileno: el punto separa miles y la coma, decimales (41.242,32).
+              </p>
             </div>
           </div>
 
@@ -483,12 +484,12 @@ export default function AdminPlanesPage() {
                 $CCA a cobrar
               </p>
               <p className="mt-1 text-2xl font-black tracking-tight text-slate-900">
-                {ccaValue === null ? '—' : formatCcaAmount(ccaValue)}
+                {ccaValue === null ? '—' : formatCcaAmount(ccaValue.amount)}
               </p>
               <p className="mt-1 text-[10px] leading-relaxed text-slate-400">
                 {ccaValue === null
                   ? 'Escribe el CCA y el valor de la UF.'
-                  : `${ccaUf.trim() || '0'} × ${ufValue.trim() || '0'} ÷ 1.000.000`}
+                  : `${formatDecimalInput(ccaValue.uf)} × $${formatDecimalInput(ccaValue.rate)} ÷ 1.000.000`}
               </p>
             </div>
           </div>

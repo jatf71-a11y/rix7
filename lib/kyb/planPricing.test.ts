@@ -9,7 +9,9 @@ import {
   PRICING_PROFILES,
   ccaAmountClp,
   formatCcaAmount,
+  formatDecimalInput,
   normalizePlanPricing,
+  parseDecimalInput,
   profileLabel,
   profilePlan,
   type PlanPricingConfig,
@@ -89,6 +91,55 @@ describe('CCA', () => {
 
   it('formatea el monto en pesos', () => {
     expect(formatCcaAmount(4000)).toContain('4.000');
+  });
+});
+
+describe('convención chilena de la calculadora', () => {
+  it('formatea con punto de miles y coma decimal', () => {
+    expect(formatDecimalInput(100_000)).toBe('100.000');
+    expect(formatDecimalInput(41_242.32)).toBe('41.242,32');
+    expect(formatDecimalInput(39_500)).toBe('39.500');
+  });
+
+  it('lee el CCA con punto de miles', () => {
+    expect(parseDecimalInput('100.000')).toBe(100_000);
+    expect(parseDecimalInput('1.234.567')).toBe(1_234_567);
+    expect(parseDecimalInput('100000')).toBe(100_000);
+  });
+
+  it('lee la UF del indicador, que trae punto decimal', () => {
+    // El número crudo de /api/indicators: antes el campo leía 4124232.
+    expect(parseDecimalInput('41242.32')).toBeCloseTo(41_242.32, 6);
+    expect(parseDecimalInput('39500.4')).toBeCloseTo(39_500.4, 6);
+  });
+
+  it('lee la UF con coma decimal, que es como se escribe acá', () => {
+    expect(parseDecimalInput('41.242,32')).toBeCloseTo(41_242.32, 6);
+    expect(parseDecimalInput('41.242,5')).toBeCloseTo(41_242.5, 6);
+  });
+
+  it('acepta los signos que la gente escribe: $, espacios', () => {
+    expect(parseDecimalInput('$ 100.000')).toBe(100_000);
+  });
+
+  it('vacío es null, no cero', () => {
+    expect(parseDecimalInput('')).toBeNull();
+    expect(parseDecimalInput('   ')).toBeNull();
+    expect(parseDecimalInput('$')).toBeNull();
+  });
+
+  it('lo que se muestra se vuelve a leer igual: ida y vuelta', () => {
+    for (const value of [100_000, 41_242.32, 1_234.5, 0.75]) {
+      expect(parseDecimalInput(formatDecimalInput(value))).toBeCloseTo(value, 2);
+    }
+  });
+
+  it('el CCA del ejemplo no se infla al pasar por el campo', () => {
+    const amount = ccaAmountClp(
+      parseDecimalInput('100.000')!,
+      parseDecimalInput(formatDecimalInput(41_242.32))!
+    );
+    expect(amount).toBeCloseTo(4124.232, 3);
   });
 });
 
