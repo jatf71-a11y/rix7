@@ -34,12 +34,14 @@ describe('qué puede decidir el equipo', () => {
     expect(decisionsFor('Recibida')).toEqual([]);
     expect(decisionsFor('Aceptada')).toEqual([]);
     expect(decisionsFor('En_Alta')).toEqual([]);
+    expect(decisionsFor('Operando')).toEqual([]);
     expect(decisionsFor('Rechazada')).toEqual([]);
   });
 
   it('explica por qué no se puede decidir, en cada caso', () => {
     expect(whyCannotDecide('En_Evaluacion')).toBeNull();
-    expect(whyCannotDecide('En_Alta')).toMatch(/terminó/);
+    expect(whyCannotDecide('En_Alta')).toMatch(/eligiendo su plan/);
+    expect(whyCannotDecide('Operando')).toMatch(/terminó/);
     expect(whyCannotDecide('Rechazada')).toMatch(/ya quedó rechazada/);
     expect(whyCannotDecide('Aceptada')).toMatch(/sigue con la empresa/);
     expect(whyCannotDecide('Recibida')).toMatch(/no tiene evaluación/);

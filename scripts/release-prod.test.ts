@@ -31,12 +31,14 @@ import {
   formatDuration,
   formatPlan,
   formatReleaseSummary,
+  checkDbCredentials,
   isTransientDeployFailure,
   missingTargets,
   normalizeBaseUrl,
   parseDeployUrls,
   parseReleaseArgs,
   planRelease,
+  readDbValues,
   resolveCommands,
   resolveVerifyUrl,
   runStep,
@@ -819,5 +821,100 @@ describe('isTransientDeployFailure', () => {
     expect(isTransientDeployFailure('Error: The file does not exist')).toBe(false);
     expect(isTransientDeployFailure('')).toBe(false);
     expect(isTransientDeployFailure(null)).toBe(false);
+  });
+});
+
+describe('checkDbCredentials', () => {
+  const token = `sbp_${'0123456789abcdef'.repeat(2)}`;
+  const values = (patch = {}) => ({
+    NEXT_PUBLIC_SUPABASE_URL: 'https://vsqkjimpssdvlvdwrtnh.supabase.co',
+    SUPABASE_PROJECT_REF: null,
+    SUPABASE_ACCESS_TOKEN: token,
+    ...patch,
+  });
+
+  it('con un token que la API acepta, deja pasar y nombra el proyecto', async () => {
+    const seen: any[] = [];
+    const result = await checkDbCredentials({
+      values: values(),
+      checkTokenImpl: async (args: any) => {
+        seen.push(args);
+        return { ok: true, projects: ['vsqkjimpssdvlvdwrtnh'] };
+      },
+    });
+
+    expect(result.ok).toBe(true);
+    // La referencia se deduce de la URL: el paso de migraciones no la pide.
+    expect(seen[0].ref).toBe('vsqkjimpssdvlvdwrtnh');
+  });
+
+  it('sin token no llega a preguntar, y manda a guardarlo con db:token', async () => {
+    let asked = false;
+    const result = await checkDbCredentials({
+      values: values({ SUPABASE_ACCESS_TOKEN: null }),
+      checkTokenImpl: async () => {
+        asked = true;
+        return { ok: true, projects: [] };
+      },
+    });
+
+    expect(asked).toBe(false);
+    expect(result.ok).toBe(false);
+    const text = !result.ok ? result.lines.join('\n') : '';
+    expect(text).toContain('SUPABASE_ACCESS_TOKEN');
+    expect(text).toContain('npm run db:token');
+    // La salida cuando el esquema ya está al día, sin inventar un atajo.
+    expect(text).toContain('--no-db');
+  });
+
+  it('con un 401 se detiene con el mismo mensaje accionable que db:token', async () => {
+    const result = await checkDbCredentials({
+      values: values(),
+      checkTokenImpl: async () => ({
+        ok: false,
+        reason: 'invalid',
+        detail: 'HTTP 401: Invalid access token',
+      }),
+    });
+
+    expect(result.ok).toBe(false);
+    const text = !result.ok ? result.lines.join('\n') : '';
+    expect(text).toContain('401');
+    expect(text).toContain('https://supabase.com/dashboard/account/tokens');
+    expect(text).toContain('--no-db');
+    // Nunca el valor del token, ni siquiera en el diagnóstico.
+    expect(text).not.toContain(token);
+  });
+
+  it('si la API no responde, no bloquea el release: lo decide el paso de migraciones', async () => {
+    const result = await checkDbCredentials({
+      values: values(),
+      checkTokenImpl: async () => ({ ok: false, reason: 'unreachable', detail: 'HTTP 502' }),
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.warning).toContain('HTTP 502');
+  });
+});
+
+describe('readDbValues', () => {
+  it('el entorno manda y .env.local completa', () => {
+    expect(readDbValues({
+      env: { SUPABASE_ACCESS_TOKEN: 'del-entorno' },
+      exists: () => true,
+      read: () => 'NEXT_PUBLIC_SUPABASE_URL=https://abc.supabase.co\nSUPABASE_ACCESS_TOKEN=del-archivo\n',
+    })).toEqual({
+      NEXT_PUBLIC_SUPABASE_URL: 'https://abc.supabase.co',
+      SUPABASE_PROJECT_REF: null,
+      SUPABASE_ACCESS_TOKEN: 'del-entorno',
+    });
+  });
+
+  it('sin .env.local no inventa valores', () => {
+    expect(readDbValues({ env: {}, exists: () => false })).toEqual({
+      NEXT_PUBLIC_SUPABASE_URL: null,
+      SUPABASE_PROJECT_REF: null,
+      SUPABASE_ACCESS_TOKEN: null,
+    });
   });
 });

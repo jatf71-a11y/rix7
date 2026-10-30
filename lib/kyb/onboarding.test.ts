@@ -262,11 +262,15 @@ describe('flujo KYB', () => {
     const activated = await activateKybPlan({ token, plan: 'profesional' });
     expect(activated.ok).toBe(true);
     expect(activated.already).toBe(false);
+    // Elegir plan cierra el alta: la solicitud pasa a «Operando», que es la
+    // columna de clientes activos del pipeline.
+    expect(activated.status).toBe('Operando');
     expect(activated.panel?.enabled).toBe(true);
     expect(activated.panel?.account).toBe('created');
     expect(provisionCompanyPanel).toHaveBeenCalledTimes(1);
 
     const stored = await getApplication(submitted.applicationId as string);
+    expect(stored.data?.status).toBe('Operando');
     expect(stored.data?.panelEnabled).toBe(true);
     expect(stored.data?.plan).toBe('profesional');
     expect(stored.data?.activatedAt).toBeTruthy();

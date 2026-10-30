@@ -82,9 +82,10 @@ const CATEGORY_STYLE: Record<
  * Acento de cada columna del tablero.
  *
  * El color no reemplaza la etiqueta —cada columna dice su nombre—: es lo que
- * permite reconocer la etapa de un vistazo cuando el tablero está lleno. Los dos
- * terminales (`En_Alta` y `Rechazada`) se distinguen del resto porque ahí ya no
- * hay nada que hacer.
+ * permite reconocer la etapa de un vistazo cuando el tablero está lleno. Los
+ * terminales (`Operando` y `Rechazada`) se distinguen del resto porque ahí ya no
+ * hay nada que hacer; `Alta` va justo antes de `Operando`, que es el paso que
+ * cierra el alta cuando la empresa elige y paga su plan.
  */
 const STATUS_STYLE: Record<SolicitudStatus, { column: string; dot: string }> = {
   Recibida: { column: 'border-slate-200', dot: 'bg-slate-400' },
@@ -92,6 +93,7 @@ const STATUS_STYLE: Record<SolicitudStatus, { column: string; dot: string }> = {
   Pendiente_Informacion: { column: 'border-amber-200', dot: 'bg-amber-500' },
   Aceptada: { column: 'border-emerald-200', dot: 'bg-emerald-500' },
   En_Alta: { column: 'border-violet-200', dot: 'bg-violet-500' },
+  Operando: { column: 'border-teal-200', dot: 'bg-teal-500' },
   Rechazada: { column: 'border-rose-200', dot: 'bg-rose-400' },
 };
 

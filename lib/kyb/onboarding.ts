@@ -598,6 +598,12 @@ export interface ActivateResult {
  *
  * Es idempotente: repetir la petición con el mismo token y plan no vuelve a
  * crear la ficha ni la cuenta, y devuelve `already: true`.
+ *
+ * Al terminar deja la solicitud en `Operando`, no en `En_Alta`: el alta ya se
+ * cerró —la empresa está inscrita, eligió su plan y tiene su panel habilitado—
+ * y es lo que el pipeline muestra como cliente activo. No hay cobro en línea
+ * todavía: el plan elegido es lo que el sistema puede saber, y el cobro se
+ * confirma fuera.
  */
 export async function activateKybPlan({
   token,
@@ -636,7 +642,7 @@ export async function activateKybPlan({
     plan,
     panelEnabled: true,
     activatedAt: new Date().toISOString(),
-    status: 'En_Alta',
+    status: 'Operando',
     // El token se conserva hasta su vencimiento para tolerar reintentos de red:
     // una segunda activación no vuelve a crear nada y responde `already`. No
     // habilita nada nuevo porque `panel_enabled` ya está en true.
@@ -661,7 +667,7 @@ export async function activateKybPlan({
   return {
     ok: true,
     already: false,
-    status: 'En_Alta',
+    status: 'Operando',
     plan,
     panel: {
       enabled: true,

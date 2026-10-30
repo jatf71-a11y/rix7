@@ -3,9 +3,10 @@
  *
  * El motor de evaluación decide si una solicitud avanza a `Aceptada` o vuelve a
  * la empresa con preguntas, y el equipo puede decidir a mano sobre una solicitud
- * ya evaluada. `En_Alta` es terminal por el lado bueno: la empresa ya tiene su
- * token, elige plan y su panel queda habilitado; `Rechazada` es terminal por el
- * otro: el alta no prosperó y no se vuelve a evaluar.
+ * ya evaluada. `En_Alta` —que el panel muestra como «Alta»— es el estado en el
+ * que la empresa tiene su token y elige plan; `Operando` cierra el círculo: ya
+ * está inscrita, eligió su plan y su panel quedó habilitado. `Rechazada` es
+ * terminal por el otro lado: el alta no prosperó y no se vuelve a evaluar.
  *
  * Este módulo es puro (sin Supabase, sin red): la tabla de transiciones se
  * prueba sola y es la que impide que una ruta mueva una solicitud a un estado
@@ -18,6 +19,7 @@ export const KYB_STATUSES = [
   'Pendiente_Informacion',
   'Aceptada',
   'En_Alta',
+  'Operando',
   'Rechazada',
 ] as const;
 
@@ -28,7 +30,8 @@ export const KYB_STATUS_LABELS: Record<KybStatus, string> = {
   En_Evaluacion: 'En evaluación',
   Pendiente_Informacion: 'Pendiente de información',
   Aceptada: 'Aceptada',
-  En_Alta: 'En alta',
+  En_Alta: 'Alta',
+  Operando: 'Operando',
   Rechazada: 'Rechazada',
 };
 
@@ -44,9 +47,12 @@ const TRANSITIONS: Record<KybStatus, readonly KybStatus[]> = {
   // queda fuera de la tabla porque no cambia de estado: lo resuelve
   // `canDecideManually`.
   Pendiente_Informacion: ['En_Evaluacion', 'Aceptada', 'Rechazada'],
-  // El alta genera el token y deja la solicitud en manos de la empresa.
+  // El alta genera el token y deja la solicitud en manos de la empresa, que
+  // elige plan. Elegirlo habilita el panel y la deja `Operando`, que es donde
+  // se ve el cliente ya inscrito.
   Aceptada: ['En_Alta'],
-  En_Alta: [],
+  En_Alta: ['Operando'],
+  Operando: [],
   Rechazada: [],
 };
 

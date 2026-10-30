@@ -49,6 +49,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { classifySupabaseUrl, readEnvContent } from './check-auth-config.mjs';
+// El mismo texto accionable que usa `db:token`: un 401 no se explica distinto
+// según qué comando lo encontró.
+import { tokenRejectionMessage } from './token-supabase.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ENV_FILE = path.join(ROOT, '.env.local');
@@ -319,8 +322,13 @@ export function queryEndpoint(ref) {
 /**
  * Corre una consulta contra la API de administración de Supabase.
  *
+ * El `status` viaja aparte del texto para poder distinguir el rechazo de la
+ * credencial (401/403) de un error de SQL: el primero se arregla cambiando el
+ * token, el segundo leyendo la consulta, y decir «revisá la referencia y el
+ * token» ante un `relation does not exist` manda a buscar donde no está.
+ *
  * @param {{ ref: string, token: string, query: string, fetchImpl?: typeof fetch }} params
- * @returns {Promise<{ ok: true, rows: any[] } | { ok: false, error: string }>}
+ * @returns {Promise<{ ok: true, rows: any[] } | { ok: false, status: number | null, error: string }>}
  */
 export async function runQuery({ ref, token, query, fetchImpl = fetch }) {
   let res;
@@ -334,13 +342,17 @@ export async function runQuery({ ref, token, query, fetchImpl = fetch }) {
       body: JSON.stringify({ query }),
     });
   } catch (error) {
-    return { ok: false, error: `no se pudo conectar: ${error instanceof Error ? error.message : 'error desconocido'}` };
+    return {
+      ok: false,
+      status: null,
+      error: `no se pudo conectar: ${error instanceof Error ? error.message : 'error desconocido'}`,
+    };
   }
 
   const text = await res.text().catch(() => '');
 
   if (!res.ok) {
-    return { ok: false, error: `HTTP ${res.status} ${text.slice(0, 300).trim()}` };
+    return { ok: false, status: res.status, error: `HTTP ${res.status} ${text.slice(0, 300).trim()}`.trim() };
   }
 
   try {
@@ -349,6 +361,70 @@ export async function runQuery({ ref, token, query, fetchImpl = fetch }) {
   } catch {
     return { ok: true, rows: [] };
   }
+}
+
+/**
+ * Tapa cualquier credencial que venga dentro de un texto ajeno.
+ *
+ * La API de Supabase no devuelve el token en sus mensajes de error, pero este
+ * texto se imprime, y «no lo va a hacer» no es una garantía: es una suposición
+ * sobre un servicio de terceros.
+ *
+ * @param {unknown} text
+ * @returns {string}
+ */
+export function redactSecrets(text) {
+  return String(text ?? '')
+    .replace(/sb[a-z]*_[A-Za-z0-9_-]{8,}/g, '[redactado]')
+    .replace(/eyJ[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}/g, '[redactado]');
+}
+
+/**
+ * El mensaje accionable ante un rechazo de la credencial, o `null` si el fallo
+ * fue otra cosa.
+ *
+ * Son los dos códigos que no se arreglan reintentando: 401 es un token revocado
+ * o vencido, 403 es una clave que no es un token personal. El texto es el mismo
+ * de `npm run db:token`, más el paso que falta acá: guardar uno nuevo.
+ *
+ * @param {{ status?: number | null, error: string } | null | undefined} result
+ * @param {{ ref?: string | null }} [context]
+ * @returns {string[] | null}
+ */
+export function explainAuthFailure(result, { ref = null } = {}) {
+  const status = result?.status;
+  if (status !== 401 && status !== 403) return null;
+
+  return tokenRejectionMessage(
+    { reason: status === 403 ? 'forbidden' : 'invalid', detail: redactSecrets(result.error) },
+    {
+      ref,
+      retry:
+        'Guardalo con `npm run db:token` (lo valida contra la API antes de escribir) y repetí este comando.',
+    },
+  );
+}
+
+/**
+ * Imprime el fallo de una consulta: el texto accionable si fue la credencial, la
+ * sugerencia genérica si fue otra cosa. El `error` crudo se imprime una sola vez.
+ *
+ * @param {{ status?: number | null, error: string }} result
+ * @param {{ ref?: string | null, what: string, nothingChanged?: boolean }} options
+ */
+function reportQueryFailure(result, { ref = null, what, nothingChanged = false }) {
+  const lines = explainAuthFailure(result, { ref });
+  if (!lines) {
+    console.error(`\n✗ ${what}: ${result.error}`);
+    console.error('  Revisá la referencia, el token y la consulta: el error viene de la base.');
+    return;
+  }
+
+  // El bloque ya nombra el error de la API: repetirlo en el encabezado solo
+  // agrega ruido a un mensaje que se lee con el token en la mano.
+  console.error(`\n✗ ${what}.`);
+  console.error(lines.join('\n'));
+  if (nothingChanged) console.error('  · Nada se modificó: el pedido no llegó a ejecutarse.');
 }
 
 /**
@@ -373,7 +449,11 @@ export async function applyMigrations({ ref, token, migrations, contents, fetchI
     });
 
     if (!result.ok) {
-      failed = { version: `${migration.version}_${migration.name}`, error: result.error };
+      failed = {
+        version: `${migration.version}_${migration.name}`,
+        error: result.error,
+        status: result.status,
+      };
       break;
     }
 
@@ -382,6 +462,7 @@ export async function applyMigrations({ ref, token, migrations, contents, fetchI
       failed = {
         version: `${migration.version}_${migration.name}`,
         error: `se aplicó pero no se pudo registrar: ${record.error}`,
+        status: record.status,
       };
       break;
     }
@@ -498,15 +579,22 @@ async function main() {
   // Registro de lo aplicado.
   const bootstrap = await runQuery({ ref, token, query: ledgerBootstrapSql() });
   if (!bootstrap.ok) {
-    console.error(`\n✗ No se pudo preparar ${LEDGER_TABLE}: ${bootstrap.error}`);
-    console.error('  Revisa que la referencia y el token sean del proyecto.');
+    reportQueryFailure(bootstrap, {
+      ref,
+      what: `No se pudo preparar ${LEDGER_TABLE}`,
+      nothingChanged: true,
+    });
     process.exitCode = 1;
     return;
   }
 
   const ledger = await runQuery({ ref, token, query: ledgerSelectSql() });
   if (!ledger.ok) {
-    console.error(`\n✗ No se pudo leer ${LEDGER_TABLE}: ${ledger.error}`);
+    reportQueryFailure(ledger, {
+      ref,
+      what: `No se pudo leer ${LEDGER_TABLE}`,
+      nothingChanged: true,
+    });
     process.exitCode = 1;
     return;
   }
@@ -528,7 +616,13 @@ async function main() {
 
   const result = await applyMigrations({ ref, token, migrations: toApply, contents });
   console.log(formatResult(result));
-  if (result.failed) process.exitCode = 1;
+  if (result.failed) {
+    const lines = explainAuthFailure(result.failed, { ref });
+    // `formatResult` ya imprimió el error de la migración: se agrega el camino
+    // de salida, no el diagnóstico repetido.
+    if (lines) console.error(`\n${lines.slice(1).join('\n')}`);
+    process.exitCode = 1;
+  }
 }
 
 // Solo corre al ejecutarse: así los tests pueden importar el núcleo.

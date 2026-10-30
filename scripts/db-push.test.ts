@@ -18,6 +18,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   applyMigrations,
   diffAgainstLedger,
+  explainAuthFailure,
   fingerprint,
   formatStatus,
   ledgerBootstrapSql,
@@ -26,6 +27,7 @@ import {
   parseMigrationName,
   planMigrations,
   queryEndpoint,
+  redactSecrets,
   runQuery,
   type Migration,
 } from './db-push.mjs';
@@ -233,6 +235,70 @@ describe('runQuery', () => {
 
     expect(result.ok).toBe(false);
     expect(result.ok === false && result.error).toContain('sin red');
+    expect(result.ok === false && result.status).toBe(null);
+  });
+
+  it('conserva el código de estado, para poder distinguir el 401 de un error de SQL', async () => {
+    const unauthorized = vi.fn(
+      async () => new Response(JSON.stringify({ message: 'Invalid access token' }), { status: 401 })
+    );
+    const result = await runQuery({
+      ref: 'r',
+      token: 't',
+      query: 'SELECT 1;',
+      fetchImpl: unauthorized as unknown as typeof fetch,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.ok === false && result.status).toBe(401);
+    expect(result.ok === false && result.error).toContain('Invalid access token');
+  });
+});
+
+describe('explainAuthFailure', () => {
+  const token = `sbp_${'a1b2c3d4'.repeat(5)}`;
+
+  it('explica el 401 como db:token, y suma el paso de guardarlo', () => {
+    const lines = explainAuthFailure(
+      { status: 401, error: 'HTTP 401 {"message":"Invalid access token"}' },
+      { ref: 'vsqkjimpssdvlvdwrtnh' }
+    );
+
+    const message = (lines ?? []).join('\n');
+    expect(message).toContain('401');
+    expect(message).toContain('revocado');
+    expect(message).toContain('https://supabase.com/dashboard/account/tokens');
+    expect(message).toContain('npm run db:token');
+    expect(message).not.toContain('Revisa que la referencia y el token');
+  });
+
+  it('no repite el valor del token aunque la API lo escupiera en el error', () => {
+    const message = (
+      explainAuthFailure({ status: 401, error: `HTTP 401 token ${token} rechazado` }, {}) ?? []
+    ).join('\n');
+
+    expect(message).not.toContain(token);
+    expect(message).toContain('[redactado]');
+    expect(message).toContain('rechazado');
+  });
+
+  it('tapa también una clave de servicio colada en el mensaje', () => {
+    const service = `eyJhbGciOiJIUzI1NiJ9.${'b2N1cGE'.repeat(3)}.${'firma'.repeat(4)}`;
+    expect(redactSecrets(`clave ${service} inválida`)).toBe('clave [redactado] inválida');
+  });
+
+  it('el 403 manda a usar un token personal, no a reintentar', () => {
+    const message = (explainAuthFailure({ status: 403, error: 'HTTP 403' }) ?? []).join('\n');
+
+    expect(message).toContain('permisos de administración');
+    expect(message).toContain('token personal');
+  });
+
+  it('cualquier otro fallo no se disfraza de token: devuelve null', () => {
+    expect(explainAuthFailure({ status: 400, error: 'HTTP 400 relation does not exist' })).toBe(null);
+    expect(explainAuthFailure({ status: 500, error: 'HTTP 500' })).toBe(null);
+    expect(explainAuthFailure({ status: null, error: 'no se pudo conectar: sin red' })).toBe(null);
+    expect(explainAuthFailure(null)).toBe(null);
   });
 });
 

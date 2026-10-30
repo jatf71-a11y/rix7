@@ -43,6 +43,12 @@ describe('portalStage', () => {
     expect(portalStage(view({ status: 'Aceptada' }))).toBe('evaluating');
   });
 
+  it('un cliente que ya eligió plan está operando y no vuelve a ver planes', () => {
+    expect(
+      portalStage(view({ status: 'Operando', panelEnabled: true, plan: 'basico' }))
+    ).toBe('active');
+  });
+
   it('con el panel ya habilitado no vuelve a pedir plan, aunque el token siga vivo', () => {
     // La activación conserva el token hasta su vencimiento para tolerar
     // reintentos de red: abrir el enlace otra vez debe mostrar el panel, no el
@@ -62,13 +68,14 @@ describe('evaluatingCopy', () => {
     expect(evaluatingCopy('Pendiente_Informacion').body).toMatch(/correo/i);
   });
 
-  it('cubre los cinco estados del flujo', () => {
+  it('cubre los seis estados del flujo', () => {
     const titles = [
       'Recibida',
       'En_Evaluacion',
       'Pendiente_Informacion',
       'Aceptada',
       'En_Alta',
+      'Operando',
     ] as const;
     for (const status of titles) {
       expect(evaluatingCopy(status).title.length).toBeGreaterThan(0);

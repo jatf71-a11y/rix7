@@ -45,7 +45,10 @@
  *   así que repetirlo no rompe nada. Necesita `SUPABASE_ACCESS_TOKEN`; sin él
  *   sale 1 y este script se detiene **antes** de desplegar, que es justo lo que
  *   se quiere. Si el esquema ya está al día y no tenés el token a mano,
- *   `--no-db` saltea el paso (y el informe lo dice).
+ *   `--no-db` saltea el paso (y el informe lo dice). Antes de empezar, y solo si
+ *   este paso está en el plan, el release **comprueba el token contra la API de
+ *   Supabase**: un token vencido se sabe en el primer segundo, no después del
+ *   build (`checkDbCredentials`).
  * - **esquema**: `scripts/check-schema.mjs` lee la base **real** y comprueba que
  *   existan los objetos que el código desplegado usa (columnas de `properties`,
  *   la función `rix7_partner_id()`). No es un duplicado del paso anterior: uno
@@ -92,8 +95,10 @@
  *   **no** se afirma nada: un release verde no puede dar por comprobado lo que no
  *   comparó.
  *
- * La guardia de secretos corre **primero**, como paso previo: si hay un token
- * suelto en el árbol, no tiene sentido aplicar migraciones ni nada.
+ * La credencial de las migraciones corre **primero** (`checkDbCredentials`): es
+ * una lectura, y un token vencido conviene saberlo antes de compilar nada. La
+ * guardia de secretos va inmediatamente después, como paso previo: si hay un
+ * token suelto en el árbol, no tiene sentido aplicar migraciones ni nada.
  *
  * ## Qué NO hace
  *
@@ -136,13 +141,17 @@
  * minutos más por defecto— y el plan lo anuncia como disponible cuando no se pidió.
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { BUILD_ID_ENV, describeBuild, readTreeBuildId } from './build-id.mjs';
+import { classifySupabaseUrl, readEnvContent } from './check-auth-config.mjs';
 import { assertNoSecrets } from './check-secrets.mjs';
+// El diagnóstico del token es el mismo texto que imprimen `db:token` y `db:push`:
+// un 401 no se explica distinto según qué comando lo encontró.
+import { checkToken, tokenRejectionMessage } from './token-supabase.mjs';
 import { formatReport as formatHealthReport, runCheck } from './check-health.mjs';
 import {
   RELEASE_TAG_ENV,
@@ -197,6 +206,89 @@ export function isTransientDeployFailure(output) {
   );
 }
 
+/** El archivo local de variables: el mismo que leen `db:token` y `db:push`. */
+export const ENV_FILE = path.join(ROOT, '.env.local');
+
+/**
+ * Las tres variables con las que corre el paso de migraciones, con la misma
+ * precedencia que usa `db:push`: el entorno manda, `.env.local` completa.
+ *
+ * @param {{ env?: Record<string, string | undefined>, exists?: (file: string) => boolean, read?: (file: string) => string }} [options]
+ * @returns {{ NEXT_PUBLIC_SUPABASE_URL: string | null, SUPABASE_PROJECT_REF: string | null, SUPABASE_ACCESS_TOKEN: string | null }}
+ */
+export function readDbValues({
+  env = process.env,
+  exists = existsSync,
+  read = (file) => readFileSync(file, 'utf8'),
+} = {}) {
+  const fileEnv = exists(ENV_FILE) ? readEnvContent(read(ENV_FILE)) : {};
+  const pick = (key) => env[key] || fileEnv[key] || null;
+  return {
+    NEXT_PUBLIC_SUPABASE_URL: pick('NEXT_PUBLIC_SUPABASE_URL'),
+    SUPABASE_PROJECT_REF: pick('SUPABASE_PROJECT_REF'),
+    SUPABASE_ACCESS_TOKEN: pick('SUPABASE_ACCESS_TOKEN'),
+  };
+}
+
+/**
+ * ¿Puede el paso de migraciones correr siquiera? Se pregunta **antes** de
+ * construir.
+ *
+ * El token vencido del `.env.local` no es un problema del paso 3: es un «no
+ * puedo empezar». Descubrirlo después del build cuesta dos minutos para llegar
+ * al mismo rojo, y en el medio el release ya compiló y ya anunció pasos que no
+ * iban a correr.
+ *
+ * Solo bloquea cuando el veredicto es del token: falta, la API lo rechaza (401),
+ * no tiene permisos de administración (403) o no ve el proyecto del
+ * `.env.local`. Si no se pudo preguntar —sin red, timeout, 5xx— el release sigue
+ * y lo decide el paso de migraciones: no se detiene un deploy por no haber
+ * podido comprobar algo.
+ *
+ * @param {{ values?: ReturnType<typeof readDbValues>, checkTokenImpl?: typeof checkToken }} [options]
+ * @returns {Promise<{ ok: true, ref: string | null, warning: string | null } | { ok: false, lines: string[] }>}
+ */
+export async function checkDbCredentials({ values = readDbValues(), checkTokenImpl = checkToken } = {}) {
+  const urlCheck = classifySupabaseUrl(values.NEXT_PUBLIC_SUPABASE_URL);
+  const ref = values.SUPABASE_PROJECT_REF || (urlCheck.ok ? urlCheck.ref : null);
+  const token = values.SUPABASE_ACCESS_TOKEN;
+
+  if (!token) {
+    return {
+      ok: false,
+      lines: [
+        '✗ Falta SUPABASE_ACCESS_TOKEN: el paso de migraciones no podría correr.',
+        '  · Es un token personal de https://supabase.com/dashboard/account/tokens, no una API key del proyecto.',
+        '  · Guardalo con `npm run db:token` (lo valida contra la API antes de escribir).',
+        '  · Si el esquema ya está al día: `npm run release:prod -- --no-db`.',
+      ],
+    };
+  }
+
+  const verdict = await checkTokenImpl({ token, ref });
+  if (verdict.ok) return { ok: true, ref, warning: null };
+
+  if (verdict.reason === 'unreachable') {
+    return {
+      ok: true,
+      ref,
+      warning: `No se pudo comprobar el token de Supabase antes de arrancar (${verdict.detail}): el paso de migraciones lo decide.`,
+    };
+  }
+
+  return {
+    ok: false,
+    lines: [
+      ...tokenRejectionMessage(verdict, {
+        ref,
+        retry:
+          'Guardalo con `npm run db:token` (lo valida contra la API antes de escribir) y volvé a correr el release.',
+      }),
+      '  · Si el esquema ya está al día: `npm run release:prod -- --no-db`.',
+    ],
+  };
+}
+
 /**
  * Los pasos del release, en orden. `flag` es el `--no-…` que lo saltea y
  * `optIn` el flag que lo **agrega** (sin él, el paso no está en el plan).
@@ -241,7 +333,7 @@ export const RELEASE_STEPS = [
     script: 'scripts/db-push.mjs',
     flag: '--no-db',
     why: 'la base tiene que soportar el código que se va a publicar; es el error que dejó el panel de corredoras en vivo contra columnas inexistentes.',
-    hint: 'si el mensaje dice «Falta SUPABASE_ACCESS_TOKEN»: genera uno en https://supabase.com/dashboard/account/tokens y déjalo en `.env.local` (no en Vercel). Si el problema es la referencia del proyecto, pasa `--ref <ref>` — o usa `--no-db` si el esquema ya está al día.',
+    hint: 'el release ya comprobó el token antes del build; si falló acá, mirá el mensaje de `db:push` de arriba. Si el problema es la referencia del proyecto, pasa `--ref <ref>` — o usa `--no-db` si el esquema ya está al día.',
   },
   {
     id: 'schema',
@@ -924,6 +1016,25 @@ async function main() {
     console.log('  --dry-run: no se ejecutó nada.');
     console.log('');
     return;
+  }
+
+  // La credencial de las migraciones se comprueba antes que nada que escriba o
+  // compile: un token vencido se arregla en un minuto, y descubrirlo después del
+  // build cuesta el release entero para llegar al mismo rojo. Es una consulta de
+  // lectura (un GET), así que puede ir delante de la guardia de secretos sin
+  // publicar ni copiar nada. Sin el paso de migraciones (`--no-db`) no hay nada
+  // que comprobar.
+  if (plan.steps.some((step) => step.id === 'db')) {
+    const db = await checkDbCredentials();
+    if (!db.ok) {
+      console.error('');
+      console.error(db.lines.join('\n'));
+      console.error('  Nada se ejecutó ni se desplegó.');
+      process.exitCode = 1;
+      return;
+    }
+    if (db.warning) console.warn(`  ⚠ ${db.warning}`);
+    else console.log(`  · Credencial de migraciones: aceptada${db.ref ? ` para el proyecto ${db.ref}` : ''}.`);
   }
 
   // Paso previo: la guardia de secretos. Un token suelto en el árbol no tiene

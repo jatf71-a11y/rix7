@@ -14,7 +14,7 @@
  * - **Pedir información exige preguntas.** El correo de «Pendiente_Informacion»
  *   se arma con ellas: una decisión sin preguntas mandaría un correo vacío y
  *   dejaría el enlace sin ronda abierta que responder.
- * - **No se decide sobre lo que ya terminó.** `En_Alta` y `Rechazada` son
+ * - **No se decide sobre lo que ya terminó.** `Operando` y `Rechazada` son
  *   terminales; `Aceptada` ya tiene su salto a `En_Alta` reservado.
  * - **Volver a preguntar se puede.** Sobre una solicitud que ya está pendiente,
  *   el equipo puede abrir otra ronda con sus propias preguntas; no es un cambio
@@ -64,8 +64,11 @@ export const KYB_DECISION_LABELS: Record<KybManualDecision, string> = {
  */
 export function whyCannotDecide(status: KybStatus): string | null {
   if (decisionsFor(status).length > 0) return null;
+  if (status === 'Operando') {
+    return 'La empresa ya está operando: el alta terminó y no se vuelve a decidir.';
+  }
   if (status === 'En_Alta') {
-    return 'La solicitud está en alta: el flujo terminó y no se vuelve a decidir.';
+    return 'La solicitud está en alta: la empresa está eligiendo su plan y el flujo no se vuelve a decidir.';
   }
   if (status === 'Rechazada') return 'La solicitud ya quedó rechazada.';
   if (status === 'Aceptada') {

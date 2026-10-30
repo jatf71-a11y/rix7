@@ -80,6 +80,10 @@ const SERVER_ONLY = [
   // Búsqueda del ROL por dirección en la aplicación de Mapas del SII: igual
   // que la anterior, la hace la ruta `/api/rol` desde Node.
   'lib/data/siiRol.ts',
+  // Búsqueda de reputación con Exa: la consulta la hace el motor KYB desde Node
+  // (`lib/kyb/engine.ts`), nunca el navegador. Sin `EXA_API_KEY` el adaptador
+  // responde con la simulación y no sale a la red.
+  'lib/kyb/adapters/reputation.ts',
 ];
 
 /** Artefactos generados por `postinstall` (copias de dependencias), no código propio. */

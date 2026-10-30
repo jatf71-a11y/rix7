@@ -218,7 +218,7 @@ describe('ficha de evaluación', () => {
 
   it('con la solicitud en alta no ofrece re-evaluar', () => {
     const enAlta = render({ status: 'En_Alta', panelEnabled: true });
-    expect(enAlta).toContain('el flujo terminó');
+    expect(enAlta).toContain('no se vuelve a evaluar');
     expect(enAlta).toMatch(/<button[^>]*disabled=""[^>]*>[\s\S]*Re-evaluar/);
   });
 

@@ -72,7 +72,7 @@ export function isSocioRegistro(kind: SolicitudKind | string): boolean {
 
 /** Estados en los que ya no hay nada que evaluar. */
 function isTerminal(status: KybStatus): boolean {
-  return status === 'En_Alta' || status === 'Rechazada';
+  return status === 'En_Alta' || status === 'Operando' || status === 'Rechazada';
 }
 
 async function notify(

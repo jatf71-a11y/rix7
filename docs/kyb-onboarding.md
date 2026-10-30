@@ -7,7 +7,7 @@ algo, y habilita el panel de publicaciones con el plan que la empresa elija.
 ## Estados
 
 ```
-Recibida → En_Evaluacion → Aceptada → En_Alta
+Recibida → En_Evaluacion → Aceptada → En_Alta → Operando
                         ↘ Pendiente_Informacion → En_Evaluacion → …
 ```
 
@@ -17,12 +17,16 @@ Recibida → En_Evaluacion → Aceptada → En_Alta
 | `En_Evaluacion` | El motor está corriendo (dura lo que tardan los adaptadores). |
 | `Pendiente_Informacion` | Se enviaron preguntas concretas con un enlace para responderlas. |
 | `Aceptada` | Las verificaciones pasaron; en la misma corrida pasa a `En_Alta`. |
-| `En_Alta` | Terminal. La empresa tiene token para elegir plan; al confirmarlo se habilita `/socio`. |
+| `En_Alta` | La empresa tiene token para elegir plan. El panel la muestra como «Alta». |
+| `Operando` | Terminal: la empresa eligió su plan y su panel quedó habilitado. Es la columna de clientes activos. |
 
 Las transiciones válidas viven en [`lib/kyb/status.ts`](../lib/kyb/status.ts) y
 son la única puerta: una ruta no puede mover una solicitud a un estado imposible.
-No hay estado de rechazo: lo que no pasa se convierte en una pregunta, y la
-empresa puede aclarar y re-evaluar.
+`Operando` se alcanza al confirmar el plan (no hay cobro en línea todavía: el
+sistema sabe que el plan se eligió, el pago se confirma fuera). El rechazo
+también existe (`Rechazada`, decisión manual del equipo con motivo); lo que no
+pasa el motor se convierte en una pregunta, y la empresa puede aclarar y
+re-evaluar.
 
 ## Modelo de datos (`0026_kyb_onboarding`)
 
@@ -102,8 +106,9 @@ no discrimine el motivo lo dice («sin detalle en la fuente consultada») en vez
 rellenarlo.
 
 Desde ahí se puede **re-evaluar** (reintentar una verificación externa o correr el
-motor sobre una ficha histórica). `En_Alta` es terminal: la API responde 409 y el
-panel no ofrece el botón.
+motor sobre una ficha histórica). Desde `En_Alta` en adelante ya no se evalúa:
+`Operando` es terminal, la API responde 409 y el panel no ofrece el botón; en
+`En_Alta` la empresa está eligiendo plan y tampoco se vuelve atrás.
 
 El estado de una alta no se cambia con un selector: lo mueven las decisiones del
 equipo, que disparan correos y tokens. `/admin/alta-empresas` ya no es una
@@ -244,7 +249,7 @@ Muestra una cosa a la vez según `POST /api/kyb/access`:
 | `Recibida` / `En_Evaluacion` | El aviso de que la verificación corre sola. |
 | `Pendiente_Informacion` | Las preguntas abiertas, una por verificación, con el formulario para responderlas. |
 | `En_Alta` sin plan | Las tres tarjetas de plan y el botón de confirmar (deshabilitado hasta elegir uno). |
-| `En_Alta` con panel | El acceso al panel y el plan registrado. |
+| `Operando` | El acceso al panel y el plan registrado. |
 
 Después de responder o activar la pantalla **no vuelve a consultar** con el
 token actual: cada cambio de estado emite un token nuevo y el anterior deja de

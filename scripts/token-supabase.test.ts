@@ -12,15 +12,19 @@ import path from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 
 import {
+  ADMIN_API_BASE,
+  checkToken,
   ENV_FILE,
   isPlausibleSecret,
   isPlausibleToken,
   nextSteps,
   projectLine,
+  projectRef,
   saveToken,
   SECRET_RULES,
   successMessage,
   TOKEN_VAR,
+  tokenRejectionMessage,
   upsertEnvVar,
 } from './token-supabase.mjs';
 
@@ -230,6 +234,132 @@ describe('isPlausibleSecret', () => {
   it('las dos claves que sabe recibir están declaradas, con su pista', () => {
     expect(Object.keys(SECRET_RULES)).toEqual([TOKEN_VAR, 'SUPABASE_SERVICE_ROLE_KEY']);
     expect(SECRET_RULES.SUPABASE_SERVICE_ROLE_KEY.alias).toMatch(/solo servidor/);
+  });
+});
+
+describe('projectRef', () => {
+  it('saca la referencia del proyecto del .env.local, que es contra lo que se coteja', () => {
+    const content = `NEXT_PUBLIC_SUPABASE_URL=https://vsqkjimpssdvlvdwrtnh.supabase.co\n${TOKEN_VAR}=${token}\n`;
+    expect(projectRef(content)).toBe('vsqkjimpssdvlvdwrtnh');
+    expect(projectRef('NEXT_PUBLIC_SUPABASE_URL="https://abc1234567.supabase.co"')).toBe('abc1234567');
+  });
+
+  it('sin URL de Supabase no inventa una referencia', () => {
+    expect(projectRef('NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000\n')).toBeNull();
+    expect(projectRef('A=1\n')).toBeNull();
+    expect(projectRef(undefined)).toBeNull();
+  });
+});
+
+describe('checkToken', () => {
+  const ref = 'vsqkjimpssdvlvdwrtnh';
+
+  /** Una respuesta con la forma de `GET /v1/projects`. */
+  const projectsResponse = (...ids: string[]) =>
+    new Response(JSON.stringify(ids.map((id) => ({ id, name: id }))), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+
+  it('acepta un token que ve el proyecto del .env.local', async () => {
+    const verdict = await checkToken({
+      token,
+      ref,
+      fetchImpl: async () => projectsResponse(ref, 'otro'),
+    });
+
+    expect(verdict).toEqual({ ok: true, projects: [ref, 'otro'] });
+  });
+
+  it('rechaza el 401 que antes se guardaba y reventaba en db:push', async () => {
+    // Es la respuesta real de Supabase para un token revocado: tiene la forma
+    // correcta, así que solo la API puede decir que ya no sirve.
+    const verdict = await checkToken({
+      token,
+      ref,
+      fetchImpl: async () =>
+        new Response(JSON.stringify({ message: 'Invalid access token' }), { status: 401 }),
+    });
+
+    expect(verdict).toMatchObject({ ok: false, reason: 'invalid' });
+    expect(verdict.ok === false && verdict.detail).toContain('Invalid access token');
+  });
+
+  it('distingue un token sin permisos (403) de uno inválido', async () => {
+    const verdict = await checkToken({
+      token,
+      fetchImpl: async () => new Response(JSON.stringify({ message: 'Forbidden' }), { status: 403 }),
+    });
+
+    expect(verdict).toMatchObject({ ok: false, reason: 'forbidden' });
+  });
+
+  it('ataja el token válido de otra cuenta: no ve el proyecto del .env.local', async () => {
+    const verdict = await checkToken({
+      token,
+      ref,
+      fetchImpl: async () => projectsResponse('otraproyecto'),
+    });
+
+    expect(verdict).toEqual({ ok: false, reason: 'missing-project', detail: ref, projects: ['otraproyecto'] });
+  });
+
+  it('no bloquea cuando no hay con quién hablar: sin red o con 5xx no es un veredicto', async () => {
+    const offline = await checkToken({
+      token,
+      ref,
+      fetchImpl: async () => {
+        throw new Error('getaddrinfo EAI_AGAIN api.supabase.com');
+      },
+    });
+    const serverError = await checkToken({
+      token,
+      ref,
+      fetchImpl: async () => new Response('bad gateway', { status: 502 }),
+    });
+
+    expect(offline).toMatchObject({ ok: false, reason: 'unreachable' });
+    expect(serverError).toMatchObject({ ok: false, reason: 'unreachable' });
+    expect(serverError.ok === false && serverError.detail).toBe('HTTP 502');
+  });
+
+  it('consulta la API de administración con el token en la cabecera', async () => {
+    let seen: { url: string; headers: Record<string, string> } | null = null;
+
+    const recorder = (async (input: unknown, init?: { headers?: unknown }) => {
+      seen = { url: String(input), headers: init?.headers as Record<string, string> };
+      return projectsResponse(ref);
+    }) as unknown as typeof fetch;
+
+    await checkToken({ token, ref, fetchImpl: recorder });
+
+    expect(seen!.url).toBe(`${ADMIN_API_BASE}/v1/projects`);
+    expect(seen!.headers.Authorization).toBe(`Bearer ${token}`);
+  });
+});
+
+describe('tokenRejectionMessage', () => {
+  it('explica el 401 y manda a emitir uno nuevo, sin repetir el valor', () => {
+    const message = tokenRejectionMessage({
+      reason: 'invalid',
+      detail: 'HTTP 401: Invalid access token',
+    }).join('\n');
+
+    expect(message).toContain('401');
+    expect(message).toContain('https://supabase.com/dashboard/account/tokens');
+    expect(message).not.toContain(token);
+    expect(message).not.toContain('sbp_');
+  });
+
+  it('nombra el proyecto que el token no ve y los que sí', () => {
+    const message = tokenRejectionMessage(
+      { reason: 'missing-project', detail: 'vsqkjimpssdvlvdwrtnh', projects: ['abc', 'def'] },
+      { ref: 'vsqkjimpssdvlvdwrtnh' }
+    ).join('\n');
+
+    expect(message).toContain('vsqkjimpssdvlvdwrtnh');
+    expect(message).toContain('abc, def');
+    expect(message).toContain('otra cuenta');
   });
 });
 

@@ -18,6 +18,7 @@
  *   npm run db:token                  # pide el token sin mostrarlo
  *   printf '%s' "$TOKEN" | npm run db:token     # desde una tubería
  *   node scripts/token-supabase.mjs --file /ruta/.env.local
+ *   npm run db:token -- --no-verify   # guarda sin consultar la API (sin red)
  *
  * También guarda la otra clave del corte de base, sin eco:
  *
@@ -38,6 +39,13 @@
  * para poder cotejar que el token se emite desde la cuenta dueña de ese proyecto.
  * Desde el 2026-10-14 ese proyecto es `vsqkjimpssdvlvdwrtnh`, de
  * `jatf71@gmail.com` (registro de cuentas y servicios, §2 y §3).
+ *
+ * Y antes de escribir pregunta lo que la forma no puede contestar: **¿lo acepta
+ * la API?** Un token revocado tiene forma perfecta y se guardaba igual, y el
+ * error aparecía recién en `db:push` como `HTTP 401 {"message":"Invalid access
+ * token"}`. Ahora se consulta `GET /v1/projects` y, si el token no sirve o no ve
+ * el proyecto del `.env.local`, no se escribe nada y el archivo queda como
+ * estaba. Sin red no se bloquea el guardado: se avisa y se guarda.
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -209,20 +217,158 @@ export function successMessage({ name = TOKEN_VAR, length, replaced, file }) {
  * @param {unknown} content Contenido de un `.env`.
  * @returns {string | null} `null` si el archivo no declara la URL.
  */
-export function projectLine(content) {
+/** La URL pública de Supabase declarada en un `.env`, o `null`. */
+function projectUrl(content) {
   const line = String(content ?? '')
     .split('\n')
     .map((raw) => raw.trim())
     .find((raw) => raw.startsWith(`${URL_VAR}=`));
 
-  const url = line?.slice(URL_VAR.length + 1).trim().replace(/^["']|["']$/g, '');
+  return line?.slice(URL_VAR.length + 1).trim().replace(/^["']|["']$/g, '') || null;
+}
+
+/**
+ * La referencia del proyecto (`<ref>.supabase.co`) declarada en un `.env`.
+ *
+ * Es el dato que pide `db:push --ref` y contra el que se coteja el token antes
+ * de guardarlo: la API de administración solo lista los proyectos de su cuenta.
+ *
+ * @param {unknown} content Contenido de un `.env`.
+ * @returns {string | null}
+ */
+export function projectRef(content) {
+  const url = projectUrl(content);
+  if (!url) return null;
+  return /^https?:\/\/([a-z0-9]+)\.supabase\.(?:co|in)\b/i.exec(url)?.[1] ?? null;
+}
+
+export function projectLine(content) {
+  const url = projectUrl(content);
   if (!url) return null;
 
-  // La ref es el subdominio (`<ref>.supabase.co`): es el dato que pide `db:push --ref`.
-  const ref = /^https?:\/\/([a-z0-9]+)\.supabase\.(?:co|in)\b/i.exec(url)?.[1] ?? null;
+  const ref = projectRef(content);
   const project = ref ? `${ref} (${url})` : url;
 
   return `Proyecto de .env.local: ${project}. El token tiene que emitirse desde la cuenta dueña de ese proyecto.`;
+}
+
+/** Base de la API de administración de Supabase (la de los tokens personales). */
+export const ADMIN_API_BASE = 'https://api.supabase.com';
+
+/**
+ * El mensaje de la API, sin repetir nunca el valor del token.
+ *
+ * @param {Response} response
+ * @returns {Promise<string>}
+ */
+async function errorDetail(response) {
+  try {
+    const body = await response.json();
+    const message = typeof body?.message === 'string' ? body.message : '';
+    return message ? `HTTP ${response.status}: ${message}` : `HTTP ${response.status}`;
+  } catch {
+    return `HTTP ${response.status}`;
+  }
+}
+
+/**
+ * ¿Acepta este token la API de administración, y ve el proyecto del `.env.local`?
+ *
+ * La forma (`sbp_…`) solo dice que no es otra clase de clave. Un token revocado
+ * o emitido desde otra cuenta la pasa y se guardaba igual; el error aparecía en
+ * el paso siguiente, como `HTTP 401 {"message":"Invalid access token"}`. Esta
+ * consulta lo ataja en el momento de guardar.
+ *
+ * `invalid`, `forbidden` y `missing-project` son veredictos: el token no sirve
+ * para este proyecto y no hay que escribirlo. `unreachable` es no haber podido
+ * preguntar (sin red, timeout, 5xx): no es un veredicto, y decide el que llama.
+ *
+ * @param {{ token: string, ref?: string | null, apiBase?: string, fetchImpl?: typeof fetch, timeoutMs?: number }} params
+ * @returns {Promise<
+ *   | { ok: true, projects: string[] }
+ *   | { ok: false, reason: 'invalid' | 'forbidden' | 'unreachable', detail: string }
+ *   | { ok: false, reason: 'missing-project', detail: string, projects: string[] }
+ * >}
+ */
+export async function checkToken({
+  token,
+  ref = null,
+  apiBase = ADMIN_API_BASE,
+  fetchImpl = globalThis.fetch,
+  timeoutMs = 10_000,
+}) {
+  const signal =
+    typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function'
+      ? AbortSignal.timeout(timeoutMs)
+      : undefined;
+
+  try {
+    const response = await fetchImpl(`${apiBase}/v1/projects`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+      signal,
+    });
+
+    if (response.status === 401) return { ok: false, reason: 'invalid', detail: await errorDetail(response) };
+    if (response.status === 403) return { ok: false, reason: 'forbidden', detail: await errorDetail(response) };
+    if (!response.ok) return { ok: false, reason: 'unreachable', detail: `HTTP ${response.status}` };
+
+    const body = await response.json();
+    const projects = Array.isArray(body)
+      ? body.map((entry) => String(entry?.id ?? entry?.ref ?? '')).filter(Boolean)
+      : [];
+
+    // Válido pero de otra cuenta: es el caso que `db:push` no puede explicar solo.
+    if (ref && !projects.includes(ref)) {
+      return { ok: false, reason: 'missing-project', detail: ref, projects };
+    }
+
+    return { ok: true, projects };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: 'unreachable',
+      detail: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+/**
+ * Qué decir cuando la API rechazó el token. Nunca incluye el valor.
+ *
+ * `retry` es el paso que sigue en el comando que encontró el rechazo: en
+ * `db:token` es volver a correrlo, en `db:push` es guardar uno con `db:token` y
+ * reintentar. El diagnóstico es el mismo; el camino de salida no.
+ *
+ * @param {{ reason: string, detail: string, projects?: string[] }} verdict
+ * @param {{ ref?: string | null, retry?: string | null }} [context]
+ * @returns {string[]}
+ */
+export function tokenRejectionMessage(verdict, { ref = null, retry = null } = {}) {
+  if (verdict.reason === 'invalid') {
+    return [
+      `✗ Supabase rechazó el token (${verdict.detail}).`,
+      '  · Suele ser un token revocado, vencido o copiado incompleto.',
+      '  · Emití uno nuevo en https://supabase.com/dashboard/account/tokens.',
+      retry ? `  · ${retry}` : '  · Después, volvé a correr este comando.',
+    ];
+  }
+
+  if (verdict.reason === 'forbidden') {
+    return [
+      `✗ El token no tiene permisos de administración (${verdict.detail}).`,
+      '  · Tiene que ser un token personal de la cuenta dueña del proyecto, no una API key del proyecto.',
+      retry ? `  · ${retry}` : '  · Emitilo en https://supabase.com/dashboard/account/tokens.',
+    ];
+  }
+
+  const seen = verdict.projects?.length ? verdict.projects.join(', ') : 'ninguno';
+  return [
+    `✗ El token es válido, pero no ve el proyecto ${ref ?? 'del .env.local'}.`,
+    `  · Proyectos que ve este token: ${seen}.`,
+    '  · La API de administración solo lista los proyectos de la cuenta del token:',
+    '    si el proyecto no está ahí, el token salió de otra cuenta.',
+    '  · Emitilo desde la cuenta dueña de NEXT_PUBLIC_SUPABASE_URL.',
+  ];
 }
 
 /** Lee todo lo que venga por la entrada estándar (el caso de la tubería). */
@@ -302,11 +448,12 @@ async function main() {
   }
 
   const rule = SECRET_RULES[name];
+  const envContent = existsSync(file) ? readFileSync(file, 'utf8') : '';
 
   // Qué proyecto se está configurando: es lo que permite cotejar que el valor
   // sale de la cuenta dueña. Solo la URL pública, nunca una clave.
   if (name === TOKEN_VAR) {
-    const hint = projectLine(existsSync(file) ? readFileSync(file, 'utf8') : '');
+    const hint = projectLine(envContent);
     if (hint) console.log(hint);
   }
 
@@ -331,6 +478,34 @@ async function main() {
     console.error(`\nEso no parece ${name}: ${plausible.hint}.\nNada se escribió.\n`);
     process.exitCode = 1;
     return;
+  }
+
+  // Antes de escribir: ¿lo acepta la API? La forma no alcanza, y un token
+  // revocado guardado deja el 401 para el paso siguiente, que no puede
+  // distinguir «token vencido» de «proyecto equivocado».
+  if (name === TOKEN_VAR && !args.includes('--no-verify')) {
+    const ref = projectRef(envContent);
+    process.stdout.write('Comprobando el token contra la API de Supabase... ');
+    const verdict = await checkToken({ token, ref });
+
+    if (!verdict.ok && verdict.reason !== 'unreachable') {
+      // Se descarta el «OK» a medio imprimir: la línea la escribe el error.
+      console.log('rechazado.');
+      console.error(`\n${tokenRejectionMessage(verdict, { ref }).join('\n')}\n`);
+      console.error('Nada se escribió: el archivo quedó como estaba.\n');
+      process.exitCode = 1;
+      return;
+    }
+
+    if (verdict.ok) {
+      console.log(`aceptado${ref ? ` y con acceso a ${ref}` : ''}.`);
+    } else {
+      console.log('no se pudo comprobar.');
+      console.log(
+        `  · ${verdict.detail}. No es un rechazo del token: se guarda igual y se puede` +
+          ' revalidar con `npm run db:status`.'
+      );
+    }
   }
 
   const result = saveToken({ file, name, token });

@@ -14,6 +14,8 @@ describe('transiciones KYB', () => {
     expect(canTransition('En_Evaluacion', 'Pendiente_Informacion')).toBe(true);
     expect(canTransition('Pendiente_Informacion', 'En_Evaluacion')).toBe(true);
     expect(canTransition('Aceptada', 'En_Alta')).toBe(true);
+    // El alta se cierra cuando la empresa elige su plan.
+    expect(canTransition('En_Alta', 'Operando')).toBe(true);
   });
 
   it('no permite saltos ni retrocesos', () => {
@@ -48,10 +50,13 @@ describe('transiciones KYB', () => {
     expect(canDecideManually('Pendiente_Informacion', 'Rechazada')).toBe(true);
   });
 
-  it('En_Alta y Rechazada son terminales', () => {
-    const alta = assertTransition('En_Alta', 'Aceptada');
-    expect(alta.ok).toBe(false);
-    if (!alta.ok) expect(alta.error).toMatch(/No se puede pasar/);
+  it('Operando y Rechazada son terminales', () => {
+    // `En_Alta` ya no lo es: de ahí se sale a `Operando`, que es el cierre.
+    const operando = assertTransition('Operando', 'Aceptada');
+    expect(operando.ok).toBe(false);
+    if (!operando.ok) expect(operando.error).toMatch(/No se puede pasar/);
+    expect(canTransition('Operando', 'En_Alta')).toBe(false);
+    expect(canTransition('Operando', 'Rechazada')).toBe(false);
 
     const rechazada = assertTransition('Rechazada', 'En_Evaluacion');
     expect(rechazada.ok).toBe(false);
@@ -70,11 +75,14 @@ describe('transiciones KYB', () => {
     expect(canEvaluate('Pendiente_Informacion')).toBe(true);
     expect(canEvaluate('Aceptada')).toBe(false);
     expect(canEvaluate('En_Alta')).toBe(false);
+    expect(canEvaluate('Operando')).toBe(false);
     expect(canEvaluate('Rechazada')).toBe(false);
   });
 
   it('reconoce los estados válidos', () => {
     expect(isKybStatus('Pendiente_Informacion')).toBe(true);
+    expect(isKybStatus('Operando')).toBe(true);
+    expect(isKybStatus('operando')).toBe(false);
     expect(isKybStatus('pendiente_informacion')).toBe(false);
     expect(isKybStatus(null)).toBe(false);
   });

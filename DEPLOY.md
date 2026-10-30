@@ -44,6 +44,13 @@ npm run db:status      # dice qué está aplicado sin tocar nada
 npm run db:apply-sql   # sin token: genera UN archivo para pegar en el SQL Editor
 ```
 
+`npm run deploy` **comprueba ese token antes de construir**: le pregunta a la API
+de Supabase si lo acepta y si ve el proyecto del `.env.local`, y si no, aborta en
+el primer segundo con el mismo mensaje de `db:token` (y la salida
+`--no-db` cuando el esquema ya está al día) en vez de morir en las migraciones a
+mitad del release. Si la API no responde, el release sigue y lo decide el paso de
+migraciones.
+
 Sin token **de una cuenta con acceso al proyecto** —es el caso de una base que
 pertenece a otra persona— la CLI no puede aplicar nada: `db:apply-sql` genera un
 solo `.sql` con las migraciones y su registro, en una transacción, para pegar

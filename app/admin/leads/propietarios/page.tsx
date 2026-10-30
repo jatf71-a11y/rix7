@@ -100,6 +100,7 @@ export default function AdminPropietariosPage() {
       Pendiente_Informacion: 0,
       Aceptada: 0,
       En_Alta: 0,
+      Operando: 0,
       Rechazada: 0,
     };
     for (const solicitud of solicitudes) counts[solicitud.status] += 1;

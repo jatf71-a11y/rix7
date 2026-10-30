@@ -109,7 +109,7 @@ export default function KybEvaluationDetail({
             type="button"
             onClick={onReevaluate}
             disabled={blocked || reevaluating}
-            title={blocked ? 'La solicitud ya está en alta: el motor no vuelve a correr.' : undefined}
+            title={blocked ? 'La solicitud ya terminó su alta: el motor no vuelve a correr.' : undefined}
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {reevaluating ? (
@@ -124,7 +124,7 @@ export default function KybEvaluationDetail({
 
       {blocked && (
         <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[11px] text-emerald-800">
-          La solicitud está en alta: el flujo terminó y no se vuelve a evaluar.
+          La solicitud ya terminó su alta: el flujo no se vuelve a evaluar.
         </p>
       )}
 
