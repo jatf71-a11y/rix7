@@ -258,8 +258,13 @@ export async function registrarPago(input: {
 
     // La situación se recalcula con lo que quedó guardado, no con lo que creía
     // el panel: es la base la que dice si el socio sigue debiendo.
+    //
+    // La condición mira **solo** los períodos vencidos, y no el estado: mientras
+    // la marca esté puesta el estado es «moroso» por definición, así que exigir
+    // «no estar moroso» volvía inalcanzable el levantamiento y un socio que
+    // pagaba seguía bloqueado hasta que alguien lo destrabara a mano.
     const situacion = await situacionDePartner(partnerId);
-    if (situacion && situacion.estado !== 'moroso' && situacion.periodosVencidos.length === 0) {
+    if (situacion && situacion.periodosVencidos.length === 0) {
       await supabase
         .from('partners')
         .update({ moroso: false, moroso_desde: null, moroso_nota: null })
