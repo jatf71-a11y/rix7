@@ -2,12 +2,16 @@ import { describe, expect, it } from 'vitest';
 
 import {
   CCA_DIVISOR,
+  DEFAULT_CCA_PCT,
   DEFAULT_PLAN_PRICING,
+  MAX_CCA_PCT,
   MAX_PRICE_CLP,
   MAX_USERS,
+  MIN_CCA_PCT,
   PLAN_PRICING_VERSION,
   PRICING_PROFILES,
   ccaAmountClp,
+  ccaFactor,
   formatCcaAmount,
   formatDecimalInput,
   normalizePlanPricing,
@@ -20,6 +24,7 @@ import {
 function config(overrides: Partial<PlanPricingConfig> = {}): PlanPricingConfig {
   return {
     version: PLAN_PRICING_VERSION,
+    ccaPct: DEFAULT_CCA_PCT,
     profiles: [
       {
         profile: 'agente',
@@ -45,6 +50,11 @@ function config(overrides: Partial<PlanPricingConfig> = {}): PlanPricingConfig {
 }
 
 describe('precios de partida', () => {
+  it('el %CCA de partida deja el factor en 1.000.000', () => {
+    expect(DEFAULT_PLAN_PRICING.ccaPct).toBe(100);
+    expect(ccaFactor(DEFAULT_PLAN_PRICING.ccaPct)).toBe(CCA_DIVISOR);
+  });
+
   it('son los tres perfiles con los montos definidos por el equipo', () => {
     expect(DEFAULT_PLAN_PRICING.profiles).toEqual([
       { profile: 'agente', altaInicialClp: 19990, mensualBaseClp: 14990, usuariosIncluidos: 1 },
@@ -64,7 +74,7 @@ describe('precios de partida', () => {
 
   it('devuelve el plan de un perfil y null si no está', () => {
     expect(profilePlan(config(), 'corredora')?.usuariosIncluidos).toBe(5);
-    expect(profilePlan({ version: 2, profiles: [] }, 'agente')).toBeNull();
+    expect(profilePlan({ version: 3, ccaPct: 100, profiles: [] }, 'agente')).toBeNull();
   });
 });
 
@@ -91,6 +101,44 @@ describe('CCA', () => {
 
   it('formatea el monto en pesos', () => {
     expect(formatCcaAmount(4000)).toContain('4.000');
+  });
+});
+
+describe('%CCA: el ajuste del factor', () => {
+  it('sin indicarlo cobra como siempre: el factor es 1.000.000', () => {
+    expect(ccaAmountClp(100_000, 40_000, DEFAULT_CCA_PCT)).toBe(4000);
+    expect(ccaFactor(DEFAULT_CCA_PCT)).toBe(CCA_DIVISOR);
+  });
+
+  it('la mitad del %CCA cobra la mitad y duplica el divisor', () => {
+    expect(ccaAmountClp(100_000, 40_000, 50)).toBe(2000);
+    expect(ccaFactor(50)).toBe(2_000_000);
+  });
+
+  it('el doble del %CCA cobra el doble y reduce el divisor a la mitad', () => {
+    expect(ccaAmountClp(100_000, 40_000, 200)).toBe(8000);
+    expect(ccaFactor(200)).toBe(500_000);
+  });
+
+  it('acepta decimales: un 150,5 % cobra una vez y media', () => {
+    expect(ccaAmountClp(100_000, 40_000, 150.5)).toBeCloseTo(6020, 6);
+    expect(ccaFactor(150.5)).toBeCloseTo(1_000_000 / 1.505, 6);
+  });
+
+  it('con un %CCA imposible no cobra nada, en vez de inventar un monto', () => {
+    expect(ccaAmountClp(100_000, 40_000, 0)).toBe(0);
+    expect(ccaAmountClp(100_000, 40_000, -50)).toBe(0);
+    expect(ccaAmountClp(100_000, 40_000, MAX_CCA_PCT + 1)).toBe(0);
+    expect(ccaAmountClp(100_000, 40_000, Number.NaN)).toBe(0);
+    // El factor, en cambio, cae en el base: mostrar 1.000.000 es no ajustar nada.
+    expect(ccaFactor(0)).toBe(CCA_DIVISOR);
+    expect(ccaFactor(Number.NaN)).toBe(CCA_DIVISOR);
+  });
+
+  it('el ejemplo con la UF de hoy sigue dando $4.125 al 100 %', () => {
+    const amount = ccaAmountClp(100_000, 41_252.94, DEFAULT_CCA_PCT);
+    expect(amount).toBeCloseTo(4125.294, 6);
+    expect(formatCcaAmount(amount)).toContain('4.125');
   });
 });
 
@@ -190,6 +238,29 @@ describe('normalizePlanPricing', () => {
 
   it('rechaza una configuración guardada con otra versión', () => {
     expect(normalizePlanPricing({ version: 1 }).ok).toBe(false);
+  });
+
+  it('una fila de la versión anterior entra con el %CCA de partida', () => {
+    const result = normalizePlanPricing({ version: 2, profiles: [] });
+    expect(result.ok).toBe(true);
+    expect(result.config?.version).toBe(PLAN_PRICING_VERSION);
+    expect(result.config?.ccaPct).toBe(DEFAULT_CCA_PCT);
+  });
+
+  it('guarda el %CCA que se le pase, con dos decimales como mucho', () => {
+    expect(normalizePlanPricing({ ccaPct: 50 }).config?.ccaPct).toBe(50);
+    expect(normalizePlanPricing({ ccaPct: 33.333 }).config?.ccaPct).toBe(33.33);
+    // Sin %CCA en el cuerpo, no se borra: queda el de partida.
+    expect(normalizePlanPricing({ profiles: [] }).config?.ccaPct).toBe(DEFAULT_CCA_PCT);
+  });
+
+  it('rechaza un %CCA fuera de rango o que no sea número', () => {
+    expect(normalizePlanPricing({ ccaPct: 0 }).ok).toBe(false);
+    expect(normalizePlanPricing({ ccaPct: MIN_CCA_PCT - 1 }).ok).toBe(false);
+    expect(normalizePlanPricing({ ccaPct: MAX_CCA_PCT + 1 }).ok).toBe(false);
+    expect(normalizePlanPricing({ ccaPct: '100' }).ok).toBe(false);
+    expect(normalizePlanPricing({ ccaPct: Number.NaN }).ok).toBe(false);
+    expect(normalizePlanPricing({ ccaPct: 0 }).error).toContain('%CCA');
   });
 
   it('rechaza cualquier cosa que no sea un objeto', () => {

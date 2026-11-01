@@ -125,10 +125,17 @@ $19.990 / $14.990 / 1 usuario; corredora $49.990 / $39.990 / 5; inmobiliaria
 $99.990 / $99.990 / 15—, así que la pantalla abre con lo que definió el equipo.
 
 El **CCA** es la suma de todas las publicaciones de un socio, en UF, y se pasa a
-pesos con `$CCA = CCA × valor de la UF ÷ 1.000.000`; el resultado **es el monto
-en pesos**. Un CCA de 100.000 con una UF de $40.000 son $4.000 a cobrar. No se
-guarda: depende del stock publicado de cada socio y de la UF del día, que se trae
-de `/api/indicators`. La cuenta vive en `ccaAmountClp`.
+pesos con `$CCA = CCA × valor de la UF ÷ 1.000.000 × %CCA`; el resultado **es el
+monto en pesos**. Un CCA de 100.000 con una UF de $40.000 son $4.000 a cobrar. No
+se guarda: depende del stock publicado de cada socio y de la UF del día, que se
+trae de `/api/indicators`. La cuenta vive en `ccaAmountClp`.
+
+El `÷ 1.000.000` es el **factor**, y el **%CCA** lo ajusta desde el panel: es un
+valor guardado con los precios (entre 1 y 1000, con dos decimales) y no una
+constante del código. `%CCA = 100` deja el factor en 1.000.000 y el monto de
+siempre; `50` lo sube a 2.000.000 y cobra la mitad; `200` lo baja a 500.000 y
+cobra el doble. `ccaFactor` devuelve el divisor equivalente, que el panel muestra
+al lado del campo para no tener que despejarlo a mano.
 
 El precio configurado todavía **no** llega al paso de plan del alta: esa
 pantalla sigue leyendo el catálogo de [`lib/kyb/plans.ts`](../lib/kyb/plans.ts).

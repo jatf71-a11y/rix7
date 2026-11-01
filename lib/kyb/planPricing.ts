@@ -17,13 +17,25 @@
  * socio en cada momento— así que no se guarda con los precios: se calcula.
  * La fórmula que definió el equipo es
  *
- *   $CCA = CCA × valor de la UF ÷ 1.000.000
+ *   $CCA = CCA × valor de la UF ÷ 1.000.000 × %CCA
  *
- * El divisor forma parte de la regla y el resultado **son pesos**: un socio
- * cuyo CCA suma 100.000 y una UF de $40.000 paga
- * `100.000 × 40.000 ÷ 1.000.000 = $4.000` por concepto de CCA. La cuenta vive
- * en `ccaAmountClp` para que la pantalla y cualquier pieza futura usen la misma
- * y no dos copias que se despeguen.
+ * El divisor —el **factor**— y el resultado **son pesos**: un socio cuyo CCA
+ * suma 100.000 y una UF de $40.000 paga
+ * `100.000 × 40.000 ÷ 1.000.000 = $4.000` por concepto de CCA.
+ *
+ * Ese `÷ 1.000.000` no es una constante intocable: es el factor con el que se
+ * traduce el CCA a pesos y el equipo lo ajusta desde el panel con **%CCA**, un
+ * porcentaje que se guarda con los precios. La regla es directa:
+ *
+ * - `%CCA = 100` → el factor es 1.000.000 y el monto es el de siempre.
+ * - `%CCA = 50` → el factor sube a 2.000.000 y se cobra la mitad.
+ * - `%CCA = 200` → el factor baja a 500.000 y se cobra el doble.
+ *
+ * O sea que el porcentaje **es** el precio relativo: más % es más plata, y el
+ * factor equivalente (`ccaFactor`) se muestra en el panel para que no haya que
+ * hacer la cuenta mentalmente. La cuenta vive en `ccaAmountClp` para que la
+ * pantalla y cualquier pieza futura usen la misma y no dos copias que se
+ * despeguen.
  *
  * El módulo es puro (sin React, sin red, sin base): acá está lo que hay que
  * poder probar, y la pantalla solo dibuja lo que esto calcula.
@@ -40,7 +52,7 @@ export const PLAN_PRICING_KEY = 'planes';
  * versión se descarta y vuelven los valores de partida, en vez de leerse con la
  * forma equivocada.
  */
-export const PLAN_PRICING_VERSION = 2 as const;
+export const PLAN_PRICING_VERSION = 3 as const;
 
 /** Lo que se cobra por un perfil de socio. */
 export interface ProfilePlan {
@@ -55,6 +67,12 @@ export interface ProfilePlan {
 
 export interface PlanPricingConfig {
   version: typeof PLAN_PRICING_VERSION;
+  /**
+   * %CCA: cuánto del valor base del CCA se cobra. 100 deja el factor en
+   * 1.000.000, que es la fórmula original; es el ajuste que el equipo cambia a
+   * discreción desde el panel y viaja guardado con los precios.
+   */
+  ccaPct: number;
   profiles: ProfilePlan[];
 }
 
@@ -82,9 +100,32 @@ export function profileLabel(profile: PartnerKind): string {
   return profile === 'agente' ? 'Profesional' : PARTNER_KIND_LABELS[profile];
 }
 
+/**
+ * Divisor base de la fórmula del CCA: el «factor» de referencia.
+ *
+ * No es un número suelto en la pantalla ni una constante intocable: es el punto
+ * donde el %CCA vale 100. Con otro porcentaje el factor efectivo se mueve
+ * (`ccaFactor`) y el monto cobrado, con él.
+ */
+export const CCA_DIVISOR = 1_000_000;
+
+/**
+ * %CCA de partida: 100 deja el factor en 1.000.000, o sea la fórmula de siempre.
+ * Guardado con los precios, así el ajuste sobrevive al reinicio del proceso.
+ */
+export const DEFAULT_CCA_PCT = 100;
+
+/**
+ * Rango del %CCA. El piso en 1 evita dejar el concepto en cero por un campo
+ * vacío que se interpretó como 0; el techo corta un 999999 de tipeo.
+ */
+export const MIN_CCA_PCT = 1;
+export const MAX_CCA_PCT = 1000;
+
 /** Precios de partida: los que definió el equipo para cada perfil. */
 export const DEFAULT_PLAN_PRICING: PlanPricingConfig = {
   version: PLAN_PRICING_VERSION,
+  ccaPct: DEFAULT_CCA_PCT,
   profiles: [
     {
       profile: 'agente',
@@ -117,16 +158,8 @@ export function profilePlan(
 
 // ── CCA ──────────────────────────────────────────────────────────────────────
 
-/**
- * Divisor de la fórmula del CCA, tal como la definió el equipo.
- *
- * Va como constante y no como número suelto en la pantalla para que el cálculo
- * y el texto que lo explica no puedan separarse.
- */
-export const CCA_DIVISOR = 1_000_000;
-
 /** La fórmula, en una línea, para mostrar en el panel. */
-export const CCA_FORMULA = '$CCA = CCA × valor de la UF ÷ 1.000.000';
+export const CCA_FORMULA = '$CCA = CCA × valor de la UF ÷ 1.000.000 × %CCA';
 
 /** Qué es el CCA, en una línea. */
 export const CCA_DEFINITION = 'CCA: suma total de todas las publicaciones de un socio, en UF.';
@@ -147,9 +180,29 @@ function validCca(ccaUf: number, ufValueClp: number): boolean {
  * resultado es el monto a cobrar: 100.000 de CCA con una UF de $40.000 da
  * $4.000. No redondea acá; el formato decide cómo se muestra.
  */
-export function ccaAmountClp(ccaUf: number, ufValueClp: number): number {
+export function ccaAmountClp(
+  ccaUf: number,
+  ufValueClp: number,
+  ccaPct: number = DEFAULT_CCA_PCT
+): number {
   if (!validCca(ccaUf, ufValueClp)) return 0;
-  return (ccaUf * ufValueClp) / CCA_DIVISOR;
+  if (!Number.isFinite(ccaPct) || ccaPct <= 0 || ccaPct > MAX_CCA_PCT) return 0;
+  return ((ccaUf * ufValueClp) / CCA_DIVISOR) * (ccaPct / 100);
+}
+
+/**
+ * El factor —el divisor— que corresponde a un %CCA.
+ *
+ * Es la otra cara de la misma regla: `%CCA = 100` da 1.000.000, `50` da
+ * 2.000.000 y `200` da 500.000. Se muestra en el panel para que el equipo vea
+ * el divisor que está aplicando sin tener que despejarlo. Un valor fuera de
+ * rango devuelve el factor base, que es lo mismo que no ajustar nada.
+ */
+export function ccaFactor(ccaPct: number = DEFAULT_CCA_PCT): number {
+  if (!Number.isFinite(ccaPct) || ccaPct < MIN_CCA_PCT || ccaPct > MAX_CCA_PCT) {
+    return CCA_DIVISOR;
+  }
+  return CCA_DIVISOR / (ccaPct / 100);
 }
 
 /** Monto en pesos para la calculadora del panel. */
@@ -248,11 +301,33 @@ export function normalizePlanPricing(input: unknown): NormalizePricingResult {
 
   const raw = input as Record<string, unknown>;
 
-  if (raw.version !== undefined && raw.version !== PLAN_PRICING_VERSION) {
+  // La fila guardada con la versión anterior (2, sin %CCA) se acepta: el campo
+  // que no existía entra con el valor de partida, así un guardado viejo no deja
+  // el panel en «configuración de otra versión».
+  const MIGRATABLE = 2;
+  if (raw.version !== undefined && raw.version !== PLAN_PRICING_VERSION && raw.version !== MIGRATABLE) {
     return {
       ok: false,
       error: `La configuración guardada es de otra versión (${String(raw.version)}).`,
     };
+  }
+
+  let ccaPct: number = DEFAULT_CCA_PCT;
+  if (raw.ccaPct !== undefined) {
+    const value = raw.ccaPct;
+    if (
+      typeof value !== 'number' ||
+      !Number.isFinite(value) ||
+      value < MIN_CCA_PCT ||
+      value > MAX_CCA_PCT
+    ) {
+      return {
+        ok: false,
+        error: `El %CCA tiene que ser un número entre ${MIN_CCA_PCT} y ${MAX_CCA_PCT}.`,
+      };
+    }
+    // Dos decimales alcanzan para un ajuste comercial y evitan guardar 33,33333.
+    ccaPct = Math.round(value * 100) / 100;
   }
 
   const profiles: ProfilePlan[] = [];
@@ -294,6 +369,7 @@ export function normalizePlanPricing(input: unknown): NormalizePricingResult {
     ok: true,
     config: {
       version: PLAN_PRICING_VERSION,
+      ccaPct,
       // Orden canónico y valores faltantes del predeterminado: la tabla que ve
       // el panel es siempre la misma aunque la base tenga una fila vieja.
       profiles: PRICING_PROFILES.map(

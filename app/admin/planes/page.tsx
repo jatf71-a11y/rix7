@@ -6,11 +6,16 @@ import { AlertTriangle, Calculator, Check, Info, Loader2, Save } from 'lucide-re
 import {
   CCA_DEFINITION,
   CCA_FORMULA,
+  CCA_DIVISOR,
+  DEFAULT_CCA_PCT,
+  MAX_CCA_PCT,
   MAX_PRICE_CLP,
   MAX_USERS,
+  MIN_CCA_PCT,
   MIN_USERS,
   PRICING_PROFILES,
   ccaAmountClp,
+  ccaFactor,
   formatCcaAmount,
   formatDecimalInput,
   normalizePlanPricing,
@@ -35,8 +40,12 @@ import type { PartnerKind } from '@/lib/data/partners';
  * publicado de cada socio y cambia con el valor de la UF, así que la pantalla lo
  * calcula con el valor del día que devuelve `/api/indicators`.
  *
- * Mientras no se guarde, nada de lo escrito cambia lo que cobra el portal. El
- * aviso de «sin guardar» está para que nadie se vaya creyendo lo contrario.
+ * Lo que sí se guarda es el **%CCA**, el ajuste del factor: el `÷ 1.000.000` de
+ * la fórmula deja de ser una constante intocable y pasa a ser un porcentaje que
+ * el equipo mueve a discreción. Con 100 % el factor es 1.000.000 y el monto es
+ * el de siempre; con 50 % se cobra la mitad y con 200 %, el doble. Por eso el
+ * %CCA viaja con los precios y el botón de guardar lo incluye: es una decisión
+ * comercial, no una consulta rápida.
  */
 
 interface ApiResponse {
@@ -82,10 +91,12 @@ export default function AdminPlanesPage() {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
-  // Calculadora del CCA: no se guarda, es una consulta rápida.
+  // Calculadora del CCA: el CCA y la UF son una consulta rápida; el %CCA, en
+  // cambio, es parte de la configuración y se guarda con los precios.
   const [ccaUf, setCcaUf] = useState(formatDecimalInput(100_000));
   const [ufValue, setUfValue] = useState(formatDecimalInput(UF_FALLBACK));
   const [ufSource, setUfSource] = useState<'indicador' | 'manual'>('indicador');
+  const [ccaPctInput, setCcaPctInput] = useState(formatDecimalInput(DEFAULT_CCA_PCT));
 
   useEffect(() => {
     let cancelled = false;
@@ -103,6 +114,7 @@ export default function AdminPlanesPage() {
         if (cancelled) return;
         setConfig(body.data);
         setSaved(body.data);
+        setCcaPctInput(formatDecimalInput(body.data.ccaPct));
         setSource(body.source ?? 'default');
         setPersistent(body.persistent !== false);
         setWarning(body.warning ?? null);
@@ -145,14 +157,28 @@ export default function AdminPlanesPage() {
     };
   }, []);
 
-  const dirty = useMemo(() => !!config && !!saved && !sameConfig(config, saved), [config, saved]);
+  const ccaPct = useMemo(() => parseDecimalInput(ccaPctInput), [ccaPctInput]);
+
+  const dirty = useMemo(() => {
+    if (!config || !saved) return false;
+    // Un %CCA vacío o ilegible no puede considerarse guardado: hay algo que
+    // acomodar antes de mandar el formulario.
+    if (ccaPct === null) return true;
+    return !sameConfig({ ...config, ccaPct }, saved);
+  }, [config, saved, ccaPct]);
 
   const ccaValue = useMemo(() => {
     const uf = parseDecimalInput(ccaUf);
     const rate = parseDecimalInput(ufValue);
-    if (uf === null || rate === null) return null;
-    return { uf, rate, amount: ccaAmountClp(uf, rate) };
-  }, [ccaUf, ufValue]);
+    if (uf === null || rate === null || ccaPct === null) return null;
+    return {
+      uf,
+      rate,
+      pct: ccaPct,
+      amount: ccaAmountClp(uf, rate, ccaPct),
+      factor: ccaFactor(ccaPct),
+    };
+  }, [ccaUf, ufValue, ccaPct]);
 
   function updateProfile(profile: PartnerKind, patch: Partial<ProfilePlan>) {
     setConfig((current) =>
@@ -173,7 +199,7 @@ export default function AdminPlanesPage() {
 
     // El servidor valida igual; acá se atrapa antes para no mandar un precio de
     // cero o un usuario inexistente y recibir un 400 genérico.
-    const check = normalizePlanPricing(config);
+    const check = normalizePlanPricing({ ...config, ccaPct: ccaPct ?? Number.NaN });
     if (!check.ok) {
       setError(check.error ?? 'Hay un valor fuera de rango.');
       return;
@@ -197,6 +223,7 @@ export default function AdminPlanesPage() {
 
       setConfig(body.data);
       setSaved(body.data);
+      setCcaPctInput(formatDecimalInput(body.data.ccaPct));
       setPersistent(body.persisted !== false);
       setSource(body.persisted === false ? 'memory' : 'supabase');
       setWarning(body.warning ?? null);
@@ -473,6 +500,40 @@ export default function AdminPlanesPage() {
                 Formato chileno: el punto separa miles y la coma, decimales (41.242,32).
               </p>
             </div>
+
+            <div>
+              <label
+                htmlFor="cca-pct"
+                className="mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-slate-400"
+              >
+                %CCA
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="cca-pct"
+                  type="text"
+                  inputMode="decimal"
+                  value={ccaPctInput}
+                  onChange={(event) => {
+                    setCcaPctInput(event.target.value);
+                    setToast(null);
+                  }}
+                  className="w-28 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                />
+                <span className="text-sm font-bold text-slate-500">%</span>
+                <span className="text-[11px] text-slate-400">
+                  Factor: ÷{' '}
+                  <strong className="font-mono font-bold text-slate-600">
+                    {formatDecimalInput(Math.round(ccaFactor(ccaPct ?? DEFAULT_CCA_PCT)))}
+                  </strong>
+                </span>
+              </div>
+              <p className="mt-1 text-[10px] leading-relaxed text-slate-400">
+                Cuánto del valor base del CCA se cobra. 100 % deja el factor en{' '}
+                {formatDecimalInput(CCA_DIVISOR)} —la fórmula de siempre—; 50 % cobra la mitad y
+                200 %, el doble. Se guarda con los precios, entre {MIN_CCA_PCT} y {MAX_CCA_PCT}.
+              </p>
+            </div>
           </div>
 
           <div className="flex flex-col justify-center rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
@@ -488,8 +549,10 @@ export default function AdminPlanesPage() {
               </p>
               <p className="mt-1 text-[10px] leading-relaxed text-slate-400">
                 {ccaValue === null
-                  ? 'Escribe el CCA y el valor de la UF.'
-                  : `${formatDecimalInput(ccaValue.uf)} × $${formatDecimalInput(ccaValue.rate)} ÷ 1.000.000`}
+                  ? 'Escribe el CCA, el valor de la UF y el %CCA.'
+                  : `${formatDecimalInput(ccaValue.uf)} × $${formatDecimalInput(
+                      ccaValue.rate
+                    )} ÷ 1.000.000 × ${formatDecimalInput(ccaValue.pct)} %`}
               </p>
             </div>
           </div>
@@ -498,9 +561,9 @@ export default function AdminPlanesPage() {
         <div className="flex items-start gap-2.5 border-t border-slate-100 px-5 py-3">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
           <p className="text-[11px] leading-relaxed text-slate-400">
-            Esta cuenta no se guarda: el CCA depende del stock publicado de cada socio y de la UF
-            del día. La fórmula vive en el código para que la pantalla y cualquier cálculo futuro
-            usen la misma.
+            El monto no se guarda: depende del stock publicado de cada socio y de la UF del día. Lo
+            que sí queda guardado es el %CCA, que es el ajuste del factor y se aplica a todos los
+            cálculos.
           </p>
         </div>
       </section>
