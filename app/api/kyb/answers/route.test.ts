@@ -24,7 +24,7 @@ beforeEach(async () => {
   answerKybQuestions.mockReset();
   answerKybQuestions.mockResolvedValue({
     ok: true,
-    status: 'En_Alta',
+    status: 'Calificado',
     score: 100,
     questions: [],
     email: { sent: true, skipped: false },
@@ -42,7 +42,7 @@ describe('POST /api/kyb/answers', () => {
     const json = await res.json();
 
     expect(res.status).toBe(200);
-    expect(json.data.status).toBe('En_Alta');
+    expect(json.data.status).toBe('Calificado');
     expect(json.data.score).toBe(100);
   });
 

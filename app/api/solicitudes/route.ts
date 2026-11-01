@@ -37,7 +37,7 @@ import { SITE_URL } from '@/lib/site';
  * tipo desconocido se rechaza en vez de devolver todo como si nada.
  *
  * PATCH es **del equipo**: el estado (`Recibida`, `En_Evaluacion`,
- * `Pendiente_Informacion`, `Aceptada`, `En_Alta`, `Rechazada` — los mismos del
+ * `Pendiente_Informacion`, `Aceptada`, `Calificado`, `Rechazada` — los mismos del
  * alta de empresas) solo lo mueve quien revisa las solicitudes. La RLS de
  * UPDATE exige `is_rix7_admin()`, así que además del guard la base vuelve a
  * negar el cambio a cualquier otra cuenta.
@@ -133,7 +133,7 @@ export async function PATCH(request: NextRequest) {
     updated.solicitud &&
     previous?.status !== updated.solicitud.status &&
     (updated.solicitud.status === 'Aceptada' ||
-      updated.solicitud.status === 'En_Alta' ||
+      updated.solicitud.status === 'Calificado' ||
       updated.solicitud.status === 'Rechazada')
   ) {
     try {

@@ -34,6 +34,8 @@ const application: KybApplication = {
   tokenHash: null,
   tokenPurpose: null,
   tokenExpiresAt: null,
+  partnerId: null,
+  proposal: [],
   createdAt: '2026-10-23T12:00:00.000Z',
   updatedAt: '2026-10-23T12:00:00.000Z',
 };
@@ -217,7 +219,7 @@ describe('ficha de evaluación', () => {
   });
 
   it('con la solicitud en alta no ofrece re-evaluar', () => {
-    const enAlta = render({ status: 'En_Alta', panelEnabled: true });
+    const enAlta = render({ status: 'Calificado', panelEnabled: true });
     expect(enAlta).toContain('no se vuelve a evaluar');
     expect(enAlta).toMatch(/<button[^>]*disabled=""[^>]*>[\s\S]*Re-evaluar/);
   });

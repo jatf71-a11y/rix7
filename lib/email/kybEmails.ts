@@ -24,6 +24,11 @@ export function kybAccessUrl(siteUrl: string, token: string): string {
   return `${siteUrl.replace(/\/+$/, '')}/empresas/onboarding?token=${encodeURIComponent(token)}`;
 }
 
+/** Enlace de la propuesta comercial: se acepta o se rechaza ahí. */
+export function kybProposalUrl(siteUrl: string, token: string): string {
+  return `${siteUrl.replace(/\/+$/, '')}/empresas/propuesta?token=${encodeURIComponent(token)}`;
+}
+
 function shell({
   siteUrl,
   title,
@@ -323,6 +328,143 @@ export function buildKybEvaluatingEmail({
       title: 'Recibimos tus respuestas',
       intro: `La evaluación de <strong>${escapeHtml(legalName)}</strong> se está repitiendo con la información que enviaste. Te escribimos con el resultado.`,
       body: '',
+    }),
+  };
+}
+
+/**
+ * «Quedaste calificado» — el correo que reemplaza al de planes.
+ *
+ * Ya no lleva token: aprobar no es elegir plan todavía. Entre este correo y el
+ * de los planes va la propuesta comercial, que es una decisión de plata y no se
+ * mezcla con el resultado de la verificación.
+ */
+export function buildKybQualifiedEmail({
+  legalName,
+  contactName,
+  siteUrl,
+}: {
+  legalName: string;
+  contactName: string;
+  siteUrl: string;
+}): BuiltKybEmail {
+  const first = contactName.trim().split(/\s+/)[0] || '';
+  const greeting = first ? `Hola ${first},` : 'Hola,';
+
+  const text = [
+    greeting,
+    '',
+    `La solicitud de ${legalName} quedó calificada: pasó la verificación de identidad y reputación.`,
+    '',
+    'El paso siguiente es la propuesta comercial, con el plan y los precios que te',
+    'corresponden. Te la enviamos a este mismo correo en los próximos días.',
+    '',
+    'Rix7 — Alta de empresas',
+    siteUrl,
+  ].join('\n');
+
+  return {
+    subject: `Tu empresa quedó calificada (${legalName})`,
+    text,
+    html: shell({
+      siteUrl,
+      title: 'Tu empresa quedó calificada',
+      intro: `${escapeHtml(greeting)} <strong>${escapeHtml(legalName)}</strong> pasó la verificación de identidad y reputación.`,
+      body: `
+        <p style="margin:0;color:#475569;font-size:13px;line-height:1.65">
+          El paso siguiente es la <strong>propuesta comercial</strong>, con el plan y los precios que
+          te corresponden. Te la enviamos a este mismo correo en los próximos días.
+        </p>`,
+    }),
+  };
+}
+
+/**
+ * La propuesta comercial.
+ *
+ * Lleva los números concretos (alta inicial y mensualidad) y un enlace de un
+ * solo uso para aceptarla o rechazarla. Es el correo que convierte una empresa
+ * calificada en un alta: sin el enlace, la decisión queda en una llamada que no
+ * deja rastro.
+ */
+export function buildKybProposalEmail({
+  legalName,
+  contactName,
+  planName,
+  altaClp,
+  monthlyClp,
+  note,
+  token,
+  siteUrl,
+}: {
+  legalName: string;
+  contactName: string;
+  planName: string;
+  altaClp: number;
+  monthlyClp: number;
+  note: string | null;
+  token: string;
+  siteUrl: string;
+}): BuiltKybEmail {
+  const link = kybProposalUrl(siteUrl, token);
+  const first = contactName.trim().split(/\s+/)[0] || '';
+  const greeting = first ? `Hola ${first},` : 'Hola,';
+
+  const text = [
+    greeting,
+    '',
+    `Preparamos la propuesta comercial para ${legalName}.`,
+    '',
+    `Plan: ${planName}`,
+    `Alta inicial: ${formatPlanPrice(altaClp)}`,
+    `Mensualidad: ${formatPlanPrice(monthlyClp)}`,
+    ...(note ? ['', note] : []),
+    '',
+    'Para aceptarla y seguir con el alta, entra a este enlace (vale 7 días):',
+    link,
+    '',
+    'Si los números no te sirven, desde el mismo enlace nos lo dices.',
+    '',
+    'Rix7 — Alta de empresas',
+    siteUrl,
+  ].join('\n');
+
+  return {
+    subject: `Tu propuesta comercial de Rix7 (${legalName})`,
+    text,
+    html: shell({
+      siteUrl,
+      title: 'Tu propuesta comercial',
+      intro: `${escapeHtml(greeting)} preparamos la propuesta para <strong>${escapeHtml(legalName)}</strong>.`,
+      body: `
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;color:#0f172a;font-size:14px;font-weight:700">
+              ${escapeHtml(planName)}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">Alta inicial</td>
+            <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;text-align:right;color:#0f172a;font-size:14px;font-weight:700;white-space:nowrap">
+              ${escapeHtml(formatPlanPrice(altaClp))}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">Mensualidad</td>
+            <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;text-align:right;color:#0f172a;font-size:14px;font-weight:700;white-space:nowrap">
+              ${escapeHtml(formatPlanPrice(monthlyClp))}<span style="color:#94a3b8;font-size:11px;font-weight:400">/mes</span>
+            </td>
+          </tr>
+        </table>
+        ${note ? `<div style="margin:16px 0 0;padding:14px 16px;background:#f8fafc;border-radius:12px;color:#475569;font-size:13px;line-height:1.6">${escapeHtml(note)}</div>` : ''}
+        <div style="margin:22px 0 0">
+          <a href="${link}" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:700;padding:12px 22px;border-radius:12px;text-decoration:none">
+            Ver y responder la propuesta
+          </a>
+        </div>
+        <p style="margin:14px 0 0;color:#64748b;font-size:12px;line-height:1.6">
+          El enlace vale 7 días. Al aceptar, seguimos con el alta y te enviamos el acceso al panel.
+        </p>`,
     }),
   };
 }

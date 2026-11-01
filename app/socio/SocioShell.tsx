@@ -25,7 +25,14 @@ const sidebarItems = [
  * panel tiene dos secciones, no cinco, y la navegación móvil sí importa acá
  * porque quien publica desde el celular es un caso real de uso.
  */
-export default function SocioShell({ children }: { children: React.ReactNode }) {
+export default function SocioShell({
+  children,
+  banner,
+}: {
+  children: React.ReactNode;
+  /** Aviso del servidor, arriba del contenido (por ejemplo, la morosidad). */
+  banner?: React.ReactNode;
+}) {
   const pathname = usePathname();
 
   const isActive = (href: string) =>
@@ -100,6 +107,8 @@ export default function SocioShell({ children }: { children: React.ReactNode }) 
             );
           })}
         </nav>
+
+        {banner}
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">{children}</main>
       </div>

@@ -46,6 +46,20 @@ export async function listPartnerProperties(
     try {
       const { createPublicClient } = await import('@/lib/supabase/server');
       const supabase = createPublicClient();
+
+      // Socio moroso: su página pública y sus feeds quedan vacíos mientras dure
+      // la marca. El buscador y la ficha ya lo filtran en los RPC (0031); este
+      // es el tercer camino —el listado directo por corredora— y no puede quedar
+      // como la excepción que sigue mostrando fichas de una cuenta bloqueada.
+      const { data: partner } = await supabase
+        .from('partners')
+        .select('moroso')
+        .eq('id', partnerId)
+        .maybeSingle();
+      if ((partner as { moroso?: boolean } | null)?.moroso) {
+        return { properties: [], source: 'supabase' };
+      }
+
       const { data, error } = await supabase
         .from('properties')
         .select('*')

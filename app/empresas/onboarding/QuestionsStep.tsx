@@ -26,7 +26,7 @@ const textareaClass =
 interface QuestionsStepProps {
   token: string;
   questions: KybQuestion[];
-  /** `accepted` es true cuando las respuestas dejaron la solicitud en En_Alta. */
+  /** `accepted` es true cuando las respuestas dejaron la solicitud en Calificado. */
   onAnswered: (accepted: boolean) => void;
 }
 
@@ -64,7 +64,7 @@ export default function QuestionsStep({ token, questions, onAnswered }: Question
         return;
       }
 
-      onAnswered(body.data?.status === 'En_Alta');
+      onAnswered(body.data?.status === 'Calificado');
     } catch {
       setError('No pudimos conectarnos. Tus respuestas siguen acá; intenta de nuevo.');
     } finally {

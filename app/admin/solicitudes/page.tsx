@@ -95,7 +95,11 @@ const STATUS_STYLE: Record<SolicitudStatus, { column: string; dot: string }> = {
   En_Evaluacion: { column: 'border-blue-200', dot: 'bg-blue-500' },
   Pendiente_Informacion: { column: 'border-amber-200', dot: 'bg-amber-500' },
   Aceptada: { column: 'border-emerald-200', dot: 'bg-emerald-500' },
-  En_Alta: { column: 'border-violet-200', dot: 'bg-violet-500' },
+  // Calificado → propuesta → alta es el tramo comercial: colores propios para
+  // que se vea de un vistazo en qué parte de la negociación está cada uno.
+  Calificado: { column: 'border-sky-200', dot: 'bg-sky-500' },
+  Propuesta_Comercial: { column: 'border-indigo-200', dot: 'bg-indigo-500' },
+  Alta: { column: 'border-violet-200', dot: 'bg-violet-500' },
   Operando: { column: 'border-teal-200', dot: 'bg-teal-500' },
   Rechazada: { column: 'border-rose-200', dot: 'bg-rose-400' },
 };
@@ -431,6 +435,25 @@ export default function AdminSolicitudesPage() {
       } finally {
         setDeciding(false);
       }
+    },
+    [loadDetail]
+  );
+
+  /**
+   * Después de enviar la propuesta: la solicitud queda en `Propuesta_Comercial`
+   * —lo dijo el servidor— y la ficha se recarga para mostrar la propuesta
+   * vigente en el historial.
+   */
+  const proposalSent = useCallback(
+    async (id: string) => {
+      setApplications((current) =>
+        current.map((application) =>
+          application.id === id
+            ? { ...application, status: 'Propuesta_Comercial' as SolicitudStatus }
+            : application
+        )
+      );
+      await loadDetail(id);
     },
     [loadDetail]
   );
@@ -772,6 +795,7 @@ export default function AdminSolicitudesPage() {
               onStatusChange={(status) => void changeStatus(socio.id, status)}
               onReevaluate={() => void reevaluate(socio.id)}
               onDecide={(input) => void decide(socio.id, input)}
+              onProposalSent={() => void proposalSent(socio.id)}
               reevaluatingRegistro={reEvaluatingId === socio.id}
               onReevaluateRegistro={() => void reevaluateRegistro(socio.id)}
             />
@@ -799,6 +823,8 @@ interface SocioRowProps {
   onStatusChange: (status: SolicitudStatus) => void;
   onReevaluate: () => void;
   onDecide: (input: { decision: KybManualDecision; note?: string; questions?: string[] }) => void;
+  /** Se envió la propuesta comercial: hay que recargar ficha y tablero. */
+  onProposalSent: () => void;
   /** Registro: volver a pasar el motor con los datos que haya hoy. */
   reevaluatingRegistro: boolean;
   onReevaluateRegistro: () => void;
@@ -828,6 +854,7 @@ function SocioRow({
   onStatusChange,
   onReevaluate,
   onDecide,
+  onProposalSent,
   reevaluatingRegistro,
   onReevaluateRegistro,
 }: SocioRowProps) {
@@ -965,6 +992,7 @@ function SocioRow({
                 error={detailError}
                 onReevaluate={onReevaluate}
                 onDecide={onDecide}
+                onProposalSent={onProposalSent}
               />
             ) : (
               detailError && (

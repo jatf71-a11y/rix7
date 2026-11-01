@@ -49,8 +49,8 @@ export async function POST(request: NextRequest) {
       questions: result.questions ?? [],
       plan: result.plan ?? null,
       panelEnabled: result.panelEnabled ?? false,
-      // Solo con la solicitud aceptada y el panel aún sin habilitar.
-      canChoosePlan: result.status === 'En_Alta' && !result.panelEnabled,
+      // Solo con la propuesta aceptada (etapa `Alta`) y el panel sin habilitar.
+      canChoosePlan: result.status === 'Alta' && !result.panelEnabled,
     },
   });
 }

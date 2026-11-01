@@ -3,10 +3,22 @@
  *
  * El motor de evaluación decide si una solicitud avanza a `Aceptada` o vuelve a
  * la empresa con preguntas, y el equipo puede decidir a mano sobre una solicitud
- * ya evaluada. `En_Alta` —que el panel muestra como «Alta»— es el estado en el
- * que la empresa tiene su token y elige plan; `Operando` cierra el círculo: ya
- * está inscrita, eligió su plan y su panel quedó habilitado. `Rechazada` es
- * terminal por el otro lado: el alta no prosperó y no se vuelve a evaluar.
+ * ya evaluada. Después de aprobada, el camino comercial es explícito:
+ *
+ *   Aceptada → Calificado → Propuesta_Comercial → Alta → Operando
+ *
+ * - **Calificado** — la empresa pasó la verificación y el equipo todavía no le
+ *   mandó números. Antes esta etapa se llamaba «Alta», que era un nombre
+ *   mentiroso: nadie estaba dado de alta todavía.
+ * - **Propuesta_Comercial** — hay una propuesta enviada (plan y precios) y la
+ *   pelota la tiene el candidato, que la acepta o la rechaza desde su enlace.
+ * - **Alta** — el candidato aceptó: se ejecuta el alta en el sistema (cuenta,
+ *   panel) y elige plan. Todavía no es cliente activo.
+ * - **Operando** — el alta terminó **y** el plan está pagado. Es el cliente que
+ *   puede publicar y el único que la cobranza considera al día.
+ *
+ * `Rechazada` es terminal por el otro lado: el alta no prosperó —ni el equipo
+ * la rechazó ni el candidato aceptó la propuesta— y no se vuelve a evaluar.
  *
  * Este módulo es puro (sin Supabase, sin red): la tabla de transiciones se
  * prueba sola y es la que impide que una ruta mueva una solicitud a un estado
@@ -18,7 +30,9 @@ export const KYB_STATUSES = [
   'En_Evaluacion',
   'Pendiente_Informacion',
   'Aceptada',
-  'En_Alta',
+  'Calificado',
+  'Propuesta_Comercial',
+  'Alta',
   'Operando',
   'Rechazada',
 ] as const;
@@ -30,7 +44,9 @@ export const KYB_STATUS_LABELS: Record<KybStatus, string> = {
   En_Evaluacion: 'En evaluación',
   Pendiente_Informacion: 'Pendiente de información',
   Aceptada: 'Aceptada',
-  En_Alta: 'Alta',
+  Calificado: 'Calificado',
+  Propuesta_Comercial: 'Propuesta comercial',
+  Alta: 'Alta',
   Operando: 'Operando',
   Rechazada: 'Rechazada',
 };
@@ -47,11 +63,17 @@ const TRANSITIONS: Record<KybStatus, readonly KybStatus[]> = {
   // queda fuera de la tabla porque no cambia de estado: lo resuelve
   // `canDecideManually`.
   Pendiente_Informacion: ['En_Evaluacion', 'Aceptada', 'Rechazada'],
-  // El alta genera el token y deja la solicitud en manos de la empresa, que
-  // elige plan. Elegirlo habilita el panel y la deja `Operando`, que es donde
-  // se ve el cliente ya inscrito.
-  Aceptada: ['En_Alta'],
-  En_Alta: ['Operando'],
+  // Aprobada no es lo mismo que calificada para vender: el paso siguiente es
+  // que el equipo arme la propuesta comercial con el plan y los precios.
+  Aceptada: ['Calificado'],
+  // De acá sale la propuesta (y se puede rechazar sin proponer nada).
+  Calificado: ['Propuesta_Comercial', 'Rechazada'],
+  // El candidato acepta → `Alta`. Si dice que no, `Rechazada`. Y si pide otros
+  // números, vuelve a `Calificado` para armar otra propuesta: renegociar no
+  // tiene por qué cerrar la puerta.
+  Propuesta_Comercial: ['Alta', 'Calificado', 'Rechazada'],
+  // El alta termina con el plan pagado; recién ahí es cliente activo.
+  Alta: ['Operando'],
   Operando: [],
   Rechazada: [],
 };
@@ -113,6 +135,13 @@ export function assertTransition(
   return { ok: true };
 }
 
+/** Decisión del candidato sobre la propuesta comercial. */
+export type KybProposalDecision = 'aceptada' | 'rechazada';
+
+export function isKybProposalDecision(value: unknown): value is KybProposalDecision {
+  return value === 'aceptada' || value === 'rechazada';
+}
+
 /** ¿La solicitud admite una nueva corrida del motor? */
 export function canEvaluate(status: KybStatus): boolean {
   return (
@@ -122,10 +151,10 @@ export function canEvaluate(status: KybStatus): boolean {
   );
 }
 
-export type KybTokenPurpose = 'answers' | 'activation';
+export type KybTokenPurpose = 'answers' | 'proposal' | 'activation';
 
 export function isKybTokenPurpose(value: unknown): value is KybTokenPurpose {
-  return value === 'answers' || value === 'activation';
+  return value === 'answers' || value === 'proposal' || value === 'activation';
 }
 
 /**

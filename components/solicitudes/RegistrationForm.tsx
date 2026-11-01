@@ -271,7 +271,7 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
     // del contacto. El estado de la solicitud manda el texto: prometer «aceptada»
     // cuando quedó pendiente sería el peor mensaje posible.
     const accepted =
-      success.mode === 'kyb' && (success.status === 'En_Alta' || success.status === 'Aceptada');
+      success.mode === 'kyb' && (success.status === 'Calificado' || success.status === 'Aceptada');
     const pending = success.mode === 'kyb' && !accepted;
     const pendingBody =
       success.mode === 'kyb' && success.questions.length > 0

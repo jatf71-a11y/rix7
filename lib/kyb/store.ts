@@ -15,6 +15,7 @@
 import { isServiceRoleConfigured } from '@/lib/supabase/admin';
 import type { NormalizedKybApplication } from './application';
 import { isKybPlanId } from './plans';
+import { readProposals } from './proposal';
 import {
   isKybManualDecision,
   isKybStatus,
@@ -22,6 +23,7 @@ import {
   type KybEvaluation,
   type KybQuestion,
   type KybStatus,
+  type KybTokenPurpose,
 } from './status';
 import {
   KYB_COLUMNS,
@@ -105,6 +107,8 @@ export function rowToApplication(row: KybApplicationRow): KybApplication {
     tokenHash: row.token_hash,
     tokenPurpose: isKybTokenPurpose(row.token_purpose) ? row.token_purpose : null,
     tokenExpiresAt: row.token_expires_at,
+    partnerId: row.partner_id ?? null,
+    proposal: readProposals(row.proposal),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -120,6 +124,10 @@ function patchToRow(patch: KybStatusPatch): Record<string, unknown> {
   if (patch.tokenHash !== undefined) row.token_hash = patch.tokenHash;
   if (patch.tokenPurpose !== undefined) row.token_purpose = patch.tokenPurpose;
   if (patch.tokenExpiresAt !== undefined) row.token_expires_at = patch.tokenExpiresAt;
+  // Se guarda el historial completo, no la última: la columna es JSONB y así una
+  // renegociación no borra la propuesta anterior.
+  if (patch.proposal !== undefined) row.proposal = patch.proposal;
+  if (patch.partnerId !== undefined) row.partner_id = patch.partnerId;
   return row;
 }
 
@@ -154,6 +162,8 @@ export async function createApplication(
       tokenHash: null,
       tokenPurpose: null,
       tokenExpiresAt: null,
+      partnerId: null,
+      proposal: [],
       createdAt: now,
       updatedAt: now,
     };
@@ -430,7 +440,7 @@ export async function latestEvaluation(
       found: true,
       data: {
         score: row.score,
-        decision: row.status_after === 'Aceptada' || row.status_after === 'En_Alta'
+        decision: row.status_after === 'Aceptada' || row.status_after === 'Calificado'
           ? 'Aceptada'
           : 'Pendiente_Informacion',
         checks,
@@ -678,13 +688,25 @@ export async function saveAnswers(
   }
 }
 
-/** Estado en el que debe estar una solicitud para cada token. */
-export function tokenAllows(application: KybApplication, purpose: 'answers' | 'activation'): boolean {
+/**
+ * Estado en el que debe estar una solicitud para cada token.
+ *
+ * Son tres enlaces distintos y cada uno sirve en un solo momento: el de
+ * preguntas mientras hay una ronda abierta, el de propuesta mientras el
+ * candidato tiene los números en la mano, y el de activación cuando ya aceptó y
+ * le toca elegir plan. Un token guardado que sobrevive a su etapa no reabre
+ * nada: el estado manda.
+ */
+export function tokenAllows(
+  application: KybApplication,
+  purpose: KybTokenPurpose
+): boolean {
   if (!application.tokenPurpose || application.tokenPurpose !== purpose) return false;
   if (!application.tokenExpiresAt) return false;
   if (Date.parse(application.tokenExpiresAt) <= Date.now()) return false;
   if (purpose === 'answers') return application.status === 'Pendiente_Informacion';
-  return application.status === 'En_Alta' || application.status === 'Aceptada';
+  if (purpose === 'proposal') return application.status === 'Propuesta_Comercial';
+  return application.status === 'Alta';
 }
 
 function messageOf(error: unknown): string {

@@ -105,7 +105,7 @@ export function evidenceLabel(evidence: KybCheckEvidence): string {
  *
  * Se delega en `canEvaluate` para no tener dos listas de estados válidos: la
  * tabla de transiciones ya dice que solo `Recibida`, `En_Evaluacion` y
- * `Pendiente_Informacion` admiten una corrida, y `En_Alta` y `Rechazada` son
+ * `Pendiente_Informacion` admiten una corrida, y `Calificado` y `Rechazada` son
  * terminales. El endpoint responde 409 en esos casos; el panel ni siquiera
  * ofrece el botón.
  */

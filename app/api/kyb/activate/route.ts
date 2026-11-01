@@ -8,11 +8,12 @@ import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
  * `/api/kyb/activate` — elige plan y habilita el panel de publicaciones.
  *
  * Es público (token del correo, sin sesión) e idempotente: repetir la petición
- * no duplica la ficha ni la cuenta. Solo funciona en `En_Alta` con el token de
- * activación vigente; el token se consume en la primera activación.
+ * no duplica la ficha ni la cuenta. Solo funciona en `Alta` —la propuesta ya fue
+ * aceptada— con el token de activación vigente; el token se consume en la
+ * primera activación.
  *
  * Un fallo al crear la cuenta o la ficha responde 502: la solicitud sigue en
- * `En_Alta` y se puede reintentar, pero no se dice «listo» si no lo está.
+ * `Alta` y se puede reintentar, pero no se dice «listo» si no lo está.
  */
 const rateLimiter = createRateLimiter({ max: 20, windowMs: 10 * 60 * 1000 });
 

@@ -13,6 +13,7 @@ import {
   updatePublication,
 } from '@/lib/data/propertiesStore';
 import { revalidatePublicationSurfaces } from '@/lib/data/publicSurfaces';
+import { situacionDePartner } from '@/lib/data/cobranzaStore';
 
 // Panel del socio: las cuatro operaciones exigen rol member/admin **y** una
 // corredora vinculada (el guard devuelve 401/403 con el motivo), y toda
@@ -54,6 +55,23 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const guard = await requireMember();
   if (!guard.ok) return guard.response;
+
+  // Cuenta morosa: no se publica nada nuevo. Las fichas que ya tenía tampoco se
+  // ven en el portal (0031 las filtra en los RPC), así que esto no es una traba
+  // suelta: es la misma regla del otro lado.
+  const situacion = await situacionDePartner(guard.partnerId);
+  if (situacion?.estado === 'moroso') {
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          'Tu cuenta está morosa: las publicaciones quedan en pausa hasta que regularices el pago.',
+        code: 'moroso',
+        deudaClp: situacion.deudaClp,
+      },
+      { status: 409, ...NO_STORE }
+    );
+  }
 
   try {
     const body = await request.json();

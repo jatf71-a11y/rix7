@@ -99,7 +99,9 @@ export default function AdminPropietariosPage() {
       En_Evaluacion: 0,
       Pendiente_Informacion: 0,
       Aceptada: 0,
-      En_Alta: 0,
+      Calificado: 0,
+      Propuesta_Comercial: 0,
+      Alta: 0,
       Operando: 0,
       Rechazada: 0,
     };

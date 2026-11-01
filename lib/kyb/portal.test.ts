@@ -37,10 +37,16 @@ describe('portalStage', () => {
     expect(portalStage(view({ status: 'Pendiente_Informacion' }))).toBe('evaluating');
   });
 
-  it('ofrece planes solo con la solicitud en En_Alta y el panel apagado', () => {
-    expect(portalStage(view({ status: 'En_Alta', canChoosePlan: true }))).toBe('plans');
-    expect(portalStage(view({ status: 'En_Alta', canChoosePlan: false }))).toBe('evaluating');
+  it('ofrece planes solo con la propuesta aceptada (Alta) y el panel apagado', () => {
+    expect(portalStage(view({ status: 'Alta', canChoosePlan: true }))).toBe('plans');
+    expect(portalStage(view({ status: 'Alta', canChoosePlan: false }))).toBe('evaluating');
+    // Calificada todavía no elige plan: primero va la propuesta comercial.
+    expect(portalStage(view({ status: 'Calificado', canChoosePlan: false }))).toBe('evaluating');
     expect(portalStage(view({ status: 'Aceptada' }))).toBe('evaluating');
+  });
+
+  it('con la propuesta enviada muestra la etapa de propuesta', () => {
+    expect(portalStage(view({ status: 'Propuesta_Comercial' }))).toBe('proposal');
   });
 
   it('un cliente que ya eligió plan está operando y no vuelve a ver planes', () => {
@@ -54,7 +60,7 @@ describe('portalStage', () => {
     // reintentos de red: abrir el enlace otra vez debe mostrar el panel, no el
     // selector de planes.
     expect(
-      portalStage(view({ status: 'En_Alta', canChoosePlan: true, panelEnabled: true, plan: 'basico' }))
+      portalStage(view({ status: 'Alta', canChoosePlan: true, panelEnabled: true, plan: 'basico' }))
     ).toBe('active');
   });
 });
@@ -74,8 +80,11 @@ describe('evaluatingCopy', () => {
       'En_Evaluacion',
       'Pendiente_Informacion',
       'Aceptada',
-      'En_Alta',
+      'Calificado',
+      'Propuesta_Comercial',
+      'Alta',
       'Operando',
+      'Rechazada',
     ] as const;
     for (const status of titles) {
       expect(evaluatingCopy(status).title.length).toBeGreaterThan(0);

@@ -7,6 +7,7 @@
 
 import type { KybCoverage, KybRegistrationKind } from './application';
 import type { KybPlanId } from './plans';
+import type { KybProposal } from './proposal';
 import type {
   KybCheck,
   KybEvaluation,
@@ -43,6 +44,15 @@ export interface KybApplication {
   tokenHash: string | null;
   tokenPurpose: KybTokenPurpose | null;
   tokenExpiresAt: string | null;
+  /** Socio creado al activar el plan; `null` hasta que el alta lo crea. */
+  partnerId: string | null;
+  /**
+   * Propuestas comerciales enviadas, de la más vieja a la más nueva.
+   *
+   * Es un historial y no la propuesta vigente: si el candidato pide otros
+   * números, la anterior queda con su fecha y su resultado.
+   */
+  proposal: KybProposal[];
   createdAt: string;
   updatedAt: string;
 }
@@ -70,12 +80,14 @@ export interface KybApplicationRow {
   token_hash: string | null;
   token_purpose: string | null;
   token_expires_at: string | null;
+  partner_id: string | null;
+  proposal: unknown;
   created_at: string;
   updated_at: string;
 }
 
 export const KYB_COLUMNS =
-  'id, status, legal_name, rut, website, domain, email, contact_name, phone, consent, coverage, regions, message, registration_kind, contact_role, score, plan, panel_enabled, activated_at, token_hash, token_purpose, token_expires_at, created_at, updated_at';
+  'id, status, legal_name, rut, website, domain, email, contact_name, phone, consent, coverage, regions, message, registration_kind, contact_role, score, plan, panel_enabled, activated_at, token_hash, token_purpose, token_expires_at, partner_id, proposal, created_at, updated_at';
 
 export interface KybEvaluationRecord {
   id: string;
@@ -163,5 +175,7 @@ export type KybStatusPatch = Partial<
     | 'tokenHash'
     | 'tokenPurpose'
     | 'tokenExpiresAt'
+    | 'partnerId'
+    | 'proposal'
   >
 >;

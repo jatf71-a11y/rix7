@@ -13,24 +13,36 @@ describe('transiciones KYB', () => {
     expect(canTransition('En_Evaluacion', 'Aceptada')).toBe(true);
     expect(canTransition('En_Evaluacion', 'Pendiente_Informacion')).toBe(true);
     expect(canTransition('Pendiente_Informacion', 'En_Evaluacion')).toBe(true);
-    expect(canTransition('Aceptada', 'En_Alta')).toBe(true);
-    // El alta se cierra cuando la empresa elige su plan.
-    expect(canTransition('En_Alta', 'Operando')).toBe(true);
+    expect(canTransition('Aceptada', 'Calificado')).toBe(true);
+    // El tramo comercial: calificada → propuesta → aceptada por el candidato.
+    expect(canTransition('Calificado', 'Propuesta_Comercial')).toBe(true);
+    expect(canTransition('Propuesta_Comercial', 'Alta')).toBe(true);
+    // Operando no se alcanza sin pasar por el alta y el pago.
+    expect(canTransition('Alta', 'Operando')).toBe(true);
+    expect(canTransition('Calificado', 'Operando')).toBe(false);
+    expect(canTransition('Propuesta_Comercial', 'Operando')).toBe(false);
+  });
+
+  it('la propuesta se puede renegociar: vuelve a calificado', () => {
+    expect(canTransition('Propuesta_Comercial', 'Calificado')).toBe(true);
   });
 
   it('no permite saltos ni retrocesos', () => {
     expect(canTransition('Recibida', 'Aceptada')).toBe(false);
     expect(canTransition('Aceptada', 'En_Evaluacion')).toBe(false);
     expect(canTransition('Pendiente_Informacion', 'Recibida')).toBe(false);
-    expect(canTransition('En_Alta', 'Recibida')).toBe(false);
+    expect(canTransition('Calificado', 'Recibida')).toBe(false);
   });
 
-  it('permite rechazar solo desde una solicitud ya evaluada', () => {
+  it('permite rechazar desde una solicitud ya evaluada o con propuesta', () => {
     expect(canTransition('En_Evaluacion', 'Rechazada')).toBe(true);
     expect(canTransition('Pendiente_Informacion', 'Rechazada')).toBe(true);
     expect(canTransition('Recibida', 'Rechazada')).toBe(false);
     expect(canTransition('Aceptada', 'Rechazada')).toBe(false);
-    expect(canTransition('En_Alta', 'Rechazada')).toBe(false);
+    // Calificado se puede cerrar sin proponer nada, y una propuesta rechazada
+    // por el candidato también termina ahí.
+    expect(canTransition('Calificado', 'Rechazada')).toBe(true);
+    expect(canTransition('Propuesta_Comercial', 'Rechazada')).toBe(true);
   });
 
   it('desde pendiente el equipo también puede aprobar a mano', () => {
@@ -45,17 +57,19 @@ describe('transiciones KYB', () => {
     // La excepción es solo para volver a preguntar: el resto sigue la tabla.
     expect(canDecideManually('En_Evaluacion', 'Pendiente_Informacion')).toBe(true);
     expect(canDecideManually('Recibida', 'Pendiente_Informacion')).toBe(false);
-    expect(canDecideManually('En_Alta', 'Pendiente_Informacion')).toBe(false);
-    expect(canDecideManually('En_Alta', 'Aceptada')).toBe(false);
+    expect(canDecideManually('Calificado', 'Pendiente_Informacion')).toBe(false);
+    expect(canDecideManually('Calificado', 'Aceptada')).toBe(false);
     expect(canDecideManually('Pendiente_Informacion', 'Rechazada')).toBe(true);
   });
 
   it('Operando y Rechazada son terminales', () => {
-    // `En_Alta` ya no lo es: de ahí se sale a `Operando`, que es el cierre.
+    // `Alta` tampoco es terminal: se cierra a `Operando` cuando entra el pago.
+    expect(canTransition('Alta', 'Calificado')).toBe(false);
+    expect(canTransition('Alta', 'Rechazada')).toBe(false);
     const operando = assertTransition('Operando', 'Aceptada');
     expect(operando.ok).toBe(false);
     if (!operando.ok) expect(operando.error).toMatch(/No se puede pasar/);
-    expect(canTransition('Operando', 'En_Alta')).toBe(false);
+    expect(canTransition('Operando', 'Calificado')).toBe(false);
     expect(canTransition('Operando', 'Rechazada')).toBe(false);
 
     const rechazada = assertTransition('Rechazada', 'En_Evaluacion');
@@ -74,7 +88,9 @@ describe('transiciones KYB', () => {
     expect(canEvaluate('En_Evaluacion')).toBe(true);
     expect(canEvaluate('Pendiente_Informacion')).toBe(true);
     expect(canEvaluate('Aceptada')).toBe(false);
-    expect(canEvaluate('En_Alta')).toBe(false);
+    expect(canEvaluate('Calificado')).toBe(false);
+    expect(canEvaluate('Propuesta_Comercial')).toBe(false);
+    expect(canEvaluate('Alta')).toBe(false);
     expect(canEvaluate('Operando')).toBe(false);
     expect(canEvaluate('Rechazada')).toBe(false);
   });

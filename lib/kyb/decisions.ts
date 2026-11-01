@@ -15,7 +15,7 @@
  *   se arma con ellas: una decisión sin preguntas mandaría un correo vacío y
  *   dejaría el enlace sin ronda abierta que responder.
  * - **No se decide sobre lo que ya terminó.** `Operando` y `Rechazada` son
- *   terminales; `Aceptada` ya tiene su salto a `En_Alta` reservado.
+ *   terminales; `Aceptada` ya tiene su salto a `Calificado` reservado.
  * - **Volver a preguntar se puede.** Sobre una solicitud que ya está pendiente,
  *   el equipo puede abrir otra ronda con sus propias preguntas; no es un cambio
  *   de estado y por eso `canDecideManually` lo admite aparte de la tabla.
@@ -67,8 +67,14 @@ export function whyCannotDecide(status: KybStatus): string | null {
   if (status === 'Operando') {
     return 'La empresa ya está operando: el alta terminó y no se vuelve a decidir.';
   }
-  if (status === 'En_Alta') {
-    return 'La solicitud está en alta: la empresa está eligiendo su plan y el flujo no se vuelve a decidir.';
+  if (status === 'Calificado') {
+    return 'La solicitud está calificada: el paso siguiente es enviar la propuesta comercial, no volver a decidir.';
+  }
+  if (status === 'Propuesta_Comercial') {
+    return 'La propuesta está enviada y la decisión es del candidato: aceptarla, pedir otros números o rechazarla.';
+  }
+  if (status === 'Alta') {
+    return 'La propuesta fue aceptada y el alta está en curso: la empresa está eligiendo su plan.';
   }
   if (status === 'Rechazada') return 'La solicitud ya quedó rechazada.';
   if (status === 'Aceptada') {

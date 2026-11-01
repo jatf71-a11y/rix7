@@ -146,7 +146,7 @@ describe('autopilotSolicitud', () => {
   });
 
   it('no evalúa una solicitud que ya está en un estado terminal', async () => {
-    const result = await autopilotSolicitud(base({ status: 'En_Alta' }));
+    const result = await autopilotSolicitud(base({ status: 'Calificado' }));
 
     expect(result.ok).toBe(false);
     expect(result.code).toBe('conflict');

@@ -7,8 +7,10 @@ algo, y habilita el panel de publicaciones con el plan que la empresa elija.
 ## Estados
 
 ```
-Recibida → En_Evaluacion → Aceptada → En_Alta → Operando
+Recibida → En_Evaluacion → Aceptada → Calificado → Propuesta_Comercial
                         ↘ Pendiente_Informacion → En_Evaluacion → …
+                                                      ↓ el candidato rechaza
+Propuesta_Comercial → Alta → Operando            Rechazada
 ```
 
 | Estado | Qué significa |
@@ -16,17 +18,18 @@ Recibida → En_Evaluacion → Aceptada → En_Alta → Operando
 | `Recibida` | La solicitud se guardó y se envió el acuse. |
 | `En_Evaluacion` | El motor está corriendo (dura lo que tardan los adaptadores). |
 | `Pendiente_Informacion` | Se enviaron preguntas concretas con un enlace para responderlas. |
-| `Aceptada` | Las verificaciones pasaron; en la misma corrida pasa a `En_Alta`. |
-| `En_Alta` | La empresa tiene token para elegir plan. El panel la muestra como «Alta». |
-| `Operando` | Terminal: la empresa eligió su plan y su panel quedó habilitado. Es la columna de clientes activos. |
+| `Aceptada` | Las verificaciones pasaron; en la misma corrida pasa a `Calificado`. |
+| `Calificado` | Pasó la verificación y el equipo le prepara la propuesta comercial. Antes esta etapa se llamaba «Alta», que era mentira: nadie estaba dado de alta. |
+| `Propuesta_Comercial` | Hay una propuesta con plan y precios enviada; la pelota la tiene el candidato, que la acepta o la rechaza desde su enlace. |
+| `Alta` | El candidato aceptó: elige plan y se ejecuta el alta en el sistema (ficha y cuenta). Todavía no es cliente activo. |
+| `Operando` | Terminal: el alta terminó **y** el período está pagado. Es la columna de clientes activos, y la única que la cobranza considera al día. |
+| `Rechazada` | Terminal: no prosperó —lo rechazó el equipo o el candidato— y no se vuelve a evaluar. |
 
 Las transiciones válidas viven en [`lib/kyb/status.ts`](../lib/kyb/status.ts) y
 son la única puerta: una ruta no puede mover una solicitud a un estado imposible.
-`Operando` se alcanza al confirmar el plan (no hay cobro en línea todavía: el
-sistema sabe que el plan se eligió, el pago se confirma fuera). El rechazo
-también existe (`Rechazada`, decisión manual del equipo con motivo); lo que no
-pasa el motor se convierte en una pregunta, y la empresa puede aclarar y
-re-evaluar.
+El rechazo también existe (`Rechazada`, decisión manual del equipo con motivo);
+lo que no pasa el motor se convierte en una pregunta, y la empresa puede aclarar
+y re-evaluar.
 
 ## Modelo de datos (`0026_kyb_onboarding`)
 
@@ -50,7 +53,11 @@ El flujo corre en el servidor y la empresa se identifica con el token del correo
 | `POST` | `/api/kyb/[id]/evaluate` | admin | Reintenta la evaluación. |
 | `POST` | `/api/kyb/access` | token | Estado, preguntas abiertas y si ya puede elegir plan. |
 | `POST` | `/api/kyb/answers` | token | Guarda respuestas y re-evalúa. |
+| `POST` | `/api/kyb/[id]/proposal` | admin | Envía la propuesta comercial (plan y montos) al candidato. |
+| `POST` | `/api/kyb/proposal` | token | El candidato acepta o rechaza la propuesta. |
 | `POST` | `/api/kyb/activate` | token | Elige plan y habilita el panel. |
+| `GET` | `/api/admin/cobranza` | admin | Situación de cobranza de cada socio. |
+| `POST` | `/api/admin/cobranza` | admin | Registra un pago o cambia la morosidad. |
 
 Ejemplo de alta:
 
@@ -107,13 +114,62 @@ no discrimine el motivo lo dice («sin detalle en la fuente consultada») en vez
 rellenarlo.
 
 Desde ahí se puede **re-evaluar** (reintentar una verificación externa o correr el
-motor sobre una ficha histórica). Desde `En_Alta` en adelante ya no se evalúa:
-`Operando` es terminal, la API responde 409 y el panel no ofrece el botón; en
-`En_Alta` la empresa está eligiendo plan y tampoco se vuelve atrás.
+motor sobre una ficha histórica). Desde `Calificado` en adelante ya no se
+evalúa: el motor solo mira lo que se declaró al registrarse, y una vez que hay
+precios y plan de por medio, correrlo de nuevo no aporta nada. Desde `Alta`
+tampoco se vuelve atrás: el panel no ofrece el botón y la API responde 409.
 
 El estado de una alta no se cambia con un selector: lo mueven las decisiones del
 equipo, que disparan correos y tokens. `/admin/alta-empresas` ya no es una
 pantalla: redirige a Solicitudes para no romper enlaces guardados.
+
+### El tramo comercial: Calificado, Propuesta comercial y Alta
+
+Desde la migración `0031` el pipeline separa lo que antes estaba mezclado:
+
+```
+Recibida → En_Evaluacion → (Pendiente_Informacion →) Aceptada
+   → Calificado → Propuesta_Comercial → (el candidato acepta) → Alta → Operando
+```
+
+- **Calificado** (antes se llamaba «Alta») — pasó la verificación y el equipo le
+  prepara la propuesta. Aprobar ya no emite token: no hay nada que el candidato
+  pueda hacer todavía.
+- **Propuesta comercial** — el equipo envía plan, alta inicial y mensualidad
+  desde la ficha (`POST /api/kyb/[id]/proposal`). Los montos salen de **Planes**
+  según el perfil del registro y se pueden negociar a mano. El correo lleva un
+  enlace de un solo uso a `/empresas/propuesta?token=…`, donde el candidato
+  acepta o rechaza (`POST /api/kyb/proposal`). Aceptar mueve a **Alta** y emite
+  el token para elegir plan; rechazar cierra la solicitud como `Rechazada`.
+- **Alta** — la empresa ya aceptó: elige plan y se le crea la ficha y la cuenta
+  (`provisioning`). El panel queda habilitado, pero **no** es cliente activo.
+- **Operando** — el alta terminó **y** el período está pagado. Lo mueve la
+  cobranza al registrar el pago.
+
+El historial de propuestas vive en `kyb_applications.proposal` (JSONB, una por
+ronda): renegociar agrega, no borra. La solicitud guarda también `partner_id`,
+el socio que nace del alta, que es lo que permite que un pago cierre *su* alta.
+
+### Cobranza: quién paga y quién está moroso
+
+La sección **Cobranza** (`/admin/cobranza`) es el control de la suscripción.
+`partner_billing` guarda un período por fila (`YYYY-MM`), con monto, vencimiento
+(día 10), pago y nota; el estado **no** se guarda, se deriva de la fecha y del
+pago, con 5 días de gracia (`lib/data/cobranza.ts`).
+
+Registrar un pago hace dos cosas: marca el período y, si el socio estaba en
+`Alta`, la mueve a `Operando`. La **morosidad** es distinta de «vencido»: la
+confirma el equipo (`partners.moroso`, `moroso_desde`, `moroso_nota`) y mientras
+esté activa:
+
+- las propiedades del socio no aparecen en el buscador ni en su ficha —los RPC
+  `get_properties_filtered` y `get_property_by_id` las filtran—;
+- su página de empresa y sus feeds quedan vacíos (`listPartnerProperties`);
+- el panel del socio muestra el aviso con la deuda (`app/socio/MorosidadBanner`)
+  y el alta de publicaciones responde 409.
+
+Al registrar un pago que deja al socio sin períodos vencidos, la marca se
+levanta sola y sus fichas vuelven con la misma URL.
 
 ### Precios de los planes
 
@@ -255,9 +311,10 @@ empresa.
 ## Tokens
 
 32 bytes aleatorios en base64url; en la base queda solo su SHA-256. Valen 7 días.
-`answers` sirve solo en `Pendiente_Informacion`; `activation`, en `En_Alta`. Al
-activar se conserva hasta su vencimiento para tolerar reintentos: una segunda
-activación no crea nada de nuevo y responde `already: true`.
+Cada propósito sirve en una sola etapa: `answers` en `Pendiente_Informacion`,
+`proposal` en `Propuesta_Comercial` y `activation` en `Alta`. Al activar se
+conserva hasta su vencimiento para tolerar reintentos: una segunda activación no
+crea nada de nuevo y responde `already: true`.
 
 ## Alta del panel
 
@@ -277,7 +334,8 @@ Muestra una cosa a la vez según `POST /api/kyb/access`:
 | --- | --- |
 | `Recibida` / `En_Evaluacion` | El aviso de que la verificación corre sola. |
 | `Pendiente_Informacion` | Las preguntas abiertas, una por verificación, con el formulario para responderlas. |
-| `En_Alta` sin plan | Las tres tarjetas de plan y el botón de confirmar (deshabilitado hasta elegir uno). |
+| `Propuesta_Comercial` | La propuesta con sus números y los botones de aceptar o rechazar (`/empresas/propuesta`). |
+| `Alta` sin plan | Las tres tarjetas de plan y el botón de confirmar (deshabilitado hasta elegir uno). |
 | `Operando` | El acceso al panel y el plan registrado. |
 
 Después de responder o activar la pantalla **no vuelve a consultar** con el

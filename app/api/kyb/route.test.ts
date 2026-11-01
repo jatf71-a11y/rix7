@@ -45,7 +45,7 @@ beforeEach(async () => {
   submitKybApplication.mockResolvedValue({
     ok: true,
     applicationId: 'kyb-1',
-    status: 'En_Alta',
+    status: 'Calificado',
     score: 100,
     questions: [],
     persisted: true,
@@ -66,7 +66,7 @@ describe('POST /api/kyb', () => {
 
     expect(res.status).toBe(201);
     expect(json.success).toBe(true);
-    expect(json.data).toMatchObject({ id: 'kyb-1', status: 'En_Alta', score: 100 });
+    expect(json.data).toMatchObject({ id: 'kyb-1', status: 'Calificado', score: 100 });
     expect(submitKybApplication).toHaveBeenCalledWith(
       expect.objectContaining({ legalName: 'Catedral Propiedades SpA', rut: '76.543.210-3' })
     );

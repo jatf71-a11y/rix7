@@ -13,6 +13,7 @@ import {
   UserPlus,
   ArrowLeft,
   ChevronRight,
+  Wallet,
 } from 'lucide-react';
 
 import type { DeployedRelease } from '@/lib/utils/deployedRelease';
@@ -42,6 +43,11 @@ const sidebarItems = [
     label: 'Planes',
     href: '/admin/planes',
     icon: Calculator,
+  },
+  {
+    label: 'Cobranza',
+    href: '/admin/cobranza',
+    icon: Wallet,
   },
   {
     label: 'Registros',

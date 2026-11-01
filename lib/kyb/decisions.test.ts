@@ -27,20 +27,29 @@ describe('qué puede decidir el equipo', () => {
     expect(decisionsFor('En_Evaluacion')).toContain('Pendiente_Informacion');
     // En los estados en los que no hay evaluación no hay nada que volver a pedir.
     expect(decisionsFor('Recibida')).not.toContain('Pendiente_Informacion');
-    expect(decisionsFor('En_Alta')).not.toContain('Pendiente_Informacion');
+    expect(decisionsFor('Calificado')).not.toContain('Pendiente_Informacion');
   });
 
   it('no decide sobre lo que todavía no se evaluó ni sobre lo terminal', () => {
     expect(decisionsFor('Recibida')).toEqual([]);
     expect(decisionsFor('Aceptada')).toEqual([]);
-    expect(decisionsFor('En_Alta')).toEqual([]);
     expect(decisionsFor('Operando')).toEqual([]);
     expect(decisionsFor('Rechazada')).toEqual([]);
+    // Desde calificada solo se puede cerrar el alta: el paso natural es la
+    // propuesta comercial, que tiene su propio envío.
+    expect(decisionsFor('Calificado')).toEqual(['Rechazada']);
+    expect(decisionsFor('Propuesta_Comercial')).toEqual(['Rechazada']);
+    expect(decisionsFor('Alta')).toEqual([]);
   });
 
   it('explica por qué no se puede decidir, en cada caso', () => {
     expect(whyCannotDecide('En_Evaluacion')).toBeNull();
-    expect(whyCannotDecide('En_Alta')).toMatch(/eligiendo su plan/);
+    // Desde calificada el equipo puede rechazar, así que hay una decisión
+    // disponible; lo que no hay es un motivo de bloqueo que mostrar.
+    expect(whyCannotDecide('Calificado')).toBeNull();
+    // Con la propuesta enviada el equipo todavía puede retirarla (rechazar).
+    expect(whyCannotDecide('Propuesta_Comercial')).toBeNull();
+    expect(whyCannotDecide('Alta')).toMatch(/eligiendo su plan/);
     expect(whyCannotDecide('Operando')).toMatch(/terminó/);
     expect(whyCannotDecide('Rechazada')).toMatch(/ya quedó rechazada/);
     expect(whyCannotDecide('Aceptada')).toMatch(/sigue con la empresa/);
@@ -128,7 +137,7 @@ describe('normalización de la decisión', () => {
   });
 
   it('no acepta decisiones inventadas', () => {
-    expect(normalizeDecision({ decision: 'En_Alta' }).ok).toBe(false);
+    expect(normalizeDecision({ decision: 'Calificado' }).ok).toBe(false);
     expect(normalizeDecision({ decision: 'rechazada' }).ok).toBe(false);
     expect(normalizeDecision({ decision: 42 }).ok).toBe(false);
   });

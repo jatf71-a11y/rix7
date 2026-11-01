@@ -23,7 +23,10 @@ import {
   activateKybPlan,
   answerKybQuestions,
   decideApplication,
+  decideKybProposal,
+  kybProposalByToken,
   kybStatusByToken,
+  sendKybProposal,
   submitKybApplication,
 } from './onboarding';
 import { getApplication, listDecisions, updateApplication } from './store';
@@ -79,6 +82,24 @@ function tokenFromLastEmail(): string {
   return match[1];
 }
 
+/**
+ * Recorre el tramo comercial: propuesta enviada, aceptada por el candidato.
+ *
+ * Devuelve el token de activación que llega en el correo de la aceptación. Es el
+ * camino real desde 0031: aprobar ya no emite token, porque el paso siguiente es
+ * una decisión de plata que el candidato tiene que tomar.
+ */
+async function propuestaAceptada(id: string): Promise<string> {
+  const sent = await sendKybProposal({ id, plan: 'profesional' });
+  if (!sent.ok) throw new Error(`no se pudo enviar la propuesta: ${sent.error}`);
+
+  const proposalToken = tokenFromLastEmail();
+  const accepted = await decideKybProposal({ token: proposalToken, decision: 'aceptada' });
+  if (!accepted.ok) throw new Error(`no se pudo aceptar la propuesta: ${accepted.error}`);
+
+  return tokenFromLastEmail();
+}
+
 beforeEach(() => {
   sendEmail.mockReset();
   sendEmail.mockResolvedValue({ sent: true, skipped: false });
@@ -92,20 +113,23 @@ beforeEach(() => {
 });
 
 describe('flujo KYB', () => {
-  it('acepta una empresa limpia y deja la solicitud en En_Alta con token de activación', async () => {
+  it('acepta una empresa limpia y la deja calificada, sin token todavía', async () => {
     const result = await submitKybApplication(empresa, { deps });
 
     expect(result.ok).toBe(true);
-    expect(result.status).toBe('En_Alta');
+    expect(result.status).toBe('Calificado');
     expect(result.score).toBe(100);
 
     const stored = await getApplication(result.applicationId as string);
-    expect(stored.data?.tokenPurpose).toBe('activation');
-    expect(stored.data?.tokenHash).toMatch(/^[0-9a-f]{64}$/);
-    expect(stored.data?.status).toBe('En_Alta');
+    // Calificar no habilita nada: el enlace llega con la propuesta comercial.
+    expect(stored.data?.tokenPurpose).toBeNull();
+    expect(stored.data?.tokenHash).toBeNull();
+    expect(stored.data?.status).toBe('Calificado');
+    expect(stored.data?.proposal).toEqual([]);
 
-    const activationEmail = sendEmail.mock.calls.at(-1)?.[0] as { subject: string };
-    expect(activationEmail.subject).toMatch(/aceptada/i);
+    const qualifiedEmail = sendEmail.mock.calls.at(-1)?.[0] as { subject: string; text: string };
+    expect(qualifiedEmail.subject).toMatch(/calificada/i);
+    expect(qualifiedEmail.text).not.toMatch(/token=/);
   });
 
   it('guarda la cobertura, las regiones y el mensaje del registro de empresas', async () => {
@@ -148,11 +172,11 @@ describe('flujo KYB', () => {
 
     const answered = await answerKybQuestions({ token, answers, deps });
     expect(answered.ok).toBe(true);
-    expect(answered.status).toBe('En_Alta');
+    expect(answered.status).toBe('Calificado');
     const subjects = sendEmail.mock.calls.map(
       (call: unknown[]) => (call[0] as { subject: string }).subject
     );
-    expect(subjects.some((subject) => /aceptada/i.test(subject))).toBe(true);
+    expect(subjects.some((subject) => /calificada/i.test(subject))).toBe(true);
   });
 
   it('vuelve a pedir información sobre una solicitud que ya está pendiente', async () => {
@@ -212,7 +236,7 @@ describe('flujo KYB', () => {
 
   it('no deja pedir información sobre lo que ya terminó', async () => {
     const submitted = await submitKybApplication(empresa, { deps });
-    expect(submitted.status).toBe('En_Alta');
+    expect(submitted.status).toBe('Calificado');
 
     const asked = await decideApplication({
       id: submitted.applicationId as string,
@@ -251,28 +275,51 @@ describe('flujo KYB', () => {
     expect(result.error).toMatch(/no es válido|expiró/);
   });
 
-  it('habilita el panel con el plan elegido y es idempotente', async () => {
+  it('envía la propuesta, la acepta el candidato y el plan habilita el panel', async () => {
     const submitted = await submitKybApplication(empresa, { deps });
-    const token = tokenFromLastEmail();
+    const id = submitted.applicationId as string;
 
+    const sent = await sendKybProposal({ id, plan: 'profesional' });
+    expect(sent.ok).toBe(true);
+    expect(sent.status).toBe('Propuesta_Comercial');
+
+    const storedAfterProposal = await getApplication(id);
+    expect(storedAfterProposal.data?.status).toBe('Propuesta_Comercial');
+    expect(storedAfterProposal.data?.tokenPurpose).toBe('proposal');
+    expect(storedAfterProposal.data?.proposal).toHaveLength(1);
+
+    const proposalToken = tokenFromLastEmail();
+    const view = await kybProposalByToken(proposalToken);
+    expect(view.ok).toBe(true);
+    expect(view.proposal?.planId).toBe('profesional');
+    // Los montos salen de Planes: una empresa sin tipo de registro usa el
+    // perfil más chico, que es el que no cobra de más.
+    expect(view.proposal?.altaClp).toBe(19990);
+
+    const accepted = await decideKybProposal({ token: proposalToken, decision: 'aceptada' });
+    expect(accepted.ok).toBe(true);
+    expect(accepted.status).toBe('Alta');
+
+    const token = tokenFromLastEmail();
     const status = await kybStatusByToken(token);
     expect(status.ok).toBe(true);
-    expect(status.status).toBe('En_Alta');
+    expect(status.status).toBe('Alta');
 
     const activated = await activateKybPlan({ token, plan: 'profesional' });
     expect(activated.ok).toBe(true);
     expect(activated.already).toBe(false);
-    // Elegir plan cierra el alta: la solicitud pasa a «Operando», que es la
-    // columna de clientes activos del pipeline.
-    expect(activated.status).toBe('Operando');
+    // Elegir plan no cierra el alta: falta el pago. La solicitud queda en «Alta»
+    // y la cobranza la mueve a «Operando» cuando entra el período.
+    expect(activated.status).toBe('Alta');
     expect(activated.panel?.enabled).toBe(true);
     expect(activated.panel?.account).toBe('created');
     expect(provisionCompanyPanel).toHaveBeenCalledTimes(1);
 
-    const stored = await getApplication(submitted.applicationId as string);
-    expect(stored.data?.status).toBe('Operando');
+    const stored = await getApplication(id);
+    expect(stored.data?.status).toBe('Alta');
     expect(stored.data?.panelEnabled).toBe(true);
     expect(stored.data?.plan).toBe('profesional');
+    expect(stored.data?.partnerId).toBe('catedral-propiedades-spa-2103');
     expect(stored.data?.activatedAt).toBeTruthy();
 
     const again = await activateKybPlan({ token, plan: 'profesional' });
@@ -284,7 +331,7 @@ describe('flujo KYB', () => {
 
   it('no habilita el panel si el alta de la empresa falla', async () => {
     const submitted = await submitKybApplication(empresa, { deps });
-    const token = tokenFromLastEmail();
+    const token = await propuestaAceptada(submitted.applicationId as string);
 
     provisionCompanyPanel.mockResolvedValueOnce({
       ok: false,
@@ -297,12 +344,15 @@ describe('flujo KYB', () => {
 
     const stored = await getApplication(submitted.applicationId as string);
     expect(stored.data?.panelEnabled).toBe(false);
-    expect(stored.data?.plan).toBeNull();
+    // El plan quedó escrito con la propuesta que el candidato aceptó; lo que no
+    // pasó es el alta: el panel sigue apagado y la solicitud en `Alta`.
+    expect(stored.data?.plan).toBe('profesional');
+    expect(stored.data?.status).toBe('Alta');
   });
 
   it('no deja elegir un plan inexistente', async () => {
     const submitted = await submitKybApplication(empresa, { deps });
-    const token = tokenFromLastEmail();
+    const token = await propuestaAceptada(submitted.applicationId as string);
 
     const result = await activateKybPlan({ token, plan: 'platino' });
     expect(result.ok).toBe(false);
@@ -329,7 +379,7 @@ describe('decisiones del equipo', () => {
     return submitted.applicationId as string;
   }
 
-  it('aprobar a mano deja la solicitud en alta, con token de activación', async () => {
+  it('aprobar a mano deja la solicitud calificada, sin token', async () => {
     const id = await pendiente();
 
     const result = await decideApplication({
@@ -340,21 +390,22 @@ describe('decisiones del equipo', () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.status).toBe('En_Alta');
+    expect(result.status).toBe('Calificado');
 
     const stored = await getApplication(id);
-    expect(stored.data?.status).toBe('En_Alta');
-    expect(stored.data?.tokenPurpose).toBe('activation');
+    expect(stored.data?.status).toBe('Calificado');
+    // El token de activación se emite cuando el candidato acepta la propuesta.
+    expect(stored.data?.tokenPurpose).toBeNull();
 
     const subject = (sendEmail.mock.calls.at(-1)?.[0] as { subject: string }).subject;
-    expect(subject).toMatch(/aceptada/i);
+    expect(subject).toMatch(/calificada/i);
 
     const decisions = await listDecisions(id);
     expect(decisions).toHaveLength(1);
     expect(decisions[0]).toMatchObject({
       decision: 'Aceptada',
       statusBefore: 'Pendiente_Informacion',
-      statusAfter: 'En_Alta',
+      statusAfter: 'Calificado',
       decidedBy: 'equipo@rix7.cl',
     });
   });
@@ -433,9 +484,11 @@ describe('decisiones del equipo', () => {
 
   it('no se decide sobre una solicitud que ya terminó', async () => {
     const submitted = await submitKybApplication(empresa, { deps });
+    const id = submitted.applicationId as string;
+    await updateApplication(id, { status: 'Operando' });
 
     const result = await decideApplication({
-      id: submitted.applicationId as string,
+      id,
       decision: 'Rechazada',
       note: 'Motivo suficientemente largo para pasar la validación.',
       decidedBy: 'equipo@rix7.cl',

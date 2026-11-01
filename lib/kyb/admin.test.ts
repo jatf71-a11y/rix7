@@ -77,7 +77,7 @@ describe('re-evaluación', () => {
 
   it('una solicitud rechazada no vuelve al motor', () => {
     expect(canReevaluate('Rechazada')).toBe(false);
-    expect(canReevaluate('En_Alta')).toBe(false);
+    expect(canReevaluate('Calificado')).toBe(false);
   });
 });
 

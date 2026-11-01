@@ -72,7 +72,7 @@ export function isSocioRegistro(kind: SolicitudKind | string): boolean {
 
 /** Estados en los que ya no hay nada que evaluar. */
 function isTerminal(status: KybStatus): boolean {
-  return status === 'En_Alta' || status === 'Operando' || status === 'Rechazada';
+  return status === 'Calificado' || status === 'Operando' || status === 'Rechazada';
 }
 
 async function notify(
@@ -321,7 +321,7 @@ export async function notifyManualDecision(
   if (!isSocioRegistro(solicitud.kind)) return null;
 
   const offerLabel = solicitudOfferLabel(solicitud.kind);
-  if (status === 'Aceptada' || status === 'En_Alta') {
+  if (status === 'Aceptada' || status === 'Calificado') {
     return notify(
       solicitud.email,
       buildSolicitudAcceptedEmail({ name: solicitud.name, offerLabel, siteUrl: SITE_URL })

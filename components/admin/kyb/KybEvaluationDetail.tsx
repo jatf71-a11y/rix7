@@ -16,6 +16,7 @@ import {
 import type { KybEvaluation, KybManualDecision } from '@/lib/kyb/status';
 import type { KybApplication, KybDecision } from '@/lib/kyb/types';
 import DecisionPanel from './DecisionPanel';
+import ProposalPanel from './ProposalPanel';
 
 /**
  * Ficha de evaluación de una solicitud.
@@ -67,6 +68,8 @@ interface KybEvaluationDetailProps {
     note?: string;
     questions?: string[];
   }) => void;
+  /** Recién después de enviar la propuesta: la ficha y el tablero se recargan. */
+  onProposalSent?: () => void;
 }
 
 export default function KybEvaluationDetail({
@@ -78,6 +81,7 @@ export default function KybEvaluationDetail({
   error,
   onReevaluate,
   onDecide,
+  onProposalSent,
 }: KybEvaluationDetailProps) {
   const summary = evaluation ? checkSummary(evaluation.checks) : null;
   const outstanding = evaluation ? nonPassingChecks(evaluation.checks) : null;
@@ -264,6 +268,8 @@ export default function KybEvaluationDetail({
           Re-evalúa para correr el motor y dejar registrado el resultado.
         </p>
       )}
+
+      <ProposalPanel application={application} onSent={onProposalSent} />
 
       <DecisionPanel
         application={application}

@@ -7,7 +7,7 @@
  *
  * Secuencia:
  *
- *   alta → Recibida → En_Evaluacion → Aceptada → En_Alta   (token de activation)
+ *   alta → Recibida → En_Evaluacion → Aceptada → Calificado   (token de activation)
  *                                    ↘ Pendiente_Informacion (preguntas + token)
  *                                        → respuestas → En_Evaluacion → …
  *
@@ -22,10 +22,18 @@ import {
   buildKybActivatedEmail,
   buildKybEvaluatingEmail,
   buildKybPendingEmail,
+  buildKybProposalEmail,
+  buildKybQualifiedEmail,
   buildKybReceivedEmail,
   buildKybRejectedEmail,
 } from '@/lib/email/kybEmails';
 import { normalizeDecision } from './decisions';
+import {
+  latestProposal,
+  normalizeProposal,
+  proposalPlanName,
+  type KybProposal,
+} from './proposal';
 import { SITE_URL } from '@/lib/site';
 import { getKybPlan, isKybPlanId, type KybPlanId } from './plans';
 import {
@@ -48,7 +56,10 @@ import {
   assertTransition,
   canDecideManually,
   canEvaluate,
+  KYB_STATUS_LABELS,
+  isKybProposalDecision,
   type KybEvaluation,
+  type KybProposalDecision,
   type KybQuestion,
   type KybStatus,
   type KybTokenPurpose,
@@ -153,7 +164,7 @@ async function issueToken(
  *
  * `clarifications` viene de una ronda de respuestas. El resultado siempre deja
  * la solicitud en `Pendiente_Informacion`, `Aceptada` (que en la misma corrida
- * pasa a `En_Alta`) o en `Recibida` si algo falló antes de evaluar.
+ * pasa a `Calificado`) o en `Recibida` si algo falló antes de evaluar.
  */
 export async function evaluateById(
   id: string,
@@ -215,23 +226,24 @@ export async function evaluateById(
 
     await updateApplication(id, { status: 'Aceptada', score: evaluation.score });
 
-    const inAlta = assertTransition('Aceptada', 'En_Alta');
+    const inAlta = assertTransition('Aceptada', 'Calificado');
     if (!inAlta.ok) return { ok: false, error: inAlta.error };
 
-    const updated = await updateApplication(id, { status: 'En_Alta', score: evaluation.score });
+    const updated = await updateApplication(id, { status: 'Calificado', score: evaluation.score });
     if (!updated.ok || !updated.data) {
       return { ok: false, error: updated.error ?? 'No se pudo guardar el estado.' };
     }
 
-    const { token } = await issueToken(id, 'activation');
+    // Aprobada no emite token: lo que sigue es la propuesta comercial, y el
+    // enlace de la propuesta sale cuando el equipo la envía. Antes acá se emitía
+    // el token de activación y el candidato pasaba directo a elegir plan.
     const refreshed = await getApplication(id);
 
     email = await notify(
       application.email,
-      buildKybAcceptedEmail({
+      buildKybQualifiedEmail({
         legalName: application.legalName,
         contactName: application.contactName,
-        token,
         siteUrl: SITE_URL,
       })
     );
@@ -239,7 +251,7 @@ export async function evaluateById(
     await saveEvaluation({
       applicationId: id,
       statusBefore: before,
-      statusAfter: 'En_Alta',
+      statusAfter: 'Calificado',
       evaluation,
     });
 
@@ -313,7 +325,7 @@ export interface DecideResult {
  * es indistinguible de una que pasó sola.
  *
  * `Aceptada` sigue el mismo camino de dos pasos que la aprobación automática
- * (`Aceptada` → `En_Alta`, que es el estado desde el que la empresa elige plan),
+ * (`Aceptada` → `Calificado`, que es el estado desde el que la empresa elige plan),
  * y `Rechazada` deja la solicitud sin token: el enlace que tuviera la empresa
  * deja de servir en el mismo movimiento.
  *
@@ -387,22 +399,31 @@ export async function decideApplication({
   } else if (chosen.decision === 'Aceptada') {
     await updateApplication(id, { status: 'Aceptada' });
 
-    const inAlta = assertTransition('Aceptada', 'En_Alta');
+    const inAlta = assertTransition('Aceptada', 'Calificado');
     if (!inAlta.ok) return { ok: false, code: 'conflict', error: inAlta.error };
 
-    const updated = await updateApplication(id, { status: 'En_Alta' });
+    // La ronda de preguntas se cierra con la aprobación: el token de respuestas
+    // deja de servir en el mismo movimiento, así el enlace del correo anterior no
+    // sigue abierto sobre una solicitud que ya no espera nada.
+    const updated = await updateApplication(id, {
+      status: 'Calificado',
+      tokenHash: null,
+      tokenPurpose: null,
+      tokenExpiresAt: null,
+    });
     if (!updated.ok) {
       return { ok: false, code: 'store', error: updated.error ?? 'No se pudo guardar el estado.' };
     }
-    after = 'En_Alta';
+    after = 'Calificado';
 
-    const { token } = await issueToken(id, 'activation');
+    // Igual que en el camino automático: aprobar no emite token. El enlace lo
+    // manda el equipo con la propuesta comercial, que es el paso que sigue y el
+    // que lleva los números.
     email = await notify(
       application.email,
-      buildKybAcceptedEmail({
+      buildKybQualifiedEmail({
         legalName: application.legalName,
         contactName: application.contactName,
-        token,
         siteUrl: SITE_URL,
       })
     );
@@ -599,7 +620,7 @@ export interface ActivateResult {
  * Es idempotente: repetir la petición con el mismo token y plan no vuelve a
  * crear la ficha ni la cuenta, y devuelve `already: true`.
  *
- * Al terminar deja la solicitud en `Operando`, no en `En_Alta`: el alta ya se
+ * Al terminar deja la solicitud en `Operando`, no en `Calificado`: el alta ya se
  * cerró —la empresa está inscrita, eligió su plan y tiene su panel habilitado—
  * y es lo que el pipeline muestra como cliente activo. No hay cobro en línea
  * todavía: el plan elegido es lo que el sistema puede saber, y el cobro se
@@ -642,7 +663,13 @@ export async function activateKybPlan({
     plan,
     panelEnabled: true,
     activatedAt: new Date().toISOString(),
-    status: 'Operando',
+    // `Alta`, no `Operando`: el plan elegido todavía no está pagado. La solicitud
+    // pasa a operando cuando la cobranza registra el pago del período; si se
+    // marcara acá, un cliente sin pagar aparecería como activo en el pipeline.
+    status: 'Alta',
+    // El socio que acaba de nacer: sin este vínculo la cobranza no sabría qué
+    // alta corresponde a cada socio, y el pago no podría moverlo a `Operando`.
+    partnerId: provision.partnerId ?? null,
     // El token se conserva hasta su vencimiento para tolerar reintentos de red:
     // una segunda activación no vuelve a crear nada y responde `already`. No
     // habilita nada nuevo porque `panel_enabled` ya está en true.
@@ -667,7 +694,7 @@ export async function activateKybPlan({
   return {
     ok: true,
     already: false,
-    status: 'Operando',
+    status: 'Alta',
     plan,
     panel: {
       enabled: true,
@@ -676,4 +703,229 @@ export async function activateKybPlan({
     },
     email,
   };
+}
+
+export interface ProposalSendResult {
+  ok: boolean;
+  status?: KybStatus;
+  proposal?: KybProposal;
+  email?: EmailOutcome;
+  error?: string;
+  code?: 'not_found' | 'invalid' | 'conflict' | 'database';
+}
+
+/**
+ * Envía la propuesta comercial de una solicitud calificada.
+ *
+ * El estado se mueve a `Propuesta_Comercial` en la misma escritura que guarda la
+ * propuesta: si el correo falla, el equipo ve la propuesta enviada y puede
+ * reenviarla; lo que no puede pasar es que el candidato reciba un enlace a una
+ * solicitud que sigue «calificada», porque ese token no abriría nada.
+ */
+export async function sendKybProposal({
+  id,
+  plan,
+  altaClp,
+  monthlyClp,
+  note,
+}: {
+  id: string;
+  plan: unknown;
+  altaClp?: unknown;
+  monthlyClp?: unknown;
+  note?: unknown;
+}): Promise<ProposalSendResult> {
+  const found = await getApplication(id);
+  if (!found.ok || !found.data) {
+    return { ok: false, code: 'not_found', error: 'Solicitud no encontrada.' };
+  }
+  const application = found.data;
+
+  if (application.status !== 'Calificado') {
+    return {
+      ok: false,
+      code: 'conflict',
+      error: `Solo se envía una propuesta a una solicitud calificada. Esta está en «${
+        KYB_STATUS_LABELS[application.status]
+      }».`,
+    };
+  }
+
+  const validation = normalizeProposal(
+    { plan, altaClp, monthlyClp, note },
+    application.registrationKind
+  );
+  if (!validation.ok) return { ok: false, code: 'invalid', error: validation.error };
+  const data = validation.data;
+
+  const transition = assertTransition('Calificado', 'Propuesta_Comercial');
+  if (!transition.ok) return { ok: false, code: 'conflict', error: transition.error };
+
+  const proposal: KybProposal = {
+    planId: data.planId,
+    altaClp: data.altaClp,
+    monthlyClp: data.monthlyClp,
+    note: data.note,
+    sentAt: new Date().toISOString(),
+    decidedAt: null,
+    decision: null,
+  };
+
+  const updated = await updateApplication(id, {
+    status: 'Propuesta_Comercial',
+    plan: data.planId,
+    proposal: [...application.proposal, proposal],
+  });
+  if (!updated.ok || !updated.data) {
+    return { ok: false, code: 'database', error: updated.error ?? 'No se pudo guardar la propuesta.' };
+  }
+
+  const { token } = await issueToken(id, 'proposal');
+
+  const email = await notify(
+    application.email,
+    buildKybProposalEmail({
+      legalName: application.legalName,
+      contactName: application.contactName,
+      planName: proposalPlanName(data.planId),
+      altaClp: data.altaClp,
+      monthlyClp: data.monthlyClp,
+      note: data.note,
+      token,
+      siteUrl: SITE_URL,
+    })
+  );
+
+  return { ok: true, status: 'Propuesta_Comercial', proposal, email };
+}
+
+export interface ProposalView {
+  ok: boolean;
+  legalName?: string;
+  status?: KybStatus;
+  proposal?: KybProposal;
+  error?: string;
+}
+
+/** Lo que se puede mostrar de una propuesta con su token, sin exponer nada más. */
+export async function kybProposalByToken(token: unknown): Promise<ProposalView> {
+  if (!isKybTokenShape(token)) return { ok: false, error: 'El enlace no es válido.' };
+
+  const found = await findByTokenHash(hashKybToken(token));
+  if (!found.ok || !found.data) return { ok: false, error: 'El enlace no es válido o ya expiró.' };
+  const application = found.data;
+  const proposal = latestProposal(application.proposal);
+
+  if (!proposal) return { ok: false, error: 'Este enlace no tiene una propuesta asociada.' };
+  if (application.tokenPurpose !== 'proposal' || !application.tokenExpiresAt) {
+    return { ok: false, error: 'Este enlace ya fue usado. Escríbenos y te enviamos otro.' };
+  }
+  if (Date.parse(application.tokenExpiresAt) <= Date.now()) {
+    return { ok: false, error: 'El enlace expiró. Escríbenos y te enviamos uno nuevo.' };
+  }
+
+  return { ok: true, legalName: application.legalName, status: application.status, proposal };
+}
+
+export interface ProposalDecisionResult {
+  ok: boolean;
+  already?: boolean;
+  status?: KybStatus;
+  decision?: KybProposalDecision;
+  email?: EmailOutcome;
+  error?: string;
+}
+
+/**
+ * El candidato acepta o rechaza la propuesta.
+ *
+ * Aceptar no habilita nada por sí solo: mueve a `Alta` y emite el token de
+ * activación para que elija plan. Operando sigue estando detrás del pago.
+ */
+export async function decideKybProposal({
+  token,
+  decision,
+}: {
+  token: unknown;
+  decision: unknown;
+}): Promise<ProposalDecisionResult> {
+  if (!isKybTokenShape(token)) return { ok: false, error: 'El enlace no es válido.' };
+  if (!isKybProposalDecision(decision)) return { ok: false, error: 'La decisión no es válida.' };
+
+  const found = await findByTokenHash(hashKybToken(token));
+  if (!found.ok || !found.data) return { ok: false, error: 'El enlace no es válido o ya expiró.' };
+  const application = found.data;
+
+  const current = latestProposal(application.proposal);
+  if (!current) return { ok: false, error: 'Este enlace no tiene una propuesta asociada.' };
+
+  // Idempotencia: un doble clic o un reintento de red no vuelve a mover nada y
+  // devuelve la decisión que ya estaba tomada.
+  if (current.decision) {
+    return {
+      ok: true,
+      already: true,
+      status: application.status,
+      decision: current.decision,
+    };
+  }
+
+  if (!tokenAllows(application, 'proposal')) {
+    return { ok: false, error: 'Esta propuesta ya no está disponible.' };
+  }
+
+  const decided: KybProposal = {
+    ...current,
+    decidedAt: new Date().toISOString(),
+    decision,
+  };
+  const history = [...application.proposal.slice(0, -1), decided];
+
+  if (decision === 'rechazada') {
+    const transition = assertTransition('Propuesta_Comercial', 'Rechazada');
+    if (!transition.ok) return { ok: false, error: transition.error };
+
+    const updated = await updateApplication(application.id, {
+      status: 'Rechazada',
+      proposal: history,
+    });
+    if (!updated.ok) return { ok: false, error: updated.error ?? 'No se pudo guardar la decisión.' };
+
+    const email = await notify(
+      application.email,
+      buildKybRejectedEmail({
+        legalName: application.legalName,
+        contactName: application.contactName,
+        reason:
+          'La propuesta comercial no fue aceptada. Si quieres que revisemos los números, responde este correo y lo vemos juntos.',
+        siteUrl: SITE_URL,
+      })
+    );
+
+    return { ok: true, status: 'Rechazada', decision, email };
+  }
+
+  const transition = assertTransition('Propuesta_Comercial', 'Alta');
+  if (!transition.ok) return { ok: false, error: transition.error };
+
+  const updated = await updateApplication(application.id, {
+    status: 'Alta',
+    proposal: history,
+  });
+  if (!updated.ok) return { ok: false, error: updated.error ?? 'No se pudo guardar la decisión.' };
+
+  // El alta ya puede ejecutarse: se emite el token con el que elige plan.
+  const { token: activationToken } = await issueToken(application.id, 'activation');
+
+  const email = await notify(
+    application.email,
+    buildKybAcceptedEmail({
+      legalName: application.legalName,
+      contactName: application.contactName,
+      token: activationToken,
+      siteUrl: SITE_URL,
+    })
+  );
+
+  return { ok: true, status: 'Alta', decision, email };
 }

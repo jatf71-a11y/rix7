@@ -27,20 +27,40 @@ vi.mock('@/lib/supabase/server', () => ({
 import { listPartnerProperties } from './partnerProperties';
 import { ALL_PROPERTIES } from './propertyCatalog';
 
-/** Cliente falso thenable que registra la cadena de llamadas (convención del proyecto). */
-function fakeClient(handler: () => { data: unknown; error: unknown }) {
+/**
+ * Cliente falso thenable que registra la cadena de llamadas (convención del proyecto).
+ *
+ * Distingue por tabla porque el listado ahora consulta dos: `partners` para saber
+ * si el socio está moroso y `properties` para sus fichas. `moroso` se puede fijar
+ * por parámetro para probar el bloqueo.
+ */
+function fakeClient(
+  handler: (table: string) => { data: unknown; error: unknown },
+  options: { moroso?: boolean } = {}
+) {
   const calls: string[] = [];
-  const builder: Record<string, unknown> = {};
 
-  for (const name of ['select', 'eq', 'order', 'limit']) {
-    builder[name] = vi.fn((...args: unknown[]) => {
-      calls.push(`${name}:${JSON.stringify(args)}`);
-      return builder;
-    });
+  function makeBuilder(table: string) {
+    const builder: Record<string, unknown> = {};
+
+    for (const name of ['select', 'eq', 'order', 'limit']) {
+      builder[name] = vi.fn((...args: unknown[]) => {
+        calls.push(`${name}:${JSON.stringify(args)}`);
+        return builder;
+      });
+    }
+
+    const result = () =>
+      table === 'partners'
+        ? { data: { moroso: options.moroso ?? false }, error: null }
+        : handler(table);
+
+    builder.maybeSingle = vi.fn(() => Promise.resolve(result()));
+    builder.then = (resolve: (value: unknown) => unknown) => resolve(result());
+    return builder;
   }
-  builder.then = (resolve: (value: unknown) => unknown) => resolve(handler());
 
-  return { calls, client: { from: vi.fn(() => builder) } };
+  return { calls, client: { from: vi.fn((table: string) => makeBuilder(table)) } };
 }
 
 const PROPIEDAD_DB = {
@@ -189,5 +209,21 @@ describe('listPartnerProperties', () => {
 
     expect(result.source).toBe('catalog');
     expect(result.properties).toEqual([]);
+  });
+
+  it('un socio moroso no publica en su página ni en sus feeds', async () => {
+    // La marca de morosidad (0031) tiene que cortar también este camino: el
+    // buscador y la ficha ya se filtran en los RPC, pero el listado por
+    // corredora consulta la tabla directo.
+    isSupabaseConfigured.mockReturnValue(true);
+    const { client } = fakeClient(() => ({ data: [PROPIEDAD_DB], error: null }), {
+      moroso: true,
+    });
+    createPublicClient.mockReturnValue(client);
+
+    const result = await listPartnerProperties('catedral');
+
+    expect(result.properties).toEqual([]);
+    expect(result.source).toBe('supabase');
   });
 });

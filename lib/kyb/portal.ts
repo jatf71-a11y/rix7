@@ -21,11 +21,11 @@ export interface KybAccessView {
   questions: KybQuestion[];
   plan: string | null;
   panelEnabled: boolean;
-  /** Solo `En_Alta` con el panel aún sin habilitar. */
+  /** Solo en `Alta` (propuesta aceptada) con el panel aún sin habilitar. */
   canChoosePlan: boolean;
 }
 
-export type KybPortalStage = 'questions' | 'plans' | 'active' | 'evaluating';
+export type KybPortalStage = 'questions' | 'proposal' | 'plans' | 'active' | 'evaluating';
 
 /** Color del distintivo de estado, compartido por la página pública y el panel. */
 export const KYB_STATUS_TONES: Record<KybStatus, string> = {
@@ -33,7 +33,9 @@ export const KYB_STATUS_TONES: Record<KybStatus, string> = {
   En_Evaluacion: 'border-amber-100 bg-amber-50 text-amber-700',
   Pendiente_Informacion: 'border-orange-100 bg-orange-50 text-orange-700',
   Aceptada: 'border-emerald-100 bg-emerald-50 text-emerald-700',
-  En_Alta: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+  Calificado: 'border-sky-100 bg-sky-50 text-sky-700',
+  Propuesta_Comercial: 'border-indigo-100 bg-indigo-50 text-indigo-700',
+  Alta: 'border-emerald-100 bg-emerald-50 text-emerald-700',
   Operando: 'border-teal-100 bg-teal-50 text-teal-700',
   Rechazada: 'border-red-100 bg-red-50 text-red-700',
 };
@@ -48,7 +50,10 @@ export function portalStage(view: KybAccessView): KybPortalStage {
   if (view.status === 'Pendiente_Informacion') {
     return view.questions.length > 0 ? 'questions' : 'evaluating';
   }
-  if (view.status === 'En_Alta' && view.canChoosePlan) return 'plans';
+  // La propuesta comercial tiene su propia pantalla: acá solo se dice que está
+  // enviada y que la decisión es del candidato.
+  if (view.status === 'Propuesta_Comercial') return 'proposal';
+  if (view.status === 'Alta' && view.canChoosePlan) return 'plans';
   return 'evaluating';
 }
 
@@ -80,10 +85,20 @@ export function evaluatingCopy(status: KybStatus): StageCopy {
         body: 'Te enviamos un correo con los datos que faltan y el enlace para responderlos. Cuando lo envíes, la evaluación se repite sola.',
       };
     case 'Aceptada':
-    case 'En_Alta':
+    case 'Calificado':
       return {
-        title: 'Tu empresa quedó aceptada',
-        body: 'Te enviamos al correo de la empresa el enlace para elegir el plan y habilitar el panel de publicaciones.',
+        title: 'Tu empresa quedó calificada',
+        body: 'La verificación salió bien. Estamos armando la propuesta comercial —plan y precios— y te la enviamos al correo de la empresa.',
+      };
+    case 'Propuesta_Comercial':
+      return {
+        title: 'Te enviamos la propuesta',
+        body: 'Tienes el plan y el precio en el correo de la empresa. El enlace de ese correo es el que abre la propuesta para aceptarla.',
+      };
+    case 'Alta':
+      return {
+        title: 'Propuesta aceptada: sigue el alta',
+        body: 'Te enviamos al correo de la empresa el enlace para elegir el plan y habilitar el panel. Cuando el pago quede registrado, tu cuenta pasa a operando.',
       };
     case 'Operando':
       return {
