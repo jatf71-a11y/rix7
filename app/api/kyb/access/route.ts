@@ -51,6 +51,9 @@ export async function POST(request: NextRequest) {
       panelEnabled: result.panelEnabled ?? false,
       // Solo con la propuesta aceptada (etapa `Alta`) y el panel sin habilitar.
       canChoosePlan: result.status === 'Alta' && !result.panelEnabled,
+      // Los montos del paso de plan: los de la propuesta aceptada, que nacen de
+      // los precios que el equipo definió en Planes.
+      planSummary: result.planSummary ?? null,
     },
   });
 }

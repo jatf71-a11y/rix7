@@ -193,10 +193,14 @@ siempre; `50` lo sube a 2.000.000 y cobra la mitad; `200` lo baja a 500.000 y
 cobra el doble. `ccaFactor` devuelve el divisor equivalente, que el panel muestra
 al lado del campo para no tener que despejarlo a mano.
 
-El precio configurado todavía **no** llega al paso de plan del alta: esa
-pantalla sigue leyendo el catálogo de [`lib/kyb/plans.ts`](../lib/kyb/plans.ts).
-La sección guarda y calcula; conectar el paso de plan con estos precios es el
-tramo siguiente.
+El precio configurado **es** el que se cobra en el alta. El catálogo de
+[`lib/kyb/plans.ts`](../lib/kyb/plans.ts) ya no tiene precios: solo nombres,
+cupo de publicaciones y beneficios. Los montos salen de `plan_settings` por
+perfil, y `altaPlanSummary` arma lo que la empresa confirma en el paso de plan:
+el plan de la propuesta aceptada con sus montos —los del correo de la propuesta—
+y, si la solicitud llegó al alta sin propuesta, los de Planes para su perfil. Por
+eso el paso dejó de ofrecer los tres planes: cambiarlos ahí invalidaría lo que
+el candidato ya aceptó.
 
 ### Los registros de socios también se evalúan solos
 
@@ -335,7 +339,7 @@ Muestra una cosa a la vez según `POST /api/kyb/access`:
 | `Recibida` / `En_Evaluacion` | El aviso de que la verificación corre sola. |
 | `Pendiente_Informacion` | Las preguntas abiertas, una por verificación, con el formulario para responderlas. |
 | `Propuesta_Comercial` | La propuesta con sus números y los botones de aceptar o rechazar (`/empresas/propuesta`). |
-| `Alta` sin plan | Las tres tarjetas de plan y el botón de confirmar (deshabilitado hasta elegir uno). |
+| `Alta` sin plan | La tarjeta del plan de la propuesta —mensualidad, alta inicial, cupo y usuarios— y una casilla de confirmación que habilita el botón. |
 | `Operando` | El acceso al panel y el plan registrado. |
 
 Después de responder o activar la pantalla **no vuelve a consultar** con el

@@ -29,9 +29,11 @@ import {
 } from '@/lib/email/kybEmails';
 import { normalizeDecision } from './decisions';
 import {
+  altaPlanSummary,
   latestProposal,
   normalizeProposal,
   proposalPlanName,
+  type AltaPlanSummary,
   type KybProposal,
 } from './proposal';
 import { SITE_URL } from '@/lib/site';
@@ -52,6 +54,7 @@ import { generateKybToken, hashKybToken, isKybTokenShape, kybTokenExpiry } from 
 import { evaluateKyb, type KybClarifications, type KybEngineDeps } from './engine';
 import { normalizeKybApplication, type KybApplicationInput } from './application';
 import { provisionCompanyPanel } from './provisioning';
+import { readPlanPricing } from '@/lib/data/planPricingStore';
 import {
   assertTransition,
   canDecideManually,
@@ -573,6 +576,15 @@ export async function kybStatusByToken(token: unknown): Promise<{
   questions?: KybQuestion[];
   plan?: string | null;
   panelEnabled?: boolean;
+  /**
+   * El plan que la empresa confirma en el paso de plan, con los montos de su
+   * propuesta (o, sin propuesta, los de **Planes** para su perfil).
+   *
+   * Se arma solo en `Alta` con el panel pendiente: es la única pantalla que
+   * muestra precios, y leer la configuración para todas las demás etapas sería
+   * una consulta a la base en cada apertura del enlace.
+   */
+  planSummary?: AltaPlanSummary | null;
   error?: string;
 }> {
   if (!isKybTokenShape(token)) return { ok: false, error: 'El enlace no es válido.' };
@@ -594,6 +606,17 @@ export async function kybStatusByToken(token: unknown): Promise<{
     questions = request?.questions ?? [];
   }
 
+  let planSummary: AltaPlanSummary | null = null;
+  if (application.status === 'Alta' && !application.panelEnabled) {
+    const pricing = await readPlanPricing();
+    planSummary = altaPlanSummary({
+      plan: isKybPlanId(application.plan) ? application.plan : null,
+      proposal: latestProposal(application.proposal),
+      kind: application.registrationKind,
+      config: pricing.config,
+    });
+  }
+
   return {
     ok: true,
     status: application.status,
@@ -601,6 +624,7 @@ export async function kybStatusByToken(token: unknown): Promise<{
     questions,
     plan: application.plan,
     panelEnabled: application.panelEnabled,
+    planSummary,
   };
 }
 
@@ -914,8 +938,19 @@ export async function decideKybProposal({
   });
   if (!updated.ok) return { ok: false, error: updated.error ?? 'No se pudo guardar la decisión.' };
 
-  // El alta ya puede ejecutarse: se emite el token con el que elige plan.
+  // El alta ya puede ejecutarse: se emite el token con el que confirma el plan.
   const { token: activationToken } = await issueToken(application.id, 'activation');
+
+  // El correo lleva los mismos números que la pantalla del alta: los de la
+  // propuesta aceptada, que salieron de **Planes**. El catálogo del código ya no
+  // tiene precios que puedan contradecirlos.
+  const pricing = await readPlanPricing();
+  const planSummary = altaPlanSummary({
+    plan: decided.planId,
+    proposal: decided,
+    kind: application.registrationKind,
+    config: pricing.config,
+  });
 
   const email = await notify(
     application.email,
@@ -924,6 +959,7 @@ export async function decideKybProposal({
       contactName: application.contactName,
       token: activationToken,
       siteUrl: SITE_URL,
+      plan: planSummary,
     })
   );
 

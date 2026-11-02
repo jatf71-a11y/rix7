@@ -56,19 +56,30 @@ describe('correos KYB', () => {
     expect(email.html).toContain('&lt;b&gt;');
   });
 
-  it('el correo de aceptación lista los planes con precio', () => {
+  it('el correo de aceptación muestra el plan y los montos de la propuesta', () => {
     const email = buildKybAcceptedEmail({
       legalName: 'Catedral Propiedades SpA',
       contactName: 'Ana Torres',
       token,
       siteUrl,
+      plan: {
+        planId: 'profesional',
+        planName: 'Profesional',
+        altaClp: 49990,
+        monthlyClp: 39990,
+        usuariosIncluidos: 5,
+        listings: 50,
+        source: 'propuesta',
+      },
     });
 
     expect(email.subject).toMatch(/aceptada/i);
-    expect(email.text).toContain('Básico');
     expect(email.text).toContain('Profesional');
-    expect(email.text).toContain('Premium');
-    expect(email.html).toContain('Elegir plan');
+    expect(email.text).toContain('39.990');
+    expect(email.text).toContain('49.990');
+    // Ya no se listan los tres planes del catálogo: el plan lo fijó la propuesta.
+    expect(email.text).not.toContain('Premium');
+    expect(email.html).toContain('Confirmar plan');
   });
 
   it('el correo de panel habilitado usa el enlace mágico cuando existe', () => {

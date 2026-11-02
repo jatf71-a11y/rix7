@@ -270,11 +270,21 @@ export default function KybOnboarding() {
       />
     );
   } else if (view && stage === 'plans') {
-    content = (
+    // Sin resumen no hay montos que mostrar: es una solicitud en `Alta` a la que
+    // le falta la propuesta, y el servidor la resuelve la próxima vez que abra.
+    content = view.planSummary ? (
       <PlanStep
         token={token}
+        planSummary={view.planSummary}
         onActivated={({ plan, emailed }) => setScreen({ kind: 'activated', plan, emailed })}
       />
+    ) : (
+      <div>
+        <h2 className="text-lg font-black text-slate-900">Estamos armando tu plan</h2>
+        <p className="mt-2 text-sm leading-relaxed text-slate-600">
+          Nos falta un dato de la propuesta. Escríbenos al correo del alta y lo resolvemos.
+        </p>
+      </div>
     );
   } else if (view && stage === 'active') {
     content = <PanelAccess plan={view.plan} title="Tu panel está habilitado" />;

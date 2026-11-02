@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Check, Loader2, Send } from 'lucide-react';
 
-import { KYB_PLANS, formatPlanPrice, type KybPlanId } from '@/lib/kyb/plans';
+import { KYB_PLANS, type KybPlanId } from '@/lib/kyb/plans';
 import type { KybApplication } from '@/lib/kyb/types';
 
 /**
@@ -96,7 +96,9 @@ export default function ProposalPanel({
             >
               {KYB_PLANS.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.name} · {formatPlanPrice(item.priceClp)}/mes
+                  {/* El precio no está en el catálogo: lo define Planes por
+                      perfil, y los montos de esta propuesta se editan abajo. */}
+                  {item.name} · {item.listings} publicaciones
                 </option>
               ))}
             </select>

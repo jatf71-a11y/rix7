@@ -174,3 +174,57 @@ export function latestProposal(value: unknown): KybProposal | null {
   const all = readProposals(value);
   return all.length > 0 ? all[all.length - 1] : null;
 }
+
+/**
+ * Lo que la empresa ve y confirma en el paso de plan del alta.
+ *
+ * El precio **no** puede salir del catálogo del código: la lista de planes de
+ * `plans.ts` tiene precios de partida que no son los que el equipo definió en
+ * **Planes**, y mostrar uno y cobrar otro es la peor forma de descubrir un
+ * desajuste. Los montos vienen de la propuesta que el candidato ya aceptó —cuyo
+ * valor inicial sale de Planes, según el perfil— y, si la solicitud llegó al
+ * alta sin propuesta, de los precios configurados para su perfil.
+ *
+ * El plan del alta tampoco se elige de nuevo: lo fijó la propuesta. Cambiarlo
+ * acá invalidaría los números que el candidato aceptó.
+ */
+export interface AltaPlanSummary {
+  planId: KybPlanId;
+  planName: string;
+  /** Cobro único del alta, en pesos. */
+  altaClp: number;
+  /** Mensualidad, en pesos. */
+  monthlyClp: number;
+  usuariosIncluidos: number;
+  /** Tope de publicaciones activas del plan. */
+  listings: number;
+  /** De dónde salieron los montos, para poder explicarlo en la pantalla. */
+  source: 'propuesta' | 'planes';
+}
+
+export function altaPlanSummary({
+  plan,
+  proposal,
+  kind,
+  config = DEFAULT_PLAN_PRICING,
+}: {
+  plan: KybPlanId | null;
+  proposal: KybProposal | null;
+  kind: KybRegistrationKind | null;
+  config?: PlanPricingConfig;
+}): AltaPlanSummary {
+  const planId = proposal?.planId ?? plan ?? 'profesional';
+  const catalog = getKybPlan(planId);
+  const profile = profilePlan(config, profileForRegistration(kind));
+  const defaults = defaultProposalAmounts(kind, config);
+
+  return {
+    planId,
+    planName: catalog.name,
+    altaClp: proposal ? proposal.altaClp : defaults.altaClp,
+    monthlyClp: proposal ? proposal.monthlyClp : defaults.monthlyClp,
+    usuariosIncluidos: profile?.usuariosIncluidos ?? catalog.users,
+    listings: catalog.listings,
+    source: proposal ? 'propuesta' : 'planes',
+  };
+}

@@ -41,28 +41,49 @@ describe('pantalla de preguntas', () => {
   });
 });
 
-describe('selector de plan', () => {
+describe('paso de plan', () => {
+  /**
+   * Los montos los calcula el servidor (`altaPlanSummary`): la pantalla solo los
+   * dibuja. Antes esta prueba fijaba los precios del catálogo del código, que
+   * eran justamente los que el panel había dejado de usar.
+   */
+  const planSummary = {
+    planId: 'profesional' as const,
+    planName: 'Profesional',
+    altaClp: 49990,
+    monthlyClp: 39990,
+    usuariosIncluidos: 5,
+    listings: 50,
+    source: 'propuesta' as const,
+  };
+
   const html = renderToStaticMarkup(
-    React.createElement(PlanStep, { token: 'token-de-prueba', onActivated: () => {} })
+    React.createElement(PlanStep, {
+      token: 'token-de-prueba',
+      planSummary,
+      onActivated: () => {},
+    })
   );
 
-  it('ofrece los tres planes con precio y beneficios', () => {
-    expect((html.match(/type="radio"/g) ?? []).length).toBe(3);
-    expect(html).toContain('Básico');
+  it('muestra el plan de la propuesta con sus montos, no el catálogo', () => {
     expect(html).toContain('Profesional');
-    expect(html).toContain('Premium');
-    expect(html).toContain('29.990');
-    expect(html).toContain('50 publicaciones activas');
+    expect(html).toContain('39.990');
+    expect(html).toContain('49.990');
+    expect(html).toContain('5');
+    expect(html).toContain('50');
+    // Un solo plan: ya quedó fijado cuando el candidato aceptó la propuesta.
+    expect((html.match(/type="radio"/g) ?? []).length).toBe(0);
+    expect(html).not.toContain('Básico');
+    expect(html).not.toContain('Premium');
   });
 
-  it('no preselecciona un plan y exige una elección para confirmar', () => {
+  it('exige una confirmación explícita antes de habilitar el panel', () => {
     expect(html).not.toContain('checked');
     expect(html).toMatch(/<button[^>]*disabled=""[^>]*>[\s\S]*Confirmar plan/);
+    expect(html).toContain('Confirmo el plan y la mensualidad');
   });
 
-  it('declara el grupo de radios como un fieldset con su leyenda accesible', () => {
-    expect(html).toContain('<fieldset');
-    expect(html).toContain('<legend class="sr-only">Plan mensual</legend>');
-    expect(html).toContain('name="kyb-plan"');
+  it('dice de dónde salen los montos', () => {
+    expect(html).toContain('Montos de la propuesta que aceptaste');
   });
 });

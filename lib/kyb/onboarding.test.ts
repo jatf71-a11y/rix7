@@ -305,6 +305,15 @@ describe('flujo KYB', () => {
     expect(status.ok).toBe(true);
     expect(status.status).toBe('Alta');
 
+    // El paso de plan muestra los montos de la propuesta, que salieron de
+    // Planes: el catálogo del código ya no tiene precios que los contradigan.
+    expect(status.planSummary).toMatchObject({
+      planId: 'profesional',
+      monthlyClp: 14990,
+      altaClp: 19990,
+      source: 'propuesta',
+    });
+
     const activated = await activateKybPlan({ token, plan: 'profesional' });
     expect(activated.ok).toBe(true);
     expect(activated.already).toBe(false);

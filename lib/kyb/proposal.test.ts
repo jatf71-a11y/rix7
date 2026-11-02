@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { DEFAULT_PLAN_PRICING } from './planPricing';
 import {
   KYB_PROPOSAL_NOTE_MAX,
+  altaPlanSummary,
   defaultProposalAmounts,
   latestProposal,
   normalizeProposal,
@@ -125,5 +126,71 @@ describe('historial de propuestas', () => {
     ];
     expect(latestProposal(historia)?.planId).toBe('basico');
     expect(latestProposal([])).toBeNull();
+  });
+});
+
+/**
+ * Lo que se confirma en el paso de plan del alta.
+ *
+ * La regla que reemplazó al catálogo con precios: los montos son los de la
+ * propuesta aceptada —que nacen de Planes— y, si no hubo propuesta, los de
+ * Planes para el perfil del registro. Nunca los del código.
+ */
+describe('el plan del paso de alta', () => {
+  it('con propuesta, muestra los montos que el candidato aceptó', () => {
+    const summary = altaPlanSummary({
+      plan: 'basico',
+      proposal: proposal({ planId: 'premium', altaClp: 120000, monthlyClp: 80000 }),
+      kind: 'corredora',
+    });
+
+    expect(summary.planId).toBe('premium');
+    expect(summary.planName).toBe('Premium');
+    expect(summary.altaClp).toBe(120000);
+    expect(summary.monthlyClp).toBe(80000);
+    expect(summary.source).toBe('propuesta');
+    // Los usuarios y el cupo de publicaciones sí son del plan y del perfil.
+    expect(summary.listings).toBe(1000);
+    expect(summary.usuariosIncluidos).toBe(5);
+  });
+
+  it('sin propuesta, los montos son los de Planes para el perfil', () => {
+    const summary = altaPlanSummary({ plan: null, proposal: null, kind: 'inmobiliaria' });
+
+    const inmobiliaria = DEFAULT_PLAN_PRICING.profiles.find((p) => p.profile === 'inmobiliaria');
+    expect(summary.altaClp).toBe(inmobiliaria?.altaInicialClp);
+    expect(summary.monthlyClp).toBe(inmobiliaria?.mensualBaseClp);
+    expect(summary.usuariosIncluidos).toBe(inmobiliaria?.usuariosIncluidos);
+    expect(summary.source).toBe('planes');
+  });
+
+  it('respeta la configuración que el equipo guardó en Planes', () => {
+    const config = {
+      ...DEFAULT_PLAN_PRICING,
+      profiles: DEFAULT_PLAN_PRICING.profiles.map((item) =>
+        item.profile === 'agente'
+          ? { ...item, altaInicialClp: 990, mensualBaseClp: 1, usuariosIncluidos: 2 }
+          : item
+      ),
+    };
+
+    const summary = altaPlanSummary({
+      plan: null,
+      proposal: null,
+      kind: null,
+      config,
+    });
+
+    expect(summary.altaClp).toBe(990);
+    expect(summary.monthlyClp).toBe(1);
+    expect(summary.usuariosIncluidos).toBe(2);
+  });
+
+  it('un registro sin tipo cae en el perfil más chico, nunca en el más caro', () => {
+    const summary = altaPlanSummary({ plan: null, proposal: null, kind: null });
+    const profesional = DEFAULT_PLAN_PRICING.profiles.find((p) => p.profile === 'agente');
+
+    expect(summary.altaClp).toBe(profesional?.altaInicialClp);
+    expect(summary.monthlyClp).toBe(profesional?.mensualBaseClp);
   });
 });

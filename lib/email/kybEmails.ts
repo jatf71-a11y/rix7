@@ -10,7 +10,8 @@
  */
 
 import { escapeHtml } from './alertEmail';
-import { formatPlanPrice, KYB_PLANS } from '@/lib/kyb/plans';
+import { formatPlanPrice } from '@/lib/kyb/plans';
+import type { AltaPlanSummary } from '@/lib/kyb/proposal';
 import type { KybQuestion } from '@/lib/kyb/status';
 
 export interface BuiltKybEmail {
@@ -189,68 +190,72 @@ export function buildKybAcceptedEmail({
   contactName,
   token,
   siteUrl,
+  plan,
 }: {
   legalName: string;
   contactName: string;
   token: string;
   siteUrl: string;
+  /**
+   * El plan de la propuesta aceptada, con los montos que el candidato ya vio.
+   *
+   * Antes este correo listaba los tres planes del catálogo con precios escritos
+   * en el código: los mismos números que el panel había dejado de usar. El
+   * correo tiene que decir lo mismo que la pantalla del alta.
+   */
+  plan: AltaPlanSummary;
 }): BuiltKybEmail {
   const link = kybAccessUrl(siteUrl, token);
   const first = contactName.trim().split(/\s+/)[0] || '';
   const greeting = first ? `Hola ${first},` : 'Hola,';
-
-  const plansText = KYB_PLANS.map(
-    (plan) =>
-      `• ${plan.name} — ${formatPlanPrice(plan.priceClp)}/mes · ${plan.listings} publicaciones · ${plan.users} usuario(s)`
-  ).join('\n');
+  const monthly = formatPlanPrice(plan.monthlyClp);
+  const alta = formatPlanPrice(plan.altaClp);
 
   const text = [
     greeting,
     '',
     `La solicitud de ${legalName} quedó aceptada.`,
-    'Elige el plan con el que quieres operar en este enlace (vale 7 días):',
+    'Confirma el plan en este enlace (vale 7 días):',
     link,
     '',
-    'Planes disponibles:',
-    plansText,
+    `Plan ${plan.planName} — ${monthly}/mes`,
+    `Alta inicial: ${alta}`,
+    `${plan.usuariosIncluidos} usuario(s) y ${plan.listings} publicaciones activas.`,
     '',
     'Al confirmar el plan creamos el acceso al panel de publicaciones y te enviamos el enlace',
-    'para entrar.',
+    'para entrar. El alta queda cerrada cuando se registra el pago del período.',
     '',
     'Rix7 — Alta de empresas',
     siteUrl,
   ].join('\n');
 
-  const plansHtml = KYB_PLANS.map(
-    (plan) => `
-      <tr>
-        <td style="padding:10px 0;border-bottom:1px solid #e2e8f0">
-          <div style="color:#0f172a;font-size:14px;font-weight:700">${escapeHtml(plan.name)}</div>
-          <div style="color:#64748b;font-size:12px">${plan.listings} publicaciones · ${plan.users} usuario(s)</div>
-        </td>
-        <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;text-align:right;color:#0f172a;font-size:14px;font-weight:700;white-space:nowrap">
-          ${escapeHtml(formatPlanPrice(plan.priceClp))}<span style="color:#94a3b8;font-size:11px;font-weight:400">/mes</span>
-        </td>
-      </tr>`
-  ).join('');
-
   return {
-    subject: `Tu empresa fue aceptada: elige tu plan en Rix7 (${legalName})`,
+    subject: `Tu empresa fue aceptada: confirma tu plan en Rix7 (${legalName})`,
     text,
     html: shell({
       siteUrl,
       title: '¡Solicitud aceptada!',
-      intro: `${escapeHtml(greeting)} <strong>${escapeHtml(legalName)}</strong> quedó aceptada en la verificación. Elige el plan con el que quieres operar.`,
+      intro: `${escapeHtml(greeting)} <strong>${escapeHtml(legalName)}</strong> quedó aceptada en la verificación. Confirma el plan de tu propuesta.`,
       body: `
-        <table role="presentation" cellpadding="0" cellspacing="0" width="100%">${plansHtml}</table>
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td style="padding:10px 0;border-bottom:1px solid #e2e8f0">
+              <div style="color:#0f172a;font-size:14px;font-weight:700">${escapeHtml(plan.planName)}</div>
+              <div style="color:#64748b;font-size:12px">${plan.listings} publicaciones · ${plan.usuariosIncluidos} usuario(s) · alta ${escapeHtml(alta)}</div>
+            </td>
+            <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;text-align:right;color:#0f172a;font-size:14px;font-weight:700;white-space:nowrap">
+              ${escapeHtml(monthly)}<span style="color:#94a3b8;font-size:11px;font-weight:400">/mes</span>
+            </td>
+          </tr>
+        </table>
         <div style="margin:22px 0 0">
           <a href="${link}" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:700;padding:12px 22px;border-radius:12px;text-decoration:none">
-            Elegir plan y activar mi panel
+            Confirmar plan y activar mi panel
           </a>
         </div>
         <p style="margin:14px 0 0;color:#64748b;font-size:12px;line-height:1.6">
           El enlace vale 7 días. Al confirmar el plan habilitamos el acceso al panel de
-          publicaciones de tu empresa.
+          publicaciones de tu empresa; el alta queda cerrada cuando se registra el pago.
         </p>`,
     }),
   };

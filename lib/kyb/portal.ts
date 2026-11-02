@@ -12,6 +12,7 @@
  */
 
 import { getKybPlan, isKybPlanId } from './plans';
+import type { AltaPlanSummary } from './proposal';
 import type { KybQuestion, KybStatus } from './status';
 
 /** Lo que devuelve `POST /api/kyb/access`. */
@@ -23,6 +24,12 @@ export interface KybAccessView {
   panelEnabled: boolean;
   /** Solo en `Alta` (propuesta aceptada) con el panel aún sin habilitar. */
   canChoosePlan: boolean;
+  /**
+   * El plan y los montos que se confirman en el paso de plan. Vienen de la
+   * propuesta aceptada —cuyo valor inicial es el de **Planes**— o, sin
+   * propuesta, de los precios configurados para el perfil del registro.
+   */
+  planSummary?: AltaPlanSummary | null;
 }
 
 export type KybPortalStage = 'questions' | 'proposal' | 'plans' | 'active' | 'evaluating';
