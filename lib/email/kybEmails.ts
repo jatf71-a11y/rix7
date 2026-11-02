@@ -528,3 +528,97 @@ export function buildKybActivatedEmail({
     }),
   };
 }
+
+/**
+ * Recordatorio de un alta detenida.
+ *
+ * No repite el correo del hito: el primero ya se leyó (o se perdió) y volver a
+ * mandar el mismo asunto se lee como un error del sistema. Este dice en qué paso
+ * está la empresa, que el enlace anterior puede haber vencido y cuánto falta
+ * para que el alta se cierre por falta de respuesta.
+ *
+ * Lo dispara el job de solicitudes detenidas (`lib/data/socioNudges.ts`), no una
+ * persona: por eso el tono es informativo y no reclama nada.
+ */
+export function buildKybReminderEmail({
+  legalName,
+  contactName,
+  step,
+  link,
+  siteUrl,
+  closingInDays,
+}: {
+  legalName: string;
+  contactName: string;
+  step: 'answers' | 'proposal' | 'activation';
+  link: string;
+  siteUrl: string;
+  /** Días que faltan para el cierre automático; se omite si no aplica. */
+  closingInDays?: number;
+}): BuiltKybEmail {
+  const first = contactName.trim().split(/\s+/)[0] || '';
+  const greeting = first ? `Hola ${first},` : 'Hola,';
+
+  const copy = {
+    answers: {
+      title: 'Seguimos esperando los datos',
+      body: `la evaluación del alta de ${legalName} quedó detenida esperando las aclaraciones que te pedimos.`,
+      cta: 'Responder ahora',
+      subject: `Seguimos esperando los datos del alta de ${legalName}`,
+    },
+    proposal: {
+      title: 'Tu propuesta sigue abierta',
+      body: `la propuesta comercial de ${legalName} —plan y precios— está esperando tu respuesta.`,
+      cta: 'Ver la propuesta',
+      subject: `Tu propuesta de alta en Rix7 sigue abierta`,
+    },
+    activation: {
+      title: 'Tu plan está a un paso',
+      body: `aceptaste la propuesta de ${legalName}; falta confirmar el plan para habilitar el panel.`,
+      cta: 'Elegir mi plan',
+      subject: `Falta confirmar el plan de ${legalName} en Rix7`,
+    },
+  }[step];
+
+  const closing =
+    typeof closingInDays === 'number' && closingInDays > 0
+      ? `Si no tenemos respuesta en ${closingInDays} días, cerramos el trámite y puedes volver a iniciarlo cuando quieras.`
+      : 'Si necesitas ayuda, responde este correo.';
+
+  const text = [
+    greeting,
+    '',
+    `Te escribimos de nuevo porque ${copy.body}`,
+    '',
+    'El enlace anterior puede haber vencido: este es nuevo y vale 7 días.',
+    'Responde acá:',
+    link,
+    '',
+    closing,
+    '',
+    'Rix7 — Alta de empresas',
+    siteUrl,
+  ].join('\n');
+
+  return {
+    subject: copy.subject,
+    text,
+    html: shell({
+      siteUrl,
+      title: copy.title,
+      intro: `${escapeHtml(greeting)} te escribimos de nuevo porque ${escapeHtml(copy.body)}`,
+      body: `
+        <div style="margin:0 0 20px">
+          <a href="${link}" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:700;padding:12px 22px;border-radius:12px;text-decoration:none">
+            ${copy.cta}
+          </a>
+        </div>
+        <p style="margin:0;color:#475569;font-size:13px;line-height:1.65">
+          El enlace anterior puede haber vencido: este es nuevo y vale 7 días.
+        </p>
+        <p style="margin:12px 0 0;color:#64748b;font-size:12px;line-height:1.6">
+          ${escapeHtml(closing)}
+        </p>`,
+    }),
+  };
+}

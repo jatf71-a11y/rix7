@@ -374,6 +374,10 @@ export interface SolicitudReviewPatch {
   answerTokenExpiresAt?: string;
   /** Respuestas de una ronda: se suman a las anteriores, no las pisan. */
   answers?: SolicitudAnswer[];
+  /** Alta creada a partir de este registro: deja el vínculo en el `payload`. */
+  altaApplicationId?: string;
+  /** Recordatorios ya enviados (conteo y fecha del último). */
+  nudges?: { count: number; lastAt: string };
 }
 
 /**
@@ -471,6 +475,11 @@ function mergeReviewPayload(
       : [];
     next[REVIEW_KEYS.answers] = [...previous, ...patch.answers];
   }
+  if (patch.altaApplicationId) {
+    next[REVIEW_KEYS.alta] = patch.altaApplicationId;
+    next[REVIEW_KEYS.altaAt] = new Date().toISOString();
+  }
+  if (patch.nudges) next[REVIEW_KEYS.nudges] = patch.nudges;
 
   return next;
 }

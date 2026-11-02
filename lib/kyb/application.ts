@@ -29,8 +29,14 @@ export interface KybApplicationInput {
 /** Alcance declarado en el registro de empresas. El alta directa no lo pide. */
 export type KybCoverage = 'nacional' | 'regional';
 
-/** Camino del registro público que originó la solicitud. */
-export type KybRegistrationKind = 'corredora' | 'inmobiliaria';
+/**
+ * Camino del registro que originó la solicitud.
+ *
+ * `agente` es el profesional independiente: el nombre visible es «profesional»
+ * (ver `SOLICITUD_KIND_LABELS`), pero la clave se conserva porque renombrar la
+ * columna obligaría a una migración de datos sin beneficio.
+ */
+export type KybRegistrationKind = 'corredora' | 'inmobiliaria' | 'agente';
 
 export interface NormalizedKybApplication {
   legalName: string;
@@ -261,7 +267,7 @@ export function normalizeKybApplication(input: KybApplicationInput): KybValidati
   let registrationKind: KybRegistrationKind | null = null;
   const rawKind = text(input.registrationKind);
   if (rawKind) {
-    if (rawKind !== 'corredora' && rawKind !== 'inmobiliaria') {
+    if (rawKind !== 'corredora' && rawKind !== 'inmobiliaria' && rawKind !== 'agente') {
       return { ok: false, error: 'El tipo de registro no es válido.' };
     }
     registrationKind = rawKind;

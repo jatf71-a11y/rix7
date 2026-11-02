@@ -85,8 +85,16 @@ describe('normalizeKybApplication', () => {
     expect(result.application.contactRole).toBe('Gerente comercial');
   });
 
-  it('rechaza un tipo de registro que no es una empresa', () => {
+  it('acepta al profesional independiente como camino de registro', () => {
+    // Es el caso del registro que ahora sigue el tramo comercial completo: sin
+    // este valor la base rechazaría el alta creada desde el puente.
     const result = normalizeKybApplication({ ...valida, registrationKind: 'agente' });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.application.registrationKind).toBe('agente');
+  });
+
+  it('rechaza un tipo de registro que no es una empresa', () => {
+    const result = normalizeKybApplication({ ...valida, registrationKind: 'propietario' });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toMatch(/tipo de registro/);
   });

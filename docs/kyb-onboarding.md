@@ -237,6 +237,66 @@ del registro, y conserva el selector de estado y **Re-evaluar** para las
 excepciones. Mover el estado a `Aceptada` o `Rechazada` a mano también manda
 correo: una decisión del equipo no puede dejar al solicitante en silencio.
 
+### Del registro aprobado al alta (un solo camino)
+
+Antes, aprobar un registro lo dejaba en `Aceptada` y ahí terminaba: la propuesta,
+el token de alta y el panel solo existían para las altas de empresa, así que un
+socio que entraba por el formulario público nunca llegaba a operar sin que
+alguien lo creara a mano. El tablero, que mezcla las dos tablas, mostraba un
+pipeline que no era real para tres de los cuatro perfiles.
+
+Ahora, cuando el registro queda aprobado —por el autómata o por el equipo— se
+crea su alta en `kyb_applications` ya en `Calificado`, con
+[`lib/data/socioAltaBridge.ts`](../lib/data/socioAltaBridge.ts):
+
+- la razón social es la empresa; para un profesional independiente, su nombre;
+- el perfil (`registration_kind`) es el camino del registro (`corredora`,
+`inmobiliaria` o `agente`), así que Planes elige los precios correctos;
+- la fila guarda `solicitud_origen`, y el registro guarda `kyb_application_id`
+en su `payload`.
+
+A partir de ahí el panel muestra **una sola tarjeta** —la del alta, que es la que
+tiene propuesta, plan y panel— y el registro deja de listarse. El vínculo es
+idempotente por los dos lados (el `payload` y un índice único en
+`solicitud_origen`): reintentar la conversión no duplica nada. Si el registro ya
+estaba aprobado antes de este cambio, **Re-evaluar** sobre la tarjeta crea el
+alta; no hay que recrear la solicitud.
+
+La migración `0032` amplía el `CHECK` de `registration_kind` para aceptar
+`agente` y agrega `solicitud_origen`, `reminders_sent` y `last_reminder_at`.
+
+### Recordatorios, reenvío y cierre
+
+Un trámite detenido no se quedaba solo: el token vence a los 7 días y la persona
+se quedaba sin enlace y sin aviso. El job de
+[`lib/data/socioNudges.ts`](../lib/data/socioNudges.ts) recorre altas y registros
+detenidos y, con la misma regla para los dos caminos:
+
+| Días desde el inicio del paso | Qué hace |
+| --- | --- |
+| 3 | Recordatorio con un enlace nuevo |
+| 10 | Segundo recordatorio |
+| 30 | Cierra el trámite (`Rechazada`) y avisa el motivo |
+
+Los pasos que atiende son `Pendiente_Informacion`, `Propuesta_Comercial` y
+`Alta` sin plan confirmado. En `Alta` solo recuerda: la propuesta ya está
+aceptada y descartar esa venta es una decisión del equipo, no del cron. El
+conteo vive en `reminders_sent` (altas) y en `solicitud_nudges` del `payload`
+(registros), así que reejecutar el job no repite correos.
+
+Se dispara con `POST /api/socios/nudges/run` (cabecera `x-alerts-secret`, el
+mismo `ALERTS_CRON_SECRET` del job de alertas) y el workflow diario
+[`.github/workflows/socio-nudges.yml`](../.github/workflows/socio-nudges.yml).
+`?dry=1` calcula sin enviar ni escribir, y `503` significa que falta el secreto
+(la corrida no falla por eso).
+
+El mismo módulo resuelve el **reenvío** que pide el equipo desde el panel
+(«no me llegó», «venció»): `POST /api/kyb/[id]/resend` para un alta y
+`POST /api/admin/solicitudes/[id]/resend` para un registro. El token en claro no
+se guarda, así que se emite uno nuevo del paso vigente y el anterior muere. Por
+último, `sendEmail` reintenta los fallos transitorios de Resend (429 y 5xx) con
+espera creciente: el estado ya avanzó y la persona necesita el enlace.
+
 ## Verificaciones del motor
 
 | Verificación | Peso | Fuente |
@@ -354,7 +414,7 @@ en [`lib/kyb/portal.ts`](../lib/kyb/portal.ts), con test propio.
 ## Pruebas
 
 ```bash
-npx vitest run lib/kyb lib/email/kybEmails.test.ts app/api/kyb app/empresas/onboarding components/admin/kyb lib/data/socios.test.ts
+npx vitest run lib/kyb lib/email/kybEmails.test.ts app/api/kyb app/empresas/onboarding components/admin/kyb lib/data/socios.test.ts lib/data/socioAltaBridge.test.ts lib/data/socioNudges.test.ts
 ```
 
 Cubren la máquina de estados, la normalización, el motor con adaptadores

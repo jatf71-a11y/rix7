@@ -178,6 +178,24 @@ export const REQUIRED_SCHEMA = [
     because: 'es con lo que la empresa responde las preguntas y elige plan: si falta, los enlaces del correo no resuelven la solicitud',
   },
   {
+    id: 'kyb_applications.solicitud_origen',
+    kind: 'column',
+    table: 'kyb_applications',
+    column: 'solicitud_origen',
+    migration: '0032_puente_registro_y_recordatorios',
+    because:
+      'es el vínculo con el registro que originó el alta: sin la columna, ningún registro aprobado puede ser leído y el panel de socios no abre',
+  },
+  {
+    id: 'kyb_applications.reminders_sent',
+    kind: 'column',
+    table: 'kyb_applications',
+    column: 'reminders_sent',
+    migration: '0032_puente_registro_y_recordatorios',
+    because:
+      'el job de recordatorios cuenta los avisos ya enviados en esta columna; sin ella no puede retomar una solicitud detenida sin repetir el correo',
+  },
+  {
     id: 'kyb_evaluations.score',
     kind: 'column',
     table: 'kyb_evaluations',

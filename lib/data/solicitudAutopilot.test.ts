@@ -124,11 +124,16 @@ describe('autopilotSolicitud', () => {
     expect(mail.to).toBe('camila@catedralpropiedades.cl');
     expect(mail.subject).toContain('aceptado');
 
-    // Dos escrituras: el paso por En_Evaluacion y el estado final. El token se
-    // borra al aceptar para que un enlace viejo no siga abriendo el formulario.
-    const statuses = updateSolicitudReview.mock.calls.map(([, patch]) => patch.status);
+    // Dos movimientos de estado: el paso por En_Evaluacion y el estado final. El
+    // token se borra al aceptar para que un enlace viejo no siga abriendo el
+    // formulario. Después hay una escritura más, sin estado, que anota el alta
+    // creada a partir del registro.
+    const statuses = updateSolicitudReview.mock.calls
+      .map(([, patch]) => patch.status)
+      .filter(Boolean);
     expect(statuses).toEqual(['En_Evaluacion', 'Aceptada']);
     expect(updateSolicitudReview.mock.calls[1][1].answerTokenHash).toBeNull();
+    expect(result.alta?.id).toBeTruthy();
   });
 
   it('pide información con las preguntas y un enlace nuevo', async () => {

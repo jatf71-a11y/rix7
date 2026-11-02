@@ -47,6 +47,17 @@ export interface KybApplication {
   /** Socio creado al activar el plan; `null` hasta que el alta lo crea. */
   partnerId: string | null;
   /**
+   * Registro de «Publicar» del que salió esta alta.
+   *
+   * `null` en las altas directas (API o formulario de empresas). Cuando existe,
+   * el panel muestra el alta y no el registro: son la misma empresa en dos
+   * etapas, no dos empresas.
+   */
+  solicitudOrigen?: string | null;
+  /** Recordatorios enviados por el job de solicitudes detenidas. */
+  remindersSent?: number;
+  lastReminderAt?: string | null;
+  /**
    * Propuestas comerciales enviadas, de la más vieja a la más nueva.
    *
    * Es un historial y no la propuesta vigente: si el candidato pide otros
@@ -81,13 +92,16 @@ export interface KybApplicationRow {
   token_purpose: string | null;
   token_expires_at: string | null;
   partner_id: string | null;
+  solicitud_origen?: string | null;
+  reminders_sent?: number | null;
+  last_reminder_at?: string | null;
   proposal: unknown;
   created_at: string;
   updated_at: string;
 }
 
 export const KYB_COLUMNS =
-  'id, status, legal_name, rut, website, domain, email, contact_name, phone, consent, coverage, regions, message, registration_kind, contact_role, score, plan, panel_enabled, activated_at, token_hash, token_purpose, token_expires_at, partner_id, proposal, created_at, updated_at';
+  'id, status, legal_name, rut, website, domain, email, contact_name, phone, consent, coverage, regions, message, registration_kind, contact_role, score, plan, panel_enabled, activated_at, token_hash, token_purpose, token_expires_at, partner_id, solicitud_origen, reminders_sent, last_reminder_at, proposal, created_at, updated_at';
 
 export interface KybEvaluationRecord {
   id: string;
@@ -177,5 +191,7 @@ export type KybStatusPatch = Partial<
     | 'tokenExpiresAt'
     | 'partnerId'
     | 'proposal'
+    | 'remindersSent'
+    | 'lastReminderAt'
   >
 >;

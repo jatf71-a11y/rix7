@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AlertCircle, Loader2, RefreshCw } from 'lucide-react';
+import { AlertCircle, Loader2, RefreshCw, Send } from 'lucide-react';
 import {
   canReevaluate,
   checkSummary,
@@ -70,6 +70,9 @@ interface KybEvaluationDetailProps {
   }) => void;
   /** Recién después de enviar la propuesta: la ficha y el tablero se recargan. */
   onProposalSent?: () => void;
+  /** Reenvío del enlace del paso pendiente (preguntas, propuesta o plan). */
+  onResend?: () => void;
+  resending?: boolean;
 }
 
 export default function KybEvaluationDetail({
@@ -82,10 +85,18 @@ export default function KybEvaluationDetail({
   onReevaluate,
   onDecide,
   onProposalSent,
+  onResend,
+  resending = false,
 }: KybEvaluationDetailProps) {
   const summary = evaluation ? checkSummary(evaluation.checks) : null;
   const outstanding = evaluation ? nonPassingChecks(evaluation.checks) : null;
   const blocked = !canReevaluate(application.status);
+  // Solo hay enlace que reenviar mientras el trámite espera algo del candidato.
+  const canResend =
+    !application.panelEnabled &&
+    (application.status === 'Pendiente_Informacion' ||
+      application.status === 'Propuesta_Comercial' ||
+      application.status === 'Alta');
 
   return (
     <div className="border-t border-slate-100 bg-slate-50/70 px-5 py-5">
@@ -95,7 +106,9 @@ export default function KybEvaluationDetail({
           <p className="text-[11px] text-slate-500">
             {evaluation
               ? `Última corrida: ${formatKybDateTime(evaluation.createdAt)}`
-              : 'Esta solicitud no tiene una corrida del motor guardada.'}
+              : application.solicitudOrigen
+                ? 'Alta creada desde el registro de socio: la evaluación la hizo el formulario de «Publicar» y no hay una corrida del motor KYB.'
+                : 'Esta solicitud no tiene una corrida del motor guardada.'}
           </p>
         </div>
 
@@ -108,6 +121,22 @@ export default function KybEvaluationDetail({
               {evaluation.score}
               <span className="text-[10px] font-semibold">/100</span>
             </span>
+          )}
+          {onResend && canResend && (
+            <button
+              type="button"
+              onClick={onResend}
+              disabled={resending}
+              title="Emitir un enlace nuevo para el paso pendiente y enviarlo por correo"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {resending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Send className="h-3.5 w-3.5" />
+              )}
+              {resending ? 'Enviando…' : 'Reenviar enlace'}
+            </button>
           )}
           <button
             type="button"

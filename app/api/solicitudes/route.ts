@@ -12,6 +12,7 @@ import {
   isSocioRegistro,
   notifyManualDecision,
 } from '@/lib/data/solicitudAutopilot';
+import { ensureAltaForSolicitud } from '@/lib/data/socioAltaBridge';
 import {
   isSolicitudKind,
   normalizeSolicitud,
@@ -143,8 +144,34 @@ export async function PATCH(request: NextRequest) {
     }
   }
 
+  // Aprobado a mano, el registro sigue el mismo camino que si lo hubiera
+  // aprobado el autómata: nace su alta y desde ahí tiene propuesta, plan y
+  // panel. Si falla, la aprobación ya está guardada y se devuelve la
+  // advertencia; el panel puede reintentar con «Re-evaluar».
+  let alta: { id: string; created: boolean } | undefined;
+  let altaWarning: string | undefined;
+  if (
+    updated.solicitud &&
+    isSocioRegistro(updated.solicitud.kind) &&
+    (updated.solicitud.status === 'Aceptada' || updated.solicitud.status === 'Calificado')
+  ) {
+    const promoted = await ensureAltaForSolicitud(updated.solicitud);
+    if (promoted.ok && promoted.application) {
+      alta = { id: promoted.application.id, created: !!promoted.created };
+    } else {
+      altaWarning = promoted.error ?? 'No se pudo crear el alta del registro.';
+      console.error('[solicitudes] no se pudo crear el alta:', altaWarning);
+    }
+  }
+
   return NextResponse.json(
-    { success: true, solicitud: updated.solicitud ?? null, persisted: updated.persisted },
+    {
+      success: true,
+      solicitud: updated.solicitud ?? null,
+      persisted: updated.persisted,
+      ...(alta ? { alta } : {}),
+      ...(altaWarning ? { warning: altaWarning } : {}),
+    },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }

@@ -96,7 +96,9 @@ export function rowToApplication(row: KybApplicationRow): KybApplication {
     regions: Array.isArray(row.regions) ? row.regions : [],
     message: row.message ?? null,
     registrationKind:
-      row.registration_kind === 'corredora' || row.registration_kind === 'inmobiliaria'
+      row.registration_kind === 'corredora' ||
+      row.registration_kind === 'inmobiliaria' ||
+      row.registration_kind === 'agente'
         ? row.registration_kind
         : null,
     contactRole: row.contact_role ?? null,
@@ -108,6 +110,9 @@ export function rowToApplication(row: KybApplicationRow): KybApplication {
     tokenPurpose: isKybTokenPurpose(row.token_purpose) ? row.token_purpose : null,
     tokenExpiresAt: row.token_expires_at,
     partnerId: row.partner_id ?? null,
+    solicitudOrigen: row.solicitud_origen ?? null,
+    remindersSent: typeof row.reminders_sent === 'number' ? row.reminders_sent : 0,
+    lastReminderAt: row.last_reminder_at ?? null,
     proposal: readProposals(row.proposal),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -128,20 +133,32 @@ function patchToRow(patch: KybStatusPatch): Record<string, unknown> {
   // renegociación no borra la propuesta anterior.
   if (patch.proposal !== undefined) row.proposal = patch.proposal;
   if (patch.partnerId !== undefined) row.partner_id = patch.partnerId;
+  if (patch.remindersSent !== undefined) row.reminders_sent = patch.remindersSent;
+  if (patch.lastReminderAt !== undefined) row.last_reminder_at = patch.lastReminderAt;
   return row;
 }
 
 export async function createApplication(
-  input: NormalizedKybApplication
+  input: NormalizedKybApplication,
+  /**
+   * Opciones de la conversión de un registro de socio.
+   *
+   * `status: 'Calificado'` crea la fila ya en el tramo comercial —el registro
+   * pasó la evaluación propia del formulario— y `solicitudOrigen` deja el
+   * vínculo con la fila de «Publicar». Las altas públicas no usan ninguna.
+   */
+  options: { status?: KybStatus; solicitudOrigen?: string | null } = {}
 ): Promise<KybResult<KybApplication>> {
   const now = new Date().toISOString();
+  const status = options.status ?? 'Recibida';
+  const solicitudOrigen = options.solicitudOrigen ?? null;
 
   if (kybSource() === 'memory') {
     const store = db();
     store.counter += 1;
     const application: KybApplication = {
       id: `kyb-memoria-${store.counter}`,
-      status: 'Recibida',
+      status,
       legalName: input.legalName,
       rut: input.rut,
       website: input.website,
@@ -163,6 +180,9 @@ export async function createApplication(
       tokenPurpose: null,
       tokenExpiresAt: null,
       partnerId: null,
+      solicitudOrigen,
+      remindersSent: 0,
+      lastReminderAt: null,
       proposal: [],
       createdAt: now,
       updatedAt: now,
@@ -178,7 +198,7 @@ export async function createApplication(
       .from('kyb_applications')
       .insert({
         id,
-        status: 'Recibida',
+        status,
         legal_name: input.legalName,
         rut: input.rut,
         website: input.website,
@@ -192,6 +212,7 @@ export async function createApplication(
         message: input.message,
         registration_kind: input.registrationKind,
         contact_role: input.contactRole,
+        solicitud_origen: solicitudOrigen,
       })
       .select(KYB_COLUMNS)
       .single();
@@ -205,6 +226,45 @@ export async function createApplication(
     }
 
     return { ok: true, data: rowToApplication(data as KybApplicationRow), persisted: true };
+  } catch (error) {
+    return { ok: false, persisted: true, error: messageOf(error) };
+  }
+}
+
+/**
+ * Alta creada a partir de un registro de «Publicar».
+ *
+ * La conversión es idempotente por dos lados: el panel guarda el id en el
+ * `payload` de la solicitud y la base tiene un índice único en `solicitud_origen`.
+ * Esta lectura es el respaldo para el caso en que la escritura del vínculo haya
+ * fallado después de crear la fila: sin ella, el siguiente reintento chocaría
+ * contra el índice y el registro se quedaría sin alta para siempre.
+ */
+export async function findApplicationBySolicitudOrigen(
+  solicitudId: string
+): Promise<KybResult<KybApplication | null>> {
+  if (kybSource() === 'memory') {
+    const found = db().applications.find(
+      (application) => application.solicitudOrigen === solicitudId
+    );
+    return { ok: true, data: found ?? null, persisted: false, found: !!found };
+  }
+
+  try {
+    const supabase = await serviceClient();
+    const { data, error } = await supabase
+      .from('kyb_applications')
+      .select(KYB_COLUMNS)
+      .eq('solicitud_origen', solicitudId)
+      .maybeSingle();
+
+    if (error) return { ok: false, persisted: true, error: error.message };
+    return {
+      ok: true,
+      data: data ? rowToApplication(data as KybApplicationRow) : null,
+      persisted: true,
+      found: !!data,
+    };
   } catch (error) {
     return { ok: false, persisted: true, error: messageOf(error) };
   }

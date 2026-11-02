@@ -9,8 +9,10 @@
  * - `alta` es una solicitud de corredora o inmobiliaria que pasó por el motor de
  *   evaluación. Tiene puntaje, verificaciones y se mueve con decisiones, que
  *   disparan correos y tokens; el estado no se cambia a mano desde un selector.
- * - `registro` es el registro de un **profesional independiente**, que no
- *   tiene empresa que verificar. Es una persona y el equipo lo mueve a mano.
+ * - `registro` es una solicitud de «Publicar» que todavía no tiene alta: el
+ *   formulario de socio (corredora, inmobiliaria o profesional independiente)
+ *   mientras el autómata no la aprueba. Al aprobarse nace su alta y la fila del
+ *   registro deja de listarse (`lib/data/socioAltaBridge.ts`).
  *
  * El `kind` que viaja en la base sigue siendo `agente`: el nombre visible para
  * el equipo y para quien se registra es «profesional independiente», pero
@@ -25,6 +27,7 @@
 
 import type { KybApplication } from '@/lib/kyb/types';
 import type { KybStatus } from '@/lib/kyb/status';
+import { SOLICITUD_REVIEW_KEYS } from '@/lib/data/solicitudEvaluation';
 import type { Solicitud, SolicitudKind } from '@/lib/data/solicitudes';
 
 /**
@@ -91,8 +94,32 @@ export function isSocioSolicitud(solicitud: Solicitud): boolean {
   return isSocioKind(solicitud.kind);
 }
 
+/**
+ * Id del alta creada desde este registro, si ya existe.
+ *
+ * Vive acá —y no en `socioAltaBridge`— porque el panel lo necesita en el
+ * cliente: el puente importa el store, que usa `next/headers`, y un componente
+ * de cliente no puede cargarlo. La lectura del `payload` es pura.
+ */
+export function solicitudAltaId(solicitud: Solicitud): string | null {
+  const value = solicitud.payload?.[SOLICITUD_REVIEW_KEYS.alta];
+  return typeof value === 'string' && value ? value : null;
+}
+
+/** Registros que el tablero debe mostrar como su alta (ya convertidos). */
+export function convertedSolicitudIds(solicitudes: readonly Solicitud[]): Set<string> {
+  return new Set(
+    solicitudes
+      .filter((solicitud) => solicitudAltaId(solicitud) !== null)
+      .map((solicitud) => solicitud.id)
+  );
+}
+
 function categoryFromRegistrationKind(kind: string | null): SocioCategory {
-  return kind === 'corredora' || kind === 'inmobiliaria' ? kind : 'empresa';
+  // `agente` entra explícito: es la categoría que gana un alta creada desde el
+  // registro de un profesional independiente. Sin este caso, la conversión lo
+  // mostraría como «Empresa sin tipo».
+  return kind === 'corredora' || kind === 'inmobiliaria' || kind === 'agente' ? kind : 'empresa';
 }
 
 export function socioFromApplication(application: KybApplication): SocioSolicitud {
@@ -127,7 +154,9 @@ export function socioFromSolicitud(solicitud: Solicitud): SocioSolicitud {
   return {
     id: solicitud.id,
     source: 'registro',
-    category: 'agente',
+    // La categoría sale del camino y no de un valor fijo: una corredora que se
+    // registró desde «Publicar» es una corredora, no un profesional.
+    category: isSocioKind(solicitud.kind) ? solicitud.kind : 'agente',
     status: solicitud.status,
     name: solicitud.name,
     contactName: solicitud.name,
@@ -147,6 +176,19 @@ export function socioFromSolicitud(solicitud: Solicitud): SocioSolicitud {
 function timestamp(iso: string): number {
   const value = Date.parse(iso);
   return Number.isNaN(value) ? 0 : value;
+}
+
+/**
+ * Días desde que se abrió la solicitud.
+ *
+ * El tablero mostraba la fecha, no la antigüedad: con veinte tarjetas nadie
+ * resta fechas de cabeza, y lo que se quedó quieto no se veía. Un dato derivado
+ * y no una columna: se calcula al leer y no puede quedar desactualizado.
+ */
+export function daysOpen(createdAt: string, now: Date = new Date()): number {
+  const start = timestamp(createdAt);
+  if (!start) return 0;
+  return Math.max(0, Math.floor((now.getTime() - start) / (24 * 60 * 60 * 1000)));
 }
 
 /**

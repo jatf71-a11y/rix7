@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildSocios,
+  daysOpen,
   isSocioSolicitud,
   socioCounts,
   socioFromApplication,
@@ -74,6 +75,9 @@ describe('socios: de una fila a una tarjeta del panel', () => {
     expect(
       socioFromApplication(application({ registrationKind: 'inmobiliaria' })).category
     ).toBe('inmobiliaria');
+    // El alta que nace de un registro de profesional independiente conserva su
+    // categoría; si no, el tablero la mostraría como «Empresa sin tipo».
+    expect(socioFromApplication(application({ registrationKind: 'agente' })).category).toBe('agente');
   });
 
   it('un alta sin tipo declarado queda como empresa, no como corredora', () => {
@@ -89,6 +93,21 @@ describe('socios: de una fila a una tarjeta del panel', () => {
     expect(socio.category).toBe('agente');
     expect(socio.score).toBeNull();
     expect(socio.panelEnabled).toBe(false);
+  });
+
+  it('la antigüedad sale de la fecha de apertura y nunca es negativa', () => {
+    const now = new Date('2026-11-01T12:00:00.000Z');
+
+    expect(daysOpen('2026-10-25T12:00:00.000Z', now)).toBe(7);
+    expect(daysOpen('2026-11-05T12:00:00.000Z', now)).toBe(0);
+    expect(daysOpen('no-es-fecha', now)).toBe(0);
+  });
+
+  it('la categoría del registro sale de su camino, no de un valor fijo', () => {
+    // Antes todo registro se mostraba como «Profesional», incluidos los de
+    // corredora e inmobiliaria: el filtro de categoría los escondía.
+    expect(socioFromSolicitud(solicitud('corredora')).category).toBe('corredora');
+    expect(socioFromSolicitud(solicitud('inmobiliaria')).category).toBe('inmobiliaria');
   });
 
   it('un agente trae su cobertura y regiones del payload', () => {

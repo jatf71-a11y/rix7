@@ -131,6 +131,8 @@ const HEALTHY_ROUTES: Record<string, () => Response> = {
     jsonResponse(200, []),
   [`${BASE}/rest/v1/kyb_applications?select=status&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/kyb_applications?select=token_hash&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/kyb_applications?select=solicitud_origen&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/kyb_applications?select=reminders_sent&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/kyb_evaluations?select=score&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/kyb_decisions?select=decided_by&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/plan_settings?select=value&limit=1`]: () => jsonResponse(200, []),
@@ -201,6 +203,7 @@ describe('schemaPlan', () => {
         '0026_kyb_onboarding',
         '0027_kyb_rechazo_y_decisiones',
         '0030_plan_settings',
+        '0032_puente_registro_y_recordatorios',
       ])
     );
   });
@@ -367,9 +370,14 @@ describe('runSchemaCheck', () => {
         jsonResponse(200, []),
       [`${BASE}/rest/v1/properties?select=property_taxes_checked_at&limit=1`]: () =>
         jsonResponse(200, []),
-      // El alta de empresas (0026) sí está aplicada en este escenario.
+      // El alta de empresas (0026) y el puente con el registro (0032) sí están
+      // aplicados en este escenario.
       [`${BASE}/rest/v1/kyb_applications?select=status&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/kyb_applications?select=token_hash&limit=1`]: () => jsonResponse(200, []),
+      [`${BASE}/rest/v1/kyb_applications?select=solicitud_origen&limit=1`]: () =>
+        jsonResponse(200, []),
+      [`${BASE}/rest/v1/kyb_applications?select=reminders_sent&limit=1`]: () =>
+        jsonResponse(200, []),
       [`${BASE}/rest/v1/kyb_evaluations?select=score&limit=1`]: () => jsonResponse(200, []),
       // La 0027 (decisiones del equipo) también está aplicada acá.
       [`${BASE}/rest/v1/kyb_decisions?select=decided_by&limit=1`]: () => jsonResponse(200, []),

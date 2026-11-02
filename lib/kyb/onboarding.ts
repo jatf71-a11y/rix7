@@ -26,6 +26,9 @@ import {
   buildKybQualifiedEmail,
   buildKybReceivedEmail,
   buildKybRejectedEmail,
+  buildKybReminderEmail,
+  kybAccessUrl,
+  kybProposalUrl,
 } from '@/lib/email/kybEmails';
 import { normalizeDecision } from './decisions';
 import {
@@ -964,4 +967,152 @@ export async function decideKybProposal({
   );
 
   return { ok: true, status: 'Alta', decision, email };
+}
+
+export interface ResendKybResult {
+  ok: boolean;
+  status?: KybStatus;
+  email?: EmailOutcome;
+  error?: string;
+  code?: 'not_found' | 'conflict' | 'store';
+}
+
+/**
+ * Reenvía el enlace del paso en el que está detenida un alta.
+ *
+ * El token en claro no se guarda, así que no se puede reenviar «el mismo»
+ * enlace: se emite uno nuevo para el paso vigente y el anterior deja de servir.
+ * Es lo que necesita quien escribe «no me llegó» o «lo abrí tarde», y también lo
+ * que usa el job de solicitudes detenidas para insistir sin inventar otro
+ * mecanismo.
+ *
+ * `reminder` cambia el correo, no el enlace: el recordatorio dice en qué paso
+ * está la empresa y cuánto falta para el cierre, en vez de repetir el asunto del
+ * primer aviso.
+ */
+export async function resendKybLink(
+  id: string,
+  options: { reminder?: boolean; closingInDays?: number } = {}
+): Promise<ResendKybResult> {
+  const found = await getApplication(id);
+  if (!found.ok || !found.data) {
+    return { ok: false, code: 'not_found', error: 'Solicitud no encontrada.' };
+  }
+  const application = found.data;
+
+  if (application.panelEnabled) {
+    return {
+      ok: false,
+      code: 'conflict',
+      status: application.status,
+      error: 'El alta ya está completa: no hay un enlace pendiente que reenviar.',
+    };
+  }
+
+  if (application.status === 'Pendiente_Informacion') {
+    const request = await latestInformationRequest(id);
+    const questions = request?.questions ?? [];
+    if (questions.length === 0) {
+      return {
+        ok: false,
+        code: 'conflict',
+        status: application.status,
+        error: 'Esta solicitud no tiene preguntas guardadas. Usa «Pedir información» para abrir una ronda.',
+      };
+    }
+
+    const { token } = await issueToken(id, 'answers');
+    const built = options.reminder
+      ? buildKybReminderEmail({
+          legalName: application.legalName,
+          contactName: application.contactName,
+          step: 'answers',
+          link: kybAccessUrl(SITE_URL, token),
+          siteUrl: SITE_URL,
+          closingInDays: options.closingInDays,
+        })
+      : buildKybPendingEmail({
+          legalName: application.legalName,
+          contactName: application.contactName,
+          questions,
+          token,
+          siteUrl: SITE_URL,
+        });
+
+    const email = await notify(application.email, built);
+    return { ok: true, status: application.status, email };
+  }
+
+  if (application.status === 'Propuesta_Comercial') {
+    const proposal = latestProposal(application.proposal);
+    if (!proposal) {
+      return {
+        ok: false,
+        code: 'conflict',
+        status: application.status,
+        error: 'Esta solicitud no tiene una propuesta guardada.',
+      };
+    }
+
+    const { token } = await issueToken(id, 'proposal');
+    const built = options.reminder
+      ? buildKybReminderEmail({
+          legalName: application.legalName,
+          contactName: application.contactName,
+          step: 'proposal',
+          link: kybProposalUrl(SITE_URL, token),
+          siteUrl: SITE_URL,
+          closingInDays: options.closingInDays,
+        })
+      : buildKybProposalEmail({
+          legalName: application.legalName,
+          contactName: application.contactName,
+          planName: proposalPlanName(proposal.planId),
+          altaClp: proposal.altaClp,
+          monthlyClp: proposal.monthlyClp,
+          note: proposal.note,
+          token,
+          siteUrl: SITE_URL,
+        });
+
+    const email = await notify(application.email, built);
+    return { ok: true, status: application.status, email };
+  }
+
+  if (application.status === 'Alta' && application.plan) {
+    const pricing = await readPlanPricing();
+    const planSummary = altaPlanSummary({
+      plan: application.plan,
+      proposal: latestProposal(application.proposal),
+      kind: application.registrationKind,
+      config: pricing.config,
+    });
+
+    const { token } = await issueToken(id, 'activation');
+    const built = options.reminder
+      ? buildKybReminderEmail({
+          legalName: application.legalName,
+          contactName: application.contactName,
+          step: 'activation',
+          link: kybAccessUrl(SITE_URL, token),
+          siteUrl: SITE_URL,
+        })
+      : buildKybAcceptedEmail({
+          legalName: application.legalName,
+          contactName: application.contactName,
+          token,
+          siteUrl: SITE_URL,
+          plan: planSummary,
+        });
+
+    const email = await notify(application.email, built);
+    return { ok: true, status: application.status, email };
+  }
+
+  return {
+    ok: false,
+    code: 'conflict',
+    status: application.status,
+    error: `La solicitud está en «${KYB_STATUS_LABELS[application.status]}» y no tiene un enlace pendiente para reenviar.`,
+  };
 }

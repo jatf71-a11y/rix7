@@ -1,0 +1,102 @@
+# Recordatorios de solicitudes detenidas (Rix7).
+#
+# Llama a `POST /api/socios/nudges/run` del sitio desplegado: el job lee las
+# altas y los registros con SUPABASE_SERVICE_ROLE_KEY y manda correo con
+# RESEND_API_KEY, claves que ya viven en Vercel. Necesita además
+# `ALERTS_CRON_SECRET` —el mismo del job de alertas, no uno nuevo— en Vercel y
+# en los secretos de GitHub.
+#
+# Qué hace, con las constantes de `lib/data/socioNudges.ts`:
+#
+# - a los 3 y a los 10 días de un paso detenido, reenvía el enlace con un
+#   recordatorio (preguntas, propuesta o plan);
+# - a los 30 días, cierra el trámite por abandono y avisa el motivo.
+#
+# Si el sitio responde 503 (falta el secreto) la corrida **no falla**: escribe
+# qué falta y termina en verde. Un rojo diario que nadie puede arreglar enseña a
+# ignorar la CI; el rojo queda para cuando está configurado y algo se rompe.
+#
+# Nota: GitHub desactiva los schedules tras 60 días sin actividad en el repo.
+
+name: Recordatorios de solicitudes
+
+on:
+  schedule:
+    # 11:07 UTC = 08:07 América/Santiago. Minuto corrido y antes del job de
+    # avisos (12:17) para no competir por el mismo horario.
+    - cron: '7 11 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Simular sin enviar correos ni escribir nada'
+        type: boolean
+        default: false
+
+concurrency:
+  group: socio-nudges
+  cancel-in-progress: false
+
+jobs:
+  nudges:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SITE: ${{ vars.SITE_URL || 'https://rix7.cl' }}
+    steps:
+      - name: Correr el job
+        id: run
+        env:
+          SECRET: ${{ secrets.ALERTS_CRON_SECRET }}
+          DRY: ${{ github.event.inputs.dry_run }}
+        run: |
+          set -o pipefail
+
+          if [ -z "$SECRET" ]; then
+            echo "::error::Falta el secret ALERTS_CRON_SECRET en el repositorio."
+            exit 1
+          fi
+
+          URL="$SITE/api/socios/nudges/run"
+          if [ "$DRY" = "true" ]; then URL="$URL?dry=1"; fi
+
+          CODE=$(curl -sS --max-time 120 -o informe.json -w '%{http_code}' \
+            -X POST "$URL" \
+            -H "x-alerts-secret: $SECRET") || { echo "::error::No se pudo contactar $URL"; exit 1; }
+
+          echo "HTTP $CODE"
+          cat informe.json
+
+          if [ "$CODE" = "503" ]; then
+            echo "::notice::El job se salta: falta ALERTS_CRON_SECRET en Vercel."
+            {
+              echo "## Recordatorios de solicitudes"
+              echo ""
+              echo "> ⏭️ **Saltado por falta de configuración (no es una avería).**"
+              echo ">"
+              echo "> Configura \`ALERTS_CRON_SECRET\` en Vercel y en los secretos del repositorio."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          if [ "$CODE" != "200" ]; then
+            echo "::error::El job respondió HTTP $CODE"
+            exit 1
+          fi
+
+          {
+            echo "## Recordatorios de solicitudes"
+            echo ""
+            echo '```json'
+            node -e '
+              const fs = require("fs");
+              const r = JSON.parse(fs.readFileSync("informe.json", "utf8"));
+              process.stdout.write(JSON.stringify({
+                dryRun: r.dryRun,
+                emailConfigured: r.emailConfigured,
+                altas: r.applications,
+                registros: r.solicitudes,
+                errores: r.errors,
+              }, null, 2));
+            '
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

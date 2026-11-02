@@ -11,6 +11,7 @@ import {
   List,
   Loader2,
   RefreshCw,
+  Send,
   UserRound,
 } from 'lucide-react';
 import {
@@ -22,11 +23,14 @@ import {
 } from '@/lib/data/solicitudes';
 import {
   buildSocios,
+  convertedSolicitudIds,
+  daysOpen,
   SOCIO_CATEGORY_LABELS,
   socioCounts,
   type SocioCategory,
   type SocioFilter,
   type SocioSolicitud,
+  type SocioSource,
 } from '@/lib/data/socios';
 import {
   SOLICITUD_REVIEW_KEYS,
@@ -161,6 +165,8 @@ export default function AdminSolicitudesPage() {
 
   /** Id del registro independiente que está guardando su estado. */
   const [savingId, setSavingId] = useState<string | null>(null);
+  /** Fila cuyo enlace se está reenviando (registro o alta). */
+  const [resendingId, setResendingId] = useState<string | null>(null);
   /** Id del registro que se está volviendo a evaluar con el motor. */
   const [reEvaluatingId, setReEvaluatingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<{ id: string; message: string } | null>(null);
@@ -354,6 +360,38 @@ export default function AdminSolicitudesPage() {
     [load]
   );
 
+  /**
+   * Reenvía el enlace del paso pendiente.
+   *
+   * El token en claro no se guarda, así que lo que se emite es un enlace nuevo y
+   * el anterior deja de servir. El panel no recarga nada: el estado no cambia y
+   * el enlace solo viaja por correo.
+   */
+  const resendLink = useCallback(async (id: string, source: SocioSource) => {
+    setResendingId(id);
+    setActionError(null);
+
+    try {
+      const url =
+        source === 'alta'
+          ? `/api/kyb/${encodeURIComponent(id)}/resend`
+          : `/api/admin/solicitudes/${encodeURIComponent(id)}/resend`;
+      const response = await fetch(url, { method: 'POST' });
+      const body = await response.json().catch(() => null);
+
+      if (!response.ok || !body?.success) {
+        setActionError({
+          id,
+          message: body?.error ?? 'No se pudo reenviar el enlace. Intenta de nuevo.',
+        });
+      }
+    } catch {
+      setActionError({ id, message: 'Sin conexión con el servidor.' });
+    } finally {
+      setResendingId(null);
+    }
+  }, []);
+
   const reevaluate = useCallback(
     async (id: string) => {
       setReevaluating(true);
@@ -458,7 +496,21 @@ export default function AdminSolicitudesPage() {
     [loadDetail]
   );
 
-  const socios = useMemo(() => buildSocios(applications, solicitudes), [applications, solicitudes]);
+  /**
+   * Un registro convertido no se lista aparte.
+   *
+   * Cuando el registro queda aprobado nace su alta (propuesta → plan → panel),
+   * y desde ese momento las dos filas son la misma empresa. Se muestra la del
+   * alta, que es la que tiene el tramo comercial; el registro sigue en la base
+   * con su evaluación y su vínculo.
+   */
+  const socios = useMemo(() => {
+    const converted = convertedSolicitudIds(solicitudes);
+    return buildSocios(
+      applications,
+      solicitudes.filter((solicitud) => !converted.has(solicitud.id))
+    );
+  }, [applications, solicitudes]);
 
   const counts = useMemo(() => socioCounts(socios), [socios]);
 
@@ -699,8 +751,11 @@ export default function AdminSolicitudesPage() {
                           >
                             {SOCIO_CATEGORY_LABELS[socio.category]}
                           </span>
-                          <span className="text-[10px] text-slate-400">
-                            {formatKybDateTime(socio.createdAt)}
+                          <span
+                            className="text-[10px] text-slate-400"
+                            title={`Abierta el ${formatKybDateTime(socio.createdAt)}`}
+                          >
+                            {daysOpen(socio.createdAt)} d
                           </span>
                         </div>
 
@@ -798,6 +853,8 @@ export default function AdminSolicitudesPage() {
               onProposalSent={() => void proposalSent(socio.id)}
               reevaluatingRegistro={reEvaluatingId === socio.id}
               onReevaluateRegistro={() => void reevaluateRegistro(socio.id)}
+              resending={resendingId === socio.id}
+              onResend={() => void resendLink(socio.id, socio.source)}
             />
           ))}
         </ul>
@@ -828,6 +885,9 @@ interface SocioRowProps {
   /** Registro: volver a pasar el motor con los datos que haya hoy. */
   reevaluatingRegistro: boolean;
   onReevaluateRegistro: () => void;
+  /** Enlace del paso pendiente: se emite uno nuevo y se envía por correo. */
+  resending: boolean;
+  onResend: () => void;
 }
 
 /**
@@ -857,6 +917,8 @@ function SocioRow({
   onProposalSent,
   reevaluatingRegistro,
   onReevaluateRegistro,
+  resending,
+  onResend,
 }: SocioRowProps) {
   const kind = CATEGORY_STYLE[socio.category];
   const isAlta = socio.source === 'alta';
@@ -899,7 +961,7 @@ function SocioRow({
             <h2 className="mt-1.5 text-sm font-bold text-slate-900">{socio.name}</h2>
             <p className="text-[11px] text-slate-400">
               {socio.rut ? `RUT ${socio.rut} · ` : ''}
-              {formatKybDateTime(socio.createdAt)} · ref.{' '}
+              {formatKybDateTime(socio.createdAt)} · abierta hace {daysOpen(socio.createdAt)} d · ref.{' '}
               <span className="font-mono">{socio.id}</span>
             </p>
           </div>
@@ -949,6 +1011,23 @@ function SocioRow({
             </div>
           )}
 
+          {!isAlta && socio.status === 'Pendiente_Informacion' && (
+            <button
+              type="button"
+              onClick={onResend}
+              disabled={resending}
+              className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
+              title="Emitir un enlace nuevo para responder y enviarlo por correo"
+            >
+              {resending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Send className="h-3.5 w-3.5" />
+              )}
+              {resending ? 'Enviando…' : 'Reenviar enlace'}
+            </button>
+          )}
+
           {!isAlta && (
             <button
               type="button"
@@ -993,6 +1072,8 @@ function SocioRow({
                 onReevaluate={onReevaluate}
                 onDecide={onDecide}
                 onProposalSent={onProposalSent}
+                onResend={onResend}
+                resending={resending}
               />
             ) : (
               detailError && (

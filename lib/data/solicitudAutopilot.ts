@@ -29,7 +29,10 @@ import {
   solicitudAnswerUrl,
 } from '@/lib/email/solicitudApplicantEmail';
 import { SITE_URL } from '@/lib/site';
+import { resendKybLink } from '@/lib/kyb/onboarding';
 import { assertTransition, type KybStatus } from '@/lib/kyb/status';
+import { ensureAltaForSolicitud } from './socioAltaBridge';
+import { solicitudAltaId } from './socios';
 import { generateKybToken, hashKybToken, isKybTokenShape, kybTokenExpiry } from '@/lib/kyb/tokens';
 import {
   evaluateSolicitud,
@@ -60,6 +63,10 @@ export interface AutopilotResult {
   evaluation?: SolicitudEvaluation;
   questions?: SolicitudQuestion[];
   email?: AutopilotEmailOutcome;
+  /** Alta creada al aprobar: desde acá el registro sigue el tramo comercial. */
+  alta?: { id: string; created: boolean };
+  /** La aprobación se guardó pero el alta no se pudo crear (no es fatal). */
+  warning?: string;
   /** `invalid` es una entrada mal formada (400) y `not_found` un 404. */
   code?: 'invalid' | 'not_found' | 'conflict' | 'store';
   error?: string;
@@ -141,6 +148,31 @@ async function applyEvaluation(
     return { ok: false, code: 'store', status, evaluation, error: stored.error };
   }
 
+  // Aprobado el registro, la empresa sigue el mismo tramo comercial que un alta
+  // de empresa: propuesta, plan y panel. Se crea acá y no en el panel para que
+  // no dependa de que alguien abra la ficha. Si falla, la solicitud ya está
+  // aprobada: se devuelve la advertencia y el registro se puede reintentar.
+  let alta: AutopilotResult['alta'];
+  let warning: string | undefined;
+  if (accepted) {
+    try {
+      const promoted = await ensureAltaForSolicitud(
+        stored.solicitud ?? { ...solicitud, status: target }
+      );
+      if (promoted.ok && promoted.application) {
+        alta = { id: promoted.application.id, created: !!promoted.created };
+      } else {
+        warning = promoted.error ?? 'No se pudo crear el alta del registro.';
+      }
+    } catch (error) {
+      warning = error instanceof Error ? error.message : 'No se pudo crear el alta del registro.';
+    }
+    // La aprobación ya está guardada: el alta se puede reintentar desde el
+    // panel con «Re-evaluar», pero el aviso al solicitante no puede depender de
+    // que la conversión haya salido bien.
+    if (warning) console.error('[solicitudes] no se pudo crear el alta:', warning);
+  }
+
   let email: AutopilotEmailOutcome | undefined;
   if (options.email) {
     const offerLabel = solicitudOfferLabel(solicitud.kind);
@@ -168,6 +200,8 @@ async function applyEvaluation(
     status: target,
     evaluation,
     questions: evaluation.questions,
+    ...(alta ? { alta } : {}),
+    ...(warning ? { warning } : {}),
     ...(email ? { email } : {}),
   };
 }
@@ -198,10 +232,36 @@ export async function autopilotSolicitud(
   return applyEvaluation(solicitud, evaluation, { email: options.email !== false });
 }
 
-/** Re-evaluación pedida desde el panel: siempre vuelve a escribir el resultado. */
+/**
+ * Re-evaluación pedida desde el panel: siempre vuelve a escribir el resultado.
+ *
+ * Un registro que ya está aprobado no se vuelve a evaluar —el motor no corre
+ * sobre un estado terminal—, pero sí se repara: si quedó aprobado antes de que
+ * existiera el puente al alta, o la creación del alta falló, esta corrida la
+ * crea. Es el botón que tiene el equipo para no tener que recrear el registro a
+ * mano.
+ */
 export async function reEvaluateSolicitud(id: string): Promise<AutopilotResult> {
   const solicitud = await getSolicitud(id);
   if (!solicitud) return { ok: false, code: 'not_found', error: 'No encontramos esa solicitud.' };
+
+  if (isSocioRegistro(solicitud.kind) && (solicitud.status === 'Aceptada' || solicitud.status === 'Calificado')) {
+    const promoted = await ensureAltaForSolicitud(solicitud);
+    if (!promoted.ok || !promoted.application) {
+      return {
+        ok: false,
+        code: 'store',
+        status: solicitud.status,
+        error: promoted.error ?? 'No se pudo crear el alta del registro.',
+      };
+    }
+    return {
+      ok: true,
+      status: solicitud.status,
+      alta: { id: promoted.application.id, created: !!promoted.created },
+    };
+  }
+
   return autopilotSolicitud(solicitud);
 }
 
@@ -303,6 +363,80 @@ export async function submitSolicitudAnswers(
   // Se vuelve a evaluar con las respuestas ya guardadas: `clarificationsFromAnswers`
   // las toma del `payload`, así que no hay dos caminos de lectura.
   return autopilotSolicitud(stored.solicitud, { email: true });
+}
+
+/**
+ * Reenvía el enlace del paso en el que está detenida la solicitud.
+ *
+ * El token en claro no se guarda —solo su hash—, así que «reenviar el mismo
+ * enlace» es imposible por diseño: lo que se emite es un enlace nuevo para el
+ * mismo paso, y el anterior deja de servir. Eso es lo que espera quien lo pide
+ * («no me llegó / me venció») y además cierra la ronda abierta, que es lo que
+ * hace el servidor al responder.
+ *
+ * Sirve para los dos caminos: si el registro ya se convirtió en alta, delega en
+ * el reenvío del alta (propuesta, plan o preguntas, según su estado).
+ */
+export async function resendSolicitudLink(id: string): Promise<AutopilotResult> {
+  const solicitud = await getSolicitud(id);
+  if (!solicitud) return { ok: false, code: 'not_found', error: 'No encontramos esa solicitud.' };
+  if (!isSocioRegistro(solicitud.kind)) {
+    return { ok: false, code: 'invalid', error: 'Esta solicitud no es un registro de socio.' };
+  }
+
+  const altaId = solicitudAltaId(solicitud);
+  if (altaId) {
+    const resent = await resendKybLink(altaId);
+    return {
+      ok: resent.ok,
+      ...(resent.status ? { status: resent.status } : {}),
+      ...(resent.email ? { email: resent.email } : {}),
+      ...(resent.error ? { error: resent.error } : {}),
+      ...(resent.code ? { code: resent.code } : {}),
+    };
+  }
+
+  if (solicitud.status !== 'Pendiente_Informacion') {
+    return {
+      ok: false,
+      code: 'conflict',
+      status: solicitud.status,
+      error: `La solicitud está en «${solicitud.status}» y no tiene un enlace pendiente para reenviar.`,
+    };
+  }
+
+  const evaluation = solicitud.payload[REVIEW_KEYS.evaluation] as SolicitudEvaluation | undefined;
+  const questions = Array.isArray(evaluation?.questions) ? evaluation.questions : [];
+  if (questions.length === 0) {
+    return {
+      ok: false,
+      code: 'conflict',
+      error: 'Esta solicitud no tiene preguntas guardadas: pedile información al equipo.',
+    };
+  }
+
+  const token = generateKybToken();
+  const stored = await updateSolicitudReview(solicitud.id, {
+    answerTokenHash: token.hash,
+    answerTokenExpiresAt: kybTokenExpiry(),
+  });
+  if (!stored.ok) {
+    return { ok: false, code: 'store', error: stored.error ?? 'No se pudo emitir el enlace.' };
+  }
+
+  const email = await notify(
+    solicitud.email,
+    buildSolicitudPendingEmail({
+      name: solicitud.name,
+      offerLabel: solicitudOfferLabel(solicitud.kind),
+      questions,
+      link: solicitudAnswerUrl(SITE_URL, token.token),
+      siteUrl: SITE_URL,
+      reminder: true,
+    })
+  );
+
+  return { ok: true, status: 'Pendiente_Informacion', questions, email };
 }
 
 /**

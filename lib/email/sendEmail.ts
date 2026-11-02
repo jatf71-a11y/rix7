@@ -36,6 +36,27 @@ export interface EmailResult {
 
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
 
+/**
+ * Reintentos ante un fallo transitorio.
+ *
+ * Un correo de trámite —el enlace de la propuesta, las preguntas de una
+ * evaluación— es la única forma que tiene la persona de seguir. Un 500 de
+ * Resend o un corte de red de dos segundos no puede dejarla sin enlace cuando
+ * el estado ya avanzó: se reintenta con espera creciente. Un 4xx (clave
+ * inválida, dominio no verificado, destinatario rechazado) no se reintenta: el
+ * problema no se arregla repitiendo.
+ */
+const MAX_ATTEMPTS = 3;
+const RETRY_DELAYS_MS = [400, 1200];
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryable(status: number): boolean {
+  return status === 429 || status >= 500;
+}
+
 /** Remitente. Debe pertenecer a un dominio verificado en Resend. */
 function fromAddress(): string {
   return process.env.ALERTS_FROM_EMAIL || 'Rix7 <avisos@rix7.cl>';
@@ -53,33 +74,33 @@ export async function sendEmail(input: EmailInput): Promise<EmailResult> {
     return withOutbox(input, { sent: false, skipped: true, error: 'Falta RESEND_API_KEY' });
   }
 
-  try {
-    const response = await fetch(RESEND_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ from: fromAddress(), to: [to], subject, html, text }),
-    });
+  let lastError = 'Error inesperado al enviar el correo.';
 
-    if (!response.ok) {
-      const detail = await response.text().catch(() => '');
-      return withOutbox(input, {
-        sent: false,
-        skipped: false,
-        error: `Resend respondió ${response.status}: ${detail.slice(0, 200)}`,
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await fetch(RESEND_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ from: fromAddress(), to: [to], subject, html, text }),
       });
+
+      if (response.ok) return withOutbox(input, { sent: true, skipped: false });
+
+      const detail = await response.text().catch(() => '');
+      lastError = `Resend respondió ${response.status}: ${detail.slice(0, 200)}`;
+      if (!isRetryable(response.status)) break;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : 'Error inesperado al enviar el correo.';
     }
 
-    return withOutbox(input, { sent: true, skipped: false });
-  } catch (error) {
-    return withOutbox(input, {
-      sent: false,
-      skipped: false,
-      error: error instanceof Error ? error.message : 'Error inesperado al enviar el correo.',
-    });
+    const delay = RETRY_DELAYS_MS[attempt - 1];
+    if (attempt < MAX_ATTEMPTS && delay) await sleep(delay);
   }
+
+  return withOutbox(input, { sent: false, skipped: false, error: lastError });
 }
 
 /**

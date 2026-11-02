@@ -101,6 +101,17 @@ export const SOLICITUD_REVIEW_KEYS = {
   answers: 'solicitud_answers',
   tokenHash: 'answer_token_hash',
   tokenExpiresAt: 'answer_token_expires_at',
+  /**
+   * Alta creada cuando el registro quedó aprobado.
+   *
+   * El panel usa este vínculo para no mostrar dos veces a la misma empresa: una
+   * vez convertido, el registro se lee como su alta (que es la que tiene
+   * propuesta, plan y panel).
+   */
+  alta: 'kyb_application_id',
+  altaAt: 'kyb_alta_at',
+  /** Recordatorios enviados: `{ count, lastAt }`, para no repetir el aviso. */
+  nudges: 'solicitud_nudges',
 } as const;
 
 /** Puntaje de una verificación: pasa entera, advierte la mitad, falla en cero. */

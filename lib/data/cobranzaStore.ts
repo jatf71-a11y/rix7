@@ -3,7 +3,6 @@ import { listApplications, updateApplication } from '@/lib/kyb/store';
 import {
   dueDateFor,
   normalizePago,
-  periodLabel,
   situacionDe,
   type BillingPeriod,
   type SituacionResult,
@@ -346,9 +345,4 @@ export async function setMorosidad(input: {
       error: error instanceof Error ? error.message : 'Error inesperado al cambiar la morosidad.',
     };
   }
-}
-
-/** Etiqueta legible del período, para los mensajes de la API. */
-export function labelPeriod(period: string): string {
-  return periodLabel(period);
 }

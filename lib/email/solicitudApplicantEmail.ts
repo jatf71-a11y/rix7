@@ -93,12 +93,19 @@ export function buildSolicitudPendingEmail({
   questions,
   link,
   siteUrl,
+  reminder = false,
 }: {
   name: string;
   offerLabel: string;
   questions: { id: string; question: string }[];
   link: string;
   siteUrl: string;
+  /**
+   * Segundo aviso: el primero no obtuvo respuesta. Cambia el asunto y el
+   * arranque —repetir «falta un dato» como si fuera la primera vez confunde—
+   * pero el enlace es nuevo y las preguntas son las mismas.
+   */
+  reminder?: boolean;
 }): BuiltSolicitudApplicantEmail {
   const hello = greeting(name);
   const listText = questions.map((question, index) => `${index + 1}. ${question.question}`).join('\n');
@@ -106,7 +113,9 @@ export function buildSolicitudPendingEmail({
   const text = [
     hello,
     '',
-    `Recibimos ${offerLabel} en Rix7 y lo evaluamos automáticamente.`,
+    reminder
+      ? `Te escribimos de nuevo por ${offerLabel} en Rix7: la evaluación quedó esperando estos datos.`
+      : `Recibimos ${offerLabel} en Rix7 y lo evaluamos automáticamente.`,
     'Para continuar necesitamos que aclares lo siguiente:',
     '',
     listText,
@@ -130,12 +139,16 @@ export function buildSolicitudPendingEmail({
     .join('');
 
   return {
-    subject: `Falta un dato para tu registro en Rix7`,
+    subject: reminder
+      ? 'Tu registro en Rix7 sigue esperando un dato'
+      : 'Falta un dato para tu registro en Rix7',
     text,
     html: shell({
       siteUrl,
-      title: 'Necesitamos algunos datos',
-      intro: `${escapeHtml(hello)} recibimos ${escapeHtml(offerLabel)} y lo evaluamos automáticamente. Para continuar necesitamos que aclares estos puntos.`,
+      title: reminder ? 'Seguimos esperando estos datos' : 'Necesitamos algunos datos',
+      intro: reminder
+        ? `${escapeHtml(hello)} te escribimos de nuevo porque la evaluación de ${escapeHtml(offerLabel)} quedó esperando estos puntos. El enlace anterior puede haber vencido; este es nuevo.`
+        : `${escapeHtml(hello)} recibimos ${escapeHtml(offerLabel)} y lo evaluamos automáticamente. Para continuar necesitamos que aclares estos puntos.`,
       body: `
         <ul style="margin:0;padding-left:20px">${listHtml}</ul>
         <div style="margin:22px 0 0">
@@ -167,8 +180,8 @@ export function buildSolicitudAcceptedEmail({
     hello,
     '',
     `Tu registro en Rix7 quedó aceptado: ${offerLabel} pasó la evaluación automática.`,
-    'Lo que sigue es nuestro lado: vinculamos tu cuenta a la corredora y te avisamos por',
-    'este mismo correo cuando el panel de publicaciones esté habilitado.',
+    'Lo que sigue es la propuesta comercial: te enviamos el plan y los precios a este',
+    'correo. Cuando la aceptes, eliges el plan y habilitas tu panel de publicaciones.',
     '',
     'Si necesitas corregir algún dato, responde este correo.',
     '',
@@ -185,8 +198,8 @@ export function buildSolicitudAcceptedEmail({
       intro: `${escapeHtml(hello)} ${escapeHtml(offerLabel)} pasó la evaluación automática y quedó <strong>aceptado</strong>.`,
       body: `
         <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:14px 16px;color:#065f46;font-size:13px;line-height:1.65">
-          Lo que sigue es nuestro lado: vinculamos tu cuenta a la corredora y te avisamos por
-          este mismo correo cuando el panel de publicaciones esté habilitado.
+          Lo que sigue es la propuesta comercial: te enviamos el plan y los precios a este
+          correo. Cuando la aceptes, eliges el plan y habilitas tu panel de publicaciones.
         </div>
         <p style="margin:18px 0 0;color:#64748b;font-size:12px;line-height:1.6">
           Si necesitas corregir algún dato, responde este correo.

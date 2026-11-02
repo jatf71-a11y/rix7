@@ -78,14 +78,24 @@ export async function provisionCompanyPanel(
   try {
     const admin = await serviceAdmin();
 
-    // 1. Ficha de empresa. `kind` queda sin clasificar a propósito: el alta KYB
-    //    no decide si es corredora, inmobiliaria o agente; eso lo clasifica el
-    //    equipo desde /admin/empresas sin inventarle una categoría.
+    // 1. Ficha de empresa. Si el alta vino de un registro de socio, el camino
+    //    (`corredora`, `inmobiliaria` o `agente`) ya es una categoría válida y
+    //    se guarda: sin eso la ficha de un profesional independiente quedaría
+    //    «Sin clasificar» en /admin/empresas. En el alta directa no se inventa
+    //    ninguna: la clasifica el equipo.
+    const partnerKind =
+      application.registrationKind === 'corredora' ||
+      application.registrationKind === 'inmobiliaria' ||
+      application.registrationKind === 'agente'
+        ? application.registrationKind
+        : null;
+
     const { error: partnerError } = await admin.from('partners').upsert(
       {
         id: partnerId,
         slug: partnerId,
         name: application.legalName,
+        ...(partnerKind ? { kind: partnerKind } : {}),
         logo: '',
         description: `Empresa verificada en el alta automática de Rix7 (${new Date().toISOString().slice(0, 10)}).`,
         website: application.website,
