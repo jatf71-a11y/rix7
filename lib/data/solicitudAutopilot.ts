@@ -29,7 +29,7 @@ import {
   solicitudAnswerUrl,
 } from '@/lib/email/solicitudApplicantEmail';
 import { SITE_URL } from '@/lib/site';
-import { resendKybLink } from '@/lib/kyb/onboarding';
+import { notifyQualifiedForApplication, resendKybLink } from '@/lib/kyb/onboarding';
 import { assertTransition, type KybStatus } from '@/lib/kyb/status';
 import { ensureAltaForSolicitud } from './socioAltaBridge';
 import { solicitudAltaId } from './socios';
@@ -154,6 +154,10 @@ async function applyEvaluation(
   // aprobada: se devuelve la advertencia y el registro se puede reintentar.
   let alta: AutopilotResult['alta'];
   let warning: string | undefined;
+  // El alta recién creada, para avisar del paso **Calificado** después del
+  // correo de aprobación: el orden de llegada tiene que ser el del pipeline, no
+  // el de las escrituras en la base.
+  let qualified: Parameters<typeof notifyQualifiedForApplication>[0] | null = null;
   if (accepted) {
     try {
       const promoted = await ensureAltaForSolicitud(
@@ -161,6 +165,8 @@ async function applyEvaluation(
       );
       if (promoted.ok && promoted.application) {
         alta = { id: promoted.application.id, created: !!promoted.created };
+        // Solo en la creación: re-evaluar no vuelve a mandar el mismo correo.
+        if (promoted.created) qualified = promoted.application;
       } else {
         warning = promoted.error ?? 'No se pudo crear el alta del registro.';
       }
@@ -192,6 +198,17 @@ async function applyEvaluation(
           siteUrl: SITE_URL,
         })
       );
+    }
+  }
+
+  // Y recién ahora, con la aprobación ya avisada, las condiciones del alta que
+  // nació en **Calificado**: perfil de socio y precios de Planes. Si falla, la
+  // aprobación ya salió y el registro sigue aprobado.
+  if (qualified && options.email) {
+    try {
+      await notifyQualifiedForApplication(qualified);
+    } catch (error) {
+      console.error('[solicitudes] no se pudo enviar el correo de calificación:', error);
     }
   }
 

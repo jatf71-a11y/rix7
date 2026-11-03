@@ -139,8 +139,12 @@ Recibida → En_Evaluacion → (Pendiente_Informacion →) Aceptada
   desde la ficha (`POST /api/kyb/[id]/proposal`). Los montos salen de **Planes**
   según el perfil del registro y se pueden negociar a mano. El correo lleva un
   enlace de un solo uso a `/empresas/propuesta?token=…`, donde el candidato
-  acepta o rechaza (`POST /api/kyb/proposal`). Aceptar mueve a **Alta** y emite
-  el token para elegir plan; rechazar cierra la solicitud como `Rechazada`.
+  acepta o rechaza (`POST /api/kyb/proposal`). El «de acuerdo» incluye las dos
+  condiciones que se cobran aparte del plan: el **CCA** (con el CCA estimado en
+  UF, que el socio declara) y la contratación del **plan de captación**, que se
+  explica en su propio correo (`buildKybCaptacionEmail`). Aceptar mueve a
+  **Alta** y emite el token para elegir plan; rechazar cierra la solicitud como
+  `Rechazada`.
 - **Alta** — la empresa ya aceptó: elige plan y se le crea la ficha y la cuenta
   (`provisioning`). El panel queda habilitado, pero **no** es cliente activo.
 - **Operando** — el alta terminó **y** el período está pagado. Lo mueve la
@@ -149,6 +153,28 @@ Recibida → En_Evaluacion → (Pendiente_Informacion →) Aceptada
 El historial de propuestas vive en `kyb_applications.proposal` (JSONB, una por
 ronda): renegociar agrega, no borra. La solicitud guarda también `partner_id`,
 el socio que nace del alta, que es lo que permite que un pago cierre *su* alta.
+
+#### Qué correo sale en cada paso
+
+Los siete pasos avisan al solicitante. Los que ocurren en la misma corrida —el
+motor evalúa dentro de la petición del alta— comparten un solo mensaje cuyo
+contenido cubre los dos: tres correos con segundos de diferencia se leen como un
+error del sistema, no como información.
+
+| Paso | Correo | Qué informa |
+| --- | --- | --- |
+| Recibida | `buildKybReceivedEmail` / `buildSolicitudReceivedEmail` | la solicitud entró y ya está en evaluación |
+| En evaluación | el mismo | con qué datos: los que entregó la empresa y los que Rix7 consigue (SII, reputación, dominio) |
+| Pendiente de información | `buildKybPendingEmail` / `buildSolicitudPendingEmail` | las preguntas concretas y el enlace de 7 días; el recordatorio (`buildKybReminderEmail`, `reminder: true`) insiste sobre lo pendiente |
+| Aceptada | `buildSolicitudAcceptedEmail` (registro) y, en el alta, el de Calificado | que la verificación salió bien |
+| Calificado | `buildKybQualifiedEmail` | perfil de socio (profesional, corredora, inmobiliaria), alta, mensualidad, usuarios, publicaciones y captación, con los montos de **Planes**, y pide un «De acuerdo» |
+| Propuesta comercial | `buildKybProposalEmail` + la página del enlace | plan y montos; en la página, el acuerdo con el CCA, su estimación en UF y la captación |
+| Alta | `buildKybAcceptedEmail` y `buildKybActivatedEmail` | plan confirmado, CCA estimado y captación aceptada; después, el panel habilitado |
+
+El correo de calificación lo manda también el puente registro→alta
+(`notifyQualifiedForApplication`), así un socio aprobado desde Solicitudes recibe
+su perfil y sus condiciones igual que una empresa del formulario, y en el orden
+del pipeline: primero la aprobación, después las condiciones.
 
 ### Cobranza: quién paga y quién está moroso
 

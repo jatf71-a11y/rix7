@@ -3,12 +3,15 @@ import { describe, it, expect } from 'vitest';
 import { DEFAULT_PLAN_PRICING } from './planPricing';
 import {
   KYB_PROPOSAL_NOTE_MAX,
+  MAX_CCA_UF,
   altaPlanSummary,
   defaultProposalAmounts,
   latestProposal,
+  normalizeCommercial,
   normalizeProposal,
   profileForRegistration,
   readProposals,
+  subscriptionTerms,
   type KybProposal,
 } from './proposal';
 
@@ -29,6 +32,7 @@ const proposal = (overrides: Partial<KybProposal> = {}): KybProposal => ({
   sentAt: '2026-11-01T12:00:00.000Z',
   decidedAt: null,
   decision: null,
+  commercial: null,
   ...overrides,
 });
 
@@ -192,5 +196,127 @@ describe('el plan del paso de alta', () => {
 
     expect(summary.altaClp).toBe(profesional?.altaInicialClp);
     expect(summary.monthlyClp).toBe(profesional?.mensualBaseClp);
+  });
+});
+
+describe('condiciones del paso Calificado', () => {
+  it('cada perfil recibe su plan, sus precios y su captación', () => {
+    const corredora = subscriptionTerms('corredora');
+    expect(corredora.profileLabel).toBe('Corredora');
+    // Plan Profesional del catálogo: 50 publicaciones, 5 usuarios en Planes.
+    expect(corredora.planName).toBe('Profesional');
+    expect(corredora.listings).toBe(50);
+    expect(corredora.usuariosIncluidos).toBe(5);
+    expect(corredora.altaClp).toBe(49990);
+    expect(corredora.monthlyClp).toBe(39990);
+    expect(corredora.captacionMonthlyClp).toBe(19990);
+
+    const inmobiliaria = subscriptionTerms('inmobiliaria');
+    expect(inmobiliaria.profileLabel).toBe('Inmobiliaria');
+    expect(inmobiliaria.listings).toBe(1000);
+    expect(inmobiliaria.usuariosIncluidos).toBe(15);
+
+    const profesional = subscriptionTerms(null);
+    expect(profesional.profileLabel).toBe('Profesional');
+    expect(profesional.listings).toBe(10);
+  });
+
+  it('respeta los precios que el equipo cambió en Planes', () => {
+    const config = {
+      ...DEFAULT_PLAN_PRICING,
+      profiles: DEFAULT_PLAN_PRICING.profiles.map((item) =>
+        item.profile === 'corredora'
+          ? { ...item, altaInicialClp: 1, mensualBaseClp: 2, usuariosIncluidos: 9 }
+          : item
+      ),
+      captacion: {
+        ...DEFAULT_PLAN_PRICING.captacion,
+        monthly: DEFAULT_PLAN_PRICING.captacion.monthly.map((item) =>
+          item.profile === 'corredora' ? { ...item, monthlyClp: 7777 } : item
+        ),
+      },
+    };
+
+    const terms = subscriptionTerms('corredora', config);
+    expect(terms.altaClp).toBe(1);
+    expect(terms.monthlyClp).toBe(2);
+    expect(terms.usuariosIncluidos).toBe(9);
+    expect(terms.captacionMonthlyClp).toBe(7777);
+  });
+});
+
+describe('condiciones comerciales de la aceptación', () => {
+  it('exige el acuerdo con el CCA para aceptar', () => {
+    const result = normalizeCommercial({ ccaUf: 1000 });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(/CCA/);
+  });
+
+  it('acepta un CCA de 0: un socio nuevo todavía no tiene stock', () => {
+    const result = normalizeCommercial({ ccaAccepted: true, ccaUf: 0 });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual({ ccaAccepted: true, ccaUf: 0, captacion: false });
+    }
+  });
+
+  it('lee el CCA escrito como texto y lo redondea a dos decimales', () => {
+    const result = normalizeCommercial({ ccaAccepted: true, ccaUf: '1234,567', captacion: true });
+
+    expect(result.ok).toBe(false);
+    const plain = normalizeCommercial({ ccaAccepted: true, ccaUf: '1234.567', captacion: true });
+    expect(plain.ok).toBe(true);
+    if (plain.ok) {
+      expect(plain.data.ccaUf).toBe(1234.57);
+      expect(plain.data.captacion).toBe(true);
+    }
+  });
+
+  it('rechaza un CCA negativo o imposible de tipear', () => {
+    expect(normalizeCommercial({ ccaAccepted: true, ccaUf: -1 }).ok).toBe(false);
+    expect(normalizeCommercial({ ccaAccepted: true, ccaUf: MAX_CCA_UF + 1 }).ok).toBe(false);
+    expect(normalizeCommercial({ ccaAccepted: true }).ok).toBe(false);
+    expect(normalizeCommercial({ ccaAccepted: true, ccaUf: 10, captacion: 'si' }).ok).toBe(false);
+  });
+
+  it('la propuesta guardada conserva el CCA y la captación aceptados', () => {
+    const stored = [
+      proposal({
+        decision: 'aceptada',
+        decidedAt: '2026-11-02T10:00:00.000Z',
+        commercial: {
+          ccaAccepted: true,
+          ccaUf: 100000,
+          ccaPct: 100,
+          captacion: true,
+          acceptedAt: '2026-11-02T10:00:00.000Z',
+        },
+      }),
+    ];
+
+    const read = latestProposal(stored);
+    expect(read?.commercial).toEqual({
+      ccaAccepted: true,
+      ccaUf: 100000,
+      ccaPct: 100,
+      captacion: true,
+      acceptedAt: '2026-11-02T10:00:00.000Z',
+    });
+  });
+
+  it('una fila vieja sin condiciones se lee con `commercial: null`', () => {
+    const read = readProposals([
+      {
+        planId: 'profesional',
+        altaClp: 1,
+        monthlyClp: 2,
+        sentAt: '2026-10-01T00:00:00.000Z',
+        decision: 'aceptada',
+      },
+    ]);
+
+    expect(read[0].commercial).toBeNull();
   });
 });

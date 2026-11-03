@@ -13,11 +13,15 @@ import {
   notifyManualDecision,
 } from '@/lib/data/solicitudAutopilot';
 import { ensureAltaForSolicitud } from '@/lib/data/socioAltaBridge';
+import { notifyQualifiedForApplication } from '@/lib/kyb/onboarding';
 import {
   isSolicitudKind,
   normalizeSolicitud,
   normalizeSolicitudPatch,
+  type NormalizedSolicitud,
 } from '@/lib/data/solicitudes';
+import { solicitudOfferLabel } from '@/lib/data/solicitudEvaluation';
+import { buildSolicitudReceivedEmail } from '@/lib/email/solicitudApplicantEmail';
 import { requireAdmin } from '@/lib/supabase/auth-guard';
 import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
 import { buildSolicitudEmail, notifyOnSolicitud, type NotifiableSolicitud } from '@/lib/email/solicitudEmail';
@@ -158,6 +162,15 @@ export async function PATCH(request: NextRequest) {
     const promoted = await ensureAltaForSolicitud(updated.solicitud);
     if (promoted.ok && promoted.application) {
       alta = { id: promoted.application.id, created: !!promoted.created };
+      // Calificado: el socio recibe su perfil y las condiciones de la
+      // suscripción igual que si hubiera llegado por el formulario de empresas.
+      if (promoted.created) {
+        try {
+          await notifyQualifiedForApplication(promoted.application);
+        } catch (error) {
+          console.error('[solicitudes] no se pudo enviar el correo de calificación:', error);
+        }
+      }
     } else {
       altaWarning = promoted.error ?? 'No se pudo crear el alta del registro.';
       console.error('[solicitudes] no se pudo crear el alta:', altaWarning);
@@ -221,6 +234,14 @@ export async function POST(request: NextRequest) {
     await notifyTeam(validation.solicitud, stored.id ?? null);
   }
 
+  // Los dos primeros pasos del flujo, contados al solicitante: el registro quedó
+  // recibido y ya está en evaluación. El autómata evalúa en esta misma corrida,
+  // así que este es el único correo que puede cubrir los dos pasos sin mandar
+  // tres mensajes seguidos. No condiciona nada: la solicitud ya está guardada.
+  if (isSocioRegistro(validation.solicitud.kind)) {
+    await notifyApplicantReceived(validation.solicitud);
+  }
+
   // Registro de socio: se evalúa y avanza (o pide datos) sin esperar a una
   // persona. Nunca hace fallar el alta: la solicitud ya está guardada y lo peor
   // que puede pasar es que quede en `Recibida` para que el equipo la mire.
@@ -254,6 +275,30 @@ export async function POST(request: NextRequest) {
     },
     { status: 201 }
   );
+}
+
+/**
+ * Acusa recibo al solicitante y le dice que la evaluación ya arrancó.
+ *
+ * No lanza: es un aviso, no parte del alta. Si falla, queda en el log y la
+ * solicitud sigue su curso; lo que no puede pasar es que un problema de correo
+ * haga que la persona crea que su registro no entró.
+ */
+async function notifyApplicantReceived(solicitud: NormalizedSolicitud): Promise<void> {
+  try {
+    const email = buildSolicitudReceivedEmail({
+      name: solicitud.name,
+      offerLabel: solicitudOfferLabel(solicitud.kind),
+      siteUrl: SITE_URL,
+    });
+    const result = await sendEmail({ to: solicitud.email, ...email });
+
+    if (!result.sent && !result.skipped) {
+      console.warn('[solicitudes] acuse de recibo no enviado:', result.error);
+    }
+  } catch (error) {
+    console.error('[solicitudes] error al acusar recibo:', error);
+  }
 }
 
 /**

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildSolicitudAcceptedEmail,
   buildSolicitudPendingEmail,
+  buildSolicitudReceivedEmail,
   buildSolicitudRejectedEmail,
 } from './solicitudApplicantEmail';
 
@@ -17,6 +18,11 @@ import {
 const SITE = 'https://rix7.cl';
 
 const emails = () => [
+  buildSolicitudReceivedEmail({
+    name: 'María Soto',
+    offerLabel: 'tu registro de Corredora',
+    siteUrl: SITE,
+  }),
   buildSolicitudPendingEmail({
     name: 'María Soto',
     offerLabel: 'tu registro de Corredora',
@@ -61,10 +67,33 @@ describe('correos del registro profesional', () => {
     }
   });
 
+  it('el acuse informa los dos primeros pasos: recibida y en evaluación', () => {
+    const received = buildSolicitudReceivedEmail({
+      name: 'María Soto',
+      offerLabel: 'tu registro de Corredora',
+      siteUrl: SITE,
+    });
+
+    expect(received.subject).toMatch(/Recibimos tu registro/);
+    expect(received.text).toMatch(/ya está en evaluación/);
+    expect(received.text).toMatch(/datos que nos entregaste/);
+    expect(received.text).toMatch(/conseguimos por nuestra cuenta/);
+    // Saluda por el nombre y no menciona «socio».
+    expect(received.text).toContain('Hola María,');
+    expect(`${received.subject}\n${received.text}`).not.toMatch(/soci[oa]s?\b/i);
+  });
+
   it('el pedido de información sigue llevando sus preguntas y su enlace', () => {
-    const pending = emails()[0];
+    const pending = buildSolicitudPendingEmail({
+      name: 'María Soto',
+      offerLabel: 'tu registro de Corredora',
+      questions: [{ id: 'email', question: '¿Cuál es el correo corporativo de la empresa?' }],
+      link: 'https://rix7.cl/socios/responder/token-abc',
+      siteUrl: SITE,
+    });
     expect(pending.subject).toBe('Falta un dato para tu registro en Rix7');
     expect(pending.text).toContain('¿Cuál es el correo corporativo de la empresa?');
     expect(pending.html).toContain('https://rix7.cl/socios/responder/token-abc');
+    expect(pending.subject).toMatch(/Falta un dato/);
   });
 });

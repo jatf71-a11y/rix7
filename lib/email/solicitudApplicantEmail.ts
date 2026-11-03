@@ -80,6 +80,72 @@ function shell({
 }
 
 /**
+ * Acuse de recibo del registro, con la evaluación ya en curso.
+ *
+ * Cubre los dos primeros pasos del flujo —**Recibida** y **En evaluación**— en un
+ * solo mensaje. El autómata evalúa en la misma petición del formulario, así que
+ * dos correos con segundos de diferencia se leerían como ruido: acá está lo que
+ * cada paso tiene que informar, que la solicitud fue recibida, que se va a
+ * evaluar y con qué datos (los que entregó la persona y los que Rix7 verifica
+ * por su cuenta).
+ */
+export function buildSolicitudReceivedEmail({
+  name,
+  offerLabel,
+  siteUrl,
+}: {
+  name: string;
+  offerLabel: string;
+  siteUrl: string;
+}): BuiltSolicitudApplicantEmail {
+  const hello = greeting(name);
+
+  const text = [
+    hello,
+    '',
+    `Recibimos ${offerLabel} en Rix7 y ya está en evaluación.`,
+    'La evaluación es automática y no tienes que hacer nada por ahora: te escribimos con el',
+    'resultado.',
+    '',
+    'Qué miramos, con los datos que nos entregaste: el RUT y el registro comercial, el correo',
+    'y el sitio web, el alcance y las regiones donde trabajas.',
+    '',
+    'Y con los datos que conseguimos por nuestra cuenta: la actividad y el tamaño de la',
+    'empresa, la reputación pública y las menciones en la web, y si el correo pertenece al',
+    'dominio del sitio.',
+    '',
+    'Si falta algún dato, te lo pedimos en un correo con preguntas concretas y un enlace para',
+    'responderlas.',
+    '',
+    'Rix7 — Registro profesional',
+    siteUrl,
+  ].join('\n');
+
+  return {
+    subject: `Recibimos tu registro en Rix7 y ya está en evaluación`,
+    text,
+    html: shell({
+      siteUrl,
+      title: 'Recibimos tu registro',
+      intro: `${escapeHtml(hello)} recibimos ${escapeHtml(offerLabel)} y ya está <strong>en evaluación</strong>. La evaluación es automática y no tienes que hacer nada por ahora.`,
+      body: `
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px;color:#1e3a8a;font-size:13px;line-height:1.65">
+          <strong style="display:block;margin-bottom:6px">Con los datos que nos entregaste</strong>
+          El RUT y el registro comercial, el correo y el sitio web, el alcance y las regiones donde
+          trabajas.
+          <strong style="display:block;margin:12px 0 6px">Con los datos que conseguimos por nuestra cuenta</strong>
+          La actividad y el tamaño de la empresa, la reputación pública y las menciones en la web, y
+          si el correo pertenece al dominio del sitio.
+        </div>
+        <p style="margin:18px 0 0;color:#64748b;font-size:12px;line-height:1.6">
+          Si falta algún dato, te lo pedimos en un correo con preguntas concretas y un enlace para
+          responderlas. Después te contamos el resultado por este mismo correo.
+        </p>`,
+    }),
+  };
+}
+
+/**
  * «Necesitamos que aclares estos puntos».
  *
  * Es el correo que reemplaza a la llamada del equipo: lleva las preguntas

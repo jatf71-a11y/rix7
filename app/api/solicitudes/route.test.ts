@@ -173,13 +173,29 @@ describe('POST /api/solicitudes', () => {
     const response = await route.POST(post(registro));
 
     expect(response.status).toBe(201);
-    expect(sendEmail).toHaveBeenCalledTimes(1);
 
-    const [mail] = sendEmail.mock.calls[0];
-    expect(mail.to).toBe('equipo@example.cl');
-    expect(mail.subject).toContain('Corredora');
-    expect(mail.text).toContain('RUT: 76.123.456-0');
-    expect(mail.text).toContain('Valparaíso');
+    const mails = sendEmail.mock.calls.map(([mail]) => mail as { to: string; subject: string; text: string });
+    // Dos destinatarios distintos: el equipo que revisa y la persona que se
+    // registró. Antes solo existía el primero.
+    const team = mails.find((mail) => mail.to === 'equipo@example.cl');
+    expect(team).toBeDefined();
+    expect(team?.subject).toContain('Corredora');
+    expect(team?.text).toContain('RUT: 76.123.456-0');
+    expect(team?.text).toContain('Valparaíso');
+  });
+
+  it('acusa recibo al solicitante y le dice que ya está en evaluación', async () => {
+    await route.POST(post(registro));
+
+    const mails = sendEmail.mock.calls.map(([mail]) => mail as { to: string; subject: string; text: string });
+    const applicant = mails.find((mail) => mail.to === 'camila@example.cl');
+
+    expect(applicant).toBeDefined();
+    // Los dos primeros pasos del flujo, en un solo mensaje: recibida y en evaluación.
+    expect(applicant?.subject).toMatch(/Recibimos tu registro/);
+    expect(applicant?.text).toMatch(/ya está en evaluación/);
+    expect(applicant?.text).toMatch(/datos que nos entregaste/);
+    expect(applicant?.text).toMatch(/conseguimos por nuestra cuenta/);
   });
 
   it('evalúa y mueve solo un registro de socio, y devuelve en qué quedó', async () => {
@@ -221,7 +237,11 @@ describe('POST /api/solicitudes', () => {
 
     expect(response.status).toBe(201);
     expect(createSolicitud).toHaveBeenCalled();
-    expect(sendEmail).not.toHaveBeenCalled();
+    // Sin destinatario del equipo no sale el aviso interno, pero el acuse al
+    // solicitante no depende de esa variable: es su único aviso.
+    const mails = sendEmail.mock.calls.map(([mail]) => mail as { to: string });
+    expect(mails.some((mail) => mail.to === 'equipo@example.cl')).toBe(false);
+    expect(mails.some((mail) => mail.to === 'camila@example.cl')).toBe(true);
   });
 
   it('si el aviso falla, la solicitud igual queda guardada', async () => {

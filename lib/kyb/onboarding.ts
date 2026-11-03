@@ -20,6 +20,7 @@ import { sendEmail, type EmailResult } from '@/lib/email/sendEmail';
 import {
   buildKybAcceptedEmail,
   buildKybActivatedEmail,
+  buildKybCaptacionEmail,
   buildKybEvaluatingEmail,
   buildKybPendingEmail,
   buildKybProposalEmail,
@@ -34,11 +35,16 @@ import { normalizeDecision } from './decisions';
 import {
   altaPlanSummary,
   latestProposal,
+  normalizeCommercial,
   normalizeProposal,
+  profileForRegistration,
   proposalPlanName,
+  subscriptionTerms,
   type AltaPlanSummary,
+  type KybCommercialTerms,
   type KybProposal,
 } from './proposal';
+import { captacionMonthlyFor, profileLabel, type LeadBracket } from './planPricing';
 import { SITE_URL } from '@/lib/site';
 import { getKybPlan, isKybPlanId, type KybPlanId } from './plans';
 import {
@@ -91,6 +97,30 @@ async function notify(
     console.error('[kyb] no se pudo enviar el correo:', result.error);
   }
   return emailOutcome(result);
+}
+
+/**
+ * Correo del paso **Calificado**: perfil de socio y condiciones de la suscripción.
+ *
+ * Se exporta porque también lo manda el puente registro→alta: un registro de
+ * corredora que se aprueba crea su alta ya en `Calificado`, y esa persona tiene
+ * que recibir sus condiciones igual que una empresa que llegó por el formulario.
+ * Los montos se leen de **Planes** en cada envío, no del código.
+ */
+export async function notifyQualifiedForApplication(
+  application: KybApplication
+): Promise<EmailOutcome> {
+  const pricing = await readPlanPricing();
+
+  return notify(
+    application.email,
+    buildKybQualifiedEmail({
+      legalName: application.legalName,
+      contactName: application.contactName,
+      siteUrl: SITE_URL,
+      terms: subscriptionTerms(application.registrationKind, pricing.config),
+    })
+  );
 }
 
 export interface SubmitResult {
@@ -245,14 +275,7 @@ export async function evaluateById(
     // el token de activación y el candidato pasaba directo a elegir plan.
     const refreshed = await getApplication(id);
 
-    email = await notify(
-      application.email,
-      buildKybQualifiedEmail({
-        legalName: application.legalName,
-        contactName: application.contactName,
-        siteUrl: SITE_URL,
-      })
-    );
+    email = await notifyQualifiedForApplication(application);
 
     await saveEvaluation({
       applicationId: id,
@@ -424,15 +447,9 @@ export async function decideApplication({
 
     // Igual que en el camino automático: aprobar no emite token. El enlace lo
     // manda el equipo con la propuesta comercial, que es el paso que sigue y el
-    // que lleva los números.
-    email = await notify(
-      application.email,
-      buildKybQualifiedEmail({
-        legalName: application.legalName,
-        contactName: application.contactName,
-        siteUrl: SITE_URL,
-      })
-    );
+    // que lleva los números. El correo de calificación sí lleva las condiciones
+    // del perfil, porque es la primera vez que la persona ve la plata.
+    email = await notifyQualifiedForApplication(application);
   } else {
     // Si ya estaba pendiente, el estado no se toca: se abre otra ronda con las
     // preguntas del equipo y se emite un token nuevo. La ronda anterior, si
@@ -796,6 +813,8 @@ export async function sendKybProposal({
     sentAt: new Date().toISOString(),
     decidedAt: null,
     decision: null,
+    // Las condiciones (CCA y captación) se completan al aceptar, no al enviar.
+    commercial: null,
   };
 
   const updated = await updateApplication(id, {
@@ -831,10 +850,25 @@ export interface ProposalView {
   legalName?: string;
   status?: KybStatus;
   proposal?: KybProposal;
+  /** Perfil de socio del registro, para nombrarlo en la pantalla. */
+  profileLabel?: string;
+  /** %CCA vigente en **Planes**, con el que se estima el costo. */
+  ccaPct?: number;
+  /** Suscripción Captación Activa del perfil, en pesos por mes. */
+  captacionMonthlyClp?: number;
+  /** Tramos de acceso a leads, para explicar el plan de captación. */
+  captacion?: { ventas: LeadBracket[]; arriendos: LeadBracket[] };
   error?: string;
 }
 
-/** Lo que se puede mostrar de una propuesta con su token, sin exponer nada más. */
+/**
+ * Lo que se puede mostrar de una propuesta con su token, sin exponer nada más.
+ *
+ * Además de la propuesta lleva el perfil y los precios del plan de captación,
+ * porque la decisión que se toma en esa pantalla incluye el CCA y la captación:
+ * el candidato tiene que ver la fórmula con el %CCA vigente y cuánto cuesta cada
+ * pieza del otro producto antes de decir que sí.
+ */
 export async function kybProposalByToken(token: unknown): Promise<ProposalView> {
   if (!isKybTokenShape(token)) return { ok: false, error: 'El enlace no es válido.' };
 
@@ -851,7 +885,22 @@ export async function kybProposalByToken(token: unknown): Promise<ProposalView> 
     return { ok: false, error: 'El enlace expiró. Escríbenos y te enviamos uno nuevo.' };
   }
 
-  return { ok: true, legalName: application.legalName, status: application.status, proposal };
+  const pricing = await readPlanPricing();
+  const profile = profileForRegistration(application.registrationKind);
+
+  return {
+    ok: true,
+    legalName: application.legalName,
+    status: application.status,
+    proposal,
+    profileLabel: profileLabel(profile),
+    ccaPct: pricing.config.ccaPct,
+    captacionMonthlyClp: captacionMonthlyFor(pricing.config, profile),
+    captacion: {
+      ventas: pricing.config.captacion.ventas,
+      arriendos: pricing.config.captacion.arriendos,
+    },
+  };
 }
 
 export interface ProposalDecisionResult {
@@ -872,9 +921,22 @@ export interface ProposalDecisionResult {
 export async function decideKybProposal({
   token,
   decision,
+  ccaAccepted,
+  ccaUf,
+  captacion,
 }: {
   token: unknown;
   decision: unknown;
+  /**
+   * Las dos decisiones que se toman junto con el «de acuerdo».
+   *
+   * Aceptar la propuesta incluye aceptar el costo del CCA con un CCA estimado y
+   * elegir si se contrata la captación de leads. Antes solo viajaba el sí al
+   * plan, y lo demás quedaba en una llamada sin registro.
+   */
+  ccaAccepted?: unknown;
+  ccaUf?: unknown;
+  captacion?: unknown;
 }): Promise<ProposalDecisionResult> {
   if (!isKybTokenShape(token)) return { ok: false, error: 'El enlace no es válido.' };
   if (!isKybProposalDecision(decision)) return { ok: false, error: 'La decisión no es válida.' };
@@ -901,10 +963,29 @@ export async function decideKybProposal({
     return { ok: false, error: 'Esta propuesta ya no está disponible.' };
   }
 
+  // Las condiciones comerciales solo se validan al aceptar: rechazar no obliga a
+  // declarar un CCA que la persona no va a pagar.
+  const now = new Date().toISOString();
+  let commercial: KybCommercialTerms | null = null;
+  if (decision === 'aceptada') {
+    const validated = normalizeCommercial({ ccaAccepted, ccaUf, captacion });
+    if (!validated.ok) return { ok: false, error: validated.error };
+
+    const pricing = await readPlanPricing();
+    commercial = {
+      ...validated.data,
+      // Se guarda el %CCA con el que se aceptó: si el equipo lo cambia después,
+      // esta aceptación se sigue leyendo con la regla del día en que se firmó.
+      ccaPct: pricing.config.ccaPct,
+      acceptedAt: now,
+    };
+  }
+
   const decided: KybProposal = {
     ...current,
-    decidedAt: new Date().toISOString(),
+    decidedAt: now,
     decision,
+    commercial,
   };
   const history = [...application.proposal.slice(0, -1), decided];
 
@@ -955,6 +1036,12 @@ export async function decideKybProposal({
     config: pricing.config,
   });
 
+  // La captación, si la tomó, se cobra aparte de la mensualidad: el precio sale
+  // de **Planes** para el perfil del socio.
+  const captacionMonthlyClp = commercial?.captacion
+    ? captacionMonthlyFor(pricing.config, profileForRegistration(application.registrationKind))
+    : null;
+
   const email = await notify(
     application.email,
     buildKybAcceptedEmail({
@@ -963,8 +1050,28 @@ export async function decideKybProposal({
       token: activationToken,
       siteUrl: SITE_URL,
       plan: planSummary,
+      commercial: commercial
+        ? { ccaUf: commercial.ccaUf, ccaPct: commercial.ccaPct, captacionMonthlyClp }
+        : null,
     })
   );
+
+  // El plan de captación se explica en su propio correo: es el producto que más
+  // se malentiende y el que genera la factura del mes siguiente.
+  if (commercial?.captacion) {
+    await notify(
+      application.email,
+      buildKybCaptacionEmail({
+        legalName: application.legalName,
+        contactName: application.contactName,
+        siteUrl: SITE_URL,
+        profileLabel: profileLabel(profileForRegistration(application.registrationKind)),
+        monthlyClp: captacionMonthlyClp ?? 0,
+        ventas: pricing.config.captacion.ventas,
+        arriendos: pricing.config.captacion.arriendos,
+      })
+    );
+  }
 
   return { ok: true, status: 'Alta', decision, email };
 }

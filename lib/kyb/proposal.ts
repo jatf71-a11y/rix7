@@ -23,6 +23,8 @@ import { getKybPlan, isKybPlanId, type KybPlanId } from './plans';
 import {
   DEFAULT_PLAN_PRICING,
   MAX_PRICE_CLP,
+  captacionMonthlyFor,
+  profileLabel,
   profilePlan,
   type PlanPricingConfig,
 } from './planPricing';
@@ -42,7 +44,41 @@ export interface KybProposal {
   /** Cuándo la respondió el candidato; `null` mientras está pendiente. */
   decidedAt: string | null;
   decision: KybProposalDecision | null;
+  /**
+   * Lo que el candidato definió al aceptar, más allá del plan.
+   *
+   * Son dos decisiones distintas de la mensualidad y viajan juntas porque se
+   * toman en el mismo momento: el acuerdo con el costo del CCA (con su CCA
+   * estimado) y si contrata o no la captación de leads. `null` mientras la
+   * propuesta está pendiente o si se envió antes de que existiera este paso.
+   */
+  commercial: KybCommercialTerms | null;
 }
+
+/**
+ * Condiciones comerciales aceptadas por el candidato.
+ *
+ * El CCA se guarda en **UF** —lo que el socio declara y estima— y el %CCA con
+ * el que se calculó. El monto en pesos no se guarda: se deriva con la UF del día
+ * (`ccaAmountClp`), así una cifra vieja en la base no se confunde con la de hoy.
+ */
+export interface KybCommercialTerms {
+  ccaAccepted: boolean;
+  /** CCA estimado por el socio, en UF. `0` es válido: aún no tiene stock. */
+  ccaUf: number;
+  /** %CCA vigente en **Planes** al aceptar, para recalcular con la misma regla. */
+  ccaPct: number;
+  captacion: boolean;
+  acceptedAt: string;
+}
+
+/**
+ * Tope del CCA estimado, en UF.
+ *
+ * Es un control de tipeo, no una regla de negocio: un socio con más stock que
+ * esto se ajusta a mano con el equipo.
+ */
+export const MAX_CCA_UF = 5_000_000;
 
 /**
  * Perfil de precio que le corresponde a cada camino de registro.
@@ -67,6 +103,126 @@ export function defaultProposalAmounts(
   return {
     altaClp: plan?.altaInicialClp ?? 0,
     monthlyClp: plan?.mensualBaseClp ?? 0,
+  };
+}
+
+/**
+ * Plan del catálogo que le corresponde a cada perfil.
+ *
+ * Es el que la propuesta propone de partida y el que el correo de calificación
+ * anuncia con sus publicaciones incluidas. El equipo puede enviar otro plan;
+ * esto es el punto de partida, no una regla.
+ */
+export const DEFAULT_PLAN_BY_PROFILE: Record<PartnerKind, KybPlanId> = {
+  agente: 'basico',
+  corredora: 'profesional',
+  inmobiliaria: 'premium',
+};
+
+export function defaultPlanForProfile(profile: PartnerKind): KybPlanId {
+  return DEFAULT_PLAN_BY_PROFILE[profile] ?? 'profesional';
+}
+
+/**
+ * Las condiciones de la suscripción que se informan al calificar.
+ *
+ * Es el correo del paso **Calificado**: tiene que decir con qué perfil quedó el
+ * socio, cuánto se cobra al dar de alta, cuánto por mes, cuántos usuarios y
+ * cuántas publicaciones incluye, y a cuánto sale la captación si la quiere. Los
+ * montos salen de **Planes** (lo que el equipo definió), no del código; las
+ * publicaciones, del plan del catálogo que le corresponde al perfil.
+ */
+export interface SubscriptionTerms {
+  profileLabel: string;
+  planId: KybPlanId;
+  planName: string;
+  altaClp: number;
+  monthlyClp: number;
+  usuariosIncluidos: number;
+  listings: number;
+  /** Suscripción Captación Activa del perfil, en pesos por mes. */
+  captacionMonthlyClp: number;
+}
+
+export function subscriptionTerms(
+  kind: KybRegistrationKind | null,
+  config: PlanPricingConfig = DEFAULT_PLAN_PRICING
+): SubscriptionTerms {
+  const profile = profileForRegistration(kind);
+  const profilePrices = profilePlan(config, profile);
+  const planId = defaultPlanForProfile(profile);
+  const catalog = getKybPlan(planId);
+
+  return {
+    profileLabel: profileLabel(profile),
+    planId,
+    planName: catalog.name,
+    altaClp: profilePrices?.altaInicialClp ?? 0,
+    monthlyClp: profilePrices?.mensualBaseClp ?? 0,
+    usuariosIncluidos: profilePrices?.usuariosIncluidos ?? catalog.users,
+    listings: catalog.listings,
+    captacionMonthlyClp: captacionMonthlyFor(config, profile),
+  };
+}
+
+/**
+ * Lo que el candidato define al aceptar la propuesta.
+ *
+ * Aceptar no es solo decir que sí al plan: el CCA es un costo aparte —la suma de
+ * las publicaciones del socio, en UF, traducida a pesos— y la captación de leads
+ * es otro producto. Las dos decisiones se toman acá, cuando ya tiene los números
+ * en la mano, y no en una llamada que no deja rastro.
+ *
+ * El CCA estimado es lo que el socio declara hoy; cuando cargue sus propiedades
+ * el sistema lo recalcula solo, así que es una estimación y no un compromiso.
+ */
+export interface NormalizedCommercial {
+  ccaAccepted: boolean;
+  ccaUf: number;
+  captacion: boolean;
+}
+
+/**
+ * Valida las decisiones comerciales del paso de propuesta.
+ *
+ * Para aceptar hace falta estar de acuerdo con el CCA: es un concepto que se
+ * cobra igual y aceptar una propuesta sin aceptarlo dejaría un desacuerdo
+ * escondido en el alta. La estimación es obligatoria (puede ser 0 si todavía no
+ * tiene propiedades) porque es el dato con el que se le explica el primer cobro.
+ */
+export function normalizeCommercial(input: {
+  ccaAccepted?: unknown;
+  ccaUf?: unknown;
+  captacion?: unknown;
+}): { ok: true; data: NormalizedCommercial } | { ok: false; error: string } {
+  if (input.captacion !== undefined && typeof input.captacion !== 'boolean') {
+    return { ok: false, error: 'La respuesta sobre el plan de captación no es válida.' };
+  }
+
+  if (input.ccaAccepted !== true) {
+    return {
+      ok: false,
+      error: 'Para aceptar la propuesta tienes que estar de acuerdo con el costo del CCA.',
+    };
+  }
+
+  const raw = input.ccaUf;
+  const ccaUf = typeof raw === 'number' ? raw : typeof raw === 'string' ? Number(raw) : NaN;
+  if (!Number.isFinite(ccaUf) || ccaUf < 0) {
+    return { ok: false, error: 'Indica tu CCA estimado en UF (puede ser 0 si aún no publicas).' };
+  }
+  if (ccaUf > MAX_CCA_UF) {
+    return { ok: false, error: `El CCA estimado no puede superar ${MAX_CCA_UF.toLocaleString('es-CL')} UF.` };
+  }
+
+  return {
+    ok: true,
+    data: {
+      ccaAccepted: true,
+      // Dos decimales: el CCA se suma en UF y así se declara.
+      ccaUf: Math.round(ccaUf * 100) / 100,
+      captacion: input.captacion === true,
+    },
   };
 }
 
@@ -151,6 +307,27 @@ function parseOne(value: unknown): KybProposal | null {
     sentAt: typeof raw.sentAt === 'string' ? raw.sentAt : '',
     decidedAt: typeof raw.decidedAt === 'string' ? raw.decidedAt : null,
     decision,
+    commercial: parseCommercial(raw.commercial),
+  };
+}
+
+function parseCommercial(value: unknown): KybCommercialTerms | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const raw = value as Record<string, unknown>;
+  if (typeof raw.ccaAccepted !== 'boolean') return null;
+
+  return {
+    ccaAccepted: raw.ccaAccepted,
+    ccaUf:
+      typeof raw.ccaUf === 'number' && Number.isFinite(raw.ccaUf) && raw.ccaUf >= 0
+        ? raw.ccaUf
+        : 0,
+    ccaPct:
+      typeof raw.ccaPct === 'number' && Number.isFinite(raw.ccaPct) && raw.ccaPct > 0
+        ? raw.ccaPct
+        : 100,
+    captacion: raw.captacion === true,
+    acceptedAt: typeof raw.acceptedAt === 'string' ? raw.acceptedAt : '',
   };
 }
 
