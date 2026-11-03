@@ -36,7 +36,7 @@ const HOME_HTML = `<!doctype html><html><head><title>Rix7 | Propiedades</title><
 )}</body></html>`;
 const ADMIN_HTML = '<!doctype html><html><head><title>Panel | Rix7</title></head><body>Registros</body></html>';
 const SOCIO_HTML =
-  '<!doctype html><html><head><title>Panel de socios | Rix7</title></head><body>Panel de socios Mis publicaciones</body></html>';
+  '<!doctype html><html><head><title>Panel profesional | Rix7</title></head><body>Panel profesional Mis publicaciones</body></html>';
 
 const htmlResponse = (status: number, body: string) => new Response(body, { status });
 const jsonResponse = (status: number, body: unknown) =>
