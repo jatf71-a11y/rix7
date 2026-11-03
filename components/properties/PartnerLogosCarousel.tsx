@@ -78,7 +78,7 @@ export function PartnerLogosCarousel({ partnerCounts = {} }: PartnerLogosCarouse
       <div className="flex items-center gap-2 mb-2 px-1">
         <div className="h-px flex-1 bg-gradient-to-r from-blue-200 to-transparent" />
         <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-          Nuestros Socios Estratégicos
+          Corredoras e inmobiliarias destacadas
         </span>
         <div className="h-px flex-1 bg-gradient-to-l from-blue-200 to-transparent" />
       </div>
@@ -96,7 +96,7 @@ export function PartnerLogosCarousel({ partnerCounts = {} }: PartnerLogosCarouse
         <button
           type="button"
           onClick={() => scroll('left')}
-          aria-label="Desplazar socios hacia la izquierda"
+          aria-label="Desplazar empresas destacadas hacia la izquierda"
           className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white/90 border border-slate-200 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-50 hover:border-blue-300"
         >
           <ChevronLeft className="w-3.5 h-3.5 text-slate-600" />
@@ -104,7 +104,7 @@ export function PartnerLogosCarousel({ partnerCounts = {} }: PartnerLogosCarouse
         <button
           type="button"
           onClick={() => scroll('right')}
-          aria-label="Desplazar socios hacia la derecha"
+          aria-label="Desplazar empresas destacadas hacia la derecha"
           className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white/90 border border-slate-200 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-50 hover:border-blue-300"
         >
           <ChevronRight className="w-3.5 h-3.5 text-slate-600" />

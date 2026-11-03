@@ -47,7 +47,7 @@ export default function SocioShell({
             <img src="/brand-logo.png" alt="Logo Rix7" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-slate-900">Panel de socios</h2>
+            <h2 className="text-sm font-bold text-slate-900">Panel profesional</h2>
             <p className="text-[10px] text-slate-500">Publica y gestiona tus propiedades</p>
           </div>
         </div>

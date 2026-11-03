@@ -107,7 +107,7 @@ export default async function ResponderPage({
       <div className="mx-auto max-w-2xl px-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-blue-700">
-            Registro de socios · Rix7
+            Tu registro en Rix7
           </p>
           <div className="mt-3">
             <ResponderForm token={token} questions={questions} name={solicitud.company || solicitud.name} />

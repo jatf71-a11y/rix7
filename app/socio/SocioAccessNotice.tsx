@@ -48,8 +48,8 @@ export default function SocioAccessNotice({
       </p>
       {isMissingSession && (
         <p className="text-xs text-slate-400 mb-5">
-          Tus publicaciones viven en la cuenta de tu corredora: entra con el correo que usó tu
-          equipo.
+          Tus publicaciones viven en tu cuenta profesional: entra con el correo con el que te
+          registraste.
         </p>
       )}
       {!isMissingSession && status === 403 && (

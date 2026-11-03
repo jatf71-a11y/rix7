@@ -102,7 +102,7 @@ export default function PlanStep({ token, planSummary, onActivated }: PlanStepPr
         <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
           {planSummary.source === 'propuesta'
             ? 'Montos de la propuesta que aceptaste.'
-            : 'Montos vigentes según tu perfil de socio.'}
+            : 'Montos vigentes según el perfil de tu cuenta.'}
         </p>
       </div>
 
