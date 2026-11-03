@@ -37,8 +37,8 @@ const options = [
     href: '/publicar/propietario',
     icon: Home,
     badge: 'Sin corredora',
-    title: 'Soy propietario',
-    subtitle: 'Tengo una propiedad y aún no tengo corredora',
+    title: 'Propietario',
+    subtitle: 'Dueño de una propiedad que todavía no tiene corredora',
     description:
       'Ingresa tu propiedad y recibe propuestas de corredoras verificadas que compiten por representarte y publicarla en Rix7.',
     bullets: [
@@ -53,8 +53,8 @@ const options = [
     href: '/registro/corredora',
     icon: Building2,
     badge: 'Empresa',
-    title: 'Soy corredora',
-    subtitle: 'Represento a una corredora de propiedades',
+    title: 'Corredora',
+    subtitle: 'Empresa de corretaje con corredores a cargo',
     description:
       'Registra tu corredora para acreditar la empresa y publicar tu stock en el portal y en tu página de empresa.',
     bullets: [
@@ -69,8 +69,8 @@ const options = [
     href: '/registro/inmobiliaria',
     icon: Landmark,
     badge: 'Empresa',
-    title: 'Soy inmobiliaria',
-    subtitle: 'Represento a una inmobiliaria o desarrolladora',
+    title: 'Inmobiliaria',
+    subtitle: 'Desarrolladora o empresa que publica stock propio',
     description:
       'Registra tu inmobiliaria para publicar proyectos y stock propio, con un perfil de empresa dentro de Rix7.',
     bullets: [
@@ -85,8 +85,8 @@ const options = [
     href: '/publicar/agente',
     icon: UserRound,
     badge: 'Cuenta propia',
-    title: 'Soy profesional independiente',
-    subtitle: 'Corredor de propiedades por cuenta propia',
+    title: 'Profesional Independiente',
+    subtitle: 'Corredor por cuenta propia, sin empresa detrás',
     description:
       'Registra tu actividad como profesional independiente y publica tu stock desde tu propia cuenta, sin una empresa detrás.',
     bullets: [
