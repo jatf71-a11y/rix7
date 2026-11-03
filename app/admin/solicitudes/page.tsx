@@ -265,17 +265,33 @@ export default function AdminSolicitudesPage() {
   );
 
   /**
+   * Abre o cierra la ficha de un registro.
+   *
+   * No pide nada al servidor: los datos del formulario llegan con la lista, así
+   * que abrir la ficha es instantáneo y no puede fallar por red. La ficha del
+   * alta es la que se carga aparte, porque trae la evaluación y las decisiones.
+   */
+  const toggleRegistro = useCallback((id: string) => {
+    setOpenId((prev) => (prev === id ? null : id));
+    setDetail(null);
+    setDetailError(null);
+  }, []);
+
+  /**
    * Abre la ficha desde el tablero.
    *
-   * El tablero sirve para ubicarse; decidir exige ver la evaluación, que no
-   * entra en una tarjeta. Así que la acción cambia a la lista con esa fila
-   * abierta, en vez de duplicar la ficha dentro de la columna.
+   * El tablero sirve para ubicarse; revisar los datos y decidir no entran en una
+   * tarjeta. Así que la acción cambia a la lista con esa fila abierta, en vez de
+   * duplicar la ficha dentro de la columna. Las dos fuentes abren ficha: la del
+   * alta la pide a la API y la del registro ya la tiene.
    */
   const openInList = useCallback(
-    (id: string) => {
+    (socio: SocioSolicitud) => {
       setView('lista');
-      setOpenId(id);
-      void loadDetail(id);
+      setOpenId(socio.id);
+      setDetail(null);
+      setDetailError(null);
+      if (socio.source === 'alta') void loadDetail(socio.id);
     },
     [loadDetail]
   );
@@ -781,13 +797,14 @@ export default function AdminSolicitudesPage() {
                             </span>
                             <button
                               type="button"
-                              onClick={() => openInList(socio.id)}
+                              onClick={() => openInList(socio)}
                               className="ml-auto rounded-lg border border-slate-300 px-2 py-1 text-[10px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                             >
                               Abrir ficha
                             </button>
                           </div>
                         ) : (
+                          <>
                           <div className="mt-2 flex items-center gap-1.5">
                             <label htmlFor={`estado-tablero-${socio.id}`} className="sr-only">
                               Estado
@@ -811,6 +828,14 @@ export default function AdminSolicitudesPage() {
                               <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-slate-400" />
                             )}
                           </div>
+                          <button
+                            type="button"
+                            onClick={() => openInList(socio)}
+                            className="mt-1.5 w-full rounded-lg border border-slate-300 px-2 py-1 text-[10px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                          >
+                            Abrir ficha
+                          </button>
+                          </>
                         )}
 
                         {actionError?.id === socio.id && (
@@ -845,7 +870,9 @@ export default function AdminSolicitudesPage() {
               deciding={deciding}
               saving={savingId === socio.id}
               actionError={actionError?.id === socio.id ? actionError.message : null}
-              onToggle={() => toggle(socio.id)}
+              onToggle={() =>
+                socio.source === 'alta' ? void toggle(socio.id) : toggleRegistro(socio.id)
+              }
               onRetryDetail={() => void loadDetail(socio.id)}
               onStatusChange={(status) => void changeStatus(socio.id, status)}
               onReevaluate={() => void reevaluate(socio.id)}
@@ -984,7 +1011,7 @@ function SocioRow({
               aria-controls={`detalle-${socio.id}`}
               className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
             >
-              {open ? 'Ocultar evaluación' : 'Ver evaluación'}
+              {open ? 'Ocultar ficha' : 'Ver ficha'}
             </button>
           ) : (
             <div className="mt-2 flex items-center gap-2 sm:justify-end">
@@ -1009,6 +1036,18 @@ function SocioRow({
               </select>
               {saving && <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />}
             </div>
+          )}
+
+          {!isAlta && (
+            <button
+              type="button"
+              onClick={onToggle}
+              aria-expanded={open}
+              aria-controls={`detalle-${socio.id}`}
+              className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+            >
+              {open ? 'Ocultar ficha' : 'Ver ficha'}
+            </button>
           )}
 
           {!isAlta && socio.status === 'Pendiente_Informacion' && (
@@ -1094,28 +1133,32 @@ function SocioRow({
           </div>
         )
       ) : (
-        <div className="border-t border-slate-100">
-          {evaluation && <SolicitudEvaluationSummary evaluation={evaluation} />}
-          <div className="grid gap-4 px-5 py-4 sm:grid-cols-2">
-          {details.map((item) => (
-            <div key={item.label}>
-              <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                {item.label}
-              </p>
-              <p className="text-xs text-slate-700">{item.value}</p>
-            </div>
-          ))}
+        open && (
+          <div id={`detalle-${socio.id}`} className="border-t border-slate-100">
+            {evaluation && <SolicitudEvaluationSummary evaluation={evaluation} />}
+            <div className="grid gap-4 px-5 py-4 sm:grid-cols-2">
+              {details.map((item) => (
+                <div key={item.label}>
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                    {item.label}
+                  </p>
+                  <p className="text-xs text-slate-700">{item.value}</p>
+                </div>
+              ))}
 
-          {socio.message && (
-            <div className="rounded-xl bg-slate-50 px-3 py-2.5 sm:col-span-2">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Mensaje</p>
-              <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-slate-600">
-                {socio.message}
-              </p>
+              {socio.message && (
+                <div className="rounded-xl bg-slate-50 px-3 py-2.5 sm:col-span-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                    Mensaje
+                  </p>
+                  <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-slate-600">
+                    {socio.message}
+                  </p>
+                </div>
+              )}
             </div>
-          )}
           </div>
-        </div>
+        )
       )}
     </li>
   );

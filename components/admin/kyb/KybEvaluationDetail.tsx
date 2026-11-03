@@ -307,7 +307,23 @@ export default function KybEvaluationDetail({
         onDecide={onDecide}
       />
 
-      <dl className="mt-5 grid gap-3 sm:grid-cols-2">
+      <h4 className="mt-5 text-xs font-black text-slate-900">Datos declarados</h4>
+
+      <dl className="mt-2 grid gap-3 sm:grid-cols-2">
+        <div>
+          <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
+            Razón social
+          </dt>
+          <dd className="text-xs text-slate-700">{application.legalName}</dd>
+        </div>
+        <div>
+          <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Correo</dt>
+          <dd className="text-xs text-slate-700">
+            <a href={`mailto:${application.email}`} className="text-blue-700 hover:underline">
+              {application.email}
+            </a>
+          </dd>
+        </div>
         <div>
           <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-400">RUT</dt>
           <dd className="text-xs text-slate-700">{application.rut}</dd>

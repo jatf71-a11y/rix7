@@ -1,6 +1,6 @@
 {
   "name": "rix7-portal-inmobiliario",
-  "version": "10.5.18",
+  "version": "10.5.19",
   "private": true,
   "engines": {
     "node": "24.x"
