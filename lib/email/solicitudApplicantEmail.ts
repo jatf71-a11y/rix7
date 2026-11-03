@@ -1,5 +1,5 @@
 /**
- * Correos al solicitante de un registro de socio.
+ * Correos al solicitante de un registro profesional.
  *
  * Hasta ahora estos registros solo avisaban **al equipo** (`solicitudEmail.ts`):
  * la persona dejaba sus datos y no volvía a saber nada hasta que alguien la
@@ -57,7 +57,7 @@ function shell({
           Rix<span style="color:#3b82f6">7</span>
         </div>
         <div style="color:#94a3b8;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-top:6px">
-          Registro de socios
+          Registro profesional
         </div>
       </div>
       <div style="padding:26px 24px 8px">
@@ -67,7 +67,7 @@ function shell({
       <div style="padding:18px 24px 28px">${body}</div>
       <div style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:16px 24px">
         <p style="margin:0;color:#94a3b8;font-size:11px;line-height:1.7">
-          Recibes este correo porque dejaste tus datos en el registro de socios de Rix7.
+          Recibes este correo porque dejaste tus datos en el registro profesional de Rix7.
           <br />
           <a href="${siteUrl}/legal/privacidad" style="color:#64748b">Privacidad</a>
           ·
@@ -125,7 +125,7 @@ export function buildSolicitudPendingEmail({
     '',
     'Cuando envíes tus respuestas, la evaluación se repite automáticamente y te contamos el resultado.',
     '',
-    'Rix7 — Registro de socios',
+    'Rix7 — Registro profesional',
     siteUrl,
   ].join('\n');
 
@@ -185,7 +185,7 @@ export function buildSolicitudAcceptedEmail({
     '',
     'Si necesitas corregir algún dato, responde este correo.',
     '',
-    'Rix7 — Registro de socios',
+    'Rix7 — Registro profesional',
     siteUrl,
   ].join('\n');
 
@@ -240,7 +240,7 @@ export function buildSolicitudRejectedEmail({
     'Si crees que hay un error o tienes antecedentes que no consideramos, responde este',
     'correo y lo revisamos.',
     '',
-    'Rix7 — Registro de socios',
+    'Rix7 — Registro profesional',
     siteUrl,
   ].join('\n');
 
