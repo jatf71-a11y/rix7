@@ -52,7 +52,7 @@ export const PLAN_PRICING_KEY = 'planes';
  * versión se descarta y vuelven los valores de partida, en vez de leerse con la
  * forma equivocada.
  */
-export const PLAN_PRICING_VERSION = 3 as const;
+export const PLAN_PRICING_VERSION = 4 as const;
 
 /** Lo que se cobra por un perfil de socio. */
 export interface ProfilePlan {
@@ -65,6 +65,41 @@ export interface ProfilePlan {
   usuariosIncluidos: number;
 }
 
+/**
+ * Suscripción al plan de captación de un perfil.
+ *
+ * Es el otro producto del portal: no se paga por publicar, se paga por recibir
+ * leads. Va en paralelo a los planes de suscripción (alta, mensualidad y
+ * usuarios) y no los reemplaza: un socio puede tener uno, el otro o los dos.
+ */
+export interface CaptacionMonthly {
+  profile: PartnerKind;
+  /** Suscripción Captación Activa, en pesos por mes. */
+  monthlyClp: number;
+}
+
+/**
+ * Un tramo de acceso a leads.
+ *
+ * `from`/`to` están en la unidad de la tabla: **UF** para ventas y **pesos**
+ * para arriendos. Los dos extremos son inclusivos y solo el último tramo no
+ * tiene tope (`to: null`), así que cualquier lead cae en exactamente un tramo.
+ */
+export interface LeadBracket {
+  from: number;
+  to: number | null;
+  /** Lo que se cobra al socio por acceder a un lead de este tramo. */
+  priceClp: number;
+}
+
+export interface CaptacionPlans {
+  monthly: CaptacionMonthly[];
+  /** Acceso a un lead de venta según el valor de la propiedad, en UF. */
+  ventas: LeadBracket[];
+  /** Acceso a un lead de arriendo según el canon mensual, en pesos. */
+  arriendos: LeadBracket[];
+}
+
 export interface PlanPricingConfig {
   version: typeof PLAN_PRICING_VERSION;
   /**
@@ -74,6 +109,7 @@ export interface PlanPricingConfig {
    */
   ccaPct: number;
   profiles: ProfilePlan[];
+  captacion: CaptacionPlans;
 }
 
 /**
@@ -122,10 +158,47 @@ export const DEFAULT_CCA_PCT = 100;
 export const MIN_CCA_PCT = 1;
 export const MAX_CCA_PCT = 1000;
 
+/**
+ * Suscripciones de captación de partida: lo que definió el equipo por perfil.
+ *
+ * Se llaman «Captación Activa» en la pantalla porque es lo que compran: estar
+ * activos en el reparto de leads, antes de pagar ninguno.
+ */
+export const DEFAULT_CAPTACION_MONTHLY: readonly CaptacionMonthly[] = [
+  { profile: 'agente', monthlyClp: 9990 },
+  { profile: 'corredora', monthlyClp: 19990 },
+  { profile: 'inmobiliaria', monthlyClp: 39990 },
+];
+
+/**
+ * Tramo de acceso por lead, de partida.
+ *
+ * Ventas se mide en UF (lo que vale la propiedad) y arriendos en pesos (el
+ * canon mensual), porque son las unidades en las que el equipo piensa cada
+ * negocio. Los cortes son los que definió el equipo y los precios se editan en
+ * el panel; los cortes, no: cambiarlos es cambiar el producto.
+ */
+export const DEFAULT_LEAD_BRACKETS: CaptacionPlans = {
+  monthly: [...DEFAULT_CAPTACION_MONTHLY],
+  ventas: [
+    { from: 0, to: 5000, priceClp: 3000 },
+    { from: 5001, to: 10000, priceClp: 5000 },
+    { from: 10001, to: 20000, priceClp: 8000 },
+    { from: 20001, to: 40000, priceClp: 12000 },
+    { from: 40001, to: null, priceClp: 20000 },
+  ],
+  arriendos: [
+    { from: 0, to: 500000, priceClp: 2000 },
+    { from: 500001, to: 1500000, priceClp: 3000 },
+    { from: 1500001, to: null, priceClp: 5000 },
+  ],
+};
+
 /** Precios de partida: los que definió el equipo para cada perfil. */
 export const DEFAULT_PLAN_PRICING: PlanPricingConfig = {
   version: PLAN_PRICING_VERSION,
   ccaPct: DEFAULT_CCA_PCT,
+  captacion: DEFAULT_LEAD_BRACKETS,
   profiles: [
     {
       profile: 'agente',
@@ -154,6 +227,19 @@ export function profilePlan(
   profile: PartnerKind
 ): ProfilePlan | null {
   return config.profiles.find((item) => item.profile === profile) ?? null;
+}
+
+/**
+ * La suscripción de captación de un perfil.
+ *
+ * Cae en el valor de partida si la configuración guardada no trae ese perfil
+ * (una fila vieja, editada a mano): el panel y el cobro nunca se quedan sin
+ * número.
+ */
+export function captacionMonthlyFor(config: PlanPricingConfig, profile: PartnerKind): number {
+  const stored = config.captacion.monthly.find((item) => item.profile === profile);
+  if (stored) return stored.monthlyClp;
+  return DEFAULT_CAPTACION_MONTHLY.find((item) => item.profile === profile)?.monthlyClp ?? 0;
 }
 
 // ── CCA ──────────────────────────────────────────────────────────────────────
@@ -286,6 +372,91 @@ function defaultFor(profile: PartnerKind): ProfilePlan {
   );
 }
 
+/** Tope de un corte de tramo: más que esto es un error de tipeo, no un mercado. */
+export const MAX_BRACKET_VALUE = 10_000_000;
+
+/**
+ * Valida una tabla de tramos.
+ *
+ * Los tramos tienen que cubrir de punta a punta, sin huecos ni superposiciones:
+ * un lead que no caiga en ninguno —o en dos— no tiene precio, y eso se descubre
+ * al cobrar, no al guardar. El primero arranca en 0 y solo el último queda
+ * abierto; el resto empieza donde termina el anterior + 1.
+ */
+function normalizeBrackets(
+  input: unknown,
+  defaults: readonly LeadBracket[],
+  label: string,
+  unit: string
+): { ok: true; brackets: LeadBracket[] } | { ok: false; error: string } {
+  if (input === undefined) {
+    return { ok: true, brackets: defaults.map((bracket) => ({ ...bracket })) };
+  }
+  if (!Array.isArray(input) || input.length === 0) {
+    return { ok: false, error: `La tabla de ${label} necesita al menos un tramo.` };
+  }
+
+  const brackets: LeadBracket[] = [];
+
+  for (let index = 0; index < input.length; index += 1) {
+    const item = input[index];
+    const position = index + 1;
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      return { ok: false, error: `El tramo ${position} de ${label} no tiene el formato esperado.` };
+    }
+
+    const candidate = item as Record<string, unknown>;
+    if (!isIntegerInRange(candidate.from, 0, MAX_BRACKET_VALUE)) {
+      return {
+        ok: false,
+        error: `El «desde» del tramo ${position} de ${label} tiene que ser un entero entre 0 y ${MAX_BRACKET_VALUE.toLocaleString('es-CL')} ${unit}.`,
+      };
+    }
+
+    const last = index === input.length - 1;
+    let to: number | null = null;
+    if (candidate.to === null) {
+      // Solo el último tramo puede quedar sin tope; si no, el siguiente nunca
+      // recibiría un lead.
+      if (!last) {
+        return {
+          ok: false,
+          error: `Solo el último tramo de ${label} puede quedar sin tope.`,
+        };
+      }
+    } else if (!isIntegerInRange(candidate.to, candidate.from, MAX_BRACKET_VALUE)) {
+      return {
+        ok: false,
+        error: `El «hasta» del tramo ${position} de ${label} tiene que ser un entero mayor o igual que el «desde».`,
+      };
+    } else {
+      to = candidate.to;
+    }
+
+    if (!isIntegerInRange(candidate.priceClp, 0, MAX_PRICE_CLP)) {
+      return {
+        ok: false,
+        error: `El acceso del tramo ${position} de ${label} tiene que ser un entero entre 0 y ${MAX_PRICE_CLP.toLocaleString('es-CL')}.`,
+      };
+    }
+
+    if (index === 0 && candidate.from !== 0) {
+      return { ok: false, error: `El primer tramo de ${label} tiene que empezar en 0.` };
+    }
+    const previous = brackets[brackets.length - 1];
+    if (previous && previous.to !== null && candidate.from !== previous.to + 1) {
+      return {
+        ok: false,
+        error: `Los tramos de ${label} tienen que ser corridos: el tramo ${position} debe empezar en ${(previous.to + 1).toLocaleString('es-CL')}.`,
+      };
+    }
+
+    brackets.push({ from: candidate.from, to, priceClp: candidate.priceClp });
+  }
+
+  return { ok: true, brackets };
+}
+
 /**
  * Valida lo que llega del panel y devuelve la configuración canónica.
  *
@@ -301,11 +472,12 @@ export function normalizePlanPricing(input: unknown): NormalizePricingResult {
 
   const raw = input as Record<string, unknown>;
 
-  // La fila guardada con la versión anterior (2, sin %CCA) se acepta: el campo
-  // que no existía entra con el valor de partida, así un guardado viejo no deja
-  // el panel en «configuración de otra versión».
-  const MIGRATABLE = 2;
-  if (raw.version !== undefined && raw.version !== PLAN_PRICING_VERSION && raw.version !== MIGRATABLE) {
+  // Las filas guardadas con versiones anteriores se aceptan: los campos que no
+  // existían entran con el valor de partida, así un guardado viejo no deja el
+  // panel en «configuración de otra versión» ni pierde los precios que sí tenía.
+  // La 2 no conocía el %CCA y la 3, los planes de captación.
+  const MIGRATABLE = new Set([2, 3]);
+  if (raw.version !== undefined && raw.version !== PLAN_PRICING_VERSION && !MIGRATABLE.has(raw.version as number)) {
     return {
       ok: false,
       error: `La configuración guardada es de otra versión (${String(raw.version)}).`,
@@ -365,6 +537,46 @@ export function normalizePlanPricing(input: unknown): NormalizePricingResult {
     });
   }
 
+  // ── Planes de captación ─────────────────────────────────────────────────────
+  const rawCaptacion =
+    raw.captacion && typeof raw.captacion === 'object' && !Array.isArray(raw.captacion)
+      ? (raw.captacion as Record<string, unknown>)
+      : {};
+
+  const monthly: CaptacionMonthly[] = [];
+  const rawMonthly = Array.isArray(rawCaptacion.monthly) ? rawCaptacion.monthly : [];
+
+  for (const item of rawMonthly) {
+    if (!item || typeof item !== 'object') continue;
+    const candidate = item as Record<string, unknown>;
+    if (!isProfile(candidate.profile)) continue;
+
+    if (!isIntegerInRange(candidate.monthlyClp, 0, MAX_PRICE_CLP)) {
+      return {
+        ok: false,
+        error: `La suscripción de captación de «${profileLabel(candidate.profile)}» tiene que ser un entero entre 0 y ${MAX_PRICE_CLP.toLocaleString('es-CL')}.`,
+      };
+    }
+
+    monthly.push({ profile: candidate.profile, monthlyClp: candidate.monthlyClp });
+  }
+
+  const ventas = normalizeBrackets(
+    rawCaptacion.ventas,
+    DEFAULT_LEAD_BRACKETS.ventas,
+    'ventas',
+    'UF'
+  );
+  if (!ventas.ok) return { ok: false, error: ventas.error };
+
+  const arriendos = normalizeBrackets(
+    rawCaptacion.arriendos,
+    DEFAULT_LEAD_BRACKETS.arriendos,
+    'arriendos',
+    'pesos'
+  );
+  if (!arriendos.ok) return { ok: false, error: arriendos.error };
+
   return {
     ok: true,
     config: {
@@ -375,6 +587,18 @@ export function normalizePlanPricing(input: unknown): NormalizePricingResult {
       profiles: PRICING_PROFILES.map(
         (profile) => profiles.find((item) => item.profile === profile) ?? defaultFor(profile)
       ),
+      captacion: {
+        monthly: PRICING_PROFILES.map(
+          (profile) =>
+            monthly.find((item) => item.profile === profile) ?? {
+              profile,
+              monthlyClp:
+                DEFAULT_CAPTACION_MONTHLY.find((item) => item.profile === profile)?.monthlyClp ?? 0,
+            }
+        ),
+        ventas: ventas.brackets,
+        arriendos: arriendos.brackets,
+      },
     },
   };
 }

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CCA_DIVISOR,
   DEFAULT_CCA_PCT,
+  DEFAULT_LEAD_BRACKETS,
   DEFAULT_PLAN_PRICING,
   MAX_CCA_PCT,
   MAX_PRICE_CLP,
@@ -12,6 +13,7 @@ import {
   PRICING_PROFILES,
   ccaAmountClp,
   ccaFactor,
+  captacionMonthlyFor,
   formatCcaAmount,
   formatDecimalInput,
   normalizePlanPricing,
@@ -25,6 +27,7 @@ function config(overrides: Partial<PlanPricingConfig> = {}): PlanPricingConfig {
   return {
     version: PLAN_PRICING_VERSION,
     ccaPct: DEFAULT_CCA_PCT,
+    captacion: DEFAULT_LEAD_BRACKETS,
     profiles: [
       {
         profile: 'agente',
@@ -74,7 +77,7 @@ describe('precios de partida', () => {
 
   it('devuelve el plan de un perfil y null si no está', () => {
     expect(profilePlan(config(), 'corredora')?.usuariosIncluidos).toBe(5);
-    expect(profilePlan({ version: 3, ccaPct: 100, profiles: [] }, 'agente')).toBeNull();
+    expect(profilePlan({ ...config(), profiles: [] }, 'agente')).toBeNull();
   });
 });
 
@@ -273,6 +276,131 @@ describe('normalizePlanPricing', () => {
     const result = normalizePlanPricing({});
     expect(result.ok).toBe(true);
     expect(result.config?.profiles.map((item) => item.profile)).toEqual([...PRICING_PROFILES]);
+  });
+});
+
+describe('planes de captación', () => {
+  it('la suscripción de captación de partida es la que definió el equipo', () => {
+    expect(DEFAULT_PLAN_PRICING.captacion.monthly).toEqual([
+      { profile: 'agente', monthlyClp: 9990 },
+      { profile: 'corredora', monthlyClp: 19990 },
+      { profile: 'inmobiliaria', monthlyClp: 39990 },
+    ]);
+  });
+
+  it('los tramos de venta van en UF y los de arriendo en pesos', () => {
+    expect(DEFAULT_PLAN_PRICING.captacion.ventas).toEqual([
+      { from: 0, to: 5000, priceClp: 3000 },
+      { from: 5001, to: 10000, priceClp: 5000 },
+      { from: 10001, to: 20000, priceClp: 8000 },
+      { from: 20001, to: 40000, priceClp: 12000 },
+      { from: 40001, to: null, priceClp: 20000 },
+    ]);
+    expect(DEFAULT_PLAN_PRICING.captacion.arriendos).toEqual([
+      { from: 0, to: 500000, priceClp: 2000 },
+      { from: 500001, to: 1500000, priceClp: 3000 },
+      { from: 1500001, to: null, priceClp: 5000 },
+    ]);
+  });
+
+  it('la suscripción de un perfil sale de la configuración y cae en la de partida', () => {
+    expect(captacionMonthlyFor(config(), 'inmobiliaria')).toBe(39990);
+    expect(captacionMonthlyFor({ ...config(), captacion: { ...DEFAULT_LEAD_BRACKETS, monthly: [] } }, 'corredora')).toBe(19990);
+  });
+
+  it('sin bloque de captación devuelve los valores de partida', () => {
+    const result = normalizePlanPricing({ profiles: [] });
+
+    expect(result.ok).toBe(true);
+    expect(result.config?.captacion.monthly).toEqual(DEFAULT_PLAN_PRICING.captacion.monthly);
+    expect(result.config?.captacion.ventas).toEqual(DEFAULT_PLAN_PRICING.captacion.ventas);
+    expect(result.config?.captacion.arriendos).toEqual(DEFAULT_PLAN_PRICING.captacion.arriendos);
+  });
+
+  it('una fila de la versión 3 entra con los planes de captación de partida', () => {
+    const result = normalizePlanPricing({ version: 3, profiles: [] });
+
+    expect(result.ok).toBe(true);
+    expect(result.config?.version).toBe(PLAN_PRICING_VERSION);
+    expect(result.config?.captacion).toEqual(DEFAULT_PLAN_PRICING.captacion);
+  });
+
+  it('guarda los precios que se le pasen, sin tocar los cortes', () => {
+    const result = normalizePlanPricing({
+      captacion: {
+        monthly: [{ profile: 'agente', monthlyClp: 12000 }],
+        ventas: DEFAULT_LEAD_BRACKETS.ventas.map((bracket) => ({
+          ...bracket,
+          priceClp: bracket.priceClp + 1000,
+        })),
+      },
+    });
+
+    expect(result.ok).toBe(true);
+    expect(captacionMonthlyFor(result.config!, 'agente')).toBe(12000);
+    // Los perfiles que no vinieron quedan como estaban.
+    expect(captacionMonthlyFor(result.config!, 'corredora')).toBe(19990);
+    expect(result.config?.captacion.ventas[0]).toEqual({ from: 0, to: 5000, priceClp: 4000 });
+  });
+
+  it('rechaza un tramo que deja un hueco: ese lead no tendría precio', () => {
+    const conHueco = DEFAULT_LEAD_BRACKETS.ventas.map((bracket, index) =>
+      index === 1 ? { ...bracket, from: 6000 } : bracket
+    );
+
+    const result = normalizePlanPricing({ captacion: { ventas: conHueco } });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain('corridos');
+  });
+
+  it('rechaza un tramo que se superpone con el anterior', () => {
+    const solapado = DEFAULT_LEAD_BRACKETS.arriendos.map((bracket, index) =>
+      index === 1 ? { ...bracket, from: 400000 } : bracket
+    );
+
+    expect(normalizePlanPricing({ captacion: { arriendos: solapado } }).ok).toBe(false);
+  });
+
+  it('solo el último tramo puede quedar sin tope', () => {
+    const abiertoAlMedio = DEFAULT_LEAD_BRACKETS.ventas.map((bracket, index) =>
+      index === 0 ? { ...bracket, to: null } : bracket
+    );
+
+    const result = normalizePlanPricing({ captacion: { ventas: abiertoAlMedio } });
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain('último tramo');
+  });
+
+  it('la tabla tiene que empezar en 0', () => {
+    const tarde = DEFAULT_LEAD_BRACKETS.ventas.map((bracket, index) =>
+      index === 0 ? { ...bracket, from: 1 } : bracket
+    );
+
+    expect(normalizePlanPricing({ captacion: { ventas: tarde } }).ok).toBe(false);
+  });
+
+  it('rechaza un precio de acceso negativo o un tramo vacío', () => {
+    expect(
+      normalizePlanPricing({
+        captacion: {
+          ventas: [{ from: 0, to: null, priceClp: -1 }],
+        },
+      }).ok
+    ).toBe(false);
+    expect(normalizePlanPricing({ captacion: { arriendos: [] } }).ok).toBe(false);
+  });
+
+  it('rechaza una suscripción de captación fuera de rango', () => {
+    expect(
+      normalizePlanPricing({ captacion: { monthly: [{ profile: 'agente', monthlyClp: 1.5 }] } }).ok
+    ).toBe(false);
+    expect(
+      normalizePlanPricing({
+        captacion: { monthly: [{ profile: 'agente', monthlyClp: MAX_PRICE_CLP + 1 }] },
+      }).ok
+    ).toBe(false);
   });
 });
 

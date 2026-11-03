@@ -173,8 +173,12 @@ levanta sola y sus fichas vuelven con la misma URL.
 
 ### Precios de los planes
 
-La sección **Planes** (`/admin/planes`) guarda en `plan_settings` (migración
-`0030_plan_settings`) el precio de cada **perfil** de socio: alta inicial,
+La sección **Planes** (`/admin/planes`) tiene dos productos en paralelo, y los
+dos viajan en la misma fila de `plan_settings` (migración `0030_plan_settings`):
+**Planes de Suscripción** (lo de siempre) y **Planes de Captación** (pagar por
+recibir leads).
+
+**Planes de Suscripción** guarda el precio de cada **perfil** de socio: alta inicial,
 mensualidad base y usuarios incluidos. Sin fila guardada se usan los valores de
 partida de [`lib/kyb/planPricing.ts`](../lib/kyb/planPricing.ts) —profesional
 $19.990 / $14.990 / 1 usuario; corredora $49.990 / $39.990 / 5; inmobiliaria
@@ -192,6 +196,32 @@ constante del código. `%CCA = 100` deja el factor en 1.000.000 y el monto de
 siempre; `50` lo sube a 2.000.000 y cobra la mitad; `200` lo baja a 500.000 y
 cobra el doble. `ccaFactor` devuelve el divisor equivalente, que el panel muestra
 al lado del campo para no tener que despejarlo a mano.
+
+**Planes de Captación** no reemplazan a los de suscripción: un socio puede tener
+uno, el otro o los dos. Tienen una **Suscripción Captación Activa** por perfil
+—profesional $9.990, corredora $19.990, inmobiliaria $39.990 al mes de partida— y
+una tabla de **acceso por lead** que se cobra cada vez que el socio abre uno:
+
+| Ventas · valor de la propiedad | Acceso |
+| --- | --- |
+| Hasta UF 5.000 | $3.000 |
+| UF 5.001 – 10.000 | $5.000 |
+| UF 10.001 – 20.000 | $8.000 |
+| UF 20.001 – 40.000 | $12.000 |
+| Más de UF 40.000 | $20.000 |
+
+| Arriendos · canon mensual | Acceso |
+| --- | --- |
+| Hasta $500.000 | $2.000 |
+| $500.001 – $1.500.000 | $3.000 |
+| Más de $1.500.000 | $5.000 |
+
+Los **cortes** de los tramos son parte del producto y no se editan en el panel;
+lo que se ajusta es lo que se cobra dentro de cada uno. La validación exige que
+los tramos sean corridos, que empiecen en 0 y que solo el último quede sin tope:
+un lead que no caiga en ningún tramo —o en dos— no tiene precio, y eso no puede
+descubrirse al cobrar. Los valores viven en `DEFAULT_LEAD_BRACKETS` y la fila
+guardada de una versión anterior entra con ellos (`PLAN_PRICING_VERSION` 4).
 
 El precio configurado **es** el que se cobra en el alta. El catálogo de
 [`lib/kyb/plans.ts`](../lib/kyb/plans.ts) ya no tiene precios: solo nombres,
@@ -264,6 +294,13 @@ alta; no hay que recrear la solicitud.
 
 La migración `0032` amplía el `CHECK` de `registration_kind` para aceptar
 `agente` y agrega `solicitud_origen`, `reminders_sent` y `last_reminder_at`.
+
+Ese camino tiene su propia comprobación contra producción:
+`npm run smoke:prod -- --bridge --email tu@correo.cl` da un registro de prueba por
+el endpoint público, exige que quede como alta en `Calificado` vinculada por los
+dos lados y **borra el registro y su alta** al terminar. El release lo corre en la
+verificación cuando se le pasa `--smoke-email` (o `SMOKE_EMAIL`); el correo del
+registro va a un alias `+puente…` del buzón indicado.
 
 ### Recordatorios, reenvío y cierre
 

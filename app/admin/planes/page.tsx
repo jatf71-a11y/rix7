@@ -14,6 +14,7 @@ import {
   MIN_CCA_PCT,
   MIN_USERS,
   PRICING_PROFILES,
+  captacionMonthlyFor,
   ccaAmountClp,
   ccaFactor,
   formatCcaAmount,
@@ -22,6 +23,7 @@ import {
   parseDecimalInput,
   profileLabel,
   profilePlan,
+  type LeadBracket,
   type PlanPricingConfig,
   type ProfilePlan,
 } from '@/lib/kyb/planPricing';
@@ -29,11 +31,16 @@ import { formatPlanPrice } from '@/lib/kyb/plans';
 import type { PartnerKind } from '@/lib/data/partners';
 
 /**
- * Planes: precio de cada perfil de socio y el CCA.
+ * Planes: dos productos en paralelo y el CCA.
  *
- * La tabla es la definición comercial: para cada perfil, cuánto se cobra una
- * vez (alta inicial), cuánto por mes (mensualidad base) y cuántos usuarios
- * entran en esa mensualidad.
+ * **Planes de Suscripción** es el producto de siempre: para cada perfil, cuánto
+ * se cobra una vez (alta inicial), cuánto por mes (mensualidad base) y cuántos
+ * usuarios entran en esa mensualidad.
+ *
+ * **Planes de Captación** es el otro: la suscripción mensual para estar activo
+ * en el reparto de leads, y lo que cuesta acceder a un lead según su valor (en
+ * UF si es una venta, en pesos si es un arriendo). Son precios distintos de los
+ * de suscripción y se cobran por separado.
  *
  * Abajo, el CCA —la suma de las publicaciones del socio en UF— con la fórmula
  * para pasarlo a pesos. No se guarda como si fuera un precio: depende del stock
@@ -78,6 +85,19 @@ function parseInteger(value: string): number | null {
 
 function sameConfig(a: PlanPricingConfig, b: PlanPricingConfig): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/** Cómo se lee un tramo de acceso: «Hasta UF 5.000», «Más de $1.500.000». */
+function bracketLabel(bracket: LeadBracket, unit: 'uf' | 'clp'): string {
+  const money = (value: number) => `$${formatDecimalInput(value)}`;
+  const amount = (value: number) =>
+    unit === 'uf' ? `UF ${formatDecimalInput(value)}` : money(value);
+
+  if (bracket.from === 0 && bracket.to !== null) return `Hasta ${amount(bracket.to)}`;
+  if (bracket.to === null) {
+    return bracket.from === 0 ? 'Cualquier valor' : `Más de ${amount(bracket.from - 1)}`;
+  }
+  return `${amount(bracket.from)} – ${amount(bracket.to)}`;
 }
 
 export default function AdminPlanesPage() {
@@ -194,6 +214,46 @@ export default function AdminPlanesPage() {
     setToast(null);
   }
 
+  function updateCaptacionMonthly(profile: PartnerKind, monthlyClp: number) {
+    setConfig((current) =>
+      current
+        ? {
+            ...current,
+            captacion: {
+              ...current.captacion,
+              monthly: current.captacion.monthly.map((item) =>
+                item.profile === profile ? { ...item, monthlyClp } : item
+              ),
+            },
+          }
+        : current
+    );
+    setToast(null);
+  }
+
+  /**
+   * Cambia el precio de un tramo.
+   *
+   * Se identifica por su `from`, que es lo que define el corte: los cortes son
+   * parte del producto y no se editan acá, solo lo que se cobra dentro de ellos.
+   */
+  function updateLeadPrice(kind: 'ventas' | 'arriendos', from: number, priceClp: number) {
+    setConfig((current) =>
+      current
+        ? {
+            ...current,
+            captacion: {
+              ...current.captacion,
+              [kind]: current.captacion[kind].map((bracket) =>
+                bracket.from === from ? { ...bracket, priceClp } : bracket
+              ),
+            },
+          }
+        : current
+    );
+    setToast(null);
+  }
+
   async function handleSave() {
     if (!config || saving) return;
 
@@ -263,8 +323,10 @@ export default function AdminPlanesPage() {
         <div>
           <h1 className="text-2xl font-black text-slate-900">Planes</h1>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-500">
-            Precio de alta, mensualidad y usuarios incluidos para cada perfil de socio. Abajo, el
-            CCA con la fórmula para pasarlo a pesos.
+            Dos productos: <strong className="font-semibold text-slate-700">Planes de Suscripción</strong>{' '}
+            (alta, mensualidad y usuarios por perfil, con el CCA) y{' '}
+            <strong className="font-semibold text-slate-700">Planes de Captación</strong> (suscripción
+            de captación y precio de acceso a cada lead).
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
@@ -326,10 +388,10 @@ export default function AdminPlanesPage() {
         </div>
       )}
 
-      {/* ── Perfiles ────────────────────────────────────────────────────── */}
+      {/* ── Planes de Suscripción ───────────────────────────────────────── */}
       <section className="mt-6 rounded-2xl border border-slate-200 bg-white">
         <div className="border-b border-slate-100 px-5 py-4">
-          <h2 className="text-sm font-bold text-slate-900">Perfiles</h2>
+          <h2 className="text-sm font-bold text-slate-900">Planes de Suscripción</h2>
           <p className="mt-0.5 text-[11px] text-slate-400">
             Montos en pesos chilenos. La mensualidad es la base, sin IVA.
           </p>
@@ -564,6 +626,155 @@ export default function AdminPlanesPage() {
             El monto no se guarda: depende del stock publicado de cada socio y de la UF del día. Lo
             que sí queda guardado es el %CCA, que es el ajuste del factor y se aplica a todos los
             cálculos.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Planes de Captación ─────────────────────────────────────────── */}
+      <section className="mt-6 rounded-2xl border border-slate-200 bg-white">
+        <div className="border-b border-slate-100 px-5 py-4">
+          <h2 className="text-sm font-bold text-slate-900">Planes de Captación</h2>
+          <p className="mt-0.5 max-w-3xl text-[11px] leading-relaxed text-slate-400">
+            Producto paralelo a la suscripción: se paga por recibir leads. La suscripción mensual
+            mantiene la cuenta activa en el reparto y, aparte, cada lead que se abre se cobra según
+            su valor.
+          </p>
+        </div>
+
+        <div className="px-5 py-4">
+          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-600">
+            Suscripción Captación Activa
+          </h3>
+          <p className="mt-0.5 text-[11px] text-slate-400">
+            Mensualidad por perfil para estar activo. Montos en pesos chilenos, sin IVA.
+          </p>
+
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-[420px] border-separate border-spacing-0 text-sm">
+              <thead>
+                <tr>
+                  <th className="w-40 pb-3 text-left text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                    Perfil
+                  </th>
+                  <th className="pb-3 text-right text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                    Captación activa / mes
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {PRICING_PROFILES.map((profile) => (
+                  <tr key={profile} className="border-t border-slate-100">
+                    <th scope="row" className="py-3 text-left font-semibold text-slate-800">
+                      {profileLabel(profile)}
+                    </th>
+                    <td className="py-3 pl-3 text-right">
+                      <span className="inline-flex items-center gap-1">
+                        <span className="text-[11px] font-medium text-slate-400">$</span>
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          min={0}
+                          max={MAX_PRICE_CLP}
+                          step={10}
+                          value={captacionMonthlyFor(config, profile)}
+                          onChange={(event) => {
+                            const parsed = parseInteger(event.target.value);
+                            if (parsed === null || parsed > MAX_PRICE_CLP) return;
+                            updateCaptacionMonthly(profile, parsed);
+                          }}
+                          aria-label={`Suscripción de captación de ${profileLabel(profile)}`}
+                          className="w-28 rounded-lg border border-slate-300 px-2 py-1.5 text-right text-sm font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                        />
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {(
+          [
+            {
+              kind: 'ventas' as const,
+              title: 'Acceso a leads de ventas',
+              unit: 'uf' as const,
+              column: 'Valor de la propiedad',
+              help: 'Se cobra al socio cada vez que accede a un lead, según el valor de la propiedad en UF.',
+              brackets: config.captacion.ventas,
+            },
+            {
+              kind: 'arriendos' as const,
+              title: 'Acceso a leads de arriendo',
+              unit: 'clp' as const,
+              column: 'Canon mensual',
+              help: 'Se cobra al socio cada vez que accede a un lead, según el canon mensual en pesos.',
+              brackets: config.captacion.arriendos,
+            },
+          ]
+        ).map((table) => (
+          <div key={table.kind} className="border-t border-slate-100 px-5 py-4">
+            <h3 className="text-xs font-bold uppercase tracking-wide text-slate-600">
+              {table.title}
+            </h3>
+            <p className="mt-0.5 text-[11px] text-slate-400">{table.help}</p>
+
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full min-w-[420px] border-separate border-spacing-0 text-sm">
+                <thead>
+                  <tr>
+                    <th className="w-56 pb-3 text-left text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                      {table.column}
+                    </th>
+                    <th className="pb-3 text-right text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                      Acceso
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {table.brackets.map((bracket) => (
+                    <tr key={bracket.from} className="border-t border-slate-100">
+                      <th scope="row" className="py-3 text-left font-medium text-slate-700">
+                        {bracketLabel(bracket, table.unit)}
+                      </th>
+                      <td className="py-3 pl-3 text-right">
+                        <span className="inline-flex items-center gap-1">
+                          <span className="text-[11px] font-medium text-slate-400">$</span>
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            min={0}
+                            max={MAX_PRICE_CLP}
+                            step={500}
+                            value={bracket.priceClp}
+                            onChange={(event) => {
+                              const parsed = parseInteger(event.target.value);
+                              if (parsed === null || parsed > MAX_PRICE_CLP) return;
+                              updateLeadPrice(table.kind, bracket.from, parsed);
+                            }}
+                            aria-label={`Acceso a lead de ${table.kind} ${bracketLabel(
+                              bracket,
+                              table.unit
+                            )}`}
+                            className="w-28 rounded-lg border border-slate-300 px-2 py-1.5 text-right text-sm font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                          />
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
+
+        <div className="flex items-start gap-2.5 border-t border-slate-100 px-5 py-3">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+          <p className="text-[11px] leading-relaxed text-slate-400">
+            Los cortes de cada tramo son parte de la definición del producto; acá se ajusta lo que
+            se cobra dentro de ellos. La suscripción de captación es independiente de los planes de
+            suscripción: un socio puede tener las dos, una sola o ninguna.
           </p>
         </div>
       </section>
