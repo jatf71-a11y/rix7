@@ -461,7 +461,7 @@ describe('verifyLive', () => {
       url: 'https://rix7.cl',
       attempts: 1,
       smokeEmail: 'tu@correo.cl',
-      bridgeStore: store,
+      store,
       smokeImpl,
       healthImpl: okHealth,
       log: () => {},
@@ -472,7 +472,7 @@ describe('verifyLive', () => {
       baseUrl: 'https://rix7.cl',
       bridge: true,
       email: 'tu@correo.cl',
-      bridgeStore: store,
+      store,
     });
   });
 

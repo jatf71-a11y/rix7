@@ -143,8 +143,11 @@ redeploya — los variables **no se aplican a un deploy ya construido**.
 npm run smoke:prod -- --write --email TU@correo.cl
 ```
 
-Manda la bienvenida real **y** deja una fila de prueba en `public.signups` que
-hay que borrar después (la tabla es solo-anexa: no hay `UPDATE`, solo borrar).
+Manda la bienvenida real y escribe una fila de prueba en `public.signups` que el
+propio comando **borra al terminar** (busca la fila por correo, nombre y hora de
+arranque, y la borra por id). Si falta `SUPABASE_SERVICE_ROLE_KEY` en
+`.env.local`, el paso «Limpieza del alta de prueba» sale en ámbar y hay que
+borrarla a mano: la tabla es solo-anexa, no hay `UPDATE`.
 Ese mismo comando es el **punto de control 1** del
 [plan de reparación](plan-reparacion-y-mejora.md), así que cierra dos cosas de
 una.
@@ -408,7 +411,7 @@ del código — en rojo solo si el script falla. Lo que sigue es lo que hay que
   - **Canonical:** `curl -s https://rix7.cl | grep -o '<link rel="canonical" href="[^"]*"'` → contiene `https://rix7.cl/`; `og:url`, lo mismo.
   - **Sitemap:** `curl -s https://rix7.cl/sitemap.xml | grep -c rix7.vercel.app` → `0`.
   - **Humo:** `npm run smoke:prod -- --url https://rix7.cl` → verde.
-  - **Correo:** repetir §7 (`--write --email TU@correo.cl`) — sale desde `avisos@rix7.cl` si se hizo 4b — y **borrar la fila** de `public.signups`.
+  - **Correo:** repetir §7 (`--write --email TU@correo.cl`) — sale desde `avisos@rix7.cl` si se hizo 4b —; la fila de prueba de `public.signups` la borra el propio smoke. Si el informe avisó que quedó, bórrala a mano.
 
 **Paso 9 · Endurecer el DMARC** *(no bloquea)*
 
@@ -472,7 +475,7 @@ que no ocurrió en uno que sí.
 - [ ] `/api/alerts/run` → `emailConfigured: true`
 - [ ] `/api/webhooks/sentry` → los tres `true`
 - [ ] Correo de prueba recibido (`smoke:prod --write`)
-- [ ] Fila de prueba borrada de `public.signups`
+- [ ] La fila de prueba no quedó en `public.signups` (el smoke la borra; si avisó que quedó, bórrala)
 - [ ] *(opcional)* `rix7.cl` verificado → `avisos@rix7.cl`
 
 ---

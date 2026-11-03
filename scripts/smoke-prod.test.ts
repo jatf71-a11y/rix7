@@ -9,8 +9,11 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  SIGNUP_STEP_LABELS,
   SMOKE_NAME,
   bridgeEmailFor,
+  cleanupSignup,
+  createSmokeStore,
   formatReport,
   judgeAdminPage,
   judgeBridgeAlta,
@@ -98,6 +101,33 @@ const SAVED_BRIDGE = {
   solicitud: { id: 'sol-1', status: 'Aceptada', payload: { kyb_application_id: 'alta-1' } },
   alta: { id: 'alta-1', status: 'Calificado', solicitud_origen: 'sol-1' },
 };
+
+/**
+ * Store simulado del alta de visita: registra la búsqueda y el borrado.
+ *
+ * El argumento `found` permite reproducir el caso incómodo: la API dijo
+ * «guardada» y en la base no hay nada (otro Supabase detrás del `--url`).
+ */
+function signupStore(
+  found: { id: string } | null = { id: 'sign-1' },
+  deleteResult: { ok: boolean; rows: number } = { ok: true, rows: 1 }
+) {
+  const calls = { find: [] as { email: string | null; since: number }[], remove: [] as string[] };
+
+  return {
+    calls,
+    store: {
+      findSignup: async ({ email, since }: { email: string | null; since: number }) => {
+        calls.find.push({ email, since });
+        return found;
+      },
+      deleteSignup: async (id: string) => {
+        calls.remove.push(id);
+        return deleteResult;
+      },
+    },
+  };
+}
 
 /** Store simulado: registra lo que se lee y lo que se borra. */
 function bridgeStore(saved: unknown = SAVED_BRIDGE, cleanupResult = { ok: true, altas: 1, solicitudes: 1 }) {
@@ -501,6 +531,148 @@ describe('runSmoke', () => {
   });
 });
 
+describe('runSmoke con --write: la fila de prueba no se queda', () => {
+  const writeOptions = (store: unknown, fetchImpl: typeof fetch) => ({
+    baseUrl: 'https://x.test',
+    write: true,
+    email: 'quien@correo.cl',
+    store,
+    fetchImpl,
+    now: 1234,
+    sleep: async () => {},
+  });
+
+  it('borra la fila que acaba de escribir y lo dice en el informe', async () => {
+    const { fetchImpl } = server(happyRoutes());
+    const fake = signupStore();
+
+    const report = await runSmoke(writeOptions(fake.store, fetchImpl) as never);
+
+    expect(report.ok).toBe(true);
+    expect(report.persisted).toBe(true);
+
+    const step = report.steps.find((item) => item.label === SIGNUP_STEP_LABELS.cleanup);
+    expect(step?.level).toBe('ok');
+    expect(step?.detail).toContain('sign-1');
+
+    // Se busca por correo y desde el arranque de la corrida (con un margen para
+    // el desfase de reloj): lo anterior es historial ajeno.
+    expect(fake.calls.find).toHaveLength(1);
+    expect(fake.calls.find[0].email).toBe('quien@correo.cl');
+    expect(fake.calls.find[0].since).toBeLessThanOrEqual(1234);
+    expect(fake.calls.find[0].since).toBeGreaterThan(1234 - 10 * 60 * 1000);
+    // Y se borra por id, no por correo.
+    expect(fake.calls.remove).toEqual(['sign-1']);
+    expect(formatReport(report)).toContain('no acumula altas de smoke');
+  });
+
+  it('sin claves avisa que la fila queda, en vez de callarlo', async () => {
+    const { fetchImpl } = server(happyRoutes());
+
+    const report = await runSmoke(writeOptions(null, fetchImpl) as never);
+
+    const step = report.steps.find((item) => item.label === SIGNUP_STEP_LABELS.cleanup);
+    expect(step?.level).toBe('warn');
+    expect(step?.detail).toContain('SUPABASE_SERVICE_ROLE_KEY');
+    // No poder limpiar no convierte el deploy en rojo: la persistencia ya se juzgó.
+    expect(report.ok).toBe(true);
+    expect(report.persisted).toBe(true);
+  });
+
+  it('si la fila no aparece no la inventa: lo dice y no borra nada', async () => {
+    const { fetchImpl } = server(happyRoutes());
+    const fake = signupStore(null);
+
+    const report = await runSmoke(writeOptions(fake.store, fetchImpl) as never);
+
+    const step = report.steps.find((item) => item.label === SIGNUP_STEP_LABELS.cleanup);
+    expect(step?.level).toBe('warn');
+    expect(step?.detail).toContain('no hay nada que borrar');
+
+    // Reintenta por el retraso de lectura de PostgREST, y no borra a ciegas.
+    expect(fake.calls.find.length).toBe(3);
+    expect(fake.calls.remove).toEqual([]);
+    expect(report.persisted).toBe(true);
+  });
+
+  it('si el borrado no se lleva la fila, el smoke falla y deja el id', async () => {
+    const { fetchImpl } = server(happyRoutes());
+    const fake = signupStore({ id: 'sign-1' }, { ok: true, rows: 0 });
+
+    const report = await runSmoke(writeOptions(fake.store, fetchImpl) as never);
+
+    const step = report.steps.find((item) => item.label === SIGNUP_STEP_LABELS.cleanup);
+    expect(step?.level).toBe('fail');
+    expect(step?.detail).toContain('sign-1');
+    expect(report.ok).toBe(false);
+  });
+
+  it('si el alta no quedó guardada no hay nada que limpiar', async () => {
+    const { fetchImpl } = server(
+      happyRoutes({
+        '/api/registro POST': () =>
+          jsonResponse(201, {
+            success: true,
+            email: { sent: false, skipped: true },
+            stored: { saved: true, persistent: false },
+          }),
+      })
+    );
+    const fake = signupStore();
+
+    const report = await runSmoke(writeOptions(fake.store, fetchImpl) as never);
+
+    expect(report.steps.some((item) => item.label === SIGNUP_STEP_LABELS.cleanup)).toBe(false);
+    expect(fake.calls.find).toEqual([]);
+  });
+});
+
+describe('createSmokeStore', () => {
+  it('busca por correo, nombre y hora, y borra solo por id', async () => {
+    const calls: { url: string; method: string }[] = [];
+    const fetchImpl = (async (url: string, init?: RequestInit) => {
+      calls.push({ url, method: init?.method ?? 'GET' });
+      if ((init?.method ?? 'GET') === 'DELETE') return jsonResponse(200, [{ id: 'sign-9' }]);
+      return jsonResponse(200, [{ id: 'sign-9', email: 'quien@correo.cl' }]);
+    }) as unknown as typeof fetch;
+
+    const store = createSmokeStore({ url: 'https://db.test', key: 'clave', fetchImpl });
+    const since = Date.UTC(2026, 10, 3, 17, 0, 0);
+
+    const row = await store.findSignup({ email: 'quien@correo.cl', since });
+    expect(row).toEqual({ id: 'sign-9', email: 'quien@correo.cl' });
+
+    const query = decodeURIComponent(calls[0].url);
+    expect(query).toContain('email=eq.quien@correo.cl');
+    expect(query).toContain(`name=eq.${SMOKE_NAME}`);
+    expect(query).toContain('created_at=gte.2026-11-03T17:00:00.000Z');
+
+    const removed = await store.deleteSignup('sign-9');
+    expect(removed).toEqual({ ok: true, status: 200, rows: 1 });
+    expect(calls[1].method).toBe('DELETE');
+    expect(calls[1].url).toContain('signups?id=eq.sign-9');
+  });
+});
+
+describe('cleanupSignup', () => {
+  it('un error al buscar no se disfraza de «no había nada»', async () => {
+    const step = await cleanupSignup({
+      store: {
+        findSignup: async () => {
+          throw new Error('HTTP 401');
+        },
+        deleteSignup: async () => ({ ok: true, rows: 1 }),
+      },
+      email: 'quien@correo.cl',
+      since: 1,
+      sleep: async () => {},
+    });
+
+    expect(step.level).toBe('fail');
+    expect(step.detail).toContain('HTTP 401');
+  });
+});
+
 describe('rutCheckDigit / smokeTestRut', () => {
   it('calcula el dígito verificador módulo 11', () => {
     // Los dos primeros son RUT que el motor ya aceptó en producción.
@@ -719,7 +891,7 @@ describe('runSmoke con el puente', () => {
     const report = await runSmoke({
       baseUrl: 'https://x.test',
       bridge: true,
-      bridgeStore: fake.store,
+      store: fake.store,
       email: 'alguien@gmail.com',
       fetchImpl,
     });

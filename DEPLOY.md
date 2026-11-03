@@ -371,7 +371,9 @@ release se detuvo ahí · **2** el comando se usó mal (un argumento desconocido
 
 - **No da el alta de prueba salvo que se lo pidas.** La persistencia
   (`persisted: true`) se comprueba aparte con
-  `npm run smoke:prod -- --write --email tu@correo.cl`, que manda un correo real.
+  `npm run smoke:prod -- --write --email tu@correo.cl`, que manda un correo real
+  y **borra la fila** que escribe en `public.signups` (si falta la clave de
+  servicio, el propio informe avisa que quedó).
   La única escritura posible del release es el puente registro→alta, y solo con
   `--smoke-email`/`SMOKE_EMAIL`: ese alta de prueba **se borra** al terminar, así
   que la base queda como estaba. El informe final dice cuál de las dos se probó

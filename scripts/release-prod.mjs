@@ -161,9 +161,9 @@ import {
 } from './release-identity.mjs';
 import {
   BRIDGE_STEP_LABELS,
-  bridgeStoreFromEnv,
   formatReport as formatSmokeReport,
   runSmoke,
+  smokeStoreFromEnv,
 } from './smoke-prod.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -872,7 +872,7 @@ export async function runStep(
  * quedó como alta en `Calificado` y se borra. Es la única escritura del release,
  * así que está apagada salvo que se pida con `--smoke-email`/`SMOKE_EMAIL`.
  *
- * @param {{ url: string, attempts: number, expected?: ReturnType<typeof readTreeBuildId> | null, releaseExpected?: ReturnType<typeof readReleaseIdentity> | null, published?: ReturnType<typeof readTreeBuildId> | null, smokeEmail?: string | null, bridgeStore?: { read: Function, cleanup: Function } | null, smokeImpl?: typeof runSmoke, healthImpl?: typeof runCheck, sleepImpl?: (ms: number) => Promise<unknown>, log?: (...args: unknown[]) => void, delayMs?: number }} options
+ * @param {{ url: string, attempts: number, expected?: ReturnType<typeof readTreeBuildId> | null, releaseExpected?: ReturnType<typeof readReleaseIdentity> | null, published?: ReturnType<typeof readTreeBuildId> | null, smokeEmail?: string | null, store?: { read: Function, cleanup: Function } | null, smokeImpl?: typeof runSmoke, healthImpl?: typeof runCheck, sleepImpl?: (ms: number) => Promise<unknown>, log?: (...args: unknown[]) => void, delayMs?: number }} options
  * @returns {Promise<{ ok: boolean, attempt: number, bridge?: boolean }>}
  */
 export async function verifyLive({
@@ -882,7 +882,7 @@ export async function verifyLive({
   releaseExpected = null,
   published = null,
   smokeEmail = null,
-  bridgeStore = null,
+  store = null,
   smokeImpl = runSmoke,
   healthImpl = runCheck,
   sleepImpl = sleep,
@@ -904,7 +904,7 @@ export async function verifyLive({
     // El puente se pide solo si hay una dirección a la que mandar el correo del
     // registro; la tienda de la base se arma una vez para todas las corridas.
     const smokeOptions = smokeEmail
-      ? { baseUrl: url, bridge: true, email: smokeEmail, bridgeStore }
+      ? { baseUrl: url, bridge: true, email: smokeEmail, store }
       : { baseUrl: url };
     const smoke = await smokeImpl(smokeOptions);
     log(formatSmokeReport(smoke));
@@ -1210,7 +1210,7 @@ async function main() {
         releaseExpected: verifiedRelease,
         published: publishedTree?.value ? publishedTree : null,
         smokeEmail: plan.smokeEmail,
-        bridgeStore: plan.smokeEmail ? bridgeStoreFromEnv() : null,
+        store: plan.smokeEmail ? smokeStoreFromEnv() : null,
       });
       if (!verified.ok) {
         fail(step, {

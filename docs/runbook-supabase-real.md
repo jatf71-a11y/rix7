@@ -234,17 +234,23 @@ El modo `--write` da un alta de prueba real y comprueba que **persista**:
 debe reportar `persisted: true`. Si dice `persisted: false`,
 `npm run db:status` (o el bloque de `0010_signups.sql`) es lo que falta.
 
+La fila que escribe no se queda: el paso «Limpieza del alta de prueba» la busca
+—por correo, nombre y hora de arranque— y la borra por id, para que la tabla de
+consentimientos no acumule una fila de prueba por corrida.
+
 ### 7.3 En el navegador
 
-Abre `https://rix7.vercel.app/admin/registros`: la fila de prueba
-«Prueba de humo (no es una persona)» tiene que aparecer.
+Abre `https://rix7.vercel.app/admin/registros`: tiene que listar las altas
+reales. La de prueba aparece mientras corre el smoke y se borra al terminar, así
+que no es lo que hay que buscar después.
 
 ---
 
 ## 8. Limpieza
 
-1. **Borra la fila de prueba** (la tabla es solo-anexa: el panel no borra filas
-   de a una con un clic en todas las versiones, así que hazlo por SQL):
+1. **Comprueba que no quedó la fila de prueba.** El smoke la borra solo; esto es
+   el respaldo para cuando avisó que no pudo (tabla solo-anexa, el panel no borra
+   filas de a una, así que por SQL):
 
    ```sql
    DELETE FROM public.signups WHERE name = 'Prueba de humo (no es una persona)';

@@ -18,12 +18,15 @@
  *   npm run smoke:prod -- --bridge --email tu@correo.cl # solo registro → alta (y lo borra)
  *
  * Por qué la escritura es una decisión aparte: el alta manda el correo de
- * bienvenida y deja una fila en `public.signups`, que es **solo-anexa** (no hay
- * política de UPDATE). Escribir sin querer no es inofensivo: un correo a una
+ * bienvenida y escribe una fila en `public.signups`, que es **solo-anexa** (no
+ * hay política de UPDATE). Escribir sin querer no es inofensivo: un correo a una
  * dirección inexistente rebota y eso le cuesta reputación al dominio del
  * remitente. Por eso `--write` exige decir a qué correo mandar la bienvenida —el
- * tuyo, que además te deja comprobar el correo de punta a punta— y la fila queda
- * identificada como de prueba para poder borrarla.
+ * tuyo, que además te deja comprobar el correo de punta a punta— y **borra la
+ * fila que escribió**: la tabla guarda constancias de consentimiento, así que
+ * una fila de prueba por release no es un dato, es basura legal que se acumula.
+ * La fila se busca por correo, nombre y hora de arranque, y se borra por id: con
+ * las tres condiciones juntas no puede llevarse el alta real de nadie.
  *
  * Sin `--write` el informe dice honestamente que la persistencia **no se
  * verificó**: no se puede saber sin intentarlo.
@@ -73,6 +76,40 @@ export const BRIDGE_STEP_LABELS = {
   alta: 'Alta del registro en Calificado',
   cleanup: 'Limpieza del registro de prueba',
 };
+
+/**
+ * Los pasos de la escritura de `--write`.
+ *
+ * La limpieza va con nombre estable por el mismo motivo que los del puente: los
+ * tests y el informe la buscan para afirmar si la base quedó como estaba.
+ */
+export const SIGNUP_STEP_LABELS = {
+  post: 'POST /api/registro',
+  correo: 'Correo de bienvenida',
+  cleanup: 'Limpieza del alta de prueba',
+};
+
+/**
+ * Cuánto se espera a que la fila recién escrita se pueda leer.
+ *
+ * PostgREST lee de la base, no de la respuesta del INSERT: entre una cosa y la
+ * otra puede haber un instante de retraso. Tres intentos cubren ese hueco sin
+ * convertir el smoke en una espera larga.
+ */
+const SIGNUP_CLEANUP_ATTEMPTS = 3;
+const SIGNUP_CLEANUP_DELAY_MS = 700;
+
+/**
+ * Margen hacia atrás para el reloj: `created_at` lo pone Postgres, la hora de
+ * arranque la pone esta máquina. Si el reloj local va unos segundos adelantado,
+ * la fila recién escrita quedaría «antes» del corte y no se encontraría. Cinco
+ * minutos cubren cualquier desfase razonable; la salvaguarda real contra borrar
+ * algo ajeno es el correo **y** el nombre de prueba, no la hora.
+ */
+const SIGNUP_CLEANUP_CLOCK_MARGIN_MS = 5 * 60 * 1000;
+
+/** Espera real; los tests la reemplazan para no dormir. */
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /** Marcas de identidad de cada página. */
 export const HOME_MARKER = 'Rix7';
@@ -478,6 +515,11 @@ export function formatReport(report) {
     if (report.hint) lines.push(`    ${report.hint}`);
   }
 
+  const signupCleanup = report.steps.find((step) => step.label === SIGNUP_STEP_LABELS.cleanup);
+  if (signupCleanup?.level === 'ok') {
+    lines.push('  · La fila de prueba se borró: `public.signups` no acumula altas de smoke.');
+  }
+
   if (report.bridge) {
     lines.push('  · El registro de prueba del puente se borró con su alta: no queda nada en el pipeline.');
   }
@@ -507,16 +549,17 @@ async function probe(fetchImpl, url, init = {}) {
 }
 
 /**
- * Acceso mínimo a la base para comprobar y borrar el alta de prueba.
+ * Acceso mínimo a la base para comprobar y borrar lo que escribe el smoke.
  *
  * El smoke es de caja negra salvo acá: la única forma de afirmar que el registro
  * se convirtió en un alta en `Calificado` es leerla, y la única forma de no dejar
- * basura en el pipeline es borrarla. Se usa la clave de servicio que ya vive en
- * `.env.local` para las migraciones; nunca se imprime.
+ * basura —ni en el pipeline ni en la tabla de consentimientos— es borrarla. Se
+ * usa la clave de servicio que ya vive en `.env.local` para las migraciones;
+ * nunca se imprime.
  *
  * @param {{ url: string, key: string, fetchImpl?: typeof fetch }} options
  */
-export function createBridgeStore({ url, key, fetchImpl = fetch }) {
+export function createSmokeStore({ url, key, fetchImpl = fetch }) {
   const base = normalizeBaseUrl(url);
   const headers = {
     apikey: key,
@@ -550,6 +593,42 @@ export function createBridgeStore({ url, key, fetchImpl = fetch }) {
       return { solicitud: solicitud.body?.[0] ?? null, alta: alta.body?.[0] ?? null };
     },
 
+    /**
+     * La fila del alta de prueba, si quedó guardada.
+     *
+     * Se busca por correo **y** nombre **y** desde el arranque de la corrida: las
+     * tres condiciones juntas son las que impiden que algún día se lleve por
+     * delante el alta real de quien use el mismo buzón con otro alias.
+     */
+    async findSignup({ email, name = SMOKE_NAME, since }) {
+      const query = [
+        'select=id,email,created_at',
+        `email=eq.${encodeURIComponent(email)}`,
+        `name=eq.${encodeURIComponent(name)}`,
+        `created_at=gte.${encodeURIComponent(new Date(since).toISOString())}`,
+        'order=created_at.desc',
+        'limit=1',
+      ].join('&');
+
+      const found = await rest(`signups?${query}`);
+      if (!found.ok) throw new Error(`GET signups → HTTP ${found.status}`);
+      return found.body?.[0] ?? null;
+    },
+
+    /** Borra **una** fila por id: nunca por correo, para no llevarse otra cosa. */
+    async deleteSignup(id) {
+      const removed = await rest(`signups?id=eq.${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: { Prefer: 'return=representation' },
+      });
+
+      return {
+        ok: removed.ok,
+        status: removed.status,
+        rows: Array.isArray(removed.body) ? removed.body.length : 0,
+      };
+    },
+
     /** Borra el alta y el registro de prueba; devuelve cuántas filas se fueron. */
     async cleanup(solicitudId) {
       const id = encodeURIComponent(solicitudId);
@@ -572,13 +651,13 @@ export function createBridgeStore({ url, key, fetchImpl = fetch }) {
 }
 
 /**
- * El store del puente con las claves del entorno, o `null` si no están.
+ * El store del smoke con las claves del entorno, o `null` si no están.
  *
  * Primero `process.env` y después `.env.local`, el mismo orden que
  * `check-schema.mjs` y `db-push.mjs`: así funciona desde un `npm run` y desde el
  * release sin exportar nada a mano.
  */
-export function bridgeStoreFromEnv({
+export function smokeStoreFromEnv({
   env = process.env,
   envFile = ENV_FILE,
   exists = existsSync,
@@ -591,7 +670,80 @@ export function bridgeStoreFromEnv({
   const key = value('SUPABASE_SERVICE_ROLE_KEY');
   if (!url || !key) return null;
 
-  return createBridgeStore({ url, key });
+  return createSmokeStore({ url, key });
+}
+
+/**
+ * Borra la fila que dejó el alta de prueba.
+ *
+ * Es la mitad que faltaba de `--write`: la tabla es solo-anexa, así que cada
+ * corrida sumaba una fila de prueba al historial de consentimientos y nadie la
+ * sacaba. Se comprueba que la fila esté y se borra **por id**; si faltan las
+ * claves o la fila no aparece, el informe lo dice en vez de callarlo.
+ *
+ * Un detalle deliberado: que la fila no aparezca **no** cambia el veredicto de
+ * persistencia. `--url` puede apuntar a un preview con otra base, así que la
+ * ausencia local no desmiente lo que respondió el despliegue; solo significa que
+ * acá no hay nada que borrar.
+ *
+ * @param {{ store: { findSignup: Function, deleteSignup: Function } | null, email: string | null, since: number, sleep?: (ms: number) => Promise<unknown> }} options
+ * @returns {Promise<{ level: string, label: string, detail: string }>}
+ */
+export async function cleanupSignup({ store, email, since, sleep = wait }) {
+  const label = SIGNUP_STEP_LABELS.cleanup;
+
+  if (!store) {
+    return {
+      level: 'warn',
+      label,
+      detail: `queda la fila de prueba en public.signups: falta SUPABASE_SERVICE_ROLE_KEY (o NEXT_PUBLIC_SUPABASE_URL) para borrarla — se saca a mano con name = '${SMOKE_NAME}'`,
+    };
+  }
+
+  let row = null;
+  let failure = null;
+  const from = since - SIGNUP_CLEANUP_CLOCK_MARGIN_MS;
+
+  for (let attempt = 1; attempt <= SIGNUP_CLEANUP_ATTEMPTS; attempt += 1) {
+    try {
+      row = await store.findSignup({ email, name: SMOKE_NAME, since: from });
+      failure = null;
+    } catch (error) {
+      row = null;
+      failure = errorDetail(error);
+    }
+    if (row) break;
+    if (attempt < SIGNUP_CLEANUP_ATTEMPTS) await sleep(SIGNUP_CLEANUP_DELAY_MS);
+  }
+
+  if (!row && failure) {
+    return { level: 'fail', label, detail: `no se pudo buscar la fila de prueba: ${failure}` };
+  }
+  if (!row) {
+    return {
+      level: 'warn',
+      label,
+      detail: `el alta respondió «guardada» pero la fila no está en la base de este --url (${email}): no hay nada que borrar — ¿el despliegue usa otro Supabase?`,
+    };
+  }
+
+  const removed = await store
+    .deleteSignup(row.id)
+    .catch((error) => ({ ok: false, rows: 0, error: errorDetail(error) }));
+
+  if (removed?.ok && removed.rows === 1) {
+    return {
+      level: 'ok',
+      label,
+      detail: `se borró la fila de prueba ${String(row.id).slice(0, 8)}…: public.signups no acumula altas de smoke`,
+    };
+  }
+
+  return {
+    level: 'fail',
+    label,
+    detail: `quedó la fila ${row.id} de ${email}: borrala a mano (DELETE FROM public.signups WHERE id = '${row.id}')`,
+  };
 }
 
 /**
@@ -714,13 +866,12 @@ export async function runBridgeCheck({
 /**
  * Corre todas las comprobaciones.
  *
- * `write` da de alta la visita de prueba (`/api/registro`); `bridge` recorre el
- * camino registro de socio → alta en `Calificado` y borra lo que escribió. Son
- * dos escrituras distintas: la primera deja una fila en `public.signups` (solo
- * anexa) y la segunda no deja nada, así que el release puede pedir solo la
- * segunda.
+ * `write` da de alta la visita de prueba (`/api/registro`) y **borra la fila que
+ * escribe**; `bridge` recorre el camino registro de socio → alta en `Calificado`
+ * y también limpia lo suyo. Las dos escrituras dejan la base como estaba, así
+ * que el release puede pedir el puente sin acumular nada.
  *
- * @param {{ baseUrl?: string, write?: boolean, email?: string | null, bridge?: boolean, bridgeStore?: { read: Function, cleanup: Function } | null, fetchImpl?: typeof fetch }} options
+ * @param {{ baseUrl?: string, write?: boolean, email?: string | null, bridge?: boolean, store?: { read?: Function, cleanup?: Function, findSignup?: Function, deleteSignup?: Function } | null, fetchImpl?: typeof fetch, sleep?: (ms: number) => Promise<unknown>, now?: number }} options
  * @returns {Promise<SmokeReport>}
  */
 export async function runSmoke({
@@ -728,8 +879,10 @@ export async function runSmoke({
   write = false,
   email = null,
   bridge = false,
-  bridgeStore = null,
+  store = null,
   fetchImpl = fetch,
+  sleep = wait,
+  now = Date.now(),
 }) {
   const base = normalizeBaseUrl(baseUrl);
   const steps = [];
@@ -828,6 +981,9 @@ export async function runSmoke({
   // ── El alta de verdad: ¿se guarda? ──
   let persisted = null;
   if (write) {
+    // La hora de arranque es lo que acota la búsqueda de la fila que hay que
+    // borrar: todo lo anterior a este instante es historial ajeno.
+    const startedAt = now;
     const post = await probe(fetchImpl, `${base}/api/registro`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -837,14 +993,14 @@ export async function runSmoke({
     if (!post.ok) {
       steps.push({
         level: 'fail',
-        label: 'POST /api/registro',
+        label: SIGNUP_STEP_LABELS.post,
         detail: `no respondió: ${post.error}`,
       });
       persisted = false;
     } else {
       const body = await post.response.json().catch(() => null);
       const verdict = judgeSignup(post.response.status, body);
-      steps.push({ label: 'POST /api/registro', ...verdict });
+      steps.push({ label: SIGNUP_STEP_LABELS.post, ...verdict });
       if (verdict.level === 'warn') persisted = null;
       else persisted = verdict.level === 'ok';
 
@@ -857,31 +1013,35 @@ export async function runSmoke({
         if (body?.email?.sent === true) {
           steps.push({
             level: 'warn',
-            label: 'Correo de bienvenida',
+            label: SIGNUP_STEP_LABELS.correo,
             detail: `enviado a ${email} — revisa la bandeja (y el spam)`,
           });
         } else if (body?.email?.skipped === true) {
           steps.push({
             level: 'info',
-            label: 'Correo de bienvenida',
+            label: SIGNUP_STEP_LABELS.correo,
             detail: 'saltado: falta RESEND_API_KEY en este despliegue',
           });
         } else {
           steps.push({
             level: 'warn',
-            label: 'Correo de bienvenida',
+            label: SIGNUP_STEP_LABELS.correo,
             detail: 'el envío se intentó y falló (mira los registros del despliegue)',
           });
         }
+      }
+
+      // Y no se queda: la fila se comprueba y se borra. Si no quedó guardada no
+      // hay nada que limpiar —el informe ya lo dice en el paso anterior—.
+      if (persisted === true) {
+        steps.push(await cleanupSignup({ store, email, since: startedAt, sleep }));
       }
     }
   }
 
   // ── El puente: un registro de socio que tiene que nacer como alta ──
   if (bridge) {
-    steps.push(
-      ...(await runBridgeCheck({ baseUrl: base, email, store: bridgeStore, fetchImpl }))
-    );
+    steps.push(...(await runBridgeCheck({ baseUrl: base, email, store, fetchImpl })));
   }
 
   const ok = !steps.some((step) => step.level === 'fail');
@@ -930,16 +1090,16 @@ function usage() {
       '',
       'Opciones:',
       '  --url <url>     despliegue a probar (por defecto, producción; o SMOKE_URL)',
-      '  --write         da de alta una visita de prueba para ver si persiste',
+      '  --write         da de alta una visita de prueba, comprueba que persiste y borra la fila',
       '  --email <correo> a dónde mandar los correos de las pruebas (obligatorio con --write o --bridge)',
       '  --bridge        recorre registro de socio → alta en Calificado y lo borra',
       '  --no-bridge     no recorre el puente (con --write, solo prueba /api/registro)',
       '  --help          esto',
       '',
       'Con --write el smoke da un alta de prueba y recorre el puente; el puente',
-      'también se puede pedir solo con --bridge. Los dos escriben y mandan correo real:',
-      '--write deja una fila en public.signups (solo-anexa), el puente no deja nada',
-      'porque borra el registro y su alta al terminar.',
+      'también se puede pedir solo con --bridge. Los dos escriben y mandan correo real,',
+      'y los dos borran lo que escribieron: --write la fila de public.signups y el',
+      'puente el registro con su alta. Si falta la clave de servicio, avisa qué quedó.',
       '',
     ].join('\n')
   );
@@ -970,13 +1130,14 @@ async function main() {
     return;
   }
 
-  const bridgeStore = args.bridge ? bridgeStoreFromEnv() : null;
+  // Un solo store para las dos escrituras: solo hace falta si alguna va a correr.
+  const store = args.write || args.bridge ? smokeStoreFromEnv() : null;
   const report = await runSmoke({
     baseUrl: args.url,
     write: args.write,
     email: args.email,
     bridge: args.bridge,
-    bridgeStore,
+    store,
   });
   console.log(formatReport(report));
 
