@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Send,
   UserRound,
+  X,
 } from 'lucide-react';
 import {
   SOLICITUD_STATUSES,
@@ -73,6 +74,10 @@ import KybEvaluationDetail from '@/components/admin/kyb/KybEvaluationDetail';
  * La vista de tablero agrupa en columnas por etapa lo que ya está cargado, así
  * que los conteos suman el total del filtro y ninguna columna pide datos
  * nuevos. El filtro por categoría vale en las dos vistas.
+ *
+ * Desde el tablero, «Abrir ficha» monta la ficha como **panel lateral** encima
+ * de las columnas: revisar una solicitud no obliga a cambiar a la lista ni a
+ * perder la etapa que se estaba mirando. Es la misma ficha que abre la lista.
  */
 
 const CATEGORY_STYLE: Record<
@@ -157,6 +162,8 @@ export default function AdminSolicitudesPage() {
   const [view, setView] = useState<'lista' | 'tablero'>('tablero');
 
   const [openId, setOpenId] = useState<string | null>(null);
+  /** Ficha abierta como panel lateral sobre el tablero: no cambia de vista. */
+  const [panelId, setPanelId] = useState<string | null>(null);
   const [detail, setDetail] = useState<DetailState | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
@@ -278,23 +285,46 @@ export default function AdminSolicitudesPage() {
   }, []);
 
   /**
-   * Abre la ficha desde el tablero.
+   * Abre la ficha como panel lateral, encima de la vista que se está mirando.
    *
-   * El tablero sirve para ubicarse; revisar los datos y decidir no entran en una
-   * tarjeta. Así que la acción cambia a la lista con esa fila abierta, en vez de
-   * duplicar la ficha dentro de la columna. Las dos fuentes abren ficha: la del
-   * alta la pide a la API y la del registro ya la tiene.
+   * El tablero sirve para ubicarse y la ficha para revisar, y cambiar de vista
+   * para leer una fila —y volver a ubicarse después— costaba el contexto de la
+   * etapa. El panel se monta encima con la misma ficha de la lista: la del alta
+   * pide su detalle a la API y la del registro ya lo tiene en memoria.
    */
-  const openInList = useCallback(
+  const openPanel = useCallback(
     (socio: SocioSolicitud) => {
-      setView('lista');
-      setOpenId(socio.id);
+      setPanelId(socio.id);
       setDetail(null);
       setDetailError(null);
       if (socio.source === 'alta') void loadDetail(socio.id);
     },
     [loadDetail]
   );
+
+  const closePanel = useCallback(() => {
+    setPanelId(null);
+    setDetail(null);
+    setDetailError(null);
+  }, []);
+
+  // Escape cierra la ficha, y mientras está abierta el fondo no scrollea: el
+  // panel se lee como una capa, no como una página más larga.
+  useEffect(() => {
+    if (panelId === null) return;
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closePanel();
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [closePanel, panelId]);
 
   /**
    * Mueve el estado de un registro de agente y reemplaza la fila con la que
@@ -529,6 +559,12 @@ export default function AdminSolicitudesPage() {
   }, [applications, solicitudes]);
 
   const counts = useMemo(() => socioCounts(socios), [socios]);
+
+  /** La fila del panel lateral, resuelta contra el tablero ya armado. */
+  const panel = useMemo(
+    () => (panelId === null ? null : socios.find((socio) => socio.id === panelId) ?? null),
+    [panelId, socios]
+  );
 
   /**
    * Los chips de categoría.
@@ -797,7 +833,7 @@ export default function AdminSolicitudesPage() {
                             </span>
                             <button
                               type="button"
-                              onClick={() => openInList(socio)}
+                              onClick={() => openPanel(socio)}
                               className="ml-auto rounded-lg border border-slate-300 px-2 py-1 text-[10px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                             >
                               Abrir ficha
@@ -830,7 +866,7 @@ export default function AdminSolicitudesPage() {
                           </div>
                           <button
                             type="button"
-                            onClick={() => openInList(socio)}
+                            onClick={() => openPanel(socio)}
                             className="mt-1.5 w-full rounded-lg border border-slate-300 px-2 py-1 text-[10px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                           >
                             Abrir ficha
@@ -885,6 +921,171 @@ export default function AdminSolicitudesPage() {
             />
           ))}
         </ul>
+      )}
+
+      {/*
+        Ficha lateral del tablero.
+
+        Es la misma ficha que abre la lista, montada encima de la vista por
+        etapa: revisar una solicitud no obliga a cambiar de vista ni a perder
+        la columna que se estaba mirando. Escape y el fondo la cierran.
+      */}
+      {panel && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <button
+            type="button"
+            aria-label="Cerrar la ficha"
+            onClick={closePanel}
+            className="absolute inset-0 cursor-default bg-slate-900/30"
+          />
+
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`ficha-${panel.id}`}
+            className="relative flex h-full w-full max-w-2xl flex-col overflow-y-auto bg-white shadow-2xl"
+          >
+            <header className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-5 py-4">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${CATEGORY_STYLE[panel.category].badge}`}
+                  >
+                    {SOCIO_CATEGORY_LABELS[panel.category]}
+                  </span>
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${KYB_STATUS_TONES[panel.status]}`}
+                  >
+                    {SOLICITUD_STATUS_LABELS[panel.status]}
+                  </span>
+                  {panel.source === 'alta' && (
+                    <span
+                      className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${scoreTone(panel.score)}`}
+                    >
+                      {panel.score === null ? 'Sin puntaje' : `${panel.score}/100`}
+                    </span>
+                  )}
+                </div>
+
+                <h2 id={`ficha-${panel.id}`} className="mt-1.5 text-base font-black text-slate-900">
+                  {panel.name}
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  {panel.contactName} ·{' '}
+                  <a href={`mailto:${panel.email}`} className="text-blue-700 hover:underline">
+                    {panel.email}
+                  </a>{' '}
+                  ·{' '}
+                  <a href={`tel:${panel.phone}`} className="hover:underline">
+                    {panel.phone}
+                  </a>
+                </p>
+                <p className="text-[11px] text-slate-400">
+                  {panel.rut ? `RUT ${panel.rut} · ` : ''}
+                  {formatKybDateTime(panel.createdAt)} · abierta hace {daysOpen(panel.createdAt)} d ·
+                  ref. <span className="font-mono">{panel.id}</span>
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closePanel}
+                aria-label="Cerrar ficha"
+                className="rounded-lg border border-slate-300 p-1.5 text-slate-600 transition-colors hover:bg-slate-50"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </header>
+
+            {panel.source === 'alta' ? (
+              <AltaFicha
+                detail={detail?.application.id === panel.id ? detail : null}
+                loading={detailLoading && panelId === panel.id}
+                error={detailError}
+                reevaluating={reevaluating}
+                deciding={deciding}
+                onRetry={() => void loadDetail(panel.id)}
+                onReevaluate={() => void reevaluate(panel.id)}
+                onDecide={(input) => void decide(panel.id, input)}
+                onProposalSent={() => void proposalSent(panel.id)}
+                onResend={() => void resendLink(panel.id, panel.source)}
+                resending={resendingId === panel.id}
+              />
+            ) : (
+              <RegistroFicha
+                socio={panel}
+                solicitud={solicitudes.find((item) => item.id === panel.id) ?? null}
+              />
+            )}
+
+            {panel.source === 'registro' && (
+              <footer className="mt-auto flex flex-wrap items-center gap-2 border-t border-slate-200 px-5 py-3">
+                <label
+                  htmlFor={`estado-panel-${panel.id}`}
+                  className="text-[10px] font-bold uppercase tracking-wide text-slate-400"
+                >
+                  Estado
+                </label>
+                <select
+                  id={`estado-panel-${panel.id}`}
+                  value={panel.status}
+                  disabled={savingId === panel.id}
+                  onChange={(event) =>
+                    void changeStatus(panel.id, event.target.value as SolicitudStatus)
+                  }
+                  className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
+                >
+                  {SOLICITUD_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {SOLICITUD_STATUS_LABELS[status]}
+                    </option>
+                  ))}
+                </select>
+                {savingId === panel.id && (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
+                )}
+
+                <div className="ml-auto flex flex-wrap items-center gap-2">
+                  {panel.status === 'Pendiente_Informacion' && (
+                    <button
+                      type="button"
+                      onClick={() => void resendLink(panel.id, panel.source)}
+                      disabled={resendingId === panel.id}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
+                    >
+                      {resendingId === panel.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Send className="h-3.5 w-3.5" />
+                      )}
+                      {resendingId === panel.id ? 'Enviando…' : 'Reenviar enlace'}
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => void reevaluateRegistro(panel.id)}
+                    disabled={reEvaluatingId === panel.id}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
+                  >
+                    {reEvaluatingId === panel.id ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-3.5 w-3.5" />
+                    )}
+                    {reEvaluatingId === panel.id ? 'Evaluando…' : 'Re-evaluar'}
+                  </button>
+                </div>
+
+                {actionError?.id === panel.id && (
+                  <p role="alert" className="w-full text-[11px] text-red-600">
+                    {actionError.message}
+                  </p>
+                )}
+              </footer>
+            )}
+          </aside>
+        </div>
       )}
     </div>
   );
@@ -949,9 +1150,6 @@ function SocioRow({
 }: SocioRowProps) {
   const kind = CATEGORY_STYLE[socio.category];
   const isAlta = socio.source === 'alta';
-  const details = solicitud ? solicitudDetails(solicitud) : [];
-  const evaluation =
-    (solicitud?.payload[SOLICITUD_REVIEW_KEYS.evaluation] as SolicitudEvaluation | undefined) ?? null;
 
   return (
     <li className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -1095,72 +1293,151 @@ function SocioRow({
       {isAlta ? (
         open && (
           <div id={`detalle-${socio.id}`}>
-            {detailLoading ? (
-              <div className="flex items-center gap-2 border-t border-slate-100 bg-slate-50/70 px-5 py-6 text-xs text-slate-500">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Cargando evaluación…
-              </div>
-            ) : detail ? (
-              <KybEvaluationDetail
-                application={detail.application}
-                evaluation={detail.evaluation}
-                decisions={detail.decisions}
-                reevaluating={reevaluating}
-                deciding={deciding}
-                error={detailError}
-                onReevaluate={onReevaluate}
-                onDecide={onDecide}
-                onProposalSent={onProposalSent}
-                onResend={onResend}
-                resending={resending}
-              />
-            ) : (
-              detailError && (
-                <div
-                  role="alert"
-                  className="flex items-start gap-2 border-t border-slate-100 bg-red-50 px-5 py-4 text-xs text-red-700"
-                >
-                  <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  <div>
-                    <p>{detailError}</p>
-                    <button type="button" onClick={onRetryDetail} className="mt-1 font-semibold underline">
-                      Reintentar
-                    </button>
-                  </div>
-                </div>
-              )
-            )}
+            <AltaFicha
+              detail={detail}
+              loading={detailLoading}
+              error={detailError}
+              reevaluating={reevaluating}
+              deciding={deciding}
+              onRetry={onRetryDetail}
+              onReevaluate={onReevaluate}
+              onDecide={onDecide}
+              onProposalSent={onProposalSent}
+              onResend={onResend}
+              resending={resending}
+            />
           </div>
         )
       ) : (
         open && (
           <div id={`detalle-${socio.id}`} className="border-t border-slate-100">
-            {evaluation && <SolicitudEvaluationSummary evaluation={evaluation} />}
-            <div className="grid gap-4 px-5 py-4 sm:grid-cols-2">
-              {details.map((item) => (
-                <div key={item.label}>
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                    {item.label}
-                  </p>
-                  <p className="text-xs text-slate-700">{item.value}</p>
-                </div>
-              ))}
-
-              {socio.message && (
-                <div className="rounded-xl bg-slate-50 px-3 py-2.5 sm:col-span-2">
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                    Mensaje
-                  </p>
-                  <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-slate-600">
-                    {socio.message}
-                  </p>
-                </div>
-              )}
-            </div>
+            <RegistroFicha socio={socio} solicitud={solicitud} />
           </div>
         )
       )}
     </li>
+  );
+}
+
+interface AltaFichaProps {
+  detail: DetailState | null;
+  loading: boolean;
+  error: string | null;
+  reevaluating: boolean;
+  deciding: boolean;
+  onRetry: () => void;
+  onReevaluate: () => void;
+  onDecide: (input: { decision: KybManualDecision; note?: string; questions?: string[] }) => void;
+  onProposalSent: () => void;
+  onResend: () => void;
+  resending: boolean;
+}
+
+/**
+ * Ficha de un alta: evaluación, propuesta y decisiones.
+ *
+ * Vive aparte porque se abre en dos lugares —la fila de la lista y el panel
+ * lateral del tablero— y dos copias de la misma pantalla se despegan en cuanto
+ * alguien toca una de las dos.
+ */
+function AltaFicha({
+  detail,
+  loading,
+  error,
+  reevaluating,
+  deciding,
+  onRetry,
+  onReevaluate,
+  onDecide,
+  onProposalSent,
+  onResend,
+  resending,
+}: AltaFichaProps) {
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 border-t border-slate-100 bg-slate-50/70 px-5 py-6 text-xs text-slate-500">
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        Cargando evaluación…
+      </div>
+    );
+  }
+
+  if (detail) {
+    return (
+      <KybEvaluationDetail
+        application={detail.application}
+        evaluation={detail.evaluation}
+        decisions={detail.decisions}
+        reevaluating={reevaluating}
+        deciding={deciding}
+        error={error}
+        onReevaluate={onReevaluate}
+        onDecide={onDecide}
+        onProposalSent={onProposalSent}
+        onResend={onResend}
+        resending={resending}
+      />
+    );
+  }
+
+  if (!error) return null;
+
+  return (
+    <div
+      role="alert"
+      className="flex items-start gap-2 border-t border-slate-100 bg-red-50 px-5 py-4 text-xs text-red-700"
+    >
+      <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+      <div>
+        <p>{error}</p>
+        <button type="button" onClick={onRetry} className="mt-1 font-semibold underline">
+          Reintentar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Ficha de un registro: la evaluación automática y los datos del formulario.
+ *
+ * Los datos ya vienen con la lista, así que abrirla no pide nada al servidor: no
+ * hay espera ni error de carga, y lo que se ve es exactamente lo que se guardó.
+ */
+function RegistroFicha({
+  socio,
+  solicitud,
+}: {
+  socio: SocioSolicitud;
+  solicitud: Solicitud | null;
+}) {
+  const details = solicitud ? solicitudDetails(solicitud) : [];
+  const evaluation =
+    (solicitud?.payload[SOLICITUD_REVIEW_KEYS.evaluation] as SolicitudEvaluation | undefined) ?? null;
+
+  return (
+    <>
+      {evaluation && <SolicitudEvaluationSummary evaluation={evaluation} />}
+      <div className="grid gap-4 px-5 py-4 sm:grid-cols-2">
+        {details.map((item) => (
+          <div key={item.label}>
+            <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
+              {item.label}
+            </p>
+            <p className="text-xs text-slate-700">{item.value}</p>
+          </div>
+        ))}
+
+        {socio.message && (
+          <div className="rounded-xl bg-slate-50 px-3 py-2.5 sm:col-span-2">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Mensaje</p>
+            <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-slate-600">
+              {socio.message}
+            </p>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
