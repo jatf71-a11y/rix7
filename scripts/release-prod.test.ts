@@ -45,6 +45,7 @@ import {
   runCaptured,
   verifyLive,
 } from './release-prod.mjs';
+import { BRIDGE_STEP_LABELS } from './smoke-prod.mjs';
 
 const ROOT = path.resolve(__dirname, '..');
 
@@ -58,9 +59,17 @@ describe('parseReleaseArgs', () => {
       withTests: false,
       url: null,
       attempts: null,
+      smokeEmail: null,
       skip: new Set(),
       unknown: [],
     });
+  });
+
+  it('--smoke-email activa la comprobación del puente en sus dos formas', () => {
+    expect(parseReleaseArgs(['--smoke-email', 'tu@correo.cl']).smokeEmail).toBe('tu@correo.cl');
+    expect(parseReleaseArgs(['--smoke-email=tu@correo.cl']).smokeEmail).toBe('tu@correo.cl');
+    // El correo se consume: no puede quedar como argumento suelto.
+    expect(parseReleaseArgs(['--smoke-email', 'tu@correo.cl']).unknown).toEqual([]);
   });
 
   it('acepta --url y --attempts en sus dos formas', () => {
@@ -428,6 +437,83 @@ describe('verifyLive', () => {
     expect(result).toEqual({ ok: true, attempt: 1 });
     expect(smokeImpl).toHaveBeenCalledTimes(1);
     expect(sleepImpl).not.toHaveBeenCalled();
+  });
+
+  it('sin --smoke-email el smoke de la verificación no escribe nada', async () => {
+    const smokeImpl = vi.fn(okSmoke);
+
+    await verifyLive({
+      url: 'https://rix7.cl',
+      attempts: 1,
+      smokeImpl,
+      healthImpl: okHealth,
+      log: () => {},
+    });
+
+    expect(smokeImpl).toHaveBeenCalledWith({ baseUrl: 'https://rix7.cl' });
+  });
+
+  it('con --smoke-email el smoke recorre el puente registro→alta', async () => {
+    const smokeImpl = vi.fn(okSmoke);
+    const store = { read: async () => ({}), cleanup: async () => ({}) };
+
+    const result = await verifyLive({
+      url: 'https://rix7.cl',
+      attempts: 1,
+      smokeEmail: 'tu@correo.cl',
+      bridgeStore: store,
+      smokeImpl,
+      healthImpl: okHealth,
+      log: () => {},
+    });
+
+    expect(result.ok).toBe(true);
+    expect(smokeImpl).toHaveBeenCalledWith({
+      baseUrl: 'https://rix7.cl',
+      bridge: true,
+      email: 'tu@correo.cl',
+      bridgeStore: store,
+    });
+  });
+
+  it('informa el puente como comprobado solo si sus tres pasos salieron en verde', async () => {
+    const bridgeSmoke = (level: 'ok' | 'warn' | 'fail' | 'info') => {
+      const steps = [
+        { level: 'ok' as const, label: BRIDGE_STEP_LABELS.registro, detail: '' },
+        { level: 'ok' as const, label: BRIDGE_STEP_LABELS.alta, detail: '' },
+        { level, label: BRIDGE_STEP_LABELS.cleanup, detail: '' },
+      ];
+
+      return async () => ({
+        baseUrl: 'x',
+        ok: true,
+        bridge: true,
+        steps,
+        persisted: null,
+        hint: null,
+      });
+    };
+
+    const green = await verifyLive({
+      url: 'https://rix7.cl',
+      attempts: 1,
+      smokeEmail: 'tu@correo.cl',
+      smokeImpl: bridgeSmoke('ok'),
+      healthImpl: okHealth,
+      log: () => {},
+    });
+    expect(green.bridge).toBe(true);
+
+    // Un aviso (por ejemplo el rate limit) no es haber comprobado el puente.
+    const warned = await verifyLive({
+      url: 'https://rix7.cl',
+      attempts: 1,
+      smokeEmail: 'tu@correo.cl',
+      smokeImpl: bridgeSmoke('warn'),
+      healthImpl: okHealth,
+      log: () => {},
+    });
+    expect(warned.bridge).toBe(false);
   });
 
   it('rojo y después verde: reintenta y se queda con el intento que pasó', async () => {

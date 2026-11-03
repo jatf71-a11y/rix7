@@ -159,7 +159,12 @@ import {
   describeReleaseIdentity,
   readReleaseIdentity,
 } from './release-identity.mjs';
-import { formatReport as formatSmokeReport, runSmoke } from './smoke-prod.mjs';
+import {
+  BRIDGE_STEP_LABELS,
+  bridgeStoreFromEnv,
+  formatReport as formatSmokeReport,
+  runSmoke,
+} from './smoke-prod.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -403,8 +408,14 @@ const URL_SOURCE_LABEL = {
  * plan los pueda cruzar con los pasos reales: un `--no-dbpush` mal escrito no
  * se ignora en silencio, cae en `unknown`.
  *
+ * `--smoke-email` (o `SMOKE_EMAIL`) activa la comprobación del puente
+ * registro→alta durante la verificación: es la única escritura del release, y
+ * borra lo que escribe. Sin esa dirección no se pide, porque el registro de
+ * prueba manda un correo real y un release no debe escribirle a nadie por su
+ * cuenta.
+ *
  * @param {string[]} argv
- * @returns {{ dryRun: boolean, help: boolean, withTests: boolean, url: string | null, attempts: string | null, skip: Set<string>, unknown: string[] }}
+ * @returns {{ dryRun: boolean, help: boolean, withTests: boolean, url: string | null, attempts: string | null, smokeEmail: string | null, skip: Set<string>, unknown: string[] }}
  */
 export function parseReleaseArgs(argv) {
   const args = {
@@ -413,6 +424,7 @@ export function parseReleaseArgs(argv) {
     withTests: false,
     url: null,
     attempts: null,
+    smokeEmail: process.env.SMOKE_EMAIL?.trim() || null,
     skip: new Set(),
     unknown: [],
   };
@@ -430,7 +442,12 @@ export function parseReleaseArgs(argv) {
       args.attempts = argv[i + 1] ?? null;
       i += 1;
     } else if (arg.startsWith('--attempts=')) args.attempts = arg.slice('--attempts='.length);
-    else if (arg.startsWith('--no-')) args.skip.add(arg);
+    else if (arg === '--smoke-email') {
+      args.smokeEmail = argv[i + 1]?.trim() || null;
+      i += 1;
+    } else if (arg.startsWith('--smoke-email=')) {
+      args.smokeEmail = arg.slice('--smoke-email='.length).trim() || null;
+    } else if (arg.startsWith('--no-')) args.skip.add(arg);
     else args.unknown.push(arg);
   }
 
@@ -458,6 +475,7 @@ export function planRelease({ argv = process.argv.slice(2) } = {}) {
     dryRun: args.dryRun,
     url: args.url && args.url.trim() ? args.url.trim() : null,
     attempts: DEFAULT_ATTEMPTS,
+    smokeEmail: args.smokeEmail,
     help: args.help,
     error: null,
   };
@@ -612,7 +630,7 @@ export function resolveVerifyUrl({
  * publicado» solo puede decirse si la verificación corrió, y «todo salió bien»
  * solo si había algo que salir bien.
  *
- * @param {{ durationMs: number, deployment?: string | null, verified?: { attempt: number } | null, attempts?: number, skipped?: ReleaseStep[], tree?: string | null, ranDeploy?: boolean, ranVerify?: boolean, buildLabel?: string | null, buildCompared?: boolean, releaseLabel?: string | null, releaseCompared?: boolean, releaseConfirmed?: boolean }} report
+ * @param {{ durationMs: number, deployment?: string | null, verified?: { attempt: number } | null, attempts?: number, skipped?: ReleaseStep[], tree?: string | null, ranDeploy?: boolean, ranVerify?: boolean, bridgeChecked?: boolean, buildLabel?: string | null, buildCompared?: boolean, releaseLabel?: string | null, releaseCompared?: boolean, releaseConfirmed?: boolean }} report
  * @returns {string}
  */
 export function formatReleaseSummary({
@@ -624,6 +642,7 @@ export function formatReleaseSummary({
   tree = null,
   ranDeploy = false,
   ranVerify = false,
+  bridgeChecked = false,
   buildLabel = null,
   buildCompared = false,
   releaseLabel = null,
@@ -669,6 +688,11 @@ export function formatReleaseSummary({
   }
 
   if (ranVerify) {
+    lines.push(
+      bridgeChecked
+        ? '  · El puente registro→alta SÍ se comprobó: el registro de prueba quedó como alta en Calificado y se borró.'
+        : '  · El puente registro→alta no se comprobó (se pide con `--smoke-email tu@correo.cl`).'
+    );
     lines.push('  · La persistencia de un alta NO se probó acá (eso escribe y manda correo):');
     lines.push('    `npm run smoke:prod -- --write --email tu@correo.cl`.');
   }
@@ -715,6 +739,11 @@ export function formatPlan(plan) {
   if (verify) {
     lines.push('', `  Verificación: hasta ${plan.attempts} intento${plan.attempts === 1 ? '' : 's'} por URL, ${RETRY_DELAY_MS / 1000} s entre intentos.`);
     if (plan.url) lines.push(`  URL pedida con --url: ${normalizeBaseUrl(plan.url)}`);
+    if (plan.smokeEmail) {
+      lines.push(
+        `  Puente registro→alta: se comprueba con ${plan.smokeEmail} y se borra al terminar.`
+      );
+    }
     if (plan.steps.some((step) => step.id === 'deploy')) {
       lines.push('  Además compara el identificador de la build: si en vivo no quedó este árbol, el release falla.');
     }
@@ -838,8 +867,13 @@ export async function runStep(
  * sirve el anterior» de «el árbol cambió en el medio». Sin `expected` (no se
  * pudo calcular) no se exige nada — pero el informe final lo dice.
  *
- * @param {{ url: string, attempts: number, expected?: ReturnType<typeof readTreeBuildId> | null, releaseExpected?: ReturnType<typeof readReleaseIdentity> | null, published?: ReturnType<typeof readTreeBuildId> | null, smokeImpl?: typeof runSmoke, healthImpl?: typeof runCheck, sleepImpl?: (ms: number) => Promise<unknown>, log?: (...args: unknown[]) => void, delayMs?: number }} options
- * @returns {Promise<{ ok: boolean, attempt: number }>}
+ * Con `smokeEmail` la verificación recorre además el puente registro→alta
+ * (`smoke` con `bridge`): el registro de prueba se da de alta, se comprueba que
+ * quedó como alta en `Calificado` y se borra. Es la única escritura del release,
+ * así que está apagada salvo que se pida con `--smoke-email`/`SMOKE_EMAIL`.
+ *
+ * @param {{ url: string, attempts: number, expected?: ReturnType<typeof readTreeBuildId> | null, releaseExpected?: ReturnType<typeof readReleaseIdentity> | null, published?: ReturnType<typeof readTreeBuildId> | null, smokeEmail?: string | null, bridgeStore?: { read: Function, cleanup: Function } | null, smokeImpl?: typeof runSmoke, healthImpl?: typeof runCheck, sleepImpl?: (ms: number) => Promise<unknown>, log?: (...args: unknown[]) => void, delayMs?: number }} options
+ * @returns {Promise<{ ok: boolean, attempt: number, bridge?: boolean }>}
  */
 export async function verifyLive({
   url,
@@ -847,6 +881,8 @@ export async function verifyLive({
   expected = null,
   releaseExpected = null,
   published = null,
+  smokeEmail = null,
+  bridgeStore = null,
   smokeImpl = runSmoke,
   healthImpl = runCheck,
   sleepImpl = sleep,
@@ -865,8 +901,22 @@ export async function verifyLive({
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     log(`\n→ Verificando ${url} (intento ${attempt}/${attempts})…`);
 
-    const smoke = await smokeImpl({ baseUrl: url });
+    // El puente se pide solo si hay una dirección a la que mandar el correo del
+    // registro; la tienda de la base se arma una vez para todas las corridas.
+    const smokeOptions = smokeEmail
+      ? { baseUrl: url, bridge: true, email: smokeEmail, bridgeStore }
+      : { baseUrl: url };
+    const smoke = await smokeImpl(smokeOptions);
     log(formatSmokeReport(smoke));
+
+    // «El puente se comprobó» solo si sus tres pasos salieron en verde: un 429
+    // del rate limit es un aviso, no una comprobación, y el informe final no
+    // puede afirmar más de lo que pasó.
+    const bridgeVerdict = smokeEmail
+      ? Object.values(BRIDGE_STEP_LABELS).every(
+          (label) => smoke.steps.find((step) => step.label === label)?.level === 'ok'
+        )
+      : null;
 
     const health = await healthImpl({ baseUrl: url, expected, releaseExpected, published });
     log(formatHealthReport(health));
@@ -874,7 +924,9 @@ export async function verifyLive({
     const treeMatches = !requiresTree || health.judgement?.build?.status === 'match';
     const releaseMatches =
       !requiresRelease || health.judgement?.release?.ok !== false;
-    if (smoke.ok && health.ok && treeMatches && releaseMatches) return { ok: true, attempt };
+    if (smoke.ok && health.ok && treeMatches && releaseMatches) {
+      return { ok: true, attempt, ...(smokeEmail ? { bridge: bridgeVerdict === true } : {}) };
+    }
 
     if (attempt < attempts) {
       log(
@@ -937,6 +989,10 @@ function usage() {
       '  --url <url>      a qué URL verificar. Sin esta bandera, producción se',
       '                   verifica siempre en https://rix7.cl',
       '  --attempts <n>   intentos de verificación, entero ≥ 1 (por defecto 3)',
+      '  --smoke-email <correo>',
+      '                   en la verificación, comprueba registro de socio → alta con',
+      '                   ese correo y borra lo que escribe (o SMOKE_EMAIL). Apagado',
+      '                   por defecto: el registro de prueba manda correo real',
       '  --with-tests     agrega el primer paso: `tsc --noEmit` y `vitest run`',
       '                   (opt-in: el build typechequea, pero no corre la suite)',
       '  --no-build       saltea el build local',
@@ -958,7 +1014,8 @@ function usage() {
       '',
       'No da de alta la visita de prueba (eso es `npm run smoke:prod -- --write`,',
       'que manda un correo real) ni hace `git push`: el deploy publica el árbol',
-      'de trabajo, no el commit.',
+      'de trabajo, no el commit. La única escritura que puede hacer es la del',
+      'puente, y solo con --smoke-email: deja la base como la encontró.',
       '',
       'Con `--with-tests` el paso 1 (tipos y suite) también es un gate: si el CI no',
       'corrió todavía, el release no publica código con un test rojo.',
@@ -990,8 +1047,26 @@ function fail(step, { detail, deployed }) {
   process.exitCode = 1;
 }
 
+/**
+ * El correo del puente desde `.env.local`.
+ *
+ * El release se corre desde `npm run`, que no carga ese archivo en el entorno
+ * del proceso, así que para que «cada release comprueba el puente» baste con
+ * dejarlo configurado una vez, se lee igual que las claves de la base.
+ */
+function readSmokeEmailFromFile() {
+  try {
+    const content = existsSync(ENV_FILE) ? readFileSync(ENV_FILE, 'utf8') : '';
+    return readEnvContent(content).SMOKE_EMAIL?.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
 async function main() {
   const plan = planRelease();
+  // `--smoke-email` manda; si no vino, se toma el de `.env.local`.
+  if (!plan.smokeEmail) plan.smokeEmail = readSmokeEmailFromFile();
 
   if (plan.help) return usage();
 
@@ -1121,12 +1196,21 @@ async function main() {
         console.log(`  · Deployment publicado: ${urls.deployment}`);
       }
 
+      // La comprobación del puente solo corre cuando el release recibió una
+      // dirección para su correo de prueba: si no, se verifica lo mismo que
+      // antes, sin escribir nada.
+      if (plan.smokeEmail) {
+        console.log(`  · Puente registro→alta: se comprueba con ${plan.smokeEmail} y se borra al terminar.`);
+      }
+
       verified = await verifyLive({
         url: target.url,
         attempts: plan.attempts,
         expected: verifiedTree?.value ? verifiedTree : null,
         releaseExpected: verifiedRelease,
         published: publishedTree?.value ? publishedTree : null,
+        smokeEmail: plan.smokeEmail,
+        bridgeStore: plan.smokeEmail ? bridgeStoreFromEnv() : null,
       });
       if (!verified.ok) {
         fail(step, {
@@ -1185,6 +1269,7 @@ async function main() {
       tree,
       ranDeploy: willDeploy,
       ranVerify: plan.steps.some((step) => step.id === 'verify'),
+      bridgeChecked: verified?.bridge === true,
       buildLabel: publishedTree?.value ? describeBuild(publishedTree) : null,
       buildCompared: Boolean(verifiedTree?.value),
       releaseLabel:
