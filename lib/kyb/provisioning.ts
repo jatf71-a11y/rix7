@@ -32,6 +32,23 @@ export interface ProvisionResult {
   error?: string;
 }
 
+/**
+ * Enlace del correo para entrar al panel.
+ *
+ * No se usa el `action_link` que devuelve Supabase: ese vuelve con los tokens en
+ * el fragmento, y el cliente de `@supabase/ssr` —que trabaja con cookies— no los
+ * canjea, así que el botón dejaba a la persona en `/socio` sin sesión. Acá se
+ * arma la URL de `/auth/confirm`, que recibe el `token_hash` como parámetro, lo
+ * verifica en el servidor y deja la sesión en cookies.
+ */
+export function confirmationUrl(hashedToken: string): string {
+  const url = new URL('/auth/confirm', SITE_URL);
+  url.searchParams.set('token_hash', hashedToken);
+  url.searchParams.set('type', 'magiclink');
+  url.searchParams.set('next', '/socio');
+  return url.toString();
+}
+
 /** Id de la ficha: el slug de la razón social, acotado y sin colisiones obvias. */
 export function partnerIdFor(application: Pick<KybApplication, 'legalName' | 'rut'>): string {
   const base = slugify(application.legalName) || 'empresa';
@@ -141,18 +158,19 @@ export async function provisionCompanyPanel(
     //    ya existe y el correo trae el enlace al panel: el alta no se cae por
     //    esto.
     //
-    //    El destino va explícito. Sin `redirectTo`, Supabase usa el Site URL
-    //    del proyecto: cuando estaba en `localhost:3000` el botón del correo
-    //    moría ahí, y con el Site URL en el dominio cae en la portada, que
-    //    deja la sesión abierta pero no lleva al panel. El correo promete
-    //    «Entrar al panel», así que el enlace aterriza en `/socio`.
+    //    Se canjea el `hashed_token` en `/auth/confirm` en vez de usar el
+    //    `action_link` de Supabase, que entrega la sesión en el fragmento y no
+    //    la deja en cookies. Si no viniera el hash, queda el enlace al panel y
+    //    la persona puede pedir su acceso desde el modal.
     try {
       const { data, error } = await admin.auth.admin.generateLink({
         type: 'magiclink',
         email: application.email,
-        options: { redirectTo: `${SITE_URL}/socio` },
       });
-      if (!error) magicLink = data?.properties?.action_link;
+      if (!error) {
+        const hashed = data?.properties?.hashed_token;
+        magicLink = hashed ? confirmationUrl(hashed) : data?.properties?.action_link;
+      }
     } catch {
       // Best-effort: el panel sigue siendo alcanzable con el correo.
     }
