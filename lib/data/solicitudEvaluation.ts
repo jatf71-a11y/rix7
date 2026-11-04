@@ -20,6 +20,12 @@
  * Las advertencias pesan la mitad —una corredora con Gmail no es un fraude—
  * pero dejan la pregunta escrita, y cuando la persona la responde la
  * verificación pasa y el puntaje sube.
+ *
+ * El peso de cada verificación depende del perfil. Una corredora o una
+ * inmobiliaria tiene que acreditar presencia corporativa; un **profesional
+ * independiente** es una persona, así que su sitio y su dominio pesan poco: las
+ * mismas faltas le bajan el puntaje sin dejarlo detenido pidiéndole algo que su
+ * forma de trabajar no tiene.
  */
 
 import { normalizeRut } from '@/lib/utils/rut';
@@ -87,6 +93,19 @@ const FREE_MAIL_DOMAINS = new Set([
 
 /** Umbral de aceptación automática. */
 export const SOLICITUD_PASS_SCORE = 80;
+
+/**
+ * Pesos del puntaje por perfil. Las dos tablas suman 100.
+ *
+ * Para una empresa, el correo y el sitio son la mitad de lo que se acredita: sin
+ * dominio ni presencia no se puede contrastar nada. Para una persona, lo que
+ * define es su identidad (RUT), su alcance y su teléfono; el sitio y el dominio
+ * existen o no, y su falta resta sin bloquear.
+ */
+const WEIGHTS = {
+  empresa: { rut: 20, correo: 20, sitio: 25, cobertura: 15, telefono: 10, duplicado: 10 },
+  profesional: { rut: 25, correo: 10, sitio: 10, cobertura: 20, telefono: 20, duplicado: 15 },
+} as const;
 
 /**
  * Claves del `payload` que escribe la evaluación automática.
@@ -191,6 +210,7 @@ export function evaluateSolicitud(
   const offerLabel = isAgent
     ? 'tu registro de profesional independiente'
     : `el registro de ${labelOf(kind)}`;
+  const weight = isAgent ? WEIGHTS.profesional : WEIGHTS.empresa;
   const checks: SolicitudCheck[] = [];
 
   // ── 1. RUT ────────────────────────────────────────────────────────────────
@@ -203,7 +223,7 @@ export function evaluateSolicitud(
     detail: normalizedRut
       ? `El RUT ${normalizedRut} pasó la validación de dígito verificador.`
       : 'El RUT no tiene un dígito verificador válido.',
-    weight: 20,
+    weight: weight.rut,
     question: normalizedRut
       ? undefined
       : 'El RUT que dejaste no pasó la validación del dígito verificador. ¿Nos confirmas el RUT correcto?',
@@ -217,15 +237,17 @@ export function evaluateSolicitud(
   checks.push({
     id: 'correo',
     label: 'Correo de contacto',
-    // Un agente es una persona: su Gmail es un correo real. Una empresa que
-    // atiende desde un Gmail no tiene canal corporativo que verificar.
-    status: !freeMail || isAgent ? 'pass' : 'warn',
+    // Un agente es una persona: su Gmail es un correo real, así que la falta de
+    // dominio propio le resta puntaje pero no lo deja detenido pidiéndole un
+    // correo corporativo que no va a tener. Una empresa que atiende desde un
+    // Gmail no tiene canal corporativo que verificar.
+    status: freeMail ? 'warn' : 'pass',
     detail: freeMail
       ? isAgent
-        ? 'Es un correo personal, que es lo esperable en un profesional independiente.'
+        ? 'Es un correo personal, lo esperable en un profesional independiente: baja el puntaje y no bloquea.'
         : `El correo es de un proveedor gratuito (${emailDomain}).`
       : `El correo usa el dominio ${emailDomain}.`,
-    weight: 20,
+    weight: weight.correo,
     question:
       freeMail && !isAgent
         ? 'El correo que dejaste es de un proveedor gratuito. ¿Cuál es el correo corporativo de la empresa?'
@@ -237,6 +259,9 @@ export function evaluateSolicitud(
   const siteDomain = domainOfWebsite(payload.website);
   const website = typeof payload.website === 'string' ? payload.website.trim() : '';
   const mismatched = !!siteDomain && !!emailDomain && siteDomain !== emailDomain;
+  // Sitio propio con correo personal: para un profesional independiente es la
+  // combinación normal, no una incoherencia que haya que aclarar.
+  const personalMailOnSite = isAgent && freeMail;
 
   if (website) {
     checks.push({
@@ -244,12 +269,15 @@ export function evaluateSolicitud(
       label: 'Sitio web',
       status: mismatched ? 'warn' : 'pass',
       detail: mismatched
-        ? `El sitio es ${siteDomain} y el correo ${emailDomain}: son dominios distintos.`
+        ? personalMailOnSite
+          ? `El sitio es ${siteDomain} y el correo ${emailDomain} (personal), lo esperable en un profesional independiente: baja el puntaje y no bloquea.`
+          : `El sitio es ${siteDomain} y el correo ${emailDomain}: son dominios distintos.`
         : `El sitio declarado es ${siteDomain}.`,
-      weight: 25,
-      question: mismatched
-        ? 'El sitio web y el correo son de dominios distintos. ¿Nos confirmas cuál es el sitio oficial de la empresa?'
-        : undefined,
+      weight: weight.sitio,
+      question:
+        mismatched && !personalMailOnSite
+          ? 'El sitio web y el correo son de dominios distintos. ¿Nos confirmas cuál es el sitio oficial de la empresa?'
+          : undefined,
       facts: [
         { label: 'Sitio', value: website },
         { label: 'Dominio del sitio', value: siteDomain ?? 'sin dato' },
@@ -257,13 +285,15 @@ export function evaluateSolicitud(
     });
   } else if (isAgent) {
     // El profesional independiente no necesita sitio: su canal es el teléfono.
+    // No se le pregunta, pero no declararlo le resta: no tener presencia es una
+    // diferencia, aunque no sea una falta.
     checks.push({
       id: 'sitio',
       label: 'Sitio web',
-      status: 'pass',
+      status: 'warn',
       detail:
-        'No declaró sitio web; no es un requisito para un profesional independiente.',
-      weight: 25,
+        'No declaró sitio web, que no es un requisito para un profesional independiente: baja el puntaje y no bloquea.',
+      weight: weight.sitio,
     });
   } else {
     checks.push({
@@ -271,7 +301,7 @@ export function evaluateSolicitud(
       label: 'Sitio web',
       status: 'warn',
       detail: 'No declaró sitio web, así que no hay presencia que contrastar con el correo.',
-      weight: 25,
+      weight: weight.sitio,
       question: 'No declaraste un sitio web. ¿Cuál es la dirección del sitio de la empresa?',
     });
   }
@@ -295,7 +325,7 @@ export function evaluateSolicitud(
         : coverage === 'nacional'
           ? 'Trabaja en todo Chile.'
           : `Trabaja en ${regions.length} ${regions.length === 1 ? 'región' : 'regiones'}: ${regions.join(', ')}.`,
-    weight: 15,
+    weight: weight.cobertura,
     question:
       coverageBroken || regionalEmpty
         ? '¿Trabajas en todo Chile o solo en algunas regiones? Si es regional, ¿cuáles?'
@@ -315,7 +345,7 @@ export function evaluateSolicitud(
     detail: phoneOk
       ? 'El teléfono tiene forma de número chileno.'
       : 'El teléfono no parece un número chileno completo.',
-    weight: 10,
+    weight: weight.telefono,
     question: phoneOk
       ? undefined
       : 'El teléfono que dejaste no parece completo. ¿Nos confirmas un número con el que podamos llamarte?',
@@ -344,7 +374,7 @@ export function evaluateSolicitud(
     detail: duplicate
       ? `Ya hay una solicitud con ${sameRut(duplicate) ? 'este RUT' : 'este correo'} (ref. ${duplicate.id}).`
       : 'No hay otra solicitud con el mismo RUT ni el mismo correo.',
-    weight: 10,
+    weight: weight.duplicado,
     question: duplicate
       ? 'Ya tenemos una solicitud con tus mismos datos. ¿Es una corrección de esa solicitud o un registro nuevo?'
       : undefined,

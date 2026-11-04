@@ -111,7 +111,8 @@ de búsqueda configurado (`EXA_API_KEY` o `KYB_SEARCH_URL`) las reseñas contada
 que mostrar detrás, la mención de cada hallazgo aparece recién con uno real y los
 motivos son el repertorio de la simulación, no un hallazgo. Una búsqueda real que
 no discrimine el motivo lo dice («sin detalle en la fuente consultada») en vez de
-rellenarlo.
+rellenarlo, y en ese caso tampoco se le pregunta a la empresa: la pregunta solo
+sale cuando puede citar qué reseña y dónde.
 
 Desde ahí se puede **re-evaluar** (reintentar una verificación externa o correr el
 motor sobre una ficha histórica). Desde `Calificado` en adelante ya no se
@@ -269,14 +270,21 @@ de [`lib/data/solicitudEvaluation.ts`](../lib/data/solicitudEvaluation.ts) y el
 autómata de [`lib/data/solicitudAutopilot.ts`](../lib/data/solicitudAutopilot.ts)
 lo mueve en la misma corrida.
 
-| Verificación | Peso | Qué mira |
-| --- | --- | --- |
-| `rut` | 20 | Módulo 11 sobre el RUT informado |
-| `correo` | 20 | Correo corporativo vs. proveedor gratuito (un independiente puede usar Gmail) |
-| `sitio` | 25 | Sitio declarado y coincidencia de dominio con el correo |
-| `cobertura` | 15 | Nacional, o regional con al menos una región |
-| `contacto` | 10 | Teléfono con forma de número chileno |
-| `duplicado` | 10 | Mismo RUT o correo que otra solicitud |
+| Verificación | Peso empresa | Peso profesional | Qué mira |
+| --- | --- | --- | --- |
+| `rut` | 20 | 25 | Módulo 11 sobre el RUT informado |
+| `correo` | 20 | 10 | Correo corporativo vs. proveedor gratuito |
+| `sitio` | 25 | 10 | Sitio declarado y coincidencia de dominio con el correo |
+| `cobertura` | 15 | 20 | Nacional, o regional con al menos una región |
+| `contacto` | 10 | 20 | Teléfono con forma de número chileno |
+| `duplicado` | 10 | 15 | Mismo RUT o correo que otra solicitud |
+
+Las dos columnas suman 100: cambia el peso, no el umbral. Para una empresa, el
+correo y el sitio son la mitad de lo que se acredita; para una persona, lo que
+define es su identidad, su alcance y su teléfono. Por eso un **profesional
+independiente** con Gmail y sin sitio se acepta con **90** puntos y sin preguntas
+—no se le pide un dominio que su forma de trabajar no tiene—, mientras que una
+corredora con esas mismas faltas queda en **78** y recibe las dos preguntas.
 
 Se acepta con 80 puntos o más y sin verificaciones en rojo. Si no, queda en
 `Pendiente_Informacion`, se guardan las preguntas que fallaron y se emite un
@@ -382,6 +390,31 @@ llega a 75. Las respuestas de la empresa suben un escalón las verificaciones
 discutibles (`fail → warn`, `warn → pass`), salvo las fiscales, que se vuelven a
 consultar al registro.
 
+### Preguntas que se pueden contestar
+
+El motor no manda una pregunta que la empresa no pueda responder. La de
+reputación **cita** las reseñas que leyó: el motivo, el fragmento de la página y
+su dominio; cuando lo que apareció es una señal de fraude, nombra las menciones.
+Si la búsqueda no trae ni motivo ni páginas, no hay pregunta: la advertencia
+queda en la ficha, baja el puntaje y no pide explicaciones por algo que nadie
+puede ver.
+
+La **simulación** no bloquea ni pregunta nunca. Sin proveedor de búsqueda
+configurado (`EXA_API_KEY` o `KYB_SEARCH_URL`) sus señales —reseñas o fraude—
+quedan como advertencia en la ficha, con el detalle diciendo que salieron de la
+simulación, y no pueden detener una solicitud por un dato que no existe.
+
+### Profesional independiente
+
+Un profesional independiente (`registration_kind = 'agente'`) es una persona, no
+una empresa: trabajar sin sitio propio y con un correo personal es lo normal. En
+las tres verificaciones que miden presencia corporativa —sitio, correo y
+coincidencia entre los dos— el motor **advierte y baja el puntaje** (84 con todo
+lo demás en orden, por encima del mínimo de 75) en vez de pedirle un dominio que
+su forma de trabajar no tiene. Una corredora o una inmobiliaria con esos mismos
+huecos sí recibe las preguntas: ahí la presencia corporativa es parte de lo que
+se acredita.
+
 El **tramo de tamaño** se calcula por dotación de trabajadores (micro 1-9, pequeña
 10-49, mediana 50-199, grande 200 o más). Al lado, la ficha muestra la
 **facturación aproximada** del último ejercicio cerrado que publica el registro,
@@ -416,7 +449,9 @@ sea un número no negativo se trata como «sin dato», no se interpreta a la bue
 Contrato de reputación:
 `{ flags: string[], negativeReviews: number, topics: string[], mentions: [{ title, url }] }`,
 donde `topics` es el motivo de cada reseña negativa («demoras en la entrega»,
-«cobros no informados»). Sin `topics` la ficha declara que no hay detalle.
+«cobros no informados»). Sin `topics` la ficha declara que no hay detalle y no se
+le pregunta a la empresa. Con Exa cada motivo viaja con el dominio de la página
+donde apareció, para que la cita se pueda buscar tal cual.
 
 Con **Exa** no hay contrato que respetar: el adaptador arma las consultas
 —razón social, RUT, el sitio propio y términos de fraude y de reclamo—, deduplica

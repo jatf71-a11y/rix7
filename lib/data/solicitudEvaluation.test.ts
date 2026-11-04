@@ -66,10 +66,28 @@ describe('evaluateSolicitud', () => {
   it('un agente independiente no arrastra las exigencias de una empresa', () => {
     const result = evaluateSolicitud(solicitud({ kind: 'agente' }));
 
-    // Sin sitio y con Gmail: para una persona es lo esperable, no una alerta.
+    // Sin sitio y con Gmail: para una persona es lo esperable, así que se acepta
+    // —no se le pide un dato que no tiene— pero con menos puntaje que una
+    // empresa que acredita las dos cosas.
     expect(result.decision).toBe('Aceptada');
-    expect(result.score).toBe(100);
+    expect(result.score).toBe(90);
     expect(result.questions).toEqual([]);
+    expect(result.checks.find((check) => check.id === 'correo')?.status).toBe('warn');
+    expect(result.checks.find((check) => check.id === 'sitio')?.status).toBe('warn');
+    expect(result.checks.find((check) => check.id === 'correo')?.question).toBeUndefined();
+    expect(result.checks.find((check) => check.id === 'sitio')?.question).toBeUndefined();
+  });
+
+  it('un agente con sitio propio y correo personal tampoco tiene que aclararlo', () => {
+    const result = evaluateSolicitud(
+      solicitud({ kind: 'agente' }, { website: 'https://anatorres.cl' })
+    );
+
+    expect(result.decision).toBe('Aceptada');
+    expect(result.score).toBe(90);
+    expect(result.questions).toEqual([]);
+    expect(result.checks.find((check) => check.id === 'sitio')?.status).toBe('warn');
+    expect(result.checks.find((check) => check.id === 'sitio')?.question).toBeUndefined();
   });
 
   it('un RUT con dígito verificador inválido no pasa, aunque el resto esté bien', () => {

@@ -25,6 +25,17 @@
  * salvo en las fiscales, que se vuelven a consultar al registro y no se arreglan
  * con texto.
  *
+ * Una pregunta solo se manda si se puede contestar. La de reputación **cita** las
+ * reseñas concretas (el motivo y el fragmento de la página); si la fuente no trae
+ * ese detalle, o si la reputación viene de la simulación —que no tiene páginas
+ * detrás—, la advertencia queda en la ficha y no se le pide a la empresa explicar
+ * algo que no puede ver.
+ *
+ * Un **profesional independiente** no tiene por qué acreditar la presencia
+ * corporativa de una corredora: sin sitio propio y con correo personal el motor
+ * baja el puntaje, pero no lo deja detenido pidiéndole un dominio que su forma de
+ * trabajar no tiene.
+ *
  * El tamaño de la empresa se mide por **dotación** —los trabajadores que informa
  * el registro—: ese número decide el tramo. Las ventas aproximadas del último
  * ejercicio cerrado que publica el registro viajan al lado como referencia de la
@@ -44,7 +55,11 @@ import {
   normalizeDomain,
   type NormalizedKybApplication,
 } from './application';
-import { defaultReputationAdapter, type ReputationAdapter } from './adapters/reputation';
+import {
+  defaultReputationAdapter,
+  type ReputationAdapter,
+  type ReputationSignals,
+} from './adapters/reputation';
 import {
   defaultTaxAdapter,
   type TaxAdapter,
@@ -79,6 +94,15 @@ const NEGATIVE_REVIEWS_THRESHOLD = 3;
 
 /** Puntaje mínimo desde el que el motor acepta sin intervención del equipo. */
 const KYB_SCORE_THRESHOLD = 75;
+
+/**
+ * Reseñas concretas que se citan en la pregunta al solicitante.
+ *
+ * La pregunta es para que la empresa conteste, así que nombra lo que se leyó:
+ * el motivo y el fragmento de cada página. Más de tres citas convierten el
+ * correo en un expediente que tampoco se contesta.
+ */
+const MAX_CITED_REVIEWS = 3;
 
 /**
  * Peso de cada verificación. Suma 100 para que el puntaje sea comparable.
@@ -168,6 +192,25 @@ function applyClarification(check: KybCheck, clarification: string | undefined):
   };
 }
 
+/**
+ * Las reseñas que se pueden citar en una pregunta.
+ *
+ * «Encontramos 6 reseñas negativas, ¿qué medidas tomó la empresa?» no se puede
+ * contestar: nadie sabe a cuáles se refiere. Se citan el motivo y el fragmento
+ * que trae cada página, y cuando la búsqueda no discrimina el motivo se citan las
+ * páginas con su título y su URL. Si no hay nada que citar, no hay pregunta.
+ *
+ * Solo una búsqueda real puede citar: el repertorio de la simulación no es un
+ * hallazgo sobre esta empresa y no se le presenta como tal.
+ */
+function citedReviews(signals: ReputationSignals): string[] {
+  if (signals.source !== 'search') return [];
+  const cited = signals.negativeTopics.length
+    ? signals.negativeTopics
+    : signals.mentions.map((mention) => `${mention.title} — ${mention.url}`);
+  return cited.slice(0, MAX_CITED_REVIEWS);
+}
+
 function scoreOf(checks: KybCheck[]): number {
   const total = checks.reduce((sum, check) => {
     if (check.status === 'pass') return sum + check.weight;
@@ -191,6 +234,12 @@ export async function evaluateKyb(
 
   const normalizedSite = application.website ? normalizeDomain(application.website) : null;
   const mailDomain = emailDomain(application.email);
+
+  // Un profesional independiente es una persona: trabaja con su nombre, su
+  // teléfono y, muchas veces, con un correo personal y sin sitio propio. No se
+  // le puede pedir la acreditación corporativa de una corredora, pero la falta de
+  // presencia institucional tampoco da lo mismo que tenerla: baja el puntaje.
+  const isProfessional = application.registrationKind === 'agente';
 
   // ── 1. RUT: formato y dígito verificador ────────────────────────────────
   // Ya se validó al normalizar la solicitud, pero el motor no confía en su
@@ -321,24 +370,39 @@ export async function evaluateKyb(
       },
     ];
 
+    // Solo una búsqueda real puede frenar o preguntar. Lo que devuelve la
+    // simulación es un repertorio de ejemplo: se muestra como advertencia en la
+    // ficha y no se le pide explicaciones a nadie por datos que no existen.
+    const isSearch = reputationResult.source === 'search';
+    const cited = citedReviews(reputationResult);
+    const withSource = (text: string) =>
+      isSearch ? text : `Simulación local (sin búsqueda web configurada). ${text}`;
+
     if (reputationResult.fraudFlags.length > 0) {
       checks.push({
         id: 'reputation',
         label: 'Reputación web',
-        status: 'fail',
-        detail: `Señales de fraude: ${reputationResult.fraudFlags.join(' ')}`,
+        status: isSearch ? 'fail' : 'warn',
+        detail: withSource(`Señales de fraude: ${reputationResult.fraudFlags.join(' ')}`),
         weight: WEIGHTS.reputation,
         evidence: { source: reputationResult.source, mentions: reputationResult.mentions },
         facts: reputationFacts,
-        question:
-          'Encontramos menciones públicas que reportan problemas de fraude o impagos asociados a tu empresa. ¿Puedes entregar antecedentes que expliquen esas menciones?',
+        // La pregunta nombra las páginas que se leyeron: sin eso, la empresa
+        // tendría que adivinar a qué menciones se le está respondiendo.
+        question: isSearch
+          ? `Encontramos estas menciones públicas sobre la empresa: ${reputationResult.fraudFlags
+              .slice(0, MAX_CITED_REVIEWS)
+              .join(' · ')}. ¿Puedes entregar antecedentes que expliquen esas menciones?`
+          : undefined,
       });
     } else if (reputationResult.negativeReviews >= NEGATIVE_REVIEWS_THRESHOLD) {
       checks.push({
         id: 'reputation',
         label: 'Reputación web',
         status: 'warn',
-        detail: `${reputationResult.negativeReviews} reseñas negativas públicas y ninguna señal de fraude.`,
+        detail: withSource(
+          `${reputationResult.negativeReviews} reseñas negativas públicas y ninguna señal de fraude.`
+        ),
         weight: WEIGHTS.reputation,
         evidence: { source: reputationResult.source, mentions: reputationResult.mentions },
         facts: [
@@ -348,17 +412,24 @@ export async function evaluateKyb(
             value: `${NEGATIVE_REVIEWS_THRESHOLD} reseñas negativas o más`,
           },
         ],
-        question: `Encontramos ${reputationResult.negativeReviews} reseñas negativas de clientes. ¿Qué medidas tomó la empresa para resolverlas?`,
+        // Cita lo que se leyó; si no hay nada que citar, no hay pregunta: una
+        // advertencia se sostiene en la ficha, no en un correo que pide adivinar.
+        question: cited.length
+          ? `Encontramos ${reputationResult.negativeReviews} reseñas negativas de clientes. Estas son las que leímos: ${cited.join(
+              ' · '
+            )}. ¿Qué medidas tomó la empresa para resolverlas?`
+          : undefined,
       });
     } else {
+      const clean =
+        reputationResult.negativeReviews > 0
+          ? `Sin señales de fraude; ${reputationResult.negativeReviews} reseña(s) negativa(s) aislada(s).`
+          : 'Sin señales de fraude ni reseñas negativas relevantes.';
       checks.push({
         id: 'reputation',
         label: 'Reputación web',
         status: 'pass',
-        detail:
-          reputationResult.negativeReviews > 0
-            ? `Sin señales de fraude; ${reputationResult.negativeReviews} reseña(s) negativa(s) aislada(s).`
-            : 'Sin señales de fraude ni reseñas negativas relevantes.',
+        detail: withSource(clean),
         weight: WEIGHTS.reputation,
         evidence: { source: reputationResult.source, mentions: reputationResult.mentions },
         facts: reputationFacts,
@@ -394,12 +465,15 @@ export async function evaluateKyb(
       id: 'domain_web',
       label: 'Sitio web',
       status: 'warn',
-      detail: 'La solicitud no informa un sitio web.',
+      detail: isProfessional
+        ? 'No informó sitio web. Un profesional independiente trabaja sin sitio propio: baja el puntaje y no bloquea.'
+        : 'La solicitud no informa un sitio web.',
       weight: WEIGHTS.domainWeb,
       evidence: { source: 'declared' },
       facts: [{ label: 'Sitio informado', value: 'ninguno' }],
-      question:
-        'No informaste un sitio web. ¿Cuál es el dominio oficial de la empresa donde podamos verificar su actividad?',
+      question: isProfessional
+        ? undefined
+        : 'No informaste un sitio web. ¿Cuál es el dominio oficial de la empresa donde podamos verificar su actividad?',
     });
   } else if (isFreeHosting(normalizedSite)) {
     checks.push({
@@ -436,15 +510,18 @@ export async function evaluateKyb(
       id: 'email_corporate',
       label: 'Correo corporativo',
       status: 'warn',
-      detail: `El contacto usa un correo personal (${mailDomain}).`,
+      detail: isProfessional
+        ? `El contacto usa un correo personal (${mailDomain}), lo esperable en un profesional independiente: baja el puntaje y no bloquea.`
+        : `El contacto usa un correo personal (${mailDomain}).`,
       weight: WEIGHTS.emailCorporate,
       evidence: { source: 'declared' },
       facts: [
         { label: 'Dominio del correo', value: mailDomain ?? 'sin dominio' },
         { label: 'Tipo', value: 'proveedor personal' },
       ],
-      question:
-        'El correo de contacto es de un proveedor personal. ¿Cuál es el correo corporativo con el dominio de la empresa?',
+      question: isProfessional
+        ? undefined
+        : 'El correo de contacto es de un proveedor personal. ¿Cuál es el correo corporativo con el dominio de la empresa?',
     });
   } else {
     checks.push({
@@ -467,15 +544,18 @@ export async function evaluateKyb(
       id: 'email_domain_match',
       label: 'Correo y sitio coinciden',
       status: 'warn',
-      detail: 'Sin sitio web no hay dominio contra el cual comparar el correo.',
+      detail: isProfessional
+        ? 'Sin sitio web no hay dominio que comparar; no se le pide un sitio a un profesional independiente.'
+        : 'Sin sitio web no hay dominio contra el cual comparar el correo.',
       weight: WEIGHTS.emailDomainMatch,
       evidence: { source: 'declared' },
       facts: [
         { label: 'Dominio del correo', value: mailDomain ?? 'sin dominio' },
         { label: 'Dominio del sitio', value: 'ninguno' },
       ],
-      question:
-        'Sin sitio web no podemos comprobar que el correo pertenezca a la empresa. ¿Puedes indicar el dominio corporativo?',
+      question: isProfessional
+        ? undefined
+        : 'Sin sitio web no podemos comprobar que el correo pertenezca a la empresa. ¿Puedes indicar el dominio corporativo?',
     });
   } else if (domainsMatch(mailDomain, normalizedSite)) {
     checks.push({
@@ -489,6 +569,22 @@ export async function evaluateKyb(
         { label: 'Dominio del correo', value: mailDomain ?? 'sin dominio' },
         { label: 'Dominio del sitio', value: normalizedSite },
         { label: 'Coinciden', value: 'sí' },
+      ],
+    });
+  } else if (isProfessional && isFreeEmailDomain(mailDomain)) {
+    // El sitio es suyo, el correo es personal: la combinación normal de un
+    // profesional independiente. Advierte, no bloquea.
+    checks.push({
+      id: 'email_domain_match',
+      label: 'Correo y sitio coinciden',
+      status: 'warn',
+      detail: `El correo personal (${mailDomain ?? 'sin dominio'}) no pertenece al sitio (${normalizedSite}); es lo esperable en un profesional independiente: baja el puntaje y no bloquea.`,
+      weight: WEIGHTS.emailDomainMatch,
+      evidence: { source: 'declared' },
+      facts: [
+        { label: 'Dominio del correo', value: mailDomain ?? 'sin dominio' },
+        { label: 'Dominio del sitio', value: normalizedSite },
+        { label: 'Coinciden', value: 'no' },
       ],
     });
   } else {

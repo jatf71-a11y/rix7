@@ -50,7 +50,13 @@ export interface ReputationSignals {
   /** Motivos concretos («denuncia por fraude», «suplantación»). */
   fraudFlags: string[];
   negativeReviews: number;
-  /** Motivo de cada reseña negativa, en una frase («cobros no informados»). */
+  /**
+   * Motivo de cada reseña negativa, con la página donde aparece
+   * (««reclamo»: “cobros no informados” (opiniones.cl)»).
+   *
+   * Es lo que permite citarlas en la pregunta al solicitante: sin el motivo y
+   * sin la página, «encontramos 6 reseñas negativas» no se puede contestar.
+   */
   negativeTopics: string[];
   mentions: ReputationMention[];
 }
@@ -531,7 +537,10 @@ export function createExaReputationAdapter({
         // página. Sin esto el conteo sería una acusación sin prueba.
         negativeTopics: complaints.slice(0, MAX_TOPICS).map(({ hit, signal }) => {
           const quote = hit.text ? truncate(hit.text, QUOTE_MAX_CHARS) : label(hit);
-          return `«${signal?.term}»: “${quote}”`;
+          // Con el sitio donde apareció, para que la cita se pueda buscar tal
+          // cual y la pregunta al solicitante apunte a una página concreta.
+          const host = hostOf(hit.url);
+          return `«${signal?.term}»: “${quote}”${host ? ` (${host})` : ''}`;
         }),
         mentions: [...fraud, ...complaints, ...plain].slice(0, MAX_MENTIONS).map(({ hit }) => ({
           title: label(hit),

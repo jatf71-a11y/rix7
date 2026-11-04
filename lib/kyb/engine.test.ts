@@ -57,6 +57,23 @@ function reputationAdapter(overrides: Partial<ReputationSignals> = {}): Reputati
   };
 }
 
+/** Búsqueda real: es la única que puede citar páginas y pedir explicaciones. */
+function searchReputation(overrides: Partial<ReputationSignals> = {}): ReputationAdapter {
+  return {
+    source: 'search',
+    async check() {
+      return {
+        source: 'search',
+        fraudFlags: [],
+        negativeReviews: 0,
+        negativeTopics: [],
+        mentions: [],
+        ...overrides,
+      };
+    },
+  };
+}
+
 describe('evaluateKyb', () => {
   it('acepta con las siete verificaciones limpias y puntaje 100', async () => {
     const evaluation = await evaluateKyb(empresa, {}, {
@@ -332,21 +349,127 @@ describe('evaluateKyb', () => {
   it('detecta señales de fraude en la reputación', async () => {
     const evaluation = await evaluateKyb(empresa, {}, {
       tax: taxAdapter(),
-      reputation: reputationAdapter({ fraudFlags: ['Denuncia por fraude'] }),
+      reputation: searchReputation({
+        fraudFlags: ['«estafa» en “Cuidado con Catedral Propiedades SpA”'],
+      }),
     });
 
     expect(evaluation.decision).toBe('Pendiente_Informacion');
     expect(evaluation.questions.map((question) => question.id)).toContain('reputation');
   });
 
-  it('advierte por reseñas negativas sin bloquear por sí solo el puntaje', async () => {
+  it('la simulación de reputación no frena ni pregunta: advierte y baja el puntaje', async () => {
     const evaluation = await evaluateKyb(empresa, {}, {
       tax: taxAdapter(),
-      reputation: reputationAdapter({ negativeReviews: 4 }),
+      reputation: reputationAdapter({
+        negativeReviews: 6,
+        negativeTopics: ['demoras en la entrega', 'cobros no informados'],
+        fraudFlags: ['Hay una mención pública que reporta impagos.'],
+      }),
     });
 
     const reputation = evaluation.checks.find((check) => check.id === 'reputation');
     expect(reputation?.status).toBe('warn');
+    // El detalle dice que salió de la simulación: sin búsqueda configurada no
+    // hay páginas detrás que sostengan una pregunta a la empresa.
+    expect(reputation?.detail).toMatch(/Simulación local/);
+    expect(reputation?.question).toBeUndefined();
+    expect(evaluation.questions).toEqual([]);
+    expect(evaluation.decision).toBe('Aceptada');
+    expect(evaluation.score).toBeLessThan(100);
+  });
+
+  it('la pregunta de reputación cita las reseñas que se leyeron', async () => {
+    const evaluation = await evaluateKyb(empresa, {}, {
+      tax: taxAdapter(),
+      reputation: searchReputation({
+        negativeReviews: 6,
+        negativeTopics: [
+          '«reclamo»: “Reclamos por demoras en la entrega” (opiniones.cl)',
+          '«cobros»: “Cobros no informados en la comisión” (reclamos.cl)',
+        ],
+        mentions: [{ title: 'Reclamos', url: 'https://opiniones.cl/catedral' }],
+      }),
+    });
+
+    const reputation = evaluation.checks.find((check) => check.id === 'reputation');
+    const question = reputation?.question ?? '';
+    // Se puede contestar porque dice cuáles son y dónde están.
+    expect(question).toContain('6 reseñas negativas');
+    expect(question).toContain('Reclamos por demoras en la entrega');
+    expect(question).toContain('(opiniones.cl)');
+    expect(question).toContain('Cobros no informados');
+    expect(evaluation.questions.map((item) => item.id)).toContain('reputation');
+  });
+
+  it('sin motivo citado la pregunta nombra las páginas, y sin nada que citar no pregunta', async () => {
+    const conPaginas = await evaluateKyb(empresa, {}, {
+      tax: taxAdapter(),
+      reputation: searchReputation({
+        negativeReviews: 6,
+        mentions: [{ title: 'Reclamos en foros', url: 'https://foros.cl/catedral' }],
+      }),
+    });
+    const citada = conPaginas.checks.find((check) => check.id === 'reputation')?.question ?? '';
+    expect(citada).toContain('Reclamos en foros');
+    expect(citada).toContain('https://foros.cl/catedral');
+
+    const sinNada = await evaluateKyb(empresa, {}, {
+      tax: taxAdapter(),
+      reputation: searchReputation({ negativeReviews: 6 }),
+    });
+    const check = sinNada.checks.find((candidate) => candidate.id === 'reputation');
+    expect(check?.status).toBe('warn');
+    // No se le pide explicar reseñas que la búsqueda no pudo nombrar.
+    expect(check?.question).toBeUndefined();
+    expect(sinNada.questions.some((item) => item.id === 'reputation')).toBe(false);
+  });
+
+  it('un profesional independiente sin sitio ni correo propio se acepta con menos puntaje', async () => {
+    const profesional: NormalizedKybApplication = {
+      ...empresa,
+      legalName: 'Ana Torres',
+      registrationKind: 'agente',
+      website: null,
+      domain: null,
+      email: 'ana.torres@gmail.com',
+    };
+
+    const evaluation = await evaluateKyb(profesional, {}, {
+      tax: taxAdapter(),
+      reputation: reputationAdapter(),
+    });
+
+    const byId = (id: string) => evaluation.checks.find((check) => check.id === id);
+    expect(byId('domain_web')?.status).toBe('warn');
+    expect(byId('email_corporate')?.status).toBe('warn');
+    expect(byId('email_domain_match')?.status).toBe('warn');
+    for (const id of ['domain_web', 'email_corporate', 'email_domain_match']) {
+      expect(byId(id)?.question, id).toBeUndefined();
+    }
+    // Aceptado, pero por debajo del 100: la falta de presencia institucional pesa.
+    expect(evaluation.questions).toEqual([]);
+    expect(evaluation.decision).toBe('Aceptada');
+    expect(evaluation.score).toBe(84);
+  });
+
+  it('una corredora sin sitio ni correo propio sí sigue pidiendo información', async () => {
+    const corredora: NormalizedKybApplication = {
+      ...empresa,
+      registrationKind: 'corredora',
+      website: null,
+      domain: null,
+      email: 'contacto@gmail.com',
+    };
+
+    const evaluation = await evaluateKyb(corredora, {}, {
+      tax: taxAdapter(),
+      reputation: reputationAdapter(),
+    });
+
+    expect(evaluation.questions.map((question) => question.id)).toEqual(
+      expect.arrayContaining(['domain_web', 'email_corporate', 'email_domain_match'])
+    );
     expect(evaluation.decision).toBe('Pendiente_Informacion');
   });
 
