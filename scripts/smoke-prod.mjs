@@ -14,8 +14,8 @@
  *
  *   npm run smoke:prod                                  # solo mirar (no escribe nada)
  *   npm run smoke:prod -- --url http://localhost:3111
- *   npm run smoke:prod -- --write --email tu@correo.cl  # además da un alta de prueba
- *   npm run smoke:prod -- --bridge --email tu@correo.cl # solo registro → alta (y lo borra)
+ *   npm run smoke:prod -- --write --email tu@correo.cl  # alta completa de un socio
+ *   npm run smoke:prod -- --bridge --email tu@correo.cl # solo registro → Calificado
  *
  * Por qué la escritura es una decisión aparte: el alta manda el correo de
  * bienvenida y escribe una fila en `public.signups`, que es **solo-anexa** (no
@@ -31,15 +31,33 @@
  * Sin `--write` el informe dice honestamente que la persistencia **no se
  * verificó**: no se puede saber sin intentarlo.
  *
- * El puente registro → alta tiene su propia opción (`--bridge`, y `--write` la
- * incluye). También escribe —el autómata manda el correo del resultado— pero
- * **borra lo que escribió** al terminar: comprueba que un registro de socio
- * aprobado nace como alta en `Calificado`, y deja la base como estaba. Eso es lo
- * que lo hace apto para correr después de cada release.
+ * El puente registro → Calificado tiene su propia opción (`--bridge`). También
+ * escribe —el autómata manda el correo del resultado— pero **borra lo que
+ * escribió** al terminar: comprueba que un registro de socio aprobado nace como
+ * alta en `Calificado`, y deja la base como estaba. Eso es lo que lo hace apto
+ * para correr después de cada release.
+ *
+ * `--write` va más allá y recorre el **alta completa**, que es el camino que de
+ * verdad recorre un socio nuevo: registro → Calificado → propuesta comercial
+ * (enviada desde el endpoint real de admin) → el candidato la acepta → elige
+ * plan y se le habilita el panel → se registra el pago y el alta queda en
+ * `Operando` → el enlace del correo abre `/socio` **con sesión** → se borra todo
+ * lo que se creó. Cada paso usa el endpoint de producción, no una copia: lo que
+ * se comprueba es el camino que va a recorrer un cliente.
+ *
+ * El único punto donde el smoke no es de caja negra es el token de trámite. El
+ * valor en claro solo existe en el correo —la base guarda su SHA-256 a
+ * propósito— y el smoke no tiene bandeja. Después de que el servidor emite el
+ * token de verdad (y manda su correo), el smoke escribe el hash de un token que
+ * él conoce para poder seguir: lo que viene después —validación del token,
+ * transición de estado, alta de la ficha y la cuenta, correo, pago, enlace de
+ * acceso— corre entero contra producción. El enlace de acceso que se prueba es
+ * uno real, emitido por el mismo `generateLink` que usa el alta.
  *
  * El núcleo recibe `fetch` inyectado, así que se prueba sin red
  * (`scripts/smoke-prod.test.ts`).
  */
+import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -65,6 +83,15 @@ export const SMOKE_PHONE = '+56 9 0000 0000';
 export const SMOKE_REGISTRO_NAME = 'Prueba de humo · puente registro→alta (no es una persona)';
 
 /**
+ * Identidad del alta completa.
+ *
+ * El nombre propio (y no el del puente) es lo que distingue en el panel una
+ * corrida de la otra si alguna limpieza falla: `partners` y `kyb_applications`
+ * llevan este nombre, y buscarlo a mano es inmediato.
+ */
+export const SMOKE_ALTA_NAME = 'Prueba de humo · alta completa (no es una persona)';
+
+/**
  * Los tres pasos del puente, con nombre estable.
  *
  * El release los usa para afirmar en su informe si el puente se comprobó de
@@ -88,6 +115,26 @@ export const SIGNUP_STEP_LABELS = {
   correo: 'Correo de bienvenida',
   cleanup: 'Limpieza del alta de prueba',
 };
+
+/**
+ * Los pasos del alta completa (`--write`), con nombre estable.
+ *
+ * Igual que los del puente: los tests y el informe buscan estas etiquetas, y
+ * renombrarlas en un solo lado dejaría un verde sin comprobación detrás.
+ */
+export const ALTA_STEP_LABELS = {
+  registro: 'Alta · POST /api/solicitudes (registro del socio)',
+  calificado: 'Alta · Calificado vinculado al registro',
+  propuesta: 'Alta · POST /api/kyb/:id/proposal (propuesta comercial)',
+  aceptacion: 'Alta · POST /api/kyb/proposal (el candidato acepta)',
+  plan: 'Alta · POST /api/kyb/activate (plan y panel)',
+  pago: 'Alta · POST /api/admin/cobranza (pago → Operando)',
+  acceso: 'Alta · enlace del correo abre /socio con sesión',
+  cleanup: 'Limpieza del alta completa',
+};
+
+/** El orden del informe: cada paso se busca por esta lista. */
+const ALTA_ORDER = Object.values(ALTA_STEP_LABELS);
 
 /**
  * Cuánto se espera a que la fila recién escrita se pueda leer.
@@ -142,6 +189,7 @@ const ERROR_PAGE = /Application error|Internal Server Error|a server-side except
  * @property {SmokeStep[]} steps
  * @property {boolean | null} persisted   null = no se intentó (sin --write)
  * @property {boolean} [bridge]           ¿se recorrió registro → alta?
+ * @property {boolean} [alta]             ¿se recorrió el alta completa?
  */
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -214,23 +262,37 @@ export function smokeTestRut(random = Math.random) {
  * permite revisar el correo del camino real.
  */
 export function bridgeEmailFor(email, stamp = Date.now()) {
+  return aliasFor(email, `puente${stamp}`);
+}
+
+/** Correo del alta completa: otro alias del mismo buzón, para no chocar con el puente. */
+export function altaEmailFor(email, stamp = Date.now()) {
+  return aliasFor(email, `alta${stamp}`);
+}
+
+function aliasFor(email, tag) {
   const value = String(email ?? '');
   const at = value.lastIndexOf('@');
   if (at <= 0) return value;
-  return `${value.slice(0, at)}+puente${stamp}@${value.slice(at + 1)}`;
+  return `${value.slice(0, at)}+${tag}@${value.slice(at + 1)}`;
 }
 
 /** El registro de prueba: un profesional independiente que se aprueba solo. */
-export function smokeRegistroPayload({ email, rut, now = Date.now() }) {
+export function smokeRegistroPayload({
+  email,
+  rut,
+  now = Date.now(),
+  name = SMOKE_REGISTRO_NAME,
+}) {
   return {
     kind: 'agente',
-    name: SMOKE_REGISTRO_NAME,
+    name,
     email,
     phone: SMOKE_PHONE,
     rut,
     coverage: 'nacional',
     consent: true,
-    message: `Registro de prueba del puente registro→alta (${new Date(now).toISOString()}). El smoke lo borra al terminar.`,
+    message: `Registro de prueba de la prueba de humo (${new Date(now).toISOString()}). El smoke lo borra al terminar.`,
   };
 }
 
@@ -483,6 +545,198 @@ export function judgeSignup(status, body) {
   return { level: 'ok', detail: 'el alta quedó guardada en Supabase' };
 }
 
+/** Primer dato del cuerpo que no se pudo leer como el JSON esperado. */
+function bodyError(body, fallback = 'la respuesta no se pudo leer') {
+  const error = body?.error;
+  return typeof error === 'string' && error.trim() ? error : fallback;
+}
+
+/**
+ * Cómo leer el envío de la propuesta comercial.
+ *
+ * Lo que tiene que quedar es el estado `Propuesta_Comercial`, no un 200: si el
+ * endpoint respondiera «listo» sin mover el estado, el candidato recibiría un
+ * enlace que no abre nada. El correo se informa aparte —un `skipped` no
+ * invalida el paso, pero tiene que verse—.
+ */
+export function judgeProposalSent(status, body) {
+  if (status === 401 || status === 403) {
+    return { level: 'fail', detail: `HTTP ${status}: el endpoint de admin no aceptó la sesión` };
+  }
+  if (status === 409) {
+    return { level: 'fail', detail: `HTTP 409: ${bodyError(body)}` };
+  }
+  if (status !== 200 || body?.success !== true) {
+    return { level: 'fail', detail: `HTTP ${status}: ${bodyError(body)}` };
+  }
+
+  const proposal = body?.data?.proposal;
+  if (!proposal || typeof proposal.monthlyClp !== 'number') {
+    return { level: 'fail', detail: 'respondió 200 pero no devolvió la propuesta guardada' };
+  }
+  if (body?.data?.status !== 'Propuesta_Comercial') {
+    return {
+      level: 'fail',
+      detail: `la solicitud quedó en «${body?.data?.status ?? 'sin estado'}» y no en Propuesta_Comercial`,
+    };
+  }
+
+  return {
+    level: 'ok',
+    detail: `Propuesta_Comercial · ${proposal.planId} · alta $${proposal.altaClp} · mes $${proposal.monthlyClp}`,
+  };
+}
+
+/** Cómo leer la aceptación del candidato: tiene que dejar la solicitud en `Alta`. */
+export function judgeProposalAccepted(status, body) {
+  if (status !== 200 || body?.success !== true) {
+    return { level: 'fail', detail: `HTTP ${status}: ${bodyError(body)}` };
+  }
+  if (body?.data?.status !== 'Alta') {
+    return {
+      level: 'fail',
+      detail: `la solicitud quedó en «${body?.data?.status ?? 'sin estado'}» y no en Alta`,
+    };
+  }
+  return { level: 'ok', detail: 'propuesta aceptada · la solicitud pasó a Alta' };
+}
+
+/**
+ * Cómo leer la elección de plan.
+ *
+ * Se exige `panel.enabled`, no solo el 200: es lo que separa «quedó guardado el
+ * plan» de «la cuenta y la ficha existen y `/socio` va a abrir». El alta queda
+ * en `Alta`, todavía sin pagar; `Operando` lo mueve el pago.
+ */
+export function judgeActivation(status, body) {
+  if (status === 502) {
+    return { level: 'fail', detail: `HTTP 502: no se pudo habilitar el panel — ${bodyError(body)}` };
+  }
+  if (status !== 200 || body?.success !== true) {
+    return { level: 'fail', detail: `HTTP ${status}: ${bodyError(body)}` };
+  }
+  if (body?.data?.panel?.enabled !== true) {
+    return { level: 'fail', detail: 'respondió 200 pero el panel no quedó habilitado' };
+  }
+  if (body?.data?.status !== 'Alta') {
+    return {
+      level: 'fail',
+      detail: `la solicitud quedó en «${body?.data?.status ?? 'sin estado'}» y no en Alta`,
+    };
+  }
+
+  const partnerId = body?.data?.panel?.partnerId;
+  return {
+    level: 'ok',
+    detail: `plan ${body?.data?.plan ?? '?'} · panel habilitado${partnerId ? ` · ficha ${partnerId}` : ''}`,
+  };
+}
+
+/** Cómo leer el registro del pago. */
+export function judgePayment(status, body) {
+  if (status !== 200 || body?.success !== true) {
+    return { level: 'fail', detail: `HTTP ${status}: ${bodyError(body)}` };
+  }
+  return { level: 'ok', detail: 'pago del período registrado' };
+}
+
+/**
+ * Cómo leer el alta ya pagada: `Operando`, con panel y ficha.
+ *
+ * Es el cierre del pipeline. Un alta `Alta` con el pago registrado significa que
+ * la promoción falló en silencio, y el socio aparecería como cliente sin estar
+ * operando.
+ */
+export function judgeOperando(alta) {
+  if (!alta) return { level: 'fail', detail: 'el alta ya no se pudo leer de la base' };
+  if (alta.status !== 'Operando') {
+    return { level: 'fail', detail: `el alta quedó en «${alta.status}» y no en Operando` };
+  }
+  if (alta.panel_enabled !== true) {
+    return { level: 'fail', detail: 'quedó en Operando pero el panel no está habilitado' };
+  }
+  if (!alta.partner_id) {
+    return { level: 'fail', detail: 'quedó en Operando sin quedar vinculada a una ficha de socio' };
+  }
+  return { level: 'ok', detail: 'el alta quedó en Operando, con panel y ficha de socio' };
+}
+
+/**
+ * Cómo leer la redirección de `/auth/confirm`.
+ *
+ * Un 307 al panel **sin** `error` es el enlace funcionando: el `token_hash` se
+ * canjeó en el servidor y la sesión quedó en las cookies. Un redirect con error
+ * es un enlace que no sirve, y un 200 significa que la ruta no redirigió: en los
+ * dos casos el botón del correo dejaría a la persona afuera.
+ */
+export function judgeAccessLink(status, location) {
+  if (status !== 307 && status !== 308) {
+    return { level: 'fail', detail: `HTTP ${status}: el enlace no redirigió al panel` };
+  }
+
+  let target = null;
+  try {
+    target = new URL(String(location ?? ''));
+  } catch {
+    return { level: 'fail', detail: 'redirigió a una URL que no se puede leer' };
+  }
+
+  if (target.pathname !== '/socio') {
+    return { level: 'fail', detail: `redirigió a ${target.pathname} y no a /socio` };
+  }
+  if (target.searchParams.get('error')) {
+    return {
+      level: 'fail',
+      detail: `el enlace no se canjeó: ${target.searchParams.get('error_description') ?? target.searchParams.get('error')}`,
+    };
+  }
+  if (target.hash) {
+    return { level: 'fail', detail: 'redirigió con los tokens en el fragmento: la sesión no queda en cookies' };
+  }
+
+  return { level: 'ok', detail: '307 a /socio, sin tokens en la URL' };
+}
+
+/**
+ * Cómo leer el panel con la sesión que dejó el enlace.
+ *
+ * Se pregunta por la API del panel y no por el HTML: `/socio` responde 200 con
+ * o sin sesión —sin sesión muestra la pantalla de acceso—, así que el HTML no
+ * distingue «entró» de «no entró». `requireMember` sí: 200 con la ficha del
+ * socio quiere decir que la cookie vale y que la cuenta está vinculada.
+ *
+ * @param {number} status
+ * @param {any} body
+ * @param {string | null} [partnerId]  la ficha que creó el alta
+ */
+export function judgePanelSession(status, body, partnerId = null) {
+  if (status === 401) {
+    return { level: 'fail', detail: 'el enlace no dejó sesión: la API del panel respondió 401' };
+  }
+  if (status !== 200 || body?.success !== true) {
+    return { level: 'fail', detail: `HTTP ${status}: ${bodyError(body)}` };
+  }
+
+  const linked = body?.data?.partnerId;
+  if (!linked) return { level: 'fail', detail: 'la sesión abrió pero sin ficha de socio vinculada' };
+  if (partnerId && linked !== partnerId) {
+    return { level: 'fail', detail: `la sesión quedó vinculada a ${linked} y no a ${partnerId}` };
+  }
+
+  return { level: 'ok', detail: `sesión abierta y vinculada a la ficha ${linked}` };
+}
+
+/**
+ * Período de facturación de la corrida, en UTC.
+ *
+ * Es el mismo criterio de `currentPeriod` en `lib/data/cobranza.ts`: el período
+ * es el mes, y el pago de prueba se registra sobre el mes en curso.
+ */
+export function smokeBillingPeriod(now = Date.now()) {
+  const date = new Date(now);
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
+}
+
 /**
  * Texto del informe, listo para imprimir.
  *
@@ -522,6 +776,20 @@ export function formatReport(report) {
 
   if (report.bridge) {
     lines.push('  · El registro de prueba del puente se borró con su alta: no queda nada en el pipeline.');
+  }
+
+  if (report.alta) {
+    // La limpieza se informa aparte: «completa» es el camino del socio, y el
+    // borrado tiene su propia línea.
+    const caminos = ALTA_ORDER.slice(0, -1);
+    const completo = caminos.every(
+      (label) => report.steps.find((step) => step.label === label)?.level === 'ok'
+    );
+    lines.push(
+      completo
+        ? '  ✓ El alta de prueba se recorrió completa (registro → propuesta → plan → pago → Operando) y el enlace del correo abrió el panel con sesión.'
+        : '  · El alta completa no llegó al final: el paso en rojo de arriba dice dónde se cortó.'
+    );
   }
 
   lines.push('');
@@ -582,6 +850,63 @@ export function createSmokeStore({ url, key, fetchImpl = fetch }) {
     return { ok: response.ok, status: response.status, body };
   }
 
+  /** Escritura con la fila tocada de vuelta, para poder afirmar cuántas fueron. */
+  async function write(pathAndQuery, method, body) {
+    const response = await fetchImpl(`${base}/rest/v1/${pathAndQuery}`, {
+      method,
+      headers: { ...headers, Prefer: 'return=representation' },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    });
+    const text = await response.text().catch(() => '');
+    let parsed = null;
+    try {
+      parsed = text ? JSON.parse(text) : null;
+    } catch {
+      parsed = null;
+    }
+    return { ok: response.ok, status: response.status, body: parsed };
+  }
+
+  /**
+   * GoTrue con la clave de servicio: emitir sesiones y borrar cuentas.
+   *
+   * Va aparte del REST porque es otro servicio (`/auth/v1`). No se manda
+   * `Authorization`: la API de auth se autentica con `apikey`, que es como
+   * funciona la sesión de admin que ya usa el repositorio para estas pruebas.
+   */
+  async function auth(pathAndQuery, init = {}) {
+    const response = await fetchImpl(`${base}/auth/v1/${pathAndQuery}`, {
+      ...init,
+      headers: { apikey: key, 'Content-Type': 'application/json', ...(init.headers ?? {}) },
+    });
+    const text = await response.text().catch(() => '');
+    let parsed = null;
+    try {
+      parsed = text ? JSON.parse(text) : null;
+    } catch {
+      parsed = null;
+    }
+    return { ok: response.ok, status: response.status, body: parsed };
+  }
+
+  /**
+   * La cookie que espera `@supabase/ssr`: la sesión en base64, troceada.
+   *
+   * El cliente parte la cookie en trozos de 3.180 caracteres (`name`, `name.1`,
+   * …) porque una cabecera no puede pasar de 4 kB; replicar el formato es lo que
+   * permite que el servidor la reconozca como una sesión de verdad.
+   */
+  function sessionCookie(session) {
+    const ref = base.replace(/^https:\/\/([^.]+)\..*$/, '$1');
+    const name = `sb-${ref}-auth-token`;
+    const value = `base64-${Buffer.from(JSON.stringify(session)).toString('base64url')}`;
+    const chunks = [];
+    for (let i = 0; i * 3180 < value.length; i += 1) {
+      chunks.push([i === 0 ? name : `${name}.${i}`, value.slice(i * 3180, (i + 1) * 3180)]);
+    }
+    return chunks.map(([cookieName, chunk]) => `${cookieName}=${chunk}`).join('; ');
+  }
+
   return {
     /** El registro y su alta, tal como quedaron guardados. */
     async read(solicitudId) {
@@ -627,6 +952,164 @@ export function createSmokeStore({ url, key, fetchImpl = fetch }) {
         status: removed.status,
         rows: Array.isArray(removed.body) ? removed.body.length : 0,
       };
+    },
+
+    /**
+     * La ficha del alta por id, con lo que hace falta para juzgar el cierre.
+     *
+     * Se vuelve a leer después de cada paso en vez de confiar en la respuesta:
+     * la pregunta que importa es qué quedó **guardado**, no qué se contestó.
+     */
+    async readAlta(altaId) {
+      const id = encodeURIComponent(altaId);
+      const alta = await rest(
+        `kyb_applications?id=eq.${id}&select=id,status,panel_enabled,plan,partner_id,proposal`
+      );
+      return alta.body?.[0] ?? null;
+    },
+
+    /**
+     * Escribe el hash de un token que el smoke conoce.
+     *
+     * El token en claro de un trámite solo existe en el correo —la base guarda
+     * su SHA-256 a propósito— y el smoke no tiene bandeja. Después de que el
+     * servidor emitió el suyo de verdad, acá se deja uno equivalente para poder
+     * recorrer el resto del camino: la validación, el propósito, el vencimiento
+     * y las transiciones que vienen después corren enteros contra producción.
+     *
+     * El token se genera con la misma forma y el mismo hash que
+     * `lib/kyb/tokens.ts`; no se reutiliza ni se adivina ninguno real.
+     */
+    async setToken(altaId, purpose) {
+      const token = randomBytes(32).toString('base64url');
+      const patched = await write(
+        `kyb_applications?id=eq.${encodeURIComponent(altaId)}`,
+        'PATCH',
+        {
+          token_hash: createHash('sha256').update(token, 'utf8').digest('hex'),
+          token_purpose: purpose,
+          token_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        }
+      );
+
+      if (!patched.ok) {
+        return { ok: false, error: `no se pudo escribir el token: HTTP ${patched.status}` };
+      }
+      return { ok: true, token };
+    },
+
+    /**
+     * Una sesión de admin para llamar a los endpoints del panel.
+     *
+     * La propuesta comercial y la cobranza están detrás de `requireAdmin`, y el
+     * smoke no tiene la contraseña de nadie. La sesión se firma con la clave de
+     * servicio, que es la que administra las cuentas: se busca la cuenta con rol
+     * admin y se le emite un enlace de un solo uso, igual que hace el panel de
+     * administración. La cookie es la que espera `@supabase/ssr`.
+     */
+    async adminSession() {
+      const users = await auth('admin/users?page=1&per_page=1000');
+      if (!users.ok) {
+        return { ok: false, error: `no se pudieron listar las cuentas: HTTP ${users.status}` };
+      }
+
+      const list = Array.isArray(users.body?.users) ? users.body.users : [];
+      const admin = list.find((user) =>
+        ['admin', 'administrator'].includes(
+          String(user?.app_metadata?.role ?? '').trim().toLowerCase()
+        )
+      );
+      if (!admin?.email) {
+        return { ok: false, error: 'no hay ninguna cuenta con rol admin para firmar la propuesta' };
+      }
+
+      const generated = await auth('admin/generate_link', {
+        method: 'POST',
+        body: JSON.stringify({ type: 'magiclink', email: admin.email }),
+      });
+      const hashed = generated.body?.hashed_token ?? generated.body?.properties?.hashed_token;
+      if (!generated.ok || !hashed) {
+        return { ok: false, error: `no se pudo emitir la sesión de admin: HTTP ${generated.status}` };
+      }
+
+      const verified = await auth('verify', {
+        method: 'POST',
+        body: JSON.stringify({ type: 'magiclink', token_hash: hashed }),
+      });
+      if (!verified.ok || !verified.body?.access_token) {
+        return { ok: false, error: `no se pudo canjear la sesión de admin: HTTP ${verified.status}` };
+      }
+
+      return { ok: true, cookie: sessionCookie(verified.body), email: admin.email };
+    },
+
+    /**
+     * El enlace de acceso del alta, emitido por el mismo `generateLink` que usa
+     * `provisioning`: es el `token_hash` que viaja en el correo del alta.
+     */
+    async mintMagicLink(email) {
+      const generated = await auth('admin/generate_link', {
+        method: 'POST',
+        body: JSON.stringify({ type: 'magiclink', email }),
+      });
+      const hashed = generated.body?.hashed_token ?? generated.body?.properties?.hashed_token;
+      if (!generated.ok || !hashed) {
+        return { ok: false, error: `no se pudo emitir el enlace: HTTP ${generated.status}` };
+      }
+      return { ok: true, tokenHash: hashed };
+    },
+
+    /** La cuenta del socio por correo, para poder borrarla al final. */
+    async deleteAccount(email) {
+      const users = await auth('admin/users?page=1&per_page=1000');
+      if (!users.ok) {
+        return { ok: false, error: `no se pudieron listar las cuentas: HTTP ${users.status}` };
+      }
+
+      const list = Array.isArray(users.body?.users) ? users.body.users : [];
+      const match = list.find(
+        (user) => String(user?.email ?? '').toLowerCase() === String(email).toLowerCase()
+      );
+      if (!match) return { ok: true, deleted: 0, found: false };
+
+      const removed = await auth(`admin/users/${encodeURIComponent(match.id)}`, { method: 'DELETE' });
+      return { ok: removed.ok, deleted: removed.ok ? 1 : 0, found: true, status: removed.status };
+    },
+
+    /**
+     * Borra todo lo que dejó el alta: cobranza, alta, registro y ficha.
+     *
+     * El orden importa: el alta referencia al registro y la cobranza a la ficha,
+     * así que se borra de la punta hacia atrás. La cuenta se borra aparte, con
+     * `deleteAccount`, porque vive en otro servicio.
+     */
+    async cleanupAlta({ altaId, solicitudId, partnerId }) {
+      const counts = { billing: 0, alta: 0, solicitud: 0, partner: 0 };
+      const errors = [];
+
+      const remove = async (table, query, key) => {
+        const removed = await write(`${table}?${query}`, 'DELETE');
+        if (!removed.ok) {
+          errors.push(`${table} HTTP ${removed.status}`);
+          return;
+        }
+        counts[key] = Array.isArray(removed.body) ? removed.body.length : 0;
+      };
+
+      if (partnerId) {
+        await remove('partner_billing', `partner_id=eq.${encodeURIComponent(partnerId)}`, 'billing');
+      }
+      if (altaId) {
+        await remove('kyb_applications', `id=eq.${encodeURIComponent(altaId)}`, 'alta');
+      }
+      if (solicitudId) {
+        await remove('solicitudes', `id=eq.${encodeURIComponent(solicitudId)}`, 'solicitud');
+      }
+      if (partnerId) {
+        await remove('partners', `id=eq.${encodeURIComponent(partnerId)}`, 'partner');
+      }
+
+      return { ok: errors.length === 0, ...counts, errors };
     },
 
     /** Borra el alta y el registro de prueba; devuelve cuántas filas se fueron. */
@@ -864,19 +1347,425 @@ export async function runBridgeCheck({
 }
 
 /**
+ * El alta completa: el camino que recorre un socio nuevo, punta a punta.
+ *
+ * Registro público → `Calificado` → propuesta comercial enviada desde el panel
+ * → el candidato la acepta → elige plan y se habilita su panel → se registra el
+ * pago y el alta queda en `Operando` → el enlace del correo abre `/socio` con
+ * sesión. Todo contra el despliegue que se esté probando, con los endpoints y
+ * las transiciones reales: si un paso se rompe en producción, el smoke lo dice
+ * en ese paso y no en un «el alta anda» genérico.
+ *
+ * Dos cosas se hacen con la clave de servicio y conviene decirlas:
+ *
+ * - **La sesión de admin**, sin la que la propuesta y el pago no se pueden
+ *   enviar (el smoke no tiene contraseñas). Se firma con la cuenta que ya tiene
+ *   rol admin, igual que lo hace el panel de administración.
+ * - **Los tokens de trámite**, después de que el servidor emitió los suyos y
+ *   mandó los correos. El valor en claro solo existe en el correo y la base
+ *   guarda su hash a propósito; el smoke no tiene bandeja, así que escribe el
+ *   hash de uno propio para poder seguir. Lo que viene después corre entero
+ *   contra producción.
+ *
+ * Y borra **todo** lo que creó: cobranza, alta, registro, ficha y cuenta. Un
+ * pipeline con el alta de prueba de cada release no es una prueba, es basura
+ * que alguien va a tener que limpiar a mano.
+ *
+ * @param {{ baseUrl?: string, email?: string | null, store?: { read: Function, readAlta: Function, setToken: Function, adminSession: Function, mintMagicLink: Function, cleanupAlta: Function, deleteAccount: Function } | null, fetchImpl?: typeof fetch, sleep?: (ms: number) => Promise<unknown>, now?: number }} options
+ * @returns {Promise<SmokeStep[]>}
+ */
+export async function runAltaCheck({
+  baseUrl = DEFAULT_BASE_URL,
+  email = null,
+  store = null,
+  fetchImpl = fetch,
+  sleep = wait,
+  now = Date.now(),
+} = {}) {
+  const base = normalizeBaseUrl(baseUrl);
+  const L = ALTA_STEP_LABELS;
+  const steps = [];
+
+  const done = (label, verdict) => steps.push({ label, ...verdict });
+  // La limpieza no se anota acá: la escribe el `finally`, que es el único que
+  // sabe qué llegó a crearse. Anotarla dos veces dejaría el paso repetido y el
+  // primero —«no se intentó»— taparía el borrado real en el informe.
+  const notTried = (labels) => {
+    for (const label of labels) {
+      if (label !== L.cleanup) done(label, { level: 'info', detail: 'no se intentó' });
+    }
+  };
+
+  const postJson = async (path, body, extraHeaders = {}) => {
+    const sent = await probe(fetchImpl, `${base}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...extraHeaders },
+      body: JSON.stringify(body),
+    });
+    if (!sent.ok) return { ok: false, error: sent.error };
+    return {
+      ok: true,
+      status: sent.response.status,
+      body: await sent.response.json().catch(() => null),
+    };
+  };
+
+  const getJson = async (path, extraHeaders = {}) => {
+    const got = await probe(fetchImpl, `${base}${path}`, { headers: extraHeaders });
+    if (!got.ok) return { ok: false, error: got.error };
+    return {
+      ok: true,
+      status: got.response.status,
+      body: await got.response.json().catch(() => null),
+    };
+  };
+
+  /** Lo que se creó, para poder borrarlo aunque un paso del medio falle. */
+  const created = { solicitudId: null, altaId: null, partnerId: null, account: null };
+  const destino = email ? altaEmailFor(email, now) : null;
+
+  if (!email) {
+    done(L.registro, {
+      level: 'fail',
+      detail: 'falta --email: el alta manda correos al solicitante en cada etapa',
+    });
+    notTried(ALTA_ORDER.slice(1));
+    done(L.cleanup, { level: 'info', detail: 'no se creó nada' });
+    return steps;
+  }
+
+  if (!store) {
+    done(L.registro, {
+      level: 'fail',
+      detail:
+        'falta SUPABASE_SERVICE_ROLE_KEY (o NEXT_PUBLIC_SUPABASE_URL): sin la base no se puede comprobar ni borrar el alta',
+    });
+    notTried(ALTA_ORDER.slice(1));
+    done(L.cleanup, { level: 'info', detail: 'no se creó nada' });
+    return steps;
+  }
+
+  try {
+    // 1. El registro público, el mismo del formulario.
+    const registro = await postJson('/api/solicitudes', {
+      ...smokeRegistroPayload({ email: destino, rut: smokeTestRut(), now, name: SMOKE_ALTA_NAME }),
+    });
+
+    if (!registro.ok) {
+      done(L.registro, { level: 'fail', detail: `no respondió: ${registro.error}` });
+      notTried(ALTA_ORDER.slice(1));
+      return steps;
+    }
+
+    const registration = judgeBridgeRegistro(registro.status, registro.body);
+    created.solicitudId = typeof registro.body?.id === 'string' ? registro.body.id : null;
+    done(L.registro, {
+      level: registration.level,
+      detail:
+        registration.level === 'ok'
+          ? `${registration.detail} · correo a ${destino}`
+          : registration.detail,
+    });
+
+    if (registration.level !== 'ok' || !created.solicitudId) {
+      notTried(ALTA_ORDER.slice(1));
+      return steps;
+    }
+
+    // 2. El alta que nació del registro, con sus dos vínculos.
+    const saved = await store
+      .read(created.solicitudId)
+      .catch((error) => ({ error: errorDetail(error) }));
+    if (saved.error) {
+      done(L.calificado, { level: 'fail', detail: `no se pudo leer lo guardado: ${saved.error}` });
+      notTried(ALTA_ORDER.slice(2));
+      return steps;
+    }
+
+    done(L.calificado, judgeBridgeAlta(saved, created.solicitudId));
+    created.altaId = saved?.alta?.id ?? null;
+    if (!created.altaId) {
+      notTried(ALTA_ORDER.slice(2));
+      return steps;
+    }
+
+    // 3. La sesión de admin y la propuesta comercial, por el endpoint real.
+    const admin = await store.adminSession();
+    if (!admin?.ok) {
+      done(L.propuesta, { level: 'fail', detail: admin?.error ?? 'no se pudo firmar la sesión de admin' });
+      notTried(ALTA_ORDER.slice(3));
+      return steps;
+    }
+
+    const proposal = await postJson(
+      `/api/kyb/${encodeURIComponent(created.altaId)}/proposal`,
+      { plan: 'profesional', note: 'Propuesta de la prueba de humo: se borra al terminar.' },
+      { Cookie: admin.cookie }
+    );
+
+    if (!proposal.ok) {
+      done(L.propuesta, { level: 'fail', detail: `no respondió: ${proposal.error}` });
+      notTried(ALTA_ORDER.slice(3));
+      return steps;
+    }
+
+    const sent = judgeProposalSent(proposal.status, proposal.body);
+    done(
+      L.propuesta,
+      sent.level === 'ok' && proposal.body?.email?.skipped === true
+        ? { level: 'warn', detail: `${sent.detail} · correo saltado (falta RESEND_API_KEY)` }
+        : sent
+    );
+    if (sent.level !== 'ok') {
+      notTried(ALTA_ORDER.slice(3));
+      return steps;
+    }
+
+    // 4. El candidato acepta. El token lo emitió el servidor y viajó en el
+    //    correo; el smoke deja uno equivalente para poder seguir.
+    const proposalToken = await store.setToken(created.altaId, 'proposal');
+    if (!proposalToken.ok) {
+      done(L.aceptacion, { level: 'fail', detail: proposalToken.error });
+      notTried(ALTA_ORDER.slice(4));
+      return steps;
+    }
+
+    const accepted = await postJson('/api/kyb/proposal', {
+      token: proposalToken.token,
+      decision: 'aceptada',
+      ccaAccepted: true,
+      ccaUf: 0,
+      captacion: false,
+    });
+
+    if (!accepted.ok) {
+      done(L.aceptacion, { level: 'fail', detail: `no respondió: ${accepted.error}` });
+      notTried(ALTA_ORDER.slice(4));
+      return steps;
+    }
+
+    const aceptacion = judgeProposalAccepted(accepted.status, accepted.body);
+    done(L.aceptacion, aceptacion);
+    if (aceptacion.level !== 'ok') {
+      notTried(ALTA_ORDER.slice(4));
+      return steps;
+    }
+
+    // 5. Elige plan: crea la ficha y la cuenta, y habilita el panel.
+    const activationToken = await store.setToken(created.altaId, 'activation');
+    if (!activationToken.ok) {
+      done(L.plan, { level: 'fail', detail: activationToken.error });
+      notTried(ALTA_ORDER.slice(5));
+      return steps;
+    }
+
+    const activated = await postJson('/api/kyb/activate', {
+      token: activationToken.token,
+      plan: 'profesional',
+    });
+
+    if (!activated.ok) {
+      done(L.plan, { level: 'fail', detail: `no respondió: ${activated.error}` });
+      notTried(ALTA_ORDER.slice(5));
+      return steps;
+    }
+
+    created.partnerId = activated.body?.data?.panel?.partnerId ?? null;
+    created.account = activated.body?.data?.panel?.account ?? null;
+    const activation = judgeActivation(activated.status, activated.body);
+    done(
+      L.plan,
+      activation.level === 'ok' && !created.partnerId
+        ? { level: 'fail', detail: 'el panel quedó habilitado pero sin ficha de socio' }
+        : activation
+    );
+    if (activation.level !== 'ok' || !created.partnerId) {
+      notTried(ALTA_ORDER.slice(5));
+      return steps;
+    }
+
+    // 6. El pago del período: cierra el alta en `Operando`.
+    const alta = await store.readAlta(created.altaId).catch(() => null);
+    const monthly = lastProposalMonthly(alta?.proposal) ?? 14990;
+
+    const paid = await postJson(
+      '/api/admin/cobranza',
+      {
+        action: 'pago',
+        partnerId: created.partnerId,
+        period: smokeBillingPeriod(now),
+        amountClp: monthly,
+        note: 'Pago de la prueba de humo: se borra al terminar.',
+      },
+      { Cookie: admin.cookie }
+    );
+
+    if (!paid.ok) {
+      done(L.pago, { level: 'fail', detail: `no respondió: ${paid.error}` });
+      notTried(ALTA_ORDER.slice(6));
+      return steps;
+    }
+
+    const payment = judgePayment(paid.status, paid.body);
+    if (payment.level !== 'ok') {
+      done(L.pago, payment);
+      notTried(ALTA_ORDER.slice(6));
+      return steps;
+    }
+
+    // La promoción a `Operando` la hace el servidor en la misma petición, pero
+    // se lee de la base: lo que vale es lo que quedó guardado.
+    let operando = { level: 'fail', detail: 'el alta no se pudo leer después del pago' };
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      const row = await store.readAlta(created.altaId).catch(() => null);
+      operando = judgeOperando(row);
+      if (operando.level === 'ok') break;
+      if (attempt < 3) await sleep(SIGNUP_CLEANUP_DELAY_MS);
+    }
+    done(L.pago, operando);
+    if (operando.level !== 'ok') {
+      notTried(ALTA_ORDER.slice(6));
+      return steps;
+    }
+
+    // 7. El enlace del correo del alta: canjea la sesión y abre el panel.
+    const link = await store.mintMagicLink(destino);
+    if (!link.ok) {
+      done(L.acceso, { level: 'fail', detail: link.error });
+      return steps;
+    }
+
+    const confirmUrl =
+      `${base}/auth/confirm?token_hash=${encodeURIComponent(link.tokenHash)}` +
+      `&type=magiclink&next=${encodeURIComponent('/socio')}`;
+    const confirm = await probe(fetchImpl, confirmUrl);
+
+    if (!confirm.ok) {
+      done(L.acceso, { level: 'fail', detail: `no respondió: ${confirm.error}` });
+      return steps;
+    }
+
+    const linkVerdict = judgeAccessLink(
+      confirm.response.status,
+      confirm.response.headers.get('location')
+    );
+    if (linkVerdict.level !== 'ok') {
+      done(L.acceso, linkVerdict);
+      return steps;
+    }
+
+    const session = (confirm.response.headers.getSetCookie?.() ?? [])
+      .map((cookie) => cookie.split(';')[0])
+      .filter(Boolean)
+      .join('; ');
+
+    if (!session) {
+      done(L.acceso, {
+        level: 'fail',
+        detail: 'la redirección no dejó cookies: el enlace abriría el panel sin sesión',
+      });
+      return steps;
+    }
+
+    const panel = await getJson('/api/partner/access', { Cookie: session });
+    if (!panel.ok) {
+      done(L.acceso, { level: 'fail', detail: `no respondió: ${panel.error}` });
+      return steps;
+    }
+
+    done(L.acceso, judgePanelSession(panel.status, panel.body, created.partnerId));
+  } finally {
+    steps.push(await cleanupAlta({ store, created, email: destino }));
+  }
+
+  return steps;
+}
+
+/**
+ * Borra lo que dejó el alta y lo reporta con lo que se borró de verdad.
+ *
+ * Se exige la fila esperada de cada tabla: «la petición salió bien» no alcanza, porque
+ * un borrado filtrado por una columna mal nombrada responde 200 sin llevarse nada.
+ */
+async function cleanupAlta({ store, created, email }) {
+  const label = ALTA_STEP_LABELS.cleanup;
+  const { altaId, solicitudId, partnerId, account } = created;
+
+  if (!altaId && !solicitudId && !partnerId) {
+    return { level: 'info', label, detail: 'no se creó nada' };
+  }
+
+  const removed = await store
+    .cleanupAlta({ altaId, solicitudId, partnerId })
+    .catch((error) => ({ ok: false, errors: [errorDetail(error)] }));
+
+  // La cuenta se borra solo si la creó esta corrida: si el correo ya tenía
+  // cuenta, el alta la reutilizó y borrarla sería llevarse la de alguien.
+  const accountRemoved =
+    account === 'created'
+      ? await store
+          .deleteAccount(email)
+          .catch((error) => ({ ok: false, deleted: 0, error: errorDetail(error) }))
+      : { ok: true, deleted: 0, found: false };
+
+  const expectations = [
+    ['alta', altaId, removed.alta],
+    ['solicitud', solicitudId, removed.solicitud],
+    ['ficha', partnerId, removed.partner],
+  ].filter(([, id]) => Boolean(id));
+
+  const missing = expectations.filter(([, , count]) => count !== 1).map(([name]) => name);
+  const accountFailed = account === 'created' && accountRemoved.deleted !== 1;
+
+  if (!removed.ok || missing.length || accountFailed) {
+    const problems = [
+      ...(removed.errors ?? []),
+      ...missing.map((name) => `${name} sin borrar`),
+      ...(accountFailed ? ['cuenta sin borrar'] : []),
+    ];
+    return {
+      level: 'fail',
+      label,
+      detail: `quedó algo del alta de prueba (${problems.join(', ')}): sacalo a mano — ${SMOKE_ALTA_NAME}`,
+    };
+  }
+
+  const parts = expectations.map(([name]) => name);
+  return {
+    level: 'ok',
+    label,
+    detail: `se borraron ${parts.join(', ')}${account === 'created' ? ' y la cuenta' : ''}: la producción no queda con datos de prueba`,
+  };
+}
+
+/** El monto mensual de la última propuesta, para registrar un pago con sentido. */
+function lastProposalMonthly(proposal) {
+  if (!Array.isArray(proposal)) return null;
+  for (let i = proposal.length - 1; i >= 0; i -= 1) {
+    const value = proposal[i]?.monthlyClp;
+    if (typeof value === 'number' && Number.isFinite(value) && value > 0) return value;
+  }
+  return null;
+}
+
+/**
  * Corre todas las comprobaciones.
  *
- * `write` da de alta la visita de prueba (`/api/registro`) y **borra la fila que
- * escribe**; `bridge` recorre el camino registro de socio → alta en `Calificado`
- * y también limpia lo suyo. Las dos escrituras dejan la base como estaba, así
- * que el release puede pedir el puente sin acumular nada.
+ * `write` da de alta la visita de prueba (`/api/registro`) y borra la fila que
+ * escribe; `alta` recorre el **alta completa** de un socio y borra todo lo que
+ * crea; `bridge` recorre solo el camino registro de socio → alta en `Calificado`
+ * y también limpia lo suyo. La CLI enciende `alta` con `--write` y `bridge` con
+ * `--bridge`; separarlas permite probar cada escritura sin arrastrar las otras.
+ * Todas dejan la base como estaba, así que el release puede pedir el puente sin
+ * acumular nada.
  *
- * @param {{ baseUrl?: string, write?: boolean, email?: string | null, bridge?: boolean, store?: { read?: Function, cleanup?: Function, findSignup?: Function, deleteSignup?: Function } | null, fetchImpl?: typeof fetch, sleep?: (ms: number) => Promise<unknown>, now?: number }} options
+ * @param {{ baseUrl?: string, write?: boolean, alta?: boolean, email?: string | null, bridge?: boolean, store?: object | null, fetchImpl?: typeof fetch, sleep?: (ms: number) => Promise<unknown>, now?: number }} options
  * @returns {Promise<SmokeReport>}
  */
 export async function runSmoke({
   baseUrl = DEFAULT_BASE_URL,
   write = false,
+  alta = false,
   email = null,
   bridge = false,
   store = null,
@@ -1039,13 +1928,23 @@ export async function runSmoke({
     }
   }
 
+  // ── El alta completa: el camino que recorre un socio nuevo ──
+  // El puente corto deja de tener sentido cuando el alta corre: el alta ya pasa
+  // por el mismo registro, y correr los dos dejaría dos altas de prueba y el
+  // doble de correos para el mismo veredicto.
+  if (alta) {
+    steps.push(
+      ...(await runAltaCheck({ baseUrl: base, email, store, fetchImpl, sleep, now }))
+    );
+  }
+
   // ── El puente: un registro de socio que tiene que nacer como alta ──
-  if (bridge) {
-    steps.push(...(await runBridgeCheck({ baseUrl: base, email, store, fetchImpl })));
+  if (bridge && !alta) {
+    steps.push(...(await runBridgeCheck({ baseUrl: base, email, store, fetchImpl, now })));
   }
 
   const ok = !steps.some((step) => step.level === 'fail');
-  return { baseUrl: base, ok, steps, persisted, hint, bridge };
+  return { baseUrl: base, ok, steps, persisted, hint, bridge, alta };
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -1057,9 +1956,14 @@ function parseArgs(argv) {
     url: process.env.SMOKE_URL || DEFAULT_BASE_URL,
     write: false,
     email: null,
-    // El puente se comprueba salvo que se pida lo contrario: es la comprobación
-    // que justifica escribir, y sin ella `--write` solo mira el alta de visitas.
-    bridge: true,
+    // El puente no corre solo: escribe y manda correo, así que se pide. Sin
+    // esto, `npm run smoke:prod` —la comprobación de que el deploy está vivo—
+    // pedía `--email` para algo que nadie había autorizado.
+    bridge: false,
+    // `--signup` es la mitad de `--write`: solo la visita de prueba y su correo
+    // de bienvenida. Lo usa `check:domain`, que necesita comprobar el envío sin
+    // recorrer un alta entera.
+    signup: false,
     help: false,
   };
 
@@ -1067,6 +1971,7 @@ function parseArgs(argv) {
     const arg = argv[i];
     if (arg === '--help' || arg === '-h') args.help = true;
     else if (arg === '--write') args.write = true;
+    else if (arg === '--signup') args.signup = true;
     else if (arg === '--bridge') args.bridge = true;
     else if (arg === '--no-bridge') args.bridge = false;
     else if (arg === '--url') args.url = argv[++i] ?? args.url;
@@ -1086,20 +1991,21 @@ function usage() {
       '',
       '  npm run smoke:prod                                  # solo mira (no escribe nada)',
       '  npm run smoke:prod -- --url http://localhost:3111',
-      '  npm run smoke:prod -- --write --email tu@correo.cl  # además da un alta de prueba',
+      '  npm run smoke:prod -- --write --email tu@correo.cl  # recorre el alta completa',
       '',
       'Opciones:',
       '  --url <url>     despliegue a probar (por defecto, producción; o SMOKE_URL)',
-      '  --write         da de alta una visita de prueba, comprueba que persiste y borra la fila',
-      '  --email <correo> a dónde mandar los correos de las pruebas (obligatorio con --write o --bridge)',
-      '  --bridge        recorre registro de socio → alta en Calificado y lo borra',
-      '  --no-bridge     no recorre el puente (con --write, solo prueba /api/registro)',
+      '  --write         recorre el alta completa de un socio y borra todo lo que crea',
+      '  --signup        solo la visita de prueba y su correo de bienvenida (mitad de --write)',
+      '  --email <correo> a dónde mandar los correos de las pruebas (obligatorio al escribir)',
+      '  --bridge        recorre solo registro de socio → Calificado y lo borra',
       '  --help          esto',
       '',
-      'Con --write el smoke da un alta de prueba y recorre el puente; el puente',
-      'también se puede pedir solo con --bridge. Los dos escriben y mandan correo real,',
-      'y los dos borran lo que escribieron: --write la fila de public.signups y el',
-      'puente el registro con su alta. Si falta la clave de servicio, avisa qué quedó.',
+      'Con --write el smoke da un alta de prueba y recorre registro → Calificado →',
+      'propuesta → aceptación → plan → pago (Operando) → enlace del correo, y',
+      'después borra el alta, el registro, la ficha y la cuenta. El puente corto se',
+      'pide aparte con --bridge. Los dos escriben y mandan correo real; si falta la',
+      'clave de servicio, el informe dice qué quedó sin borrar.',
       '',
     ].join('\n')
   );
@@ -1109,17 +2015,19 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) return usage();
 
-  if ((args.write || args.bridge) && !args.email) {
+  const signup = args.write || args.signup;
+
+  if ((signup || args.bridge) && !args.email) {
     console.error(
       [
         '',
-        `✗ ${args.write ? '--write' : '--bridge'} necesita --email <correo>.`,
+        `✗ ${args.write ? '--write' : args.signup ? '--signup' : '--bridge'} necesita --email <correo>.`,
         '',
-        '  Las dos pruebas mandan correo real (bienvenida y resultado del registro), y una',
-        '  prueba contra una dirección que no existe rebota: eso le cuesta reputación al',
-        '  dominio del remitente. Usa tu propio correo, que además te deja comprobar los',
-        '  correos de punta a punta. El del puente llega a un alias (+puente…) del mismo',
-        '  buzón.',
+        '  Las pruebas que escriben mandan correo real (bienvenida, las etapas del',
+        '  alta y el resultado del registro), y una contra una dirección que no existe',
+        '  rebota: eso le cuesta reputación al dominio del remitente. Usa tu propio',
+        '  correo, que además te deja comprobar los correos de punta a punta. Los del',
+        '  alta y del puente llegan a alias (+alta…, +puente…) del mismo buzón.',
         '',
         '  npm run smoke:prod -- --write --email tu@correo.cl',
         '  npm run smoke:prod -- --bridge --email tu@correo.cl',
@@ -1130,11 +2038,13 @@ async function main() {
     return;
   }
 
-  // Un solo store para las dos escrituras: solo hace falta si alguna va a correr.
-  const store = args.write || args.bridge ? smokeStoreFromEnv() : null;
+  // Un solo store para las escrituras: solo hace falta si alguna va a correr.
+  const store = signup || args.bridge ? smokeStoreFromEnv() : null;
   const report = await runSmoke({
     baseUrl: args.url,
-    write: args.write,
+    write: signup,
+    // `--write` es el alta completa; además deja la fila de la visita de prueba.
+    alta: args.write,
     email: args.email,
     bridge: args.bridge,
     store,

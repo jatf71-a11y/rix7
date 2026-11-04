@@ -37,8 +37,9 @@
  *
  * No escribe nada en ningún sitio: todo es lectura (DNS, HTTP, pulls de
  * variables, `gh`). La **única** excepción es `--email`, que reproduce el §7
- * con `smoke:prod --write` y deja una fila de prueba en `public.signups` que
- * hay que borrar a mano (la tabla es solo-anexa: sin UPDATE, solo borrar).
+ * con `smoke:prod --signup`: manda el correo de bienvenida y borra la fila que
+ * deja en `public.signups`. Pide `--signup` y no `--write` porque acá solo se
+ * comprueba el envío; el alta completa tiene su propia corrida.
  *
  * ## Requisitos
  *
@@ -540,10 +541,10 @@ async function step8() {
   }
 
   if (!EMAIL) {
-    manual(8, 'Correo §7 (escritura)', 'no corre solo: deja una fila en public.signups', `reproducilo con --email tu@correo.cl y borrá la fila después (§7)`);
+    manual(8, 'Correo §7 (escritura)', 'no corre solo: manda correo real', `reproducilo con --email tu@correo.cl (§7)`);
   } else {
-    const mail = run('npm', ['run', 'smoke:prod', '--', '--write', '--email', EMAIL], SMOKE_MS);
-    if (mail.status === 0) ok(8, 'Correo §7', `enviado a ${EMAIL} — recordá borrar la fila de public.signups`);
+    const mail = run('npm', ['run', 'smoke:prod', '--', '--signup', '--email', EMAIL], SMOKE_MS);
+    if (mail.status === 0) ok(8, 'Correo §7', `enviado a ${EMAIL} — la fila de public.signups se borró sola`);
     else pend(8, 'Correo §7', mail.error ? `no terminó (${mail.error.code ?? mail.error.message})` : `exit ${mail.status}`, tail(mail.stdout || mail.stderr, 8));
   }
   printStep(8);

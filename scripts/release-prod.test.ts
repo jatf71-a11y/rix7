@@ -762,7 +762,7 @@ describe('informe final', () => {
     expect(text).toContain('Release completo en 1m 5s');
     expect(text).toContain('https://rix7-abc.vercel.app');
     expect(text).toContain('Verificado en el intento 1/3');
-    expect(text).toContain('La persistencia de un alta NO se probó acá');
+    expect(text).toContain('El alta completa —hasta Operando y el acceso por el enlace del correo— NO se');
   });
 
   it('sin verificación no afirma que se comprobó nada', () => {

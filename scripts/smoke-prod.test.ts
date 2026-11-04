@@ -9,9 +9,20 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  ALTA_STEP_LABELS,
   SIGNUP_STEP_LABELS,
   SMOKE_NAME,
+  altaEmailFor,
   bridgeEmailFor,
+  judgeAccessLink,
+  judgeActivation,
+  judgeOperando,
+  judgePanelSession,
+  judgePayment,
+  judgeProposalAccepted,
+  judgeProposalSent,
+  runAltaCheck,
+  smokeBillingPeriod,
   cleanupSignup,
   createSmokeStore,
   formatReport,
@@ -911,5 +922,379 @@ describe('runSmoke con el puente', () => {
 
     expect(report.bridge).toBe(false);
     expect(calls.some((call) => call.url.endsWith('/api/solicitudes'))).toBe(false);
+  });
+});
+
+/** Store del alta completa: todo lo que el recorrido necesita, simulado. */
+function altaStore(overrides: Record<string, unknown> = {}) {
+  const calls = {
+    read: [] as string[],
+    readAlta: [] as string[],
+    setToken: [] as { id: string; purpose: string }[],
+    magic: [] as string[],
+    cleanup: [] as unknown[],
+    deleteAccount: [] as string[],
+  };
+
+  const store = {
+    read: async (id: string) => {
+      calls.read.push(id);
+      return {
+        solicitud: { id, status: 'Aceptada', payload: { kyb_application_id: 'alta-1' } },
+        alta: { id: 'alta-1', status: 'Calificado', solicitud_origen: id },
+      };
+    },
+    readAlta: async (id: string) => {
+      calls.readAlta.push(id);
+      return {
+        id,
+        status: 'Operando',
+        panel_enabled: true,
+        partner_id: 'ficha-1',
+        proposal: [{ monthlyClp: 14_990 }],
+      };
+    },
+    setToken: async (id: string, purpose: string) => {
+      calls.setToken.push({ id, purpose });
+      return { ok: true, token: 'x'.repeat(43) };
+    },
+    adminSession: async () => ({ ok: true, cookie: 'sb-x-auth-token=abc', email: 'equipo@rix7.cl' }),
+    mintMagicLink: async (email: string) => {
+      calls.magic.push(email);
+      return { ok: true, tokenHash: 'hash-1' };
+    },
+    cleanupAlta: async (ids: unknown) => {
+      calls.cleanup.push(ids);
+      return { ok: true, alta: 1, solicitud: 1, partner: 1, billing: 1, errors: [] };
+    },
+    deleteAccount: async (email: string) => {
+      calls.deleteAccount.push(email);
+      return { ok: true, deleted: 1, found: true };
+    },
+    ...overrides,
+  };
+
+  return { calls, store };
+}
+
+/** Las rutas del alta completa, con el servidor ya respondiendo el camino bueno. */
+const altaRoutes = (overrides: Record<string, () => Response> = {}) => {
+  const proposal = { planId: 'profesional', altaClp: 19_990, monthlyClp: 14_990, note: null };
+
+  return happyRoutes({
+    '/api/kyb/alta-1/proposal POST': () =>
+      jsonResponse(200, {
+        success: true,
+        data: { status: 'Propuesta_Comercial', proposal },
+        email: { sent: true, skipped: false },
+      }),
+    '/api/kyb/proposal POST': () =>
+      jsonResponse(200, {
+        success: true,
+        data: { status: 'Alta', decision: 'aceptada', already: false },
+        email: { sent: true, skipped: false },
+      }),
+    '/api/kyb/activate POST': () =>
+      jsonResponse(200, {
+        success: true,
+        data: {
+          status: 'Alta',
+          plan: 'profesional',
+          already: false,
+          panel: { enabled: true, partnerId: 'ficha-1', account: 'created' },
+        },
+        email: { sent: true, skipped: false },
+      }),
+    '/api/admin/cobranza POST': () =>
+      jsonResponse(200, { success: true, data: { situacion: { estado: 'al_dia' } } }),
+    '/auth/confirm GET': () =>
+      new Response(null, {
+        status: 307,
+        headers: {
+          location: 'https://x.test/socio',
+          'set-cookie': 'sb-x-auth-token=abc; Path=/; HttpOnly; SameSite=Lax',
+        },
+      }),
+    '/api/partner/access GET': () =>
+      jsonResponse(200, { success: true, data: { role: 'member', partnerId: 'ficha-1' } }),
+    ...overrides,
+  });
+};
+
+describe('runAltaCheck', () => {
+  it('recorre el alta completa y borra todo lo que creó', async () => {
+    const { fetchImpl, calls } = server(altaRoutes());
+    const fake = altaStore();
+
+    const steps = await runAltaCheck({
+      baseUrl: 'https://x.test',
+      email: 'quien@correo.cl',
+      store: fake.store,
+      fetchImpl,
+      now: 1234,
+      sleep: async () => {},
+    });
+
+    expect(steps.map((step) => step.label)).toEqual(Object.values(ALTA_STEP_LABELS));
+    expect(steps.filter((step) => step.level === 'fail')).toEqual([]);
+
+    // El registro va al alias del alta, no al buzón a secas.
+    const registro = calls.find((call) => call.url.endsWith('/api/solicitudes'));
+    expect((registro?.body as { email: string }).email).toBe('quien+alta1234@correo.cl');
+
+    // Los dos tokens que se piden son los del trámite, en orden.
+    expect(fake.calls.setToken.map((call) => call.purpose)).toEqual(['proposal', 'activation']);
+
+    // El pago usa el monto de la propuesta aceptada, no un número inventado.
+    const pago = calls.find((call) => call.url.endsWith('/api/admin/cobranza'));
+    expect((pago?.body as { amountClp: number }).amountClp).toBe(14_990);
+    expect((pago?.body as { partnerId: string }).partnerId).toBe('ficha-1');
+
+    // Y la limpieza se lleva la cuenta porque la creó esta corrida.
+    expect(fake.calls.deleteAccount).toEqual(['quien+alta1234@correo.cl']);
+    expect(fake.calls.cleanup[0]).toMatchObject({ altaId: 'alta-1', partnerId: 'ficha-1' });
+  });
+
+  it('no se lleva la cuenta si el correo ya tenía una', async () => {
+    const { fetchImpl } = server(
+      altaRoutes({
+        '/api/kyb/activate POST': () =>
+          jsonResponse(200, {
+            success: true,
+            data: {
+              status: 'Alta',
+              plan: 'profesional',
+              panel: { enabled: true, partnerId: 'ficha-1', account: 'linked' },
+            },
+            email: { sent: true, skipped: false },
+          }),
+      })
+    );
+    const fake = altaStore();
+
+    const steps = await runAltaCheck({
+      baseUrl: 'https://x.test',
+      email: 'quien@correo.cl',
+      store: fake.store,
+      fetchImpl,
+      now: 1234,
+      sleep: async () => {},
+    });
+
+    expect(steps.every((step) => step.level !== 'fail')).toBe(true);
+    expect(fake.calls.deleteAccount).toEqual([]);
+  });
+
+  it('si la propuesta no se puede enviar, lo dice y limpia igual', async () => {
+    const { fetchImpl } = server(
+      altaRoutes({
+        '/api/kyb/alta-1/proposal POST': () =>
+          jsonResponse(409, {
+            success: false,
+            error: 'Solo se envía una propuesta a una solicitud calificada.',
+          }),
+      })
+    );
+    const fake = altaStore();
+
+    const steps = await runAltaCheck({
+      baseUrl: 'https://x.test',
+      email: 'quien@correo.cl',
+      store: fake.store,
+      fetchImpl,
+      now: 1234,
+      sleep: async () => {},
+    });
+
+    expect(steps.find((step) => step.label === ALTA_STEP_LABELS.propuesta)?.level).toBe('fail');
+    expect(steps.find((step) => step.label === ALTA_STEP_LABELS.plan)?.detail).toBe('no se intentó');
+    // Un paso rojo no puede dejar basura: la limpieza corrió igual.
+    expect(fake.calls.cleanup).toHaveLength(1);
+    expect(steps.find((step) => step.label === ALTA_STEP_LABELS.cleanup)?.level).toBe('ok');
+  });
+
+  it('si el pago no deja el alta en Operando, el paso falla', async () => {
+    const { fetchImpl } = server(altaRoutes());
+    const fake = altaStore({
+      readAlta: async () => ({
+        id: 'alta-1',
+        status: 'Alta',
+        panel_enabled: true,
+        partner_id: 'ficha-1',
+        proposal: [{ monthlyClp: 14_990 }],
+      }),
+    });
+
+    const steps = await runAltaCheck({
+      baseUrl: 'https://x.test',
+      email: 'quien@correo.cl',
+      store: fake.store,
+      fetchImpl,
+      now: 1234,
+      sleep: async () => {},
+    });
+
+    const pago = steps.find((step) => step.label === ALTA_STEP_LABELS.pago);
+    expect(pago?.level).toBe('fail');
+    expect(pago?.detail).toContain('Operando');
+    expect(steps.find((step) => step.label === ALTA_STEP_LABELS.acceso)?.detail).toBe('no se intentó');
+  });
+
+  it('si el enlace no deja sesión, no se da el acceso por bueno', async () => {
+    const { fetchImpl } = server(
+      altaRoutes({
+        '/api/partner/access GET': () =>
+          jsonResponse(401, { success: false, error: 'Inicia sesión para continuar.' }),
+      })
+    );
+    const fake = altaStore();
+
+    const steps = await runAltaCheck({
+      baseUrl: 'https://x.test',
+      email: 'quien@correo.cl',
+      store: fake.store,
+      fetchImpl,
+      now: 1234,
+      sleep: async () => {},
+    });
+
+    const acceso = steps.find((step) => step.label === ALTA_STEP_LABELS.acceso);
+    expect(acceso?.level).toBe('fail');
+    expect(acceso?.detail).toContain('401');
+  });
+
+  it('si la limpieza deja algo, lo dice con el nombre para encontrarlo', async () => {
+    const { fetchImpl } = server(altaRoutes());
+    const fake = altaStore({
+      cleanupAlta: async () => ({ ok: true, alta: 0, solicitud: 1, partner: 1, errors: [] }),
+    });
+
+    const steps = await runAltaCheck({
+      baseUrl: 'https://x.test',
+      email: 'quien@correo.cl',
+      store: fake.store,
+      fetchImpl,
+      now: 1234,
+      sleep: async () => {},
+    });
+
+    const cleanup = steps.find((step) => step.label === ALTA_STEP_LABELS.cleanup);
+    expect(cleanup?.level).toBe('fail');
+    expect(cleanup?.detail).toContain('alta sin borrar');
+    expect(cleanup?.detail).toContain('Prueba de humo');
+  });
+
+  it('sin --email o sin base no escribe nada', async () => {
+    const { fetchImpl, calls } = server(altaRoutes());
+
+    const sinEmail = await runAltaCheck({
+      baseUrl: 'https://x.test',
+      store: altaStore().store,
+      fetchImpl,
+    });
+    expect(sinEmail[0].level).toBe('fail');
+    expect(calls).toEqual([]);
+
+    const sinBase = await runAltaCheck({
+      baseUrl: 'https://x.test',
+      email: 'quien@correo.cl',
+      fetchImpl,
+    });
+    expect(sinBase[0].detail).toContain('SUPABASE_SERVICE_ROLE_KEY');
+    expect(calls).toEqual([]);
+  });
+});
+
+describe('veredictos del alta', () => {
+  it('la propuesta solo vale con el estado guardado', () => {
+    const ok = judgeProposalSent(200, {
+      success: true,
+      data: {
+        status: 'Propuesta_Comercial',
+        proposal: { planId: 'profesional', altaClp: 1, monthlyClp: 2 },
+      },
+    });
+    expect(ok.level).toBe('ok');
+
+    const sinEstado = judgeProposalSent(200, {
+      success: true,
+      data: {
+        status: 'Calificado',
+        proposal: { planId: 'profesional', altaClp: 1, monthlyClp: 2 },
+      },
+    });
+    expect(sinEstado.level).toBe('fail');
+  });
+
+  it('aceptar tiene que dejar la solicitud en Alta', () => {
+    expect(judgeProposalAccepted(200, { success: true, data: { status: 'Alta' } }).level).toBe('ok');
+    expect(
+      judgeProposalAccepted(200, { success: true, data: { status: 'Propuesta_Comercial' } }).level
+    ).toBe('fail');
+  });
+
+  it('el plan no vale si el panel no quedó habilitado', () => {
+    expect(
+      judgeActivation(200, {
+        success: true,
+        data: { status: 'Alta', plan: 'profesional', panel: { enabled: false } },
+      }).level
+    ).toBe('fail');
+    expect(
+      judgeActivation(200, {
+        success: true,
+        data: { status: 'Alta', plan: 'profesional', panel: { enabled: true, partnerId: 'f' } },
+      }).level
+    ).toBe('ok');
+  });
+
+  it('Operando exige panel y ficha, no solo el estado', () => {
+    expect(
+      judgeOperando({ status: 'Operando', panel_enabled: true, partner_id: 'ficha-1' }).level
+    ).toBe('ok');
+    expect(
+      judgeOperando({ status: 'Operando', panel_enabled: false, partner_id: 'ficha-1' }).level
+    ).toBe('fail');
+    expect(judgeOperando({ status: 'Operando', panel_enabled: true }).level).toBe('fail');
+    expect(judgeOperando({ status: 'Alta', panel_enabled: true, partner_id: 'f' }).level).toBe('fail');
+  });
+
+  it('el enlace del acceso no puede volver con error ni con tokens en el fragmento', () => {
+    expect(judgeAccessLink(307, 'https://rix7.cl/socio').level).toBe('ok');
+    expect(
+      judgeAccessLink(
+        307,
+        'https://rix7.cl/socio?error=access_denied&error_description=Email+link+is+invalid'
+      ).level
+    ).toBe('fail');
+    expect(judgeAccessLink(307, 'https://rix7.cl/socio#access_token=abc').level).toBe('fail');
+    expect(judgeAccessLink(200, 'https://rix7.cl/socio').level).toBe('fail');
+    expect(judgeAccessLink(307, 'https://rix7.cl/empresas').level).toBe('fail');
+  });
+
+  it('la sesión tiene que quedar vinculada a la ficha del alta', () => {
+    const body = { success: true, data: { role: 'member', partnerId: 'ficha-1' } };
+    expect(judgePanelSession(200, body, 'ficha-1').level).toBe('ok');
+    expect(judgePanelSession(200, { ...body, data: { partnerId: 'otra' } }, 'ficha-1').level).toBe(
+      'fail'
+    );
+    expect(judgePanelSession(401, null).level).toBe('fail');
+  });
+
+  it('el pago exige un 200 con la operación hecha', () => {
+    expect(judgePayment(200, { success: true }).level).toBe('ok');
+    expect(
+      judgePayment(400, { error: 'El monto tiene que ser un entero en pesos.' }).level
+    ).toBe('fail');
+  });
+
+  it('el período de pago es el mes en curso en UTC', () => {
+    expect(smokeBillingPeriod(Date.UTC(2026, 10, 4, 17, 0, 0))).toBe('2026-11');
+    expect(smokeBillingPeriod(Date.UTC(2026, 0, 1, 0, 0, 0))).toBe('2026-01');
+  });
+
+  it('el correo del alta es un alias distinto del puente', () => {
+    expect(altaEmailFor('quien@correo.cl', 7)).toBe('quien+alta7@correo.cl');
+    expect(bridgeEmailFor('quien@correo.cl', 7)).toBe('quien+puente7@correo.cl');
   });
 });

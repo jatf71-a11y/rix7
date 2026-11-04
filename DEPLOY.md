@@ -209,7 +209,7 @@ npm run release:prod
 | 2 | Migraciones pendientes | `npm run db:push` (sección 3) | **la base primero soporta, el código después usa**: publicar antes de migrar deja el portal en vivo contra columnas que no existen |
 | 3 | Esquema de la base | `npm run check:schema` | aplicar una migración no es lo mismo que **comprobar que quedó aplicada**: lee la base real y dice qué falta. Solo necesita la clave pública, así que sirve aunque no tengas el token |
 | 4 | Deploy a producción | `npm run deploy:prod` (sección 5) | publica el árbol de trabajo sin metadata de git, tras la guardia de secretos, y publica el **identificador de la build** (el hash de este árbol), la **versión** y el **tag** |
-| 5 | Verificación en vivo | `smoke:prod` + `check:health` | portada, `/admin/registros`, `/api/registro`, las rutas del panel de socios (`/socio`, `/api/partner/access`, `/api/admin/socios`) y los críticos de `/api/health`, contra la URL publicada. Además **compara el identificador** y la **versión/tag**: si lo que está en vivo no es este árbol o no es esta release, el release falla. Con `--smoke-email tu@correo.cl` (o `SMOKE_EMAIL`) comprueba también el puente **registro de socio → alta en `Calificado`** y borra lo que escribe |
+| 5 | Verificación en vivo | `smoke:prod` + `check:health` | portada, `/admin/registros`, `/api/registro`, las rutas del panel de socios (`/socio`, `/api/partner/access`, `/api/admin/socios`) y los críticos de `/api/health`, contra la URL publicada. Además **compara el identificador** y la **versión/tag**: si lo que está en vivo no es este árbol o no es esta release, el release falla. Con `--smoke-email tu@correo.cl` (o `SMOKE_EMAIL`) comprueba también el puente **registro de socio → alta en `Calificado`** y borra lo que escribe. El alta completa —hasta `Operando` y el acceso por el enlace del correo— se pide aparte con `npm run smoke:prod -- --write --email …`, porque escribe y manda varios correos |
 
 Antes de todo corre la **guardia de secretos** (sobre el árbol de trabajo): un
 token suelto corta el release antes de aplicar migraciones o publicar nada.
@@ -371,9 +371,13 @@ release se detuvo ahí · **2** el comando se usó mal (un argumento desconocido
 
 - **No da el alta de prueba salvo que se lo pidas.** La persistencia
   (`persisted: true`) se comprueba aparte con
-  `npm run smoke:prod -- --write --email tu@correo.cl`, que manda un correo real
-  y **borra la fila** que escribe en `public.signups` (si falta la clave de
-  servicio, el propio informe avisa que quedó).
+  `npm run smoke:prod -- --write --email tu@correo.cl`. Ese `--write` recorre el
+  **alta completa** de un socio (registro → propuesta → aceptación → plan → pago
+  → `Operando`) y el **enlace del correo** que abre `/socio` con sesión; después
+  borra todo lo que creó —alta, registro, ficha, cobranza y cuenta— y la fila de
+  `public.signups` (si falta la clave de servicio, el propio informe dice qué
+  quedó). Para comprobar solo el envío del correo de bienvenida está
+  `--signup`, que es la mitad de escritura sin el alta.
   La única escritura posible del release es el puente registro→alta, y solo con
   `--smoke-email`/`SMOKE_EMAIL`: ese alta de prueba **se borra** al terminar, así
   que la base queda como estaba. El informe final dice cuál de las dos se probó

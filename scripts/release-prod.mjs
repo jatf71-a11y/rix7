@@ -693,7 +693,8 @@ export function formatReleaseSummary({
         ? '  · El puente registro→alta SÍ se comprobó: el registro de prueba quedó como alta en Calificado y se borró.'
         : '  · El puente registro→alta no se comprobó (se pide con `--smoke-email tu@correo.cl`).'
     );
-    lines.push('  · La persistencia de un alta NO se probó acá (eso escribe y manda correo):');
+    lines.push('  · El alta completa —hasta Operando y el acceso por el enlace del correo— NO se');
+    lines.push('    probó acá (escribe y manda varios correos):');
     lines.push('    `npm run smoke:prod -- --write --email tu@correo.cl`.');
   }
 
@@ -1012,8 +1013,9 @@ function usage() {
       'es. Sin poder calcular el identificador (sin git) publica igual y lo dice:',
       'no afirma haber comprobado lo que no comparó.',
       '',
-      'No da de alta la visita de prueba (eso es `npm run smoke:prod -- --write`,',
-      'que manda un correo real) ni hace `git push`: el deploy publica el árbol',
+      'No recorre el alta completa ni da de alta la visita de prueba: eso es',
+      '`npm run smoke:prod -- --write`, que manda varios correos reales y después',
+      'borra todo lo que creó. Tampoco hace `git push`: el deploy publica el árbol',
       'de trabajo, no el commit. La única escritura que puede hacer es la del',
       'puente, y solo con --smoke-email: deja la base como la encontró.',
       '',
