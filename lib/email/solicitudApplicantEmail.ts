@@ -10,9 +10,12 @@
  * el correo que va a leer una persona —qué dice el asunto, si lleva las
  * preguntas concretas y el enlace— y que un nombre con `<` no rompa el HTML.
  *
- * El acuse de recibo va dentro del correo del resultado, no en uno aparte: los
- * dos salen con segundos de diferencia y dos mensajes seguidos se leen como
- * ruido, no como información.
+ * Un correo por paso del pipeline: el acuse de **Recibida** y el de **En
+ * evaluación** son mensajes distintos porque informan cosas distintas —que el
+ * registro entró, y qué se está mirando—, y así la bandeja cuenta el mismo
+ * recorrido que muestra el panel. El de evaluación sale cuando la solicitud
+ * entra en ese estado, tanto en el registro como al responder un pedido de
+ * información, donde la evaluación se repite.
  */
 
 import { escapeHtml } from './alertEmail';
@@ -80,14 +83,12 @@ function shell({
 }
 
 /**
- * Acuse de recibo del registro, con la evaluación ya en curso.
+ * Acuse de recibo: el paso **Recibida**, solo.
  *
- * Cubre los dos primeros pasos del flujo —**Recibida** y **En evaluación**— en un
- * solo mensaje. El autómata evalúa en la misma petición del formulario, así que
- * dos correos con segundos de diferencia se leerían como ruido: acá está lo que
- * cada paso tiene que informar, que la solicitud fue recibida, que se va a
- * evaluar y con qué datos (los que entregó la persona y los que Rix7 verifica
- * por su cuenta).
+ * Dice lo que ese paso tiene que decir —que el registro entró— y nada más: el
+ * detalle de lo que se mira va en el correo de evaluación, que sale a
+ * continuación. Juntar los dos pasos en un mensaje dejaba la bandeja con seis
+ * correos para siete etapas y sin forma de saber cuándo empezó la evaluación.
  */
 export function buildSolicitudReceivedEmail({
   name,
@@ -103,7 +104,62 @@ export function buildSolicitudReceivedEmail({
   const text = [
     hello,
     '',
-    `Recibimos ${offerLabel} en Rix7 y ya está en evaluación.`,
+    `Recibimos ${offerLabel} en Rix7 y quedó en la etapa «Recibida».`,
+    'A continuación pasa a evaluación automática, que no requiere nada de tu parte.',
+    '',
+    'Te escribimos en cada etapa del proceso, con el resultado de cada una. El correo de la',
+    'evaluación sale en unos minutos y te cuenta qué datos revisamos.',
+    '',
+    'Si falta algún dato, te lo pedimos en un correo con preguntas concretas y un enlace para',
+    'responderlas.',
+    '',
+    'Rix7 — Registro profesional',
+    siteUrl,
+  ].join('\n');
+
+  return {
+    subject: 'Recibimos tu registro en Rix7',
+    text,
+    html: shell({
+      siteUrl,
+      title: 'Recibimos tu registro',
+      intro: `${escapeHtml(hello)} recibimos ${escapeHtml(offerLabel)} y quedó en la etapa <strong>Recibida</strong>. A continuación pasa a evaluación automática.`,
+      body: `
+        <p style="margin:0;color:#475569;font-size:13px;line-height:1.7">
+          Te escribimos en cada etapa del proceso, con el resultado de cada una. El correo de la
+          evaluación sale en unos minutos y te cuenta qué datos revisamos.
+        </p>
+        <p style="margin:14px 0 0;color:#64748b;font-size:12px;line-height:1.6">
+          Si falta algún dato, te lo pedimos en un correo con preguntas concretas y un enlace para
+          responderlas.
+        </p>`,
+    }),
+  };
+}
+
+/**
+ * El paso **En evaluación**: qué está mirando el motor.
+ *
+ * Sale al entrar en ese estado, también cuando la evaluación se repite después de
+ * un pedido de información. Sin el detalle de los datos, «en evaluación» no le
+ * dice nada a quien lo lee: lo que tranquiliza es saber que se revisa su RUT, su
+ * sitio y la reputación de la empresa, y que parte de eso lo averigua Rix7.
+ */
+export function buildSolicitudEvaluatingEmail({
+  name,
+  offerLabel,
+  siteUrl,
+}: {
+  name: string;
+  offerLabel: string;
+  siteUrl: string;
+}): BuiltSolicitudApplicantEmail {
+  const hello = greeting(name);
+
+  const text = [
+    hello,
+    '',
+    `Tu registro en Rix7 quedó en la etapa «En evaluación»: ${offerLabel} está siendo evaluado.`,
     'La evaluación es automática y no tienes que hacer nada por ahora: te escribimos con el',
     'resultado.',
     '',
@@ -122,12 +178,12 @@ export function buildSolicitudReceivedEmail({
   ].join('\n');
 
   return {
-    subject: `Recibimos tu registro en Rix7 y ya está en evaluación`,
+    subject: 'Estamos evaluando tu registro en Rix7',
     text,
     html: shell({
       siteUrl,
-      title: 'Recibimos tu registro',
-      intro: `${escapeHtml(hello)} recibimos ${escapeHtml(offerLabel)} y ya está <strong>en evaluación</strong>. La evaluación es automática y no tienes que hacer nada por ahora.`,
+      title: 'Tu registro está en evaluación',
+      intro: `${escapeHtml(hello)} ${escapeHtml(offerLabel)} quedó <strong>en evaluación</strong>. Es automática y no tienes que hacer nada por ahora: te escribimos con el resultado.`,
       body: `
         <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px;color:#1e3a8a;font-size:13px;line-height:1.65">
           <strong style="display:block;margin-bottom:6px">Con los datos que nos entregaste</strong>
@@ -139,7 +195,7 @@ export function buildSolicitudReceivedEmail({
         </div>
         <p style="margin:18px 0 0;color:#64748b;font-size:12px;line-height:1.6">
           Si falta algún dato, te lo pedimos en un correo con preguntas concretas y un enlace para
-          responderlas. Después te contamos el resultado por este mismo correo.
+          responderlas.
         </p>`,
     }),
   };

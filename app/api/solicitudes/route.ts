@@ -234,10 +234,10 @@ export async function POST(request: NextRequest) {
     await notifyTeam(validation.solicitud, stored.id ?? null);
   }
 
-  // Los dos primeros pasos del flujo, contados al solicitante: el registro quedó
-  // recibido y ya está en evaluación. El autómata evalúa en esta misma corrida,
-  // así que este es el único correo que puede cubrir los dos pasos sin mandar
-  // tres mensajes seguidos. No condiciona nada: la solicitud ya está guardada.
+  // El primer paso del flujo, contado al solicitante: el registro quedó
+  // recibido. La evaluación avisa por su cuenta al entrar en `En_Evaluacion`
+  // (`buildSolicitudEvaluatingEmail`), así que acá no se adelanta ese paso. No
+  // condiciona nada: la solicitud ya está guardada.
   if (isSocioRegistro(validation.solicitud.kind)) {
     await notifyApplicantReceived(validation.solicitud);
   }
@@ -278,7 +278,7 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Acusa recibo al solicitante y le dice que la evaluación ya arrancó.
+ * Acusa recibo al solicitante: el paso **Recibida**, sin adelantar el resto.
  *
  * No lanza: es un aviso, no parte del alta. Si falla, queda en el log y la
  * solicitud sigue su curso; lo que no puede pasar es que un problema de correo

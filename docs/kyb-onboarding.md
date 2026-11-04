@@ -156,15 +156,17 @@ el socio que nace del alta, que es lo que permite que un pago cierre *su* alta.
 
 #### Qué correo sale en cada paso
 
-Los siete pasos avisan al solicitante. Los que ocurren en la misma corrida —el
-motor evalúa dentro de la petición del alta— comparten un solo mensaje cuyo
-contenido cubre los dos: tres correos con segundos de diferencia se leen como un
-error del sistema, no como información.
+Los siete pasos avisan al solicitante. En el **alta de empresa**, los dos
+primeros ocurren en la misma corrida —el motor evalúa dentro de la petición del
+alta— y comparten un solo mensaje cuyo contenido cubre ambos. En el **registro
+profesional**, en cambio, van separados: el acuse de recibo no adelanta el
+detalle de la evaluación, que sale al entrar en `En_Evaluacion` (también cuando
+la evaluación se repite al responder un pedido de información).
 
 | Paso | Correo | Qué informa |
 | --- | --- | --- |
-| Recibida | `buildKybReceivedEmail` / `buildSolicitudReceivedEmail` | la solicitud entró y ya está en evaluación |
-| En evaluación | el mismo | con qué datos: los que entregó la empresa y los que Rix7 consigue (SII, reputación, dominio) |
+| Recibida | `buildKybReceivedEmail` / `buildSolicitudReceivedEmail` | la solicitud entró; en el alta, además, que la evaluación ya está en curso |
+| En evaluación | el mismo en el alta; `buildSolicitudEvaluatingEmail` en el registro | con qué datos: los que entregó la empresa y los que Rix7 consigue (SII, reputación, dominio) |
 | Pendiente de información | `buildKybPendingEmail` / `buildSolicitudPendingEmail` | las preguntas concretas y el enlace de 7 días; el recordatorio (`buildKybReminderEmail`, `reminder: true`) insiste sobre lo pendiente |
 | Aceptada | `buildSolicitudAcceptedEmail` (registro) y, en el alta, el de Calificado | que la verificación salió bien |
 | Calificado | `buildKybQualifiedEmail` | perfil de socio (profesional, corredora, inmobiliaria), alta, mensualidad, usuarios, publicaciones y captación, con los montos de **Planes**, y pide un «De acuerdo» |

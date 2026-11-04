@@ -184,18 +184,17 @@ describe('POST /api/solicitudes', () => {
     expect(team?.text).toContain('Valparaíso');
   });
 
-  it('acusa recibo al solicitante y le dice que ya está en evaluación', async () => {
+  it('acusa recibo al solicitante con el paso Recibida', async () => {
     await route.POST(post(registro));
 
     const mails = sendEmail.mock.calls.map(([mail]) => mail as { to: string; subject: string; text: string });
     const applicant = mails.find((mail) => mail.to === 'camila@example.cl');
 
     expect(applicant).toBeDefined();
-    // Los dos primeros pasos del flujo, en un solo mensaje: recibida y en evaluación.
-    expect(applicant?.subject).toMatch(/Recibimos tu registro/);
-    expect(applicant?.text).toMatch(/ya está en evaluación/);
-    expect(applicant?.text).toMatch(/datos que nos entregaste/);
-    expect(applicant?.text).toMatch(/conseguimos por nuestra cuenta/);
+    expect(applicant?.subject).toBe('Recibimos tu registro en Rix7');
+    expect(applicant?.text).toMatch(/etapa «Recibida»/);
+    // El detalle de la evaluación lo manda el autómata al entrar en ese estado.
+    expect(applicant?.text).not.toMatch(/datos que nos entregaste/);
   });
 
   it('evalúa y mueve solo un registro de socio, y devuelve en qué quedó', async () => {

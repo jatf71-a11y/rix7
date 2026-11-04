@@ -118,14 +118,16 @@ describe('autopilotSolicitud', () => {
 
     expect(result.ok).toBe(true);
     expect(result.status).toBe('Aceptada');
-    // Dos correos y no uno: el de la aprobación (paso Aceptada) y el de las
-    // condiciones del alta que nace en Calificado, con el perfil y los precios.
-    expect(sendEmail).toHaveBeenCalledTimes(2);
+    // Tres correos, uno por paso: el de la evaluación, el de la aprobación y el
+    // de las condiciones del alta que nace en Calificado, con perfil y precios.
+    expect(sendEmail).toHaveBeenCalledTimes(3);
 
-    const [mail, qualified] = sendEmail.mock.calls.map(([sent]) => sent);
+    const [evaluating, mail, qualified] = sendEmail.mock.calls.map(([sent]) => sent);
+    expect(evaluating.subject).toMatch(/Estamos evaluando/);
     expect(mail.to).toBe('camila@catedralpropiedades.cl');
     expect(mail.subject).toContain('aceptado');
     expect(qualified.subject).toMatch(/calificada/);
+    expect(result.evaluatingEmail?.sent).toBe(true);
     expect(qualified.text).toContain('Perfil de socio:');
     expect(qualified.text).toContain('Usuarios incluidos en el panel:');
 
@@ -149,7 +151,9 @@ describe('autopilotSolicitud', () => {
     expect(patch.answerTokenHash).toMatch(/^[a-f0-9]{64}$/);
     expect(typeof patch.answerTokenExpiresAt).toBe('string');
 
-    const [mail] = sendEmail.mock.calls[0];
+    // Primero el paso En evaluación, después el pedido de información.
+    const [evaluating, mail] = sendEmail.mock.calls.map(([sent]) => sent);
+    expect(evaluating.subject).toMatch(/Estamos evaluando/);
     expect(mail.text).toContain('/socios/responder/');
     expect(mail.text).toContain('sitio web');
     expect(mail.text).toContain('proveedor gratuito');
@@ -204,8 +208,10 @@ describe('submitSolicitudAnswers', () => {
 
     expect(result.ok).toBe(true);
     expect(result.status).toBe('Aceptada');
-    expect(sendEmail).toHaveBeenCalledTimes(1);
-    expect(sendEmail.mock.calls[0][0].subject).toContain('aceptado');
+    // La re-evaluación también anuncia el paso y después el resultado.
+    expect(sendEmail).toHaveBeenCalledTimes(2);
+    expect(sendEmail.mock.calls[0][0].subject).toMatch(/Estamos evaluando/);
+    expect(sendEmail.mock.calls[1][0].subject).toContain('aceptado');
   });
 
   it('un token con forma inválida no llega a la base', async () => {

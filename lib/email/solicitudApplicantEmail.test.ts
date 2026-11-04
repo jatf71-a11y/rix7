@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildSolicitudAcceptedEmail,
+  buildSolicitudEvaluatingEmail,
   buildSolicitudPendingEmail,
   buildSolicitudReceivedEmail,
   buildSolicitudRejectedEmail,
@@ -19,6 +20,11 @@ const SITE = 'https://rix7.cl';
 
 const emails = () => [
   buildSolicitudReceivedEmail({
+    name: 'María Soto',
+    offerLabel: 'tu registro de Corredora',
+    siteUrl: SITE,
+  }),
+  buildSolicitudEvaluatingEmail({
     name: 'María Soto',
     offerLabel: 'tu registro de Corredora',
     siteUrl: SITE,
@@ -67,20 +73,36 @@ describe('correos del registro profesional', () => {
     }
   });
 
-  it('el acuse informa los dos primeros pasos: recibida y en evaluación', () => {
+  it('el acuse informa solo la recepción, sin adelantar la evaluación', () => {
     const received = buildSolicitudReceivedEmail({
       name: 'María Soto',
       offerLabel: 'tu registro de Corredora',
       siteUrl: SITE,
     });
 
-    expect(received.subject).toMatch(/Recibimos tu registro/);
-    expect(received.text).toMatch(/ya está en evaluación/);
-    expect(received.text).toMatch(/datos que nos entregaste/);
-    expect(received.text).toMatch(/conseguimos por nuestra cuenta/);
+    expect(received.subject).toBe('Recibimos tu registro en Rix7');
+    expect(received.text).toMatch(/etapa «Recibida»/);
+    // El detalle de lo que se mira es del paso siguiente, no de este.
+    expect(received.text).not.toMatch(/datos que nos entregaste/);
+    expect(received.text).not.toMatch(/conseguimos por nuestra cuenta/);
     // Saluda por el nombre y no menciona «socio».
     expect(received.text).toContain('Hola María,');
     expect(`${received.subject}\n${received.text}`).not.toMatch(/soci[oa]s?\b/i);
+  });
+
+  it('la evaluación tiene su propio correo, con el detalle de lo que se mira', () => {
+    const evaluating = buildSolicitudEvaluatingEmail({
+      name: 'María Soto',
+      offerLabel: 'tu registro de Corredora',
+      siteUrl: SITE,
+    });
+
+    expect(evaluating.subject).toBe('Estamos evaluando tu registro en Rix7');
+    expect(evaluating.text).toMatch(/etapa «En evaluación»/);
+    expect(evaluating.text).toMatch(/datos que nos entregaste/);
+    expect(evaluating.text).toMatch(/conseguimos por nuestra cuenta/);
+    expect(evaluating.text).toContain('Hola María,');
+    expect(`${evaluating.subject}\n${evaluating.text}`).not.toMatch(/soci[oa]s?\b/i);
   });
 
   it('el pedido de información sigue llevando sus preguntas y su enlace', () => {

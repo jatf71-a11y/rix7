@@ -24,6 +24,7 @@
 import { sendEmail } from '@/lib/email/sendEmail';
 import {
   buildSolicitudAcceptedEmail,
+  buildSolicitudEvaluatingEmail,
   buildSolicitudPendingEmail,
   buildSolicitudRejectedEmail,
   solicitudAnswerUrl,
@@ -63,6 +64,8 @@ export interface AutopilotResult {
   evaluation?: SolicitudEvaluation;
   questions?: SolicitudQuestion[];
   email?: AutopilotEmailOutcome;
+  /** Aviso del paso **En evaluación**, que sale antes del resultado. */
+  evaluatingEmail?: AutopilotEmailOutcome;
   /** Alta creada al aprobar: desde acá el registro sigue el tramo comercial. */
   alta?: { id: string; created: boolean };
   /** La aprobación se guardó pero el alta no se pudo crear (no es fatal). */
@@ -98,7 +101,9 @@ async function notify(
  *
  * El paso por `En_Evaluacion` no es decorativo: es el estado intermedio de la
  * máquina (`Recibida → En_Evaluacion → Aceptada | Pendiente_Informacion`) y así
- * queda registrado que la solicitud se evaluó, aunque haya durado segundos.
+ * queda registrado que la solicitud se evaluó, aunque haya durado segundos. Y
+ * es el paso que se avisa con su propio correo, antes del resultado: la bandeja
+ * refleja el mismo recorrido que el pipeline.
  */
 async function applyEvaluation(
   solicitud: Solicitud,
@@ -109,6 +114,7 @@ async function applyEvaluation(
   const target: KybStatus = accepted ? 'Aceptada' : 'Pendiente_Informacion';
 
   let status = solicitud.status;
+  let evaluatingEmail: AutopilotEmailOutcome | undefined;
   if (status !== 'En_Evaluacion') {
     const step = assertTransition(status, 'En_Evaluacion');
     if (!step.ok) {
@@ -119,6 +125,20 @@ async function applyEvaluation(
       return { ok: false, code: 'store', status, evaluation, error: moved.error };
     }
     status = 'En_Evaluacion';
+
+    // El aviso del paso, antes de saber cómo termina: es lo que informa qué se
+    // está mirando. Va acá y no en la ruta para que la re-evaluación que
+    // dispara una respuesta también lo mande.
+    if (options.email) {
+      evaluatingEmail = await notify(
+        solicitud.email,
+        buildSolicitudEvaluatingEmail({
+          name: solicitud.name,
+          offerLabel: solicitudOfferLabel(solicitud.kind),
+          siteUrl: SITE_URL,
+        })
+      );
+    }
   }
 
   const final = assertTransition(status, target);
@@ -220,6 +240,7 @@ async function applyEvaluation(
     ...(alta ? { alta } : {}),
     ...(warning ? { warning } : {}),
     ...(email ? { email } : {}),
+    ...(evaluatingEmail ? { evaluatingEmail } : {}),
   };
 }
 
