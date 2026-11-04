@@ -17,6 +17,7 @@
  */
 
 import { linkMetadata } from '@/lib/data/socioAccounts';
+import { SITE_URL } from '@/lib/site';
 import { isServiceRoleConfigured } from '@/lib/supabase/admin';
 import { slugify } from '@/lib/utils/text';
 import type { KybApplication } from './types';
@@ -139,10 +140,17 @@ export async function provisionCompanyPanel(
     // 3. Enlace de un solo uso para entrar sin contraseña. Si falla, la cuenta
     //    ya existe y el correo trae el enlace al panel: el alta no se cae por
     //    esto.
+    //
+    //    El destino va explícito. Sin `redirectTo`, Supabase usa el Site URL
+    //    del proyecto: cuando estaba en `localhost:3000` el botón del correo
+    //    moría ahí, y con el Site URL en el dominio cae en la portada, que
+    //    deja la sesión abierta pero no lleva al panel. El correo promete
+    //    «Entrar al panel», así que el enlace aterriza en `/socio`.
     try {
       const { data, error } = await admin.auth.admin.generateLink({
         type: 'magiclink',
         email: application.email,
+        options: { redirectTo: `${SITE_URL}/socio` },
       });
       if (!error) magicLink = data?.properties?.action_link;
     } catch {
