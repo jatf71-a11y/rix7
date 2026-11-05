@@ -12,6 +12,12 @@
  * resultado. Eso es lo que permite responder «¿qué le ofrecimos en octubre?» sin
  * depender de la memoria de quien negoció.
  *
+ * La propuesta decide **solo el plan**: alta inicial, mensualidad y, si lo
+ * quiere, el plan de captación de leads. El **CCA** —la suma de publicaciones del
+ * socio en UF— no se firma acá: es una determinación que se resuelve después del
+ * alta, cuando el socio ya tiene publicaciones que sumar (`lib/kyb/cca.ts`).
+ * Cobrarlo en la propuesta obligaba a estimar en UF algo que todavía no existe.
+ *
  * El módulo es puro: los montos de partida salen de `planPricing` (lo que el
  * equipo definió en Planes) y el plan del catálogo de `plans`. Nada de red ni de
  * base acá.
@@ -47,10 +53,11 @@ export interface KybProposal {
   /**
    * Lo que el candidato definió al aceptar, más allá del plan.
    *
-   * Son dos decisiones distintas de la mensualidad y viajan juntas porque se
-   * toman en el mismo momento: el acuerdo con el costo del CCA (con su CCA
-   * estimado) y si contrata o no la captación de leads. `null` mientras la
-   * propuesta está pendiente o si se envió antes de que existiera este paso.
+   * Hoy es una sola cosa: si contrata o no el plan de captación de leads. El
+   * campo se conserva como objeto —y no como un booleano suelto— porque las
+   * propuestas aceptadas antes de este cambio guardaban además el CCA, y esas
+   * filas tienen que seguir leyéndose. `null` mientras la propuesta está
+   * pendiente o si se envió antes de que existiera este paso.
    */
   commercial: KybCommercialTerms | null;
 }
@@ -58,27 +65,15 @@ export interface KybProposal {
 /**
  * Condiciones comerciales aceptadas por el candidato.
  *
- * El CCA se guarda en **UF** —lo que el socio declara y estima— y el %CCA con
- * el que se calculó. El monto en pesos no se guarda: se deriva con la UF del día
- * (`ccaAmountClp`), así una cifra vieja en la base no se confunde con la de hoy.
+ * Solo la captación: el CCA dejó de firmarse en la propuesta y pasó a
+ * determinarse después del alta, con las publicaciones reales del socio
+ * (`lib/kyb/cca.ts`). Las filas viejas que traen `ccaUf`/`ccaPct` se siguen
+ * leyendo; los campos se ignoran en vez de rechazar la propuesta.
  */
 export interface KybCommercialTerms {
-  ccaAccepted: boolean;
-  /** CCA estimado por el socio, en UF. `0` es válido: aún no tiene stock. */
-  ccaUf: number;
-  /** %CCA vigente en **Planes** al aceptar, para recalcular con la misma regla. */
-  ccaPct: number;
   captacion: boolean;
   acceptedAt: string;
 }
-
-/**
- * Tope del CCA estimado, en UF.
- *
- * Es un control de tipeo, no una regla de negocio: un socio con más stock que
- * esto se ajusta a mano con el equipo.
- */
-export const MAX_CCA_UF = 5_000_000;
 
 /**
  * Perfil de precio que le corresponde a cada camino de registro.
@@ -177,53 +172,24 @@ export function subscriptionTerms(
  * el sistema lo recalcula solo, así que es una estimación y no un compromiso.
  */
 export interface NormalizedCommercial {
-  ccaAccepted: boolean;
-  ccaUf: number;
   captacion: boolean;
 }
 
 /**
  * Valida las decisiones comerciales del paso de propuesta.
  *
- * Para aceptar hace falta estar de acuerdo con el CCA: es un concepto que se
- * cobra igual y aceptar una propuesta sin aceptarlo dejaría un desacuerdo
- * escondido en el alta. La estimación es obligatoria (puede ser 0 si todavía no
- * tiene propiedades) porque es el dato con el que se le explica el primer cobro.
+ * Aceptar es decir que sí al plan y, si quiere, a la captación de leads. No hay
+ * nada más que exigir: el CCA ya no se firma acá, y pedirlo obligaba a declarar
+ * un stock que el socio todavía no tiene cargado.
  */
 export function normalizeCommercial(input: {
-  ccaAccepted?: unknown;
-  ccaUf?: unknown;
   captacion?: unknown;
 }): { ok: true; data: NormalizedCommercial } | { ok: false; error: string } {
   if (input.captacion !== undefined && typeof input.captacion !== 'boolean') {
     return { ok: false, error: 'La respuesta sobre el plan de captación no es válida.' };
   }
 
-  if (input.ccaAccepted !== true) {
-    return {
-      ok: false,
-      error: 'Para aceptar la propuesta tienes que estar de acuerdo con el costo del CCA.',
-    };
-  }
-
-  const raw = input.ccaUf;
-  const ccaUf = typeof raw === 'number' ? raw : typeof raw === 'string' ? Number(raw) : NaN;
-  if (!Number.isFinite(ccaUf) || ccaUf < 0) {
-    return { ok: false, error: 'Indica tu CCA estimado en UF (puede ser 0 si aún no publicas).' };
-  }
-  if (ccaUf > MAX_CCA_UF) {
-    return { ok: false, error: `El CCA estimado no puede superar ${MAX_CCA_UF.toLocaleString('es-CL')} UF.` };
-  }
-
-  return {
-    ok: true,
-    data: {
-      ccaAccepted: true,
-      // Dos decimales: el CCA se suma en UF y así se declara.
-      ccaUf: Math.round(ccaUf * 100) / 100,
-      captacion: input.captacion === true,
-    },
-  };
+  return { ok: true, data: { captacion: input.captacion === true } };
 }
 
 export interface NormalizedProposal {
@@ -314,18 +280,13 @@ function parseOne(value: unknown): KybProposal | null {
 function parseCommercial(value: unknown): KybCommercialTerms | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const raw = value as Record<string, unknown>;
-  if (typeof raw.ccaAccepted !== 'boolean') return null;
+  // Dos generaciones de filas: las que se aceptaron con el CCA (`ccaAccepted`)
+  // y las de ahora, que solo guardan la captación. Las viejas no se descartan:
+  // perderían la fecha en que el candidato dijo que sí.
+  const known = typeof raw.captacion === 'boolean' || typeof raw.ccaAccepted === 'boolean';
+  if (!known) return null;
 
   return {
-    ccaAccepted: raw.ccaAccepted,
-    ccaUf:
-      typeof raw.ccaUf === 'number' && Number.isFinite(raw.ccaUf) && raw.ccaUf >= 0
-        ? raw.ccaUf
-        : 0,
-    ccaPct:
-      typeof raw.ccaPct === 'number' && Number.isFinite(raw.ccaPct) && raw.ccaPct > 0
-        ? raw.ccaPct
-        : 100,
     captacion: raw.captacion === true,
     acceptedAt: typeof raw.acceptedAt === 'string' ? raw.acceptedAt : '',
   };

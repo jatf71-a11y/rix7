@@ -94,13 +94,11 @@ async function propuestaAceptada(id: string): Promise<string> {
   if (!sent.ok) throw new Error(`no se pudo enviar la propuesta: ${sent.error}`);
 
   const proposalToken = tokenFromLastEmail();
+  // Aceptar es decir que sí al plan: el CCA no se firma acá (es una
+  // determinación posterior, con la cartera que el socio ya cargó).
   const accepted = await decideKybProposal({
     token: proposalToken,
     decision: 'aceptada',
-    // Aceptar incluye el acuerdo con el CCA y su estimación: sin eso no se
-    // acepta, que es la regla del paso de propuesta.
-    ccaAccepted: true,
-    ccaUf: 12000,
   });
   if (!accepted.ok) throw new Error(`no se pudo aceptar la propuesta: ${accepted.error}`);
 
@@ -295,26 +293,30 @@ describe('flujo KYB', () => {
     expect(mail.text).toMatch(/«De acuerdo»/);
   });
 
-  it('sin acuerdo con el CCA la propuesta no se acepta', async () => {
+  it('la propuesta se acepta sin CCA y el correo del alta no lo menciona', async () => {
     const submitted = await submitKybApplication(empresa, { deps });
     const id = submitted.applicationId as string;
     await sendKybProposal({ id, plan: 'profesional' });
 
     const proposalToken = tokenFromLastEmail();
-    const refused = await decideKybProposal({
-      token: proposalToken,
-      decision: 'aceptada',
-      ccaUf: 1000,
-    });
+    sendEmail.mockClear();
 
-    expect(refused.ok).toBe(false);
-    expect(refused.error).toMatch(/CCA/);
-    // Nada se movió: sigue esperando la respuesta del candidato.
+    const accepted = await decideKybProposal({ token: proposalToken, decision: 'aceptada' });
+    expect(accepted.ok).toBe(true);
+    expect(accepted.status).toBe('Alta');
+
     const stored = await getApplication(id);
-    expect(stored.data?.status).toBe('Propuesta_Comercial');
+    expect(stored.data?.proposal.at(-1)?.commercial).toMatchObject({ captacion: false });
+
+    const acceptedMail = sendEmail.mock.calls
+      .map(([mail]) => mail as { subject: string; text: string })
+      .find((mail) => /aceptada/i.test(mail.subject));
+    expect(acceptedMail).toBeTruthy();
+    // El CCA se determina después: ni estimación ni monto en este correo.
+    expect(acceptedMail?.text).not.toMatch(/CCA/);
   });
 
-  it('al aceptar guarda el CCA y la captación, y explica el plan de captación', async () => {
+  it('al aceptar guarda la captación y explica el plan de captación', async () => {
     const submitted = await submitKybApplication(empresa, { deps });
     const id = submitted.applicationId as string;
     await sendKybProposal({ id, plan: 'profesional', altaClp: 49990, monthlyClp: 39990 });
@@ -325,19 +327,12 @@ describe('flujo KYB', () => {
     const accepted = await decideKybProposal({
       token: proposalToken,
       decision: 'aceptada',
-      ccaAccepted: true,
-      ccaUf: 100000,
       captacion: true,
     });
     expect(accepted.ok).toBe(true);
 
     const stored = await getApplication(id);
-    expect(stored.data?.proposal.at(-1)?.commercial).toMatchObject({
-      ccaAccepted: true,
-      ccaUf: 100000,
-      ccaPct: 100,
-      captacion: true,
-    });
+    expect(stored.data?.proposal.at(-1)?.commercial).toMatchObject({ captacion: true });
 
     const subjects = sendEmail.mock.calls.map(
       ([mail]) => (mail as { subject: string }).subject
@@ -348,7 +343,6 @@ describe('flujo KYB', () => {
     const acceptedMail = sendEmail.mock.calls
       .map(([mail]) => mail as { subject: string; text: string })
       .find((mail) => /aceptada/i.test(mail.subject));
-    expect(acceptedMail?.text).toContain('CCA estimado: UF 100.000');
     // La captación se cobra por perfil; esta empresa no declaró tipo, así que cae
     // en el perfil más chico (Profesional, $9.990) y no en el de corredora.
     expect(acceptedMail?.text).toContain('Captación de leads: $9.990 al mes');
@@ -378,8 +372,6 @@ describe('flujo KYB', () => {
     const accepted = await decideKybProposal({
       token: proposalToken,
       decision: 'aceptada',
-      ccaAccepted: true,
-      ccaUf: 5000,
     });
     expect(accepted.ok).toBe(true);
     expect(accepted.status).toBe('Alta');

@@ -179,7 +179,7 @@ describe('correos KYB', () => {
     expect(email.html).toContain('Inmobiliaria');
   });
 
-  it('el correo del alta repite el CCA y la captación que aceptó', () => {
+  it('el correo del alta confirma la captación y no habla del CCA', () => {
     const email = buildKybAcceptedEmail({
       legalName: 'Catedral Propiedades SpA',
       contactName: 'Ana Torres',
@@ -194,13 +194,14 @@ describe('correos KYB', () => {
         listings: 50,
         source: 'propuesta',
       },
-      commercial: { ccaUf: 100000, ccaPct: 100, captacionMonthlyClp: 19990 },
+      captacionMonthlyClp: 19990,
     });
 
-    expect(email.text).toContain('CCA estimado: UF 100.000');
-    expect(email.text).toContain('(100% del valor base)');
     expect(email.text).toContain('Captación de leads: $19.990 al mes');
-    expect(email.html).toContain('UF 100.000');
+    expect(email.html).toContain('Captación de leads');
+    // El CCA se determina después del alta, con la cartera del socio.
+    expect(email.text).not.toMatch(/CCA/);
+    expect(email.html).not.toMatch(/CCA/);
   });
 
   it('sin captación no aparece la línea del plan de captación', () => {
@@ -218,10 +219,10 @@ describe('correos KYB', () => {
         listings: 50,
         source: 'propuesta',
       },
-      commercial: { ccaUf: 0, ccaPct: 100, captacionMonthlyClp: null },
+      captacionMonthlyClp: null,
     });
 
-    expect(email.text).toContain('UF 0');
     expect(email.text).not.toContain('Captación de leads');
+    expect(email.html).not.toContain('Captación de leads');
   });
 });

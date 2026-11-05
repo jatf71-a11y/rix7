@@ -1,31 +1,21 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Check, ChevronDown, Loader2, X } from 'lucide-react';
 
 import { formatPlanPrice } from '@/lib/kyb/plans';
-import {
-  ccaAmountClp,
-  formatCcaAmount,
-  formatDecimalInput,
-  parseDecimalInput,
-  type LeadBracket,
-} from '@/lib/kyb/planPricing';
+import type { LeadBracket } from '@/lib/kyb/planPricing';
 import type { KybCommercialTerms } from '@/lib/kyb/proposal';
 import type { KybProposalDecision } from '@/lib/kyb/status';
 
 /**
  * Decisión del candidato sobre la propuesta.
  *
- * Aceptar no es solo decir que sí al plan: el **CCA** —la suma de sus
- * publicaciones en UF, traducida a pesos— se cobra aparte, y la **captación de
- * leads** es otro producto. Antes esas dos decisiones quedaban en una llamada
- * sin registro; ahora se toman acá, con los números a la vista, y viajan con la
- * aceptación.
- *
- * El CCA se estima en UF y el monto en pesos se muestra con la UF del día
- * (`/api/indicators`), la misma que usa el resto del sitio. Es una estimación: en
- * cuanto cargue sus propiedades el sistema la recalcula solo.
+ * Aceptar es decir que sí al plan y elegir si contrata la **captación de leads**,
+ * que es el otro producto que se cobra por mes. El **CCA** no se decide acá: es
+ * una determinación que se resuelve después del alta, con las publicaciones que
+ * el socio cargue. Antes se pedía una estimación en UF en este paso, y esa
+ * estimación tenía que adivinar propiedades que todavía no existían.
  */
 
 function bracketLabel(bracket: LeadBracket, unit: 'uf' | 'clp'): string {
@@ -39,7 +29,6 @@ export default function ProposalDecision({
   token,
   legalName,
   decision,
-  ccaPct,
   captacionMonthlyClp,
   profileLabel,
   captacion,
@@ -48,8 +37,6 @@ export default function ProposalDecision({
   token: string;
   legalName: string;
   decision: KybProposalDecision | null;
-  /** %CCA vigente en Planes. */
-  ccaPct: number;
   /** Suscripción Captación Activa del perfil, en pesos por mes. */
   captacionMonthlyClp: number;
   profileLabel: string;
@@ -62,41 +49,10 @@ export default function ProposalDecision({
   const [saved, setSaved] = useState<KybCommercialTerms | null>(commercial);
   const [error, setError] = useState<string | null>(null);
 
-  const [ccaAccepted, setCcaAccepted] = useState(commercial?.ccaAccepted ?? false);
-  const [ccaInput, setCcaInput] = useState(
-    commercial ? formatDecimalInput(commercial.ccaUf) : ''
-  );
   const [wantsCaptacion, setWantsCaptacion] = useState(commercial?.captacion ?? false);
   const [showCaptacion, setShowCaptacion] = useState(false);
-  const [uf, setUf] = useState<number | null>(null);
-  const [ufFailed, setUfFailed] = useState(false);
 
-  // La UF del día: es lo que traduce el CCA (en UF) al monto en pesos. Si no se
-  // puede leer, la pantalla lo dice en vez de mostrar un cero que parece un
-  // precio.
-  useEffect(() => {
-    let cancelled = false;
-
-    fetch('/api/indicators', { cache: 'no-store' })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((body) => {
-        if (cancelled) return;
-        const value = Number(body?.uf?.value);
-        if (Number.isFinite(value) && value > 0) setUf(value);
-        else setUfFailed(true);
-      })
-      .catch(() => {
-        if (!cancelled) setUfFailed(true);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const ccaUf = parseDecimalInput(ccaInput);
-  const ccaClp = ccaUf !== null && uf !== null ? ccaAmountClp(ccaUf, uf, ccaPct) : null;
-  const canAccept = ccaAccepted && ccaUf !== null && ccaUf >= 0 && !sending && !done;
+  const canAccept = !sending && !done;
 
   async function answer(value: KybProposalDecision) {
     if (sending || done) return;
@@ -110,8 +66,6 @@ export default function ProposalDecision({
         body: JSON.stringify({
           token,
           decision: value,
-          ccaAccepted,
-          ccaUf: ccaUf ?? 0,
           captacion: wantsCaptacion,
         }),
       });
@@ -123,11 +77,8 @@ export default function ProposalDecision({
       }
 
       setDone(value);
-      if (value === 'aceptada' && ccaUf !== null) {
+      if (value === 'aceptada') {
         setSaved({
-          ccaAccepted: true,
-          ccaUf,
-          ccaPct,
           captacion: wantsCaptacion,
           acceptedAt: new Date().toISOString(),
         });
@@ -147,27 +98,15 @@ export default function ProposalDecision({
         </p>
         <ul className="mt-2 space-y-1 text-sm leading-relaxed text-emerald-700">
           {saved ? (
-            <>
-              <li>
-                CCA estimado: <strong>UF {formatDecimalInput(saved.ccaUf)}</strong>
-                {uf !== null && (
-                  <>
-                    {' '}
-                    ≈ <strong>{formatCcaAmount(ccaAmountClp(saved.ccaUf, uf, saved.ccaPct))}</strong>
-                  </>
-                )}
-                .
-              </li>
-              <li>
-                Plan de captación:{' '}
-                <strong>
-                  {saved.captacion
-                    ? `${formatPlanPrice(captacionMonthlyClp)} /mes`
-                    : 'no contratado'}
-                </strong>
-                .
-              </li>
-            </>
+            <li>
+              Plan de captación:{' '}
+              <strong>
+                {saved.captacion
+                  ? `${formatPlanPrice(captacionMonthlyClp)} /mes`
+                  : 'no contratado'}
+              </strong>
+              .
+            </li>
           ) : null}
         </ul>
         <p className="mt-2 text-sm leading-relaxed text-emerald-700">
@@ -175,7 +114,8 @@ export default function ProposalDecision({
           {saved?.captacion
             ? ' También te mandamos el detalle de cómo funciona el plan de captación.'
             : ''}{' '}
-          Cuando el pago quede registrado, tu cuenta pasa a operando.
+          Cuando el pago quede registrado, tu cuenta pasa a operando. El CCA se determina después,
+          en tu panel, con tus publicaciones ya cargadas.
         </p>
       </div>
     );
@@ -199,53 +139,8 @@ export default function ProposalDecision({
         <p className="text-sm font-bold text-slate-900">Condiciones que aceptas</p>
         <p className="mt-1 text-xs leading-relaxed text-slate-500">
           Perfil de socio: <strong className="text-slate-700">{profileLabel}</strong>. Además del
-          plan, hay dos conceptos que se cobran aparte y se deciden acá.
+          plan, puedes sumar el plan de captación de leads.
         </p>
-
-        <label className="mt-4 flex items-start gap-2.5 text-sm text-slate-600">
-          <input
-            type="checkbox"
-            checked={ccaAccepted}
-            onChange={(event) => setCcaAccepted(event.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-slate-300"
-          />
-          <span>
-            Estoy de acuerdo con el costo del <strong className="text-slate-800">CCA</strong>: la
-            suma de mis publicaciones en UF, convertida a pesos con la UF del día.
-          </span>
-        </label>
-
-        <div className="mt-3 rounded-lg bg-slate-50 px-3 py-3">
-          <label htmlFor="cca-uf" className="text-xs font-semibold text-slate-600">
-            Estima tu CCA en UF (0 si todavía no publicas)
-          </label>
-          <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <input
-              id="cca-uf"
-              inputMode="decimal"
-              value={ccaInput}
-              onChange={(event) => setCcaInput(event.target.value)}
-              placeholder="100.000"
-              className="w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none"
-            />
-            <span className="text-xs text-slate-500">
-              {ccaClp !== null ? (
-                <>
-                  ≈ <strong className="text-slate-800">{formatCcaAmount(ccaClp)}</strong> por concepto
-                  de CCA
-                </>
-              ) : ufFailed ? (
-                'No pudimos leer la UF del día: el monto lo calculamos al confirmar.'
-              ) : (
-                'Calculando con la UF del día…'
-              )}
-            </span>
-          </div>
-          <p className="mt-2 text-[11px] leading-relaxed text-slate-400">
-            $CCA = CCA × valor de la UF ÷ 1.000.000 × {ccaPct}%. Cuando cargues tus propiedades el
-            sistema lo recalcula solo.
-          </p>
-        </div>
 
         <label className="mt-4 flex items-start gap-2.5 text-sm text-slate-600">
           <input
@@ -315,6 +210,12 @@ export default function ProposalDecision({
             </p>
           </div>
         )}
+
+        <p className="mt-4 rounded-lg bg-slate-50 px-3 py-2.5 text-xs leading-relaxed text-slate-500">
+          El <strong className="text-slate-700">CCA</strong> no se cobra en esta propuesta: se
+          determina después del alta, según las publicaciones que cargues, y se cobra junto a la
+          mensualidad.
+        </p>
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row">
@@ -346,8 +247,7 @@ export default function ProposalDecision({
         </button>
       </div>
       <p className="text-[11px] leading-relaxed text-slate-400">
-        Para aceptar tienes que marcar que estás de acuerdo con el costo del CCA e indicar tu CCA
-        estimado. Al aceptar seguimos con el alta y te enviamos el acceso para confirmar el plan.
+        Al aceptar seguimos con el alta y te enviamos el acceso para confirmar el plan.
       </p>
       {error && (
         <p role="alert" className="text-sm font-semibold text-red-600">

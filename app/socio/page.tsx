@@ -20,6 +20,7 @@ import { leadChannelLabel, leadSourceLabel } from '@/lib/data/leads';
 import { shareChannelLabel } from '@/lib/data/shareEvents';
 import { formatPrice, getStatusLabel } from '@/lib/utils/formatters';
 import ShareDialog from '@/components/socio/ShareDialog';
+import CcaCard from './CcaCard';
 import SocioAccessNotice from './SocioAccessNotice';
 
 /**
@@ -741,6 +742,18 @@ export default function SocioPanelPage() {
                 </p>
               </>
             ) : null}
+          </section>
+
+          {/* El CCA se determina acá, con el socio ya operando y sus
+              publicaciones cargadas: no se firma en la propuesta comercial. */}
+          <section className="mt-10 border-t border-slate-200 pt-8">
+            <div className="mb-4">
+              <h2 className="text-lg font-black text-slate-900">Tu CCA</h2>
+              <p className="text-sm text-slate-500 mt-1">
+                Se determina con el volumen de tu cartera y el %CCA vigente.
+              </p>
+            </div>
+            <CcaCard />
           </section>
         </>
       )}

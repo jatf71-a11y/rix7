@@ -12,9 +12,11 @@
  *
  * ## CCA
  *
- * El CCA es la **suma de todas las publicaciones activas de un socio, en UF**.
- * No es un precio fijo de catálogo —depende del stock que tenga publicado cada
- * socio en cada momento— así que no se guarda con los precios: se calcula.
+ * El CCA es la **suma de la cartera de un socio, en UF**: el volumen de
+ * propiedades que publica. Es una determinación que se resuelve después del alta
+ * —no un servicio que se contrate ni un cobro por publicación— y depende de
+ * cuánto stock maneja cada socio, así que no es un precio de catálogo y no se
+ * guarda con los precios: se calcula (`lib/kyb/cca.ts`).
  * La fórmula que definió el equipo es
  *
  *   $CCA = CCA × valor de la UF ÷ 1.000.000 × %CCA
@@ -248,7 +250,8 @@ export function captacionMonthlyFor(config: PlanPricingConfig, profile: PartnerK
 export const CCA_FORMULA = '$CCA = CCA × valor de la UF ÷ 1.000.000 × %CCA';
 
 /** Qué es el CCA, en una línea. */
-export const CCA_DEFINITION = 'CCA: suma total de todas las publicaciones de un socio, en UF.';
+export const CCA_DEFINITION =
+  'CCA: suma de la cartera del socio (sus propiedades), en UF. Se cobra el CCA, no cada publicación.';
 
 function validCca(ccaUf: number, ufValueClp: number): boolean {
   return (

@@ -140,12 +140,12 @@ Recibida → En_Evaluacion → (Pendiente_Informacion →) Aceptada
   desde la ficha (`POST /api/kyb/[id]/proposal`). Los montos salen de **Planes**
   según el perfil del registro y se pueden negociar a mano. El correo lleva un
   enlace de un solo uso a `/empresas/propuesta?token=…`, donde el candidato
-  acepta o rechaza (`POST /api/kyb/proposal`). El «de acuerdo» incluye las dos
-  condiciones que se cobran aparte del plan: el **CCA** (con el CCA estimado en
-  UF, que el socio declara) y la contratación del **plan de captación**, que se
-  explica en su propio correo (`buildKybCaptacionEmail`). Aceptar mueve a
-  **Alta** y emite el token para elegir plan; rechazar cierra la solicitud como
-  `Rechazada`.
+  acepta o rechaza (`POST /api/kyb/proposal`). El «de acuerdo» incluye, si lo
+  quiere, el **plan de captación**, que se explica en su propio correo
+  (`buildKybCaptacionEmail`). El **CCA** no se firma acá: se determina después del
+  alta, con la cartera del socio (ver *El CCA se determina después del alta*).
+  Aceptar mueve a **Alta** y emite el token para elegir plan; rechazar cierra la
+  solicitud como `Rechazada`.
 - **Alta** — la empresa ya aceptó: elige plan y se le crea la ficha y la cuenta
   (`provisioning`). El panel queda habilitado, pero **no** es cliente activo.
 - **Operando** — el alta terminó **y** el período está pagado. Lo mueve la
@@ -171,8 +171,8 @@ la evaluación se repite al responder un pedido de información).
 | Pendiente de información | `buildKybPendingEmail` / `buildSolicitudPendingEmail` | las preguntas concretas y el enlace de 7 días; el recordatorio (`buildKybReminderEmail`, `reminder: true`) insiste sobre lo pendiente |
 | Aceptada | `buildSolicitudAcceptedEmail` (registro) y, en el alta, el de Calificado | que la verificación salió bien |
 | Calificado | `buildKybQualifiedEmail` | perfil de socio (profesional, corredora, inmobiliaria), alta, mensualidad, usuarios, publicaciones y captación, con los montos de **Planes**, y pide un «De acuerdo» |
-| Propuesta comercial | `buildKybProposalEmail` + la página del enlace | plan y montos; en la página, el acuerdo con el CCA, su estimación en UF y la captación |
-| Alta | `buildKybAcceptedEmail` y `buildKybActivatedEmail` | plan confirmado, CCA estimado y captación aceptada; después, el panel habilitado |
+| Propuesta comercial | `buildKybProposalEmail` + la página del enlace | plan y montos; en la página, la aceptación y la captación; el CCA se avisa como determinación posterior |
+| Alta | `buildKybAcceptedEmail` y `buildKybActivatedEmail` | plan confirmado y captación aceptada; después, el panel habilitado |
 
 El correo de calificación lo manda también el puente registro→alta
 (`notifyQualifiedForApplication`), así un socio aprobado desde Solicitudes recibe
@@ -225,6 +225,30 @@ constante del código. `%CCA = 100` deja el factor en 1.000.000 y el monto de
 siempre; `50` lo sube a 2.000.000 y cobra la mitad; `200` lo baja a 500.000 y
 cobra el doble. `ccaFactor` devuelve el divisor equivalente, que el panel muestra
 al lado del campo para no tener que despejarlo a mano.
+
+#### El CCA se determina después del alta
+
+El CCA **no es un producto que se contrate, ni un servicio que se active, ni un
+cobro por publicación**: es la suma de la cartera del socio, en UF, y una
+**determinación** que se resuelve después del alta. Está ligada al volumen de
+publicaciones que el socio maneja, no a cuántas fichas están hoy en la vidriera.
+Antes se firmaba en la **propuesta comercial** con una estimación en UF de
+propiedades que el candidato todavía no había cargado: el número era una promesa.
+Ahora sale de su cartera:
+
+- el CCA suma los precios de **todas sus propiedades** —sin filtrar por estado— y
+  los divide por la UF del día, así que cambia solo cuando suma una propiedad;
+- el `%CCA` es el que el equipo fija en **Planes** (`plan_settings`), y es lo
+  único discrecional de la regla;
+- se cobra junto a la mensualidad, y el panel del socio lo muestra en **Tu CCA**
+  (`/socio`, lectura de `/api/partner/cca`), sin contador de publicaciones: no se
+  cobra por aviso.
+
+No hay nada que guardar: la tabla de precios ya dice el `%CCA`, las fichas ya
+dicen la cartera y la UF viene de `/api/indicators`. Persistir el monto obligaría
+a recalcularlo en cada propiedad y una cifra vieja se cobraría como si fuera la
+de hoy. La cuenta pura vive en [`lib/kyb/cca.ts`](../lib/kyb/cca.ts) y la lectura
+del socio en [`lib/data/ccaDetermination.ts`](../lib/data/ccaDetermination.ts).
 
 **Planes de Captación** no reemplazan a los de suscripción: un socio puede tener
 uno, el otro o los dos. Tienen una **Suscripción Captación Activa** por perfil

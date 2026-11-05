@@ -214,7 +214,7 @@ export function buildKybAcceptedEmail({
   token,
   siteUrl,
   plan,
-  commercial = null,
+  captacionMonthlyClp = null,
 }: {
   legalName: string;
   contactName: string;
@@ -229,13 +229,14 @@ export function buildKybAcceptedEmail({
    */
   plan: AltaPlanSummary;
   /**
-   * Las condiciones que el candidato aceptó además del plan (CCA y captación).
+   * La captación que el candidato aceptó, si la tomó.
    *
    * Es el correo del paso **Alta**: lo que se confirma tiene que ser todo lo que
-   * se definió en la propuesta, no solo la mensualidad. El CCA va en UF porque es
-   * lo que el socio declaró; el monto en pesos depende de la UF del día.
+   * se definió en la propuesta, no solo la mensualidad. El CCA no figura porque
+   * no se firma acá: se determina después del alta, con las publicaciones del
+   * socio.
    */
-  commercial?: { ccaUf: number; ccaPct: number; captacionMonthlyClp: number | null } | null;
+  captacionMonthlyClp?: number | null;
 }): BuiltKybEmail {
   const link = kybAccessUrl(siteUrl, token);
   const first = contactName.trim().split(/\s+/)[0] || '';
@@ -253,7 +254,7 @@ export function buildKybAcceptedEmail({
     `Plan ${plan.planName} — ${monthly}/mes`,
     `Alta inicial: ${alta}`,
     `${plan.usuariosIncluidos} usuario(s) y ${plan.listings} publicaciones activas.`,
-    ...commercialTextLines(commercial),
+    ...captacionTextLines(captacionMonthlyClp),
     '',
     'Al confirmar el plan creamos el acceso al panel de publicaciones y te enviamos el enlace',
     'para entrar. El alta queda cerrada cuando se registra el pago del período.',
@@ -281,7 +282,7 @@ export function buildKybAcceptedEmail({
             </td>
           </tr>
         </table>
-        ${commercialHtml(commercial)}
+        ${captacionHtml(captacionMonthlyClp)}
         <div style="margin:22px 0 0">
           <a href="${link}" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:700;padding:12px 22px;border-radius:12px;text-decoration:none">
             Confirmar plan y activar mi panel
@@ -295,48 +296,19 @@ export function buildKybAcceptedEmail({
   };
 }
 
-/** Líneas de texto con el CCA y la captación aceptados; vacío si no hay nada. */
-function commercialTextLines(
-  commercial: { ccaUf: number; ccaPct: number; captacionMonthlyClp: number | null } | null
-): string[] {
-  if (!commercial) return [];
-  return [
-    '',
-    `CCA estimado: UF ${formatCcaNumber(commercial.ccaUf)} (${commercial.ccaPct}% del valor base).`,
-    'El monto en pesos se calcula con la UF del día: cuando cargues tus propiedades el sistema lo',
-    'recalcula solo.',
-    ...(commercial.captacionMonthlyClp !== null
-      ? [`Captación de leads: ${formatPlanPrice(commercial.captacionMonthlyClp)} al mes.`]
-      : []),
-  ];
+/** Línea de texto con la captación aceptada; vacío si no la tomó. */
+function captacionTextLines(captacionMonthlyClp: number | null): string[] {
+  if (captacionMonthlyClp === null) return [];
+  return ['', `Captación de leads: ${formatPlanPrice(captacionMonthlyClp)} al mes.`];
 }
 
-/** Bloque HTML con las mismas condiciones. */
-function commercialHtml(
-  commercial: { ccaUf: number; ccaPct: number; captacionMonthlyClp: number | null } | null
-): string {
-  if (!commercial) return '';
-
-  const captacion =
-    commercial.captacionMonthlyClp !== null
-      ? `<p style="margin:4px 0 0;color:#475569;font-size:12px">Captación de leads: <strong>${escapeHtml(formatPlanPrice(commercial.captacionMonthlyClp))} /mes</strong></p>`
-      : '';
+/** Bloque HTML con la misma línea. */
+function captacionHtml(captacionMonthlyClp: number | null): string {
+  if (captacionMonthlyClp === null) return '';
 
   return `<div style="margin:16px 0 0;padding:12px 14px;background:#f8fafc;border-radius:12px;color:#475569;font-size:12px;line-height:1.65">
-          <p style="margin:0">
-            <strong style="color:#0f172a">CCA estimado:</strong> UF ${escapeHtml(formatCcaNumber(commercial.ccaUf))}
-            (${escapeHtml(String(commercial.ccaPct))}% del valor base). El monto en pesos se calcula
-            con la UF del día y se recalcula cuando cargues tus propiedades.
-          </p>
-          ${captacion}
+          <p style="margin:0">Captación de leads: <strong>${escapeHtml(formatPlanPrice(captacionMonthlyClp))} /mes</strong></p>
         </div>`;
-}
-
-/** CCA en UF con separador de miles, sin decimales innecesarios. */
-function formatCcaNumber(value: number): string {
-  return new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(
-    Number.isFinite(value) ? value : 0
-  );
 }
 
 /**
@@ -460,9 +432,9 @@ export function buildKybQualifiedEmail({
     `- Mensualidad: ${monthly} por mes.`,
     `- Usuarios incluidos en el panel: ${terms.usuariosIncluidos}.`,
     '',
-    `Aparte de la suscripción, el CCA se cobra según la suma de tus publicaciones en UF,`,
-    'y puedes contratar la captación de leads por ',
-    `${captacion} al mes.`,
+    `Puedes contratar la captación de leads por ${captacion} al mes.`,
+    'El CCA —la suma de tus publicaciones en UF— no se firma ahora: se determina después',
+    'del alta, con las propiedades que cargues, y se factura aparte de la mensualidad.',
     '',
     'El paso siguiente es la propuesta comercial con el enlace para responder. Si estás de',
     'acuerdo con estas condiciones, responde ese correo con «De acuerdo» y seguimos con el',
@@ -498,8 +470,9 @@ export function buildKybQualifiedEmail({
           ${row('Captación de leads (opcional)', `${captacion} /mes`)}
         </table>
         <p style="margin:14px 0 0;color:#475569;font-size:13px;line-height:1.65">
-          Aparte de la suscripción, el <strong>CCA</strong> se cobra según la suma de tus
-          publicaciones en UF, y en la propuesta eliges si contratas la captación de leads.
+          En la propuesta eliges si contratas la captación de leads. El <strong>CCA</strong> —la
+          suma de tus publicaciones en UF— se determina después del alta, con las propiedades que
+          cargues, y se factura aparte de la mensualidad.
         </p>
         <p style="margin:14px 0 0;color:#64748b;font-size:12px;line-height:1.6">
           Te enviamos la propuesta comercial con el enlace para responder en los próximos días.
@@ -677,8 +650,9 @@ export function buildKybProposalEmail({
     'Para aceptarla y seguir con el alta, entra a este enlace (vale 7 días):',
     link,
     '',
-    'En el enlace también eliges el CCA —con tu estimación en UF— y si contratas el plan de',
-    'captación de leads, que te explicamos aparte si lo tomas.',
+    'En el enlace también eliges si contratas el plan de captación de leads, que te',
+    'explicamos aparte si lo tomas. El CCA no se cobra todavía: se determina después del',
+    'alta, con las publicaciones que cargues.',
     '',
     'Si los números no te sirven, desde el mismo enlace nos lo dices.',
     '',

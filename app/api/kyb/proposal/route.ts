@@ -14,9 +14,9 @@ import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
  * emite el token para elegir plan; el panel y el estado `Operando` siguen
  * dependiendo de la activación y del pago.
  *
- * El cuerpo lleva, además del `decision`, lo que el candidato definió al aceptar:
- * `ccaAccepted` (está de acuerdo con el costo del CCA), `ccaUf` (su CCA estimado)
- * y `captacion` (si contrata el plan de captación de leads).
+ * El cuerpo lleva, además del `decision`, la `captacion` (si contrata el plan de
+ * captación de leads). El CCA ya no viaja por acá: es una determinación que se
+ * resuelve después del alta, con el volumen de cartera del socio.
  */
 const rateLimiter = createRateLimiter({ max: 30, windowMs: 10 * 60 * 1000 });
 
@@ -31,8 +31,6 @@ export async function POST(request: NextRequest) {
   let body: {
     token?: unknown;
     decision?: unknown;
-    ccaAccepted?: unknown;
-    ccaUf?: unknown;
     captacion?: unknown;
   };
   try {
@@ -44,9 +42,6 @@ export async function POST(request: NextRequest) {
   const result = await decideKybProposal({
     token: body.token,
     decision: body.decision,
-    // Las dos decisiones que acompañan al «de acuerdo»: CCA estimado y captación.
-    ccaAccepted: body.ccaAccepted,
-    ccaUf: body.ccaUf,
     captacion: body.captacion,
   });
 

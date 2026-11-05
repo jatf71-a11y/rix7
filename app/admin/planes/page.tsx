@@ -530,8 +530,8 @@ export default function AdminPlanesPage() {
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
               <p className="mt-1 text-[10px] text-slate-400">
-                Suma de todas sus publicaciones, en UF. Ejemplo: un CCA de 100.000 con una UF de
-                $40.000 da $4.000.
+                Suma de la cartera del socio, en UF. No se cobra por publicación. Ejemplo: un CCA de
+                100.000 con una UF de $40.000 da $4.000.
               </p>
             </div>
 

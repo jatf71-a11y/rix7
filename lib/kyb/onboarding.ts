@@ -852,8 +852,6 @@ export interface ProposalView {
   proposal?: KybProposal;
   /** Perfil de socio del registro, para nombrarlo en la pantalla. */
   profileLabel?: string;
-  /** %CCA vigente en **Planes**, con el que se estima el costo. */
-  ccaPct?: number;
   /** Suscripción Captación Activa del perfil, en pesos por mes. */
   captacionMonthlyClp?: number;
   /** Tramos de acceso a leads, para explicar el plan de captación. */
@@ -865,9 +863,9 @@ export interface ProposalView {
  * Lo que se puede mostrar de una propuesta con su token, sin exponer nada más.
  *
  * Además de la propuesta lleva el perfil y los precios del plan de captación,
- * porque la decisión que se toma en esa pantalla incluye el CCA y la captación:
- * el candidato tiene que ver la fórmula con el %CCA vigente y cuánto cuesta cada
- * pieza del otro producto antes de decir que sí.
+ * porque la decisión que se toma en esa pantalla incluye ese producto: el
+ * candidato tiene que ver cuánto cuesta cada pieza antes de decir que sí. El CCA
+ * no aparece: se resuelve después del alta, desde el panel del socio.
  */
 export async function kybProposalByToken(token: unknown): Promise<ProposalView> {
   if (!isKybTokenShape(token)) return { ok: false, error: 'El enlace no es válido.' };
@@ -894,7 +892,6 @@ export async function kybProposalByToken(token: unknown): Promise<ProposalView> 
     status: application.status,
     proposal,
     profileLabel: profileLabel(profile),
-    ccaPct: pricing.config.ccaPct,
     captacionMonthlyClp: captacionMonthlyFor(pricing.config, profile),
     captacion: {
       ventas: pricing.config.captacion.ventas,
@@ -921,21 +918,17 @@ export interface ProposalDecisionResult {
 export async function decideKybProposal({
   token,
   decision,
-  ccaAccepted,
-  ccaUf,
   captacion,
 }: {
   token: unknown;
   decision: unknown;
   /**
-   * Las dos decisiones que se toman junto con el «de acuerdo».
+   * La única decisión que acompaña al «de acuerdo».
    *
-   * Aceptar la propuesta incluye aceptar el costo del CCA con un CCA estimado y
-   * elegir si se contrata la captación de leads. Antes solo viajaba el sí al
-   * plan, y lo demás quedaba en una llamada sin registro.
+   * Aceptar la propuesta es aceptar el plan y elegir si se contrata la captación
+   * de leads. El CCA quedó afuera a propósito: se determina después del alta,
+   * con las publicaciones que el socio ya tiene cargadas.
    */
-  ccaAccepted?: unknown;
-  ccaUf?: unknown;
   captacion?: unknown;
 }): Promise<ProposalDecisionResult> {
   if (!isKybTokenShape(token)) return { ok: false, error: 'El enlace no es válido.' };
@@ -964,21 +957,14 @@ export async function decideKybProposal({
   }
 
   // Las condiciones comerciales solo se validan al aceptar: rechazar no obliga a
-  // declarar un CCA que la persona no va a pagar.
+  // decidir nada sobre la captación.
   const now = new Date().toISOString();
   let commercial: KybCommercialTerms | null = null;
   if (decision === 'aceptada') {
-    const validated = normalizeCommercial({ ccaAccepted, ccaUf, captacion });
+    const validated = normalizeCommercial({ captacion });
     if (!validated.ok) return { ok: false, error: validated.error };
 
-    const pricing = await readPlanPricing();
-    commercial = {
-      ...validated.data,
-      // Se guarda el %CCA con el que se aceptó: si el equipo lo cambia después,
-      // esta aceptación se sigue leyendo con la regla del día en que se firmó.
-      ccaPct: pricing.config.ccaPct,
-      acceptedAt: now,
-    };
+    commercial = { ...validated.data, acceptedAt: now };
   }
 
   const decided: KybProposal = {
@@ -1050,9 +1036,9 @@ export async function decideKybProposal({
       token: activationToken,
       siteUrl: SITE_URL,
       plan: planSummary,
-      commercial: commercial
-        ? { ccaUf: commercial.ccaUf, ccaPct: commercial.ccaPct, captacionMonthlyClp }
-        : null,
+      // La captación, si la tomó, viaja con el correo para que la confirmación
+      // diga todo lo que se contrató. El CCA no: se determina más adelante.
+      captacionMonthlyClp,
     })
   );
 

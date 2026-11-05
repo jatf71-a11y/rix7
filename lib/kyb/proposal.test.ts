@@ -3,7 +3,6 @@ import { describe, it, expect } from 'vitest';
 import { DEFAULT_PLAN_PRICING } from './planPricing';
 import {
   KYB_PROPOSAL_NOTE_MAX,
-  MAX_CCA_UF,
   altaPlanSummary,
   defaultProposalAmounts,
   latestProposal,
@@ -246,50 +245,31 @@ describe('condiciones del paso Calificado', () => {
 });
 
 describe('condiciones comerciales de la aceptación', () => {
-  it('exige el acuerdo con el CCA para aceptar', () => {
-    const result = normalizeCommercial({ ccaUf: 1000 });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error).toMatch(/CCA/);
-  });
-
-  it('acepta un CCA de 0: un socio nuevo todavía no tiene stock', () => {
-    const result = normalizeCommercial({ ccaAccepted: true, ccaUf: 0 });
+  it('aceptar no exige CCA: se determina después del alta', () => {
+    const result = normalizeCommercial({});
 
     expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.data).toEqual({ ccaAccepted: true, ccaUf: 0, captacion: false });
-    }
+    if (result.ok) expect(result.data).toEqual({ captacion: false });
   });
 
-  it('lee el CCA escrito como texto y lo redondea a dos decimales', () => {
-    const result = normalizeCommercial({ ccaAccepted: true, ccaUf: '1234,567', captacion: true });
+  it('registra la captación cuando el candidato la toma', () => {
+    const result = normalizeCommercial({ captacion: true });
 
-    expect(result.ok).toBe(false);
-    const plain = normalizeCommercial({ ccaAccepted: true, ccaUf: '1234.567', captacion: true });
-    expect(plain.ok).toBe(true);
-    if (plain.ok) {
-      expect(plain.data.ccaUf).toBe(1234.57);
-      expect(plain.data.captacion).toBe(true);
-    }
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toEqual({ captacion: true });
   });
 
-  it('rechaza un CCA negativo o imposible de tipear', () => {
-    expect(normalizeCommercial({ ccaAccepted: true, ccaUf: -1 }).ok).toBe(false);
-    expect(normalizeCommercial({ ccaAccepted: true, ccaUf: MAX_CCA_UF + 1 }).ok).toBe(false);
-    expect(normalizeCommercial({ ccaAccepted: true }).ok).toBe(false);
-    expect(normalizeCommercial({ ccaAccepted: true, ccaUf: 10, captacion: 'si' }).ok).toBe(false);
+  it('rechaza una respuesta de captación que no es sí o no', () => {
+    expect(normalizeCommercial({ captacion: 'si' }).ok).toBe(false);
+    expect(normalizeCommercial({ captacion: 1 }).ok).toBe(false);
   });
 
-  it('la propuesta guardada conserva el CCA y la captación aceptados', () => {
+  it('la propuesta guardada conserva la captación aceptada', () => {
     const stored = [
       proposal({
         decision: 'aceptada',
         decidedAt: '2026-11-02T10:00:00.000Z',
         commercial: {
-          ccaAccepted: true,
-          ccaUf: 100000,
-          ccaPct: 100,
           captacion: true,
           acceptedAt: '2026-11-02T10:00:00.000Z',
         },
@@ -298,11 +278,33 @@ describe('condiciones comerciales de la aceptación', () => {
 
     const read = latestProposal(stored);
     expect(read?.commercial).toEqual({
-      ccaAccepted: true,
-      ccaUf: 100000,
-      ccaPct: 100,
       captacion: true,
       acceptedAt: '2026-11-02T10:00:00.000Z',
+    });
+  });
+
+  it('una aceptación vieja con CCA se sigue leyendo, sin sus campos de CCA', () => {
+    const read = readProposals([
+      {
+        planId: 'profesional',
+        altaClp: 1,
+        monthlyClp: 2,
+        sentAt: '2026-10-01T00:00:00.000Z',
+        decidedAt: '2026-10-02T00:00:00.000Z',
+        decision: 'aceptada',
+        commercial: {
+          ccaAccepted: true,
+          ccaUf: 100000,
+          ccaPct: 100,
+          captacion: false,
+          acceptedAt: '2026-10-02T00:00:00.000Z',
+        },
+      },
+    ]);
+
+    expect(read[0].commercial).toEqual({
+      captacion: false,
+      acceptedAt: '2026-10-02T00:00:00.000Z',
     });
   });
 

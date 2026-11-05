@@ -15,9 +15,9 @@ import ProposalDecision from './ProposalDecision';
  * habilita nada —la aceptación mueve la solicitud a `Alta` y emite el enlace
  * para elegir plan— y el pago sigue siendo el último paso antes de operar.
  *
- * Junto con el «de acuerdo» se deciden las dos cosas que se cobran aparte del
- * plan: el CCA (con el CCA estimado que declara el socio) y si contrata o no el
- * plan de captación. Los porcentajes y precios llegan resueltos del servidor.
+ * Junto con el «de acuerdo» se decide si contrata o no el plan de captación. El
+ * CCA no aparece: se resuelve después del alta, desde el panel del socio. Los
+ * precios llegan resueltos del servidor.
  *
  * `noindex`: lleva un token en la URL y es una pantalla de trámite.
  */
@@ -112,7 +112,6 @@ export default async function ProposalPage({
               token={searchParams.token ?? ''}
               legalName={view.legalName}
               decision={proposal.decision}
-              ccaPct={view.ccaPct ?? 100}
               captacionMonthlyClp={view.captacionMonthlyClp ?? 0}
               profileLabel={view.profileLabel ?? 'Profesional'}
               captacion={view.captacion ?? { ventas: [], arriendos: [] }}

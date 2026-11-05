@@ -16,8 +16,11 @@ import {
   Rss,
   Copy,
   RefreshCw,
+  Calculator,
 } from 'lucide-react';
 import { isPartnerKind, partnerKindLabel, type Partner, type PartnerKind } from '@/lib/data/partners';
+import { ccaMonthlyClp, ccaStockUf } from '@/lib/kyb/cca';
+import { formatPlanPrice } from '@/lib/kyb/plans';
 import { slugify } from '@/lib/utils/text';
 import SocioAccounts from './SocioAccounts';
 
@@ -96,6 +99,18 @@ function AdminEmpresasPage() {
     emptyTable: boolean;
     source: string;
   } | null>(null);
+  /**
+   * CCA de cada socio: su cartera en pesos y el `%CCA` vigente. Se pide aparte
+   * del listado (una sola consulta para todos) para que un fallo acá no deje la
+   * página sin socios. La UF sale de `/api/indicators`, como en el panel.
+   */
+  const [cca, setCca] = useState<{
+    stocks: Record<string, number>;
+    ccaPct: number;
+    persistent: boolean;
+    warning?: string;
+  } | null>(null);
+  const [uf, setUf] = useState<number | null>(null);
 
   // Open form if ?new=1
   useEffect(() => {
@@ -137,10 +152,33 @@ function AdminEmpresasPage() {
       .catch(() => {});
   }, []);
 
+  /** Cartera de todos los socios y %CCA de Planes, en una sola lectura. */
+  const loadCca = useCallback(() => {
+    fetch('/api/admin/partners/cca', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((result) => {
+        if (result.success) setCca(result.data);
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     loadPartners();
     loadFeedStates();
-  }, [loadPartners, loadFeedStates]);
+    loadCca();
+  }, [loadPartners, loadFeedStates, loadCca]);
+
+  useEffect(() => {
+    fetch('/api/indicators', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((body) => {
+        const value = Number(body?.uf?.value);
+        if (Number.isFinite(value) && value > 0) setUf(value);
+      })
+      .catch(() => {
+        // Sin UF se muestra la cartera, pero no el CCA ni el monto en pesos.
+      });
+  }, []);
 
   const showToast = (type: 'success' | 'error', message: string) => {
     setToast({ type, message });
@@ -324,6 +362,21 @@ function AdminEmpresasPage() {
         </div>
       )}
 
+      {/* El CCA se deriva de la cartera: sin base no hay de dónde leerla, y un
+          $0 en cada ficha parecería una cartera vacía de verdad. */}
+      {cca && !cca.persistent && (
+        <div className="flex items-start gap-2 px-4 py-3 mb-5 rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-800">
+          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="font-semibold">El CCA no se puede calcular en este entorno</p>
+            <p className="mt-0.5 text-amber-700">
+              {cca.warning ?? 'No hay una base de donde leer la cartera de los socios.'} Las
+              fichas muestran $0 hasta que se pueda leer la cartera.
+            </p>
+          </div>
+        </div>
+      )}
+
       {storage?.emptyTable && (
         <div className="flex items-start gap-2 px-4 py-3 mb-5 rounded-lg border border-blue-200 bg-blue-50 text-sm text-blue-800">
           <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -476,6 +529,66 @@ function AdminEmpresasPage() {
 
               {/* Description */}
               <p className="text-xs text-slate-600 mb-4 line-clamp-2">{partner.description}</p>
+
+              {/* CCA del socio: la suma de su cartera, en UF, y lo que representa
+                  con el %CCA de Planes. No es un servicio ni un cobro por
+                  publicación: es la determinación que se resuelve después del
+                  alta y se recalcula sola con cada propiedad que sume. */}
+              {(() => {
+                const stockClp = cca?.stocks[partner.id];
+                const stockUf =
+                  stockClp !== undefined && uf !== null
+                    ? ccaStockUf([stockClp], uf)
+                    : null;
+                const monthly =
+                  stockUf !== null && uf !== null && cca
+                    ? ccaMonthlyClp(stockUf, uf, cca.ccaPct)
+                    : null;
+
+                return (
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 mb-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Calculator className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-xs font-semibold text-slate-700">CCA</span>
+                      </div>
+                      {cca && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-500">
+                          {formatNumber(cca.ccaPct)}%
+                        </span>
+                      )}
+                    </div>
+
+                    <dl className="mt-2 grid grid-cols-3 gap-2">
+                      <div>
+                        <dt className="text-[10px] font-medium text-slate-500">Cartera</dt>
+                        <dd className="text-xs font-black text-slate-900">
+                          {stockClp !== undefined ? formatPlanPrice(stockClp) : '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-[10px] font-medium text-slate-500">CCA</dt>
+                        <dd className="text-xs font-black text-slate-900">
+                          {stockUf !== null ? `UF ${formatNumber(stockUf)}` : '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-[10px] font-medium text-slate-500">$CCA</dt>
+                        <dd className="text-xs font-black text-slate-900">
+                          {monthly !== null ? formatPlanPrice(monthly) : '—'}
+                        </dd>
+                      </div>
+                    </dl>
+
+                    <p className="mt-2 text-[10px] leading-relaxed text-slate-400">
+                      {stockClp === 0
+                        ? 'Sin propiedades cargadas: el CCA es 0 hasta la primera.'
+                        : 'Se determina después del alta y se recalcula con cada propiedad. No se cobra por publicación.'}
+                      {uf === null ? ' Falta la UF del día, así que no se muestra el CCA ni el monto.' : ''}
+                    </p>
+                  </div>
+                );
+              })()}
 
               {/* Feed XML para agregadores (hallazgo #14) */}
               {(() => {
@@ -894,4 +1007,9 @@ function AdminEmpresasPage() {
       )}
     </div>
   );
+}
+
+/** Número con separador de miles y hasta dos decimales. */
+function formatNumber(value: number): string {
+  return new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(value);
 }

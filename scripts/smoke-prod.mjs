@@ -1533,8 +1533,6 @@ export async function runAltaCheck({
     const accepted = await postJson('/api/kyb/proposal', {
       token: proposalToken.token,
       decision: 'aceptada',
-      ccaAccepted: true,
-      ccaUf: 0,
       captacion: false,
     });
 
