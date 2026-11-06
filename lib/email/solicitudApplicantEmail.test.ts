@@ -118,4 +118,16 @@ describe('correos del registro profesional', () => {
     expect(pending.html).toContain('https://rix7.cl/socios/responder/token-abc');
     expect(pending.subject).toMatch(/Falta un dato/);
   });
+
+  it('el pedido de informe dice que tiene que ser de los últimos 30 días', () => {
+    const pending = buildSolicitudPendingEmail({
+      name: 'María Soto',
+      offerLabel: 'tu registro de Corredora',
+      questions: [{ id: 'debt_report', question: 'Adjunta tu informe de deudas' }],
+      link: 'https://rix7.cl/socios/responder/token-abc',
+      siteUrl: SITE,
+    });
+    expect(pending.text).toContain('emitido dentro de los últimos 30 días');
+    expect(pending.html).toContain('30 días');
+  });
 });

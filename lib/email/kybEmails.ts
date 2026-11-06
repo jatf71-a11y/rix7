@@ -14,6 +14,7 @@ import { formatPlanPrice } from '@/lib/kyb/plans';
 import type { AltaPlanSummary, SubscriptionTerms } from '@/lib/kyb/proposal';
 import type { LeadBracket } from '@/lib/kyb/planPricing';
 import type { KybQuestion } from '@/lib/kyb/status';
+import { DEBT_REPORT_MAX_AGE_DAYS } from '@/lib/kyb/debtReport';
 
 export interface BuiltKybEmail {
   subject: string;
@@ -171,6 +172,10 @@ export function buildKybPendingEmail({
     'Responde en este enlace (vale 7 días):',
     link,
     '',
+    'Si entre los puntos hay un informe de deudas, va en PDF en el mismo enlace: se lee al',
+    'subirlo y el equipo lo revisa con tu ficha.',
+    `Tiene que haber sido emitido dentro de los últimos ${DEBT_REPORT_MAX_AGE_DAYS} días: uno más antiguo no sirve.`,
+    '',
     'Cuando envíes tus respuestas, la evaluación se repite automáticamente.',
     '',
     'Rix7 — Alta de empresas',
@@ -201,8 +206,10 @@ export function buildKybPendingEmail({
           </a>
         </div>
         <p style="margin:14px 0 0;color:#64748b;font-size:12px;line-height:1.6">
-          El enlace vale 7 días. Cuando envíes tus respuestas, la evaluación se repite
-          automáticamente y te contamos el resultado.
+          El enlace vale 7 días y sirve también para adjuntar el informe de deudas en PDF
+          (máximo 10 MB): se lee al subirlo. Tiene que haber sido emitido dentro de los
+          últimos ${DEBT_REPORT_MAX_AGE_DAYS} días: uno más antiguo no sirve. Cuando envíes tus
+          respuestas, la evaluación se repite automáticamente y te contamos el resultado.
         </p>`,
     }),
   };

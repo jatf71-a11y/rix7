@@ -46,6 +46,20 @@ describe('correos KYB', () => {
     expect(email.html).toContain('¿Cuál es el dominio oficial?');
   });
 
+  it('el pedido de informe dice que tiene que ser de los últimos 30 días', () => {
+    const email = buildKybPendingEmail({
+      legalName: 'Catedral Propiedades SpA',
+      contactName: 'Ana Torres',
+      questions: [{ id: 'debt_report', question: 'Adjunta tu informe de deudas' }],
+      token,
+      siteUrl,
+    });
+
+    expect(email.text).toContain('emitido dentro de los últimos 30 días');
+    expect(email.html).toContain('emitido dentro de los');
+    expect(email.html).toContain('30 días');
+  });
+
   it('escapa el HTML que viene de la empresa', () => {
     const email = buildKybPendingEmail({
       legalName: 'Empresa <script>alert(1)</script>',

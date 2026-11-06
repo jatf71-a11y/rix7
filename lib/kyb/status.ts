@@ -208,6 +208,12 @@ export interface KybCheck {
 export interface KybQuestion {
   id: string;
   question: string;
+  /**
+   * Qué respuesta espera. `document` es el informe de deudas de la CMF: la
+   * ronda muestra un campo de archivo y la respuesta guarda el id del PDF
+   * (`lib/kyb/debtReport.ts`). Sin `kind` es texto libre.
+   */
+  kind?: 'text' | 'document';
 }
 
 export type KybDecision = Extract<KybStatus, 'Aceptada' | 'Pendiente_Informacion'>;
