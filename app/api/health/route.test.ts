@@ -6,9 +6,10 @@
  * secundario» —es lo que mira un monitor de disponibilidad— y que **no se escape
  * ningún valor**, solo si está o no.
  */
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { GET } from '@/app/api/health/route';
+import { resetResendProbeCache } from '@/lib/email/resendProbe';
 import { RELEASE_TAG_ENV, RELEASE_VERSION_ENV } from '@/lib/utils/releaseIdentity';
 import { DEFAULT_OWNER_PROJECT_REF } from '@/lib/utils/supabaseOwner';
 
@@ -56,8 +57,22 @@ function setEnv(overrides: Record<string, string | undefined> = {}) {
   }
 }
 
+/** La ruta consulta a Resend: en los tests esa respuesta se fija acá. */
+function stubResend(status: number, body = '{"data":[]}') {
+  vi.stubGlobal('fetch', vi.fn(async () => new Response(body, { status })));
+}
+
+beforeEach(() => {
+  // La sonda cachea por isolate: sin esto, el veredicto de un test se arrastra
+  // al siguiente y el caso de la clave rechazada nunca se evaluaría.
+  resetResendProbeCache();
+  stubResend(200);
+});
+
 afterEach(() => {
   vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+  resetResendProbeCache();
 });
 
 describe('/api/health', () => {
@@ -73,6 +88,36 @@ describe('/api/health', () => {
     expect(body.status).toBe('ok');
     expect(body.missing).toEqual({ broken: [], degraded: [], optional: [] });
     expect(body.checkedAt).toBeTruthy();
+  });
+
+  it('una clave que Resend rechaza deja el correo en degradado, no en verde', async () => {
+    setEnv();
+    stubResend(400, '{"message":"API key is invalid"}');
+
+    const body = await (await GET()).json();
+
+    expect(body.status).toBe('degraded');
+    expect(body.missing.degraded).toEqual(['email']);
+    const email = body.subsystems.find((s: { id: string }) => s.id === 'email');
+    expect(email.configured).toBe(false);
+    expect(email.reason).toContain('vencida o revocada');
+  });
+
+  it('si Resend no responde, la clave sigue configurada y no se la acusa', async () => {
+    setEnv();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new Error('fetch failed');
+      }),
+    );
+
+    const body = await (await GET()).json();
+
+    expect(body.status).toBe('ok');
+    const email = body.subsystems.find((s: { id: string }) => s.id === 'email');
+    expect(email.configured).toBe(true);
+    expect(email.notes.join(' ')).toContain('No se pudo comprobar');
   });
 
   it('responde 503 y nombra el subsistema cuando falta uno crítico', async () => {

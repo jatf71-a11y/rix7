@@ -233,6 +233,50 @@ describe('buildHealthReport', () => {
     expect(find(report.subsystems, 'supabase_owner').configured).toBe(true);
   });
 
+  it('una clave de Resend rechazada deja el correo en degradado, no en verde', () => {
+    const report = buildHealthReport({
+      ...COMPLETE,
+      resendKeyObservation: {
+        state: 'invalid',
+        status: 400,
+        detail: '{"message":"API key is invalid"}',
+        checkedAt: '2026-11-06T16:00:00.000Z',
+      },
+    });
+    const email = find(report.subsystems, 'email');
+
+    expect(email.configured).toBe(false);
+    expect(email.reason).toContain('vencida o revocada');
+    expect(report.degraded).toEqual(['email']);
+    expect(report.status).toBe('degraded');
+    // Un degradado no es una caída: el portal sigue sirviendo y responde 200.
+    expect(httpStatus(report)).toBe(200);
+    expect(report.summary).toContain('email');
+  });
+
+  it('una clave que Resend acepta lo dice y no cambia el estado', () => {
+    const report = buildHealthReport({
+      ...COMPLETE,
+      resendKeyObservation: { state: 'valid', status: 200, detail: null, checkedAt: '2026-11-06T16:00:00.000Z' },
+    });
+
+    expect(report.status).toBe('ok');
+    expect(find(report.subsystems, 'email').notes.join(' ')).toContain('aceptó');
+  });
+
+  it('sin poder comprobar, la clave sigue configurada y el informe lo aclara', () => {
+    const report = buildHealthReport({
+      ...COMPLETE,
+      resendKeyObservation: { state: 'unverified', status: null, detail: 'fetch failed', checkedAt: '2026-11-06T16:00:00.000Z' },
+    });
+    const email = find(report.subsystems, 'email');
+
+    expect(report.status).toBe('ok');
+    expect(email.configured).toBe(true);
+    expect(email.reason).toBeNull();
+    expect(email.notes.join(' ')).toContain('No se pudo comprobar');
+  });
+
   it('el correo configurado sin remitente propio avisa qué va a usar', () => {
     const report = buildHealthReport(without('alertsFromEmail'));
     const email = find(report.subsystems, 'email');

@@ -17,7 +17,13 @@
  * depender de que el otro extremo esté vivo. Comprobar que Supabase **responde**
  * es otra cosa, y para eso ya están `npm run check:auth` y el modo `?dry=1` de
  * `/api/alerts/run`.
+ *
+ * La excepción —«¿Resend acepta la clave?»— entra como un dato ya observado
+ * (`resendKeyObservation`, que calcula `lib/email/resendProbe` con su propia
+ * caché): este módulo no sale a la red ni siquiera para eso, solo traduce el
+ * hecho a estado. Sin observación, el correo se juzga por presencia, como antes.
  */
+import type { ResendKeyObservation } from '../email/resendProbe';
 import { describeAnonKeyProblem, describeSupabaseUrlProblem } from './supabaseEnv';
 import { DEFAULT_OWNER_PROJECT_REF, judgeProjectOwnership } from './supabaseOwner';
 
@@ -60,6 +66,11 @@ export interface SubsystemInput {
   alertsCronSecret: string | null;
   sentryDsn: string | null;
   siteUrl: string | null;
+  /**
+   * Lo último que se supo de la clave de Resend, si alguien la sondeó. Ausente
+   * o `null` significa «no se comprobó»: la credencial se juzga por presencia.
+   */
+  resendKeyObservation?: ResendKeyObservation | null;
 }
 
 export interface SubsystemStatus {
@@ -170,13 +181,32 @@ export function describeSubsystems(input: SubsystemInput): SubsystemStatus[] {
   });
 
   const hasResend = Boolean(input.resendApiKey);
-  const emailNotes = hasResend
-    ? [
-        input.alertsFromEmail
-          ? null
-          : `Sin ALERTS_FROM_EMAIL los correos salen con el remitente por defecto (${DEFAULT_FROM}).`,
-      ].filter((note): note is string => note !== null)
-    : [];
+  const observation = input.resendKeyObservation ?? null;
+
+  // «Hay variable» y «Resend la acepta» son dos cosas distintas, y la vencida es
+  // la que nunca se notaba: la variable seguía puesta, la salud en verde y los
+  // correos fallando uno por uno. Si hay observación, manda la observación.
+  const rejected = hasResend && observation?.state === 'invalid';
+  const emailConfigured = hasResend && !rejected;
+
+  const emailReason = !hasResend
+    ? 'Falta RESEND_API_KEY.'
+    : rejected
+      ? `Resend rechazó la clave (HTTP ${observation?.status ?? '—'}): está vencida o revocada.`
+      : null;
+
+  const emailNotes = [
+    hasResend && !input.alertsFromEmail
+      ? `Sin ALERTS_FROM_EMAIL los correos salen con el remitente por defecto (${DEFAULT_FROM}).`
+      : null,
+    rejected
+      ? 'Mientras siga así los correos no salen: `sendEmail` los devuelve con error, no como «saltado».'
+      : null,
+    hasResend && observation?.state === 'valid' ? 'Resend aceptó la clave en la última comprobación.' : null,
+    hasResend && observation?.state === 'unverified'
+      ? `No se pudo comprobar la clave contra Resend${observation.detail ? ` (${observation.detail})` : ''}: se informa como configurada, no como válida.`
+      : null,
+  ].filter((note): note is string => note !== null);
 
   return [
     {
@@ -213,8 +243,8 @@ export function describeSubsystems(input: SubsystemInput): SubsystemStatus[] {
       id: 'email',
       label: 'Correo saliente (Resend)',
       severity: 'degraded',
-      configured: hasResend,
-      reason: hasResend ? null : 'Falta RESEND_API_KEY.',
+      configured: emailConfigured,
+      reason: emailReason,
       notes: emailNotes,
       impact: MISSING.email,
       fix: FIXES.email,

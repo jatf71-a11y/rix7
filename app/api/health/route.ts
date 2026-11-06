@@ -5,6 +5,7 @@ import {
   RELEASE_VERSION_ENV,
   parseReleaseIdentity,
 } from '@/lib/utils/releaseIdentity';
+import { observeResendKey } from '@/lib/email/resendProbe';
 import { buildHealthReport, httpStatus, subsystemEnvFrom } from '@/lib/utils/health';
 
 /**
@@ -21,6 +22,13 @@ import { buildHealthReport, httpStatus, subsystemEnvFrom } from '@/lib/utils/hea
  *
  * Es pública a propósito: no expone ningún valor (solo si está o no), y sirve
  * justamente cuando uno no tiene acceso al panel de Vercel.
+ *
+ * El correo es el único que no se juzga solo por presencia: `RESEND_API_KEY`
+ * puede estar puesta y estar vencida, y ese fue el caso que pasó inadvertido
+ * (la salud en verde y los correos fallando). La ruta consulta a Resend con
+ * `lib/email/resendProbe` —cacheado por isolate— y pasa el resultado como una
+ * observación: una clave rechazada deja `email` en degradado con el motivo, y
+ * un fallo de red no la acusa.
  *
  * `release` agrega la versión del `package.json` y el tag exacto del commit
  * publicado. Es lo que permite detectar que la build coincide con el árbol pero
@@ -44,7 +52,15 @@ import { buildHealthReport, httpStatus, subsystemEnvFrom } from '@/lib/utils/hea
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const report = buildHealthReport(subsystemEnvFrom(process.env));
+  const env = subsystemEnvFrom(process.env);
+
+  // La única pregunta del informe que no se contesta leyendo el entorno: si
+  // Resend **acepta** la clave. Sale con caché por isolate (10 minutos) y una
+  // sola consulta cuando llegan requests a la vez, así que no es una llamada
+  // por request; y si Resend no responde, la clave queda «sin comprobar», no
+  // vencida. Sin clave ni siquiera se pregunta.
+  const resendKeyObservation = await observeResendKey({ key: env.resendApiKey });
+  const report = buildHealthReport({ ...env, resendKeyObservation });
 
   return NextResponse.json(
     {

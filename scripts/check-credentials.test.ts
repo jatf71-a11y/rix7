@@ -11,6 +11,7 @@ import {
   formatReport,
   jwtRef,
   missingRequirements,
+  probeResend,
   readLocalFacts,
   readValues,
 } from './check-credentials.mjs';
@@ -352,6 +353,94 @@ describe('los datos duplicados coinciden con sus dueños', () => {
 
   it('el proyecto de Vercel es el mismo al que escribe el corte', () => {
     expect(EXPECTED_VERCEL_PROJECT_ID).toBe(EXPECTED_VERCEL_PROJECT.projectId);
+  });
+});
+
+describe('la clave de Resend vencida no pasa como buena', () => {
+  const invalid = { ok: false as const, reason: 'invalid' as const, status: 400, message: 'API key is invalid' };
+
+  it('marca la credencial como vencida y sale en rojo', () => {
+    const findings = auditCredentials({ values: HEALTHY, facts: { ...FACTS_OK, resendKey: invalid } });
+    const resend = byId(findings, 'resend_api_key');
+
+    expect(resend.state).toBe('stale');
+    expect(resend.detail).toContain('vencida');
+    expect(resend.problem).toContain('API key is invalid');
+    expect(resend.notes.join(' ')).toContain('Emití una nueva');
+    expect(missingRequirements(findings).some((f: { id: string }) => f.id === 'resend_api_key')).toBe(true);
+    expect(exitCodeFor(findings)).toBe(1);
+  });
+
+  it('el informe lo dice y encamina a emitir otra', () => {
+    const findings = auditCredentials({ values: HEALTHY, facts: { ...FACTS_OK, resendKey: invalid } });
+    const report = formatReport({ findings });
+
+    expect(report).toContain('vencida');
+    expect(report).toContain('resend.com/api-keys');
+  });
+
+  it('con la clave aceptada queda en verde y lo dice', () => {
+    const findings = auditCredentials({ values: HEALTHY, facts: { ...FACTS_OK, resendKey: { ok: true } } });
+
+    expect(byId(findings, 'resend_api_key').state).toBe('ok');
+    expect(byId(findings, 'resend_api_key').notes.join(' ')).toContain('aceptó');
+    expect(exitCodeFor(findings)).toBe(0);
+  });
+
+  it('un fallo de red es «no se pudo comprobar», no una clave vencida', () => {
+    const findings = auditCredentials({
+      values: HEALTHY,
+      facts: { ...FACTS_OK, resendKey: { ok: false, reason: 'unavailable', message: 'fetch failed' } },
+    });
+    const resend = byId(findings, 'resend_api_key');
+
+    expect(resend.state).toBe('ok');
+    expect(resend.notes.join(' ')).toContain('No se pudo comprobar');
+    expect(exitCodeFor(findings)).toBe(0);
+  });
+
+  it('sin sonda no cambia nada: solo se afirma lo que se ve', () => {
+    const findings = auditCredentials({ values: HEALTHY, facts: FACTS_OK });
+    expect(byId(findings, 'resend_api_key').state).toBe('ok');
+  });
+});
+
+describe('la clave que no se puede leer', () => {
+  it('nombra el marcador de `vercel env pull` en vez de hablar del prefijo', () => {
+    const findings = auditCredentials({ values: { ...HEALTHY, RESEND_API_KEY: '[SENSITIVE]' }, facts: FACTS_OK });
+    const resend = byId(findings, 'resend_api_key');
+
+    expect(resend.state).toBe('malformed');
+    expect(resend.problem).toContain('[SENSITIVE]');
+    expect(resend.problem).toContain('.env.local');
+  });
+});
+
+describe('probeResend', () => {
+  const respond = (status: number, body = '') => async () => new Response(body, { status });
+  const asFetch = (impl: () => Promise<Response>) => impl as unknown as typeof fetch;
+
+  it('acepta la clave cuando Resend contesta 200', async () => {
+    expect(await probeResend({ key: RESEND_KEY, fetchImpl: asFetch(respond(200, '{"data":[]}')) })).toEqual({ ok: true });
+  });
+
+  it('Resend rechaza una clave vencida con 400, no con 401', async () => {
+    const verdict = await probeResend({
+      key: RESEND_KEY,
+      fetchImpl: asFetch(respond(400, '{"statusCode":400,"message":"API key is invalid"}')),
+    });
+
+    expect(verdict).toMatchObject({ ok: false, reason: 'invalid', status: 400 });
+    if (verdict && !verdict.ok) expect(verdict.message).toContain('API key is invalid');
+  });
+
+  it('un 5xx no acusa a la clave', async () => {
+    const verdict = await probeResend({ key: RESEND_KEY, fetchImpl: asFetch(respond(503)) });
+    expect(verdict).toMatchObject({ ok: false, reason: 'unavailable' });
+  });
+
+  it('sin clave no hay nada que preguntar', async () => {
+    expect(await probeResend({ key: null })).toBeNull();
   });
 });
 

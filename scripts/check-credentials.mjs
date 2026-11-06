@@ -31,7 +31,7 @@
  * ## Uso
  *
  *   npm run check:credenciales                # lo que hay en .env.local y en el entorno
- *   npm run check:credenciales -- --online    # además: sesión de Vercel y secretos del repo
+ *   npm run check:credenciales -- --online    # además: sesión de Vercel, secretos del repo y que la clave de Resend siga viva
  *   npm run check:credenciales -- --json      # para encadenar con otras herramientas
  *
  * Salida: `0` = no falta nada crítico ni degradado (pueden faltar opcionales) ·
@@ -83,6 +83,15 @@ export const BACKUP_PREFIX = '.env.local.pre-';
  */
 export const ONLINE_TIMEOUT_MS = 60000;
 
+/**
+ * Cuánto se espera a Resend cuando `--online` comprueba la clave.
+ *
+ * Corto a propósito: la comprobación es un `GET /domains` y, si Resend no
+ * contesta en 8 s, lo honesto es decir «no se pudo comprobar» —no acusar a la
+ * clave— porque el informe sale igual.
+ */
+export const RESEND_TIMEOUT_MS = 8000;
+
 // ═════════════════════════════════════════════════════════════════════════════
 // El catálogo
 // ═════════════════════════════════════════════════════════════════════════════
@@ -126,11 +135,29 @@ const shapeLongSecret = (value) =>
 const shapeEmail = (value) =>
   value.includes('@') ? shapeOf(value) : { ok: false, problem: 'No parece un correo.' };
 
-/** La clave de Resend: `re_` y el resto del alfabeto que usa el servicio. */
-const shapeResendKey = (value) =>
-  /^re_[A-Za-z0-9_-]{16,}$/.test(value.trim())
+/**
+ * La clave de Resend: `re_` y el resto del alfabeto que usa el servicio.
+ *
+ * El marcador `[SENSITIVE]` tiene su propio mensaje porque es el caso real que
+ * deja `vercel env pull`: Vercel no entrega los secretos, así que el archivo
+ * contiene once caracteres que **no son** la clave. Decir «no empieza con el
+ * prefijo» manda a revisar la forma de una clave que ni siquiera está ahí.
+ */
+const shapeResendKey = (value) => {
+  const trimmed = value.trim();
+
+  if (trimmed === '[SENSITIVE]') {
+    return {
+      ok: false,
+      problem:
+        'El valor es el marcador `[SENSITIVE]` que deja `vercel env pull` en lugar del secreto: la clave real no se puede leer desde esta máquina. Ponela en `.env.local` (o exportala) para que se pueda comprobar.',
+    };
+  }
+
+  return /^re_[A-Za-z0-9_-]{16,}$/.test(trimmed)
     ? shapeOf(value)
-    : { ok: false, problem: 'No empieza con el prefijo de Resend.' };
+    : { ok: false, problem: 'No tiene la forma de una clave de Resend (`re_…`).' };
+};
 
 /** Un DSN de Sentry: `https://<clave>@<organización>.ingest.sentry.io/<proyecto>`. */
 const shapeSentryDsn = (value) =>
@@ -446,6 +473,7 @@ export function auditCredentials({ values = {}, facts = {} } = {}) {
   });
 
   crossCheckProjectRefs(findings, values);
+  applyResendProbe(findings, facts);
 
   findings.push(...factFindings(facts));
 
@@ -497,6 +525,79 @@ function crossCheckProjectRefs(findings, values) {
   }
 }
 
+/**
+ * Cruza la credencial de Resend con lo que contestó la API (`--online`).
+ *
+ * Sin sonda no se toca nada: la credencial queda en «configurada», que es lo
+ * único que se puede afirmar mirando el valor. Con sonda, un rechazo deja de ser
+ * un verde: el paso `--online` existe justo para que una clave vencida no siga
+ * pareciendo buena hasta que falle un envío real.
+ *
+ * @param {Finding[]} findings
+ * @param {Facts} facts
+ */
+function applyResendProbe(findings, facts) {
+  const finding = findings.find((f) => f.id === 'resend_api_key');
+  const probe = facts.resendKey ?? null;
+  if (!finding || finding.state !== 'ok' || !probe) return;
+
+  if (probe.ok) {
+    finding.notes.push('Resend aceptó la clave: se pudo leer la lista de dominios.');
+    return;
+  }
+
+  if (probe.reason === 'invalid') {
+    finding.state = 'stale';
+    finding.detail = 'la clave está vencida o revocada';
+    finding.problem = `Resend la rechazó${probe.status ? ` (HTTP ${probe.status})` : ''}: ${probe.message ?? 'sin detalle'}`;
+    finding.notes.push(
+      'Emití una nueva en Resend » API Keys y reemplazala en Vercel (los tres entornos) y en `.env.local` si la usás desde esta máquina.'
+    );
+    return;
+  }
+
+  // Un fallo de red no es un veredicto sobre la clave: se dice «no se pudo
+  // comprobar» y la credencial sigue como estaba.
+  finding.notes.push(`No se pudo comprobar contra Resend (${probe.message ?? probe.reason}): una clave vencida aparecería como «vencida», pero esto es un «no sé».`);
+}
+
+/**
+ * Le pregunta a Resend por la clave: `GET /domains` es la llamada autenticada más
+ * barata que existe (no manda ni guarda nada).
+ *
+ * Resend contesta `400` con `API key is invalid` a una clave vencida o revocada
+ * —no un `401`—, así que los tres códigos de rechazo se tratan igual. Lo demás
+ * (`5xx`, red, tiempo agotado) es «no se pudo comprobar», nunca «vencida».
+ *
+ * @param {{ key?: string | null, fetchImpl?: typeof fetch, timeout?: number }} [options]
+ * @returns {Promise<ResendProbe | null>}
+ */
+export async function probeResend({ key = null, fetchImpl = fetch, timeout = RESEND_TIMEOUT_MS } = {}) {
+  if (!key) return null;
+
+  try {
+    const response = await fetchImpl('https://api.resend.com/domains', {
+      headers: { Authorization: `Bearer ${key}` },
+      signal: AbortSignal.timeout(timeout),
+    });
+
+    if (response.ok) return { ok: true };
+
+    const detail = await response.text().catch(() => '');
+    if ([400, 401, 403].includes(response.status)) {
+      return { ok: false, reason: 'invalid', status: response.status, message: detail.slice(0, 160) || undefined };
+    }
+    return { ok: false, reason: 'unavailable', status: response.status, message: `HTTP ${response.status}` };
+  } catch (error) {
+    const timedOut = error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError');
+    return {
+      ok: false,
+      reason: timedOut ? 'timeout' : 'unavailable',
+      message: error instanceof Error ? error.message : undefined,
+    };
+  }
+}
+
 /** La referencia de un proyecto a partir de su URL. */
 function refFromUrl(url) {
   const verdict = classifySupabaseUrl(url ?? null);
@@ -520,6 +621,7 @@ function refFromUrl(url) {
  *   repoSecrets?: string[] | null,
  *   repoSecretsProblem?: ProbeProblem | null,
  *   backupFiles?: string[] | null,
+ *   resendKey?: ResendProbe | null,
  * }} Facts
  */
 
@@ -683,7 +785,7 @@ function problemNote(problem) {
  * @property {Severity} severity
  * @property {string} variable
  * @property {boolean} cut
- * @property {'ok' | 'missing' | 'malformed' | 'mismatch' | 'unchecked'} state
+ * @property {'ok' | 'missing' | 'malformed' | 'mismatch' | 'stale' | 'unchecked'} state
  * @property {string} detail
  * @property {string} [problem]
  * @property {string[]} notes
@@ -696,7 +798,8 @@ function problemNote(problem) {
 /** ¿Falta algo que el portal necesite (crítico o degradado)? */
 export function missingRequirements(findings) {
   return findings.filter(
-    (f) => f.severity !== 'optional' && ['missing', 'malformed', 'mismatch'].includes(f.state)
+    (f) =>
+      f.severity !== 'optional' && ['missing', 'malformed', 'mismatch', 'stale'].includes(f.state)
   );
 }
 
@@ -718,7 +821,7 @@ export function cutReadiness(findings) {
   return { ready: blockedBy.length === 0, blockedBy };
 }
 
-const MARK = { ok: '✓', missing: '✗', malformed: '✗', mismatch: '✗', unchecked: '?' };
+const MARK = { ok: '✓', missing: '✗', malformed: '✗', mismatch: '✗', stale: '✗', unchecked: '?' };
 
 /**
  * El informe legible. Nunca imprime un valor: solo el estado y, cuando falta algo,
@@ -803,6 +906,14 @@ export function formatReport({ findings, origin = ENV_FILE, online = false }) {
 // ═════════════════════════════════════════════════════════════════════════════
 // Lectura del entorno y de los hechos (con efectos, fuera del núcleo)
 // ═════════════════════════════════════════════════════════════════════════════
+
+/**
+ * El veredicto de Resend sobre la clave: `ok`, `invalid` (vencida o revocada) o
+ * un «no se pudo comprobar» con su motivo. La forma la valida `shapeResendKey`
+ * sin red; esto es lo único que distingue una clave vigente de una veteada.
+ *
+ * @typedef {{ ok: true } | { ok: false, reason: 'invalid' | 'unavailable' | 'timeout', status?: number, message?: string }} ResendProbe
+ */
 
 /**
  * Los valores: primero el entorno del proceso (lo que ya está exportado) y encima
@@ -981,8 +1092,8 @@ function usage() {
       '  npm run check:credenciales -- --json',
       '',
       'Opciones:',
-      '  --online  comprueba además la sesión de la CLI de Vercel y los secretos del',
-      '            repositorio (tarda unos segundos y necesita red)',
+      '  --online  comprueba además la sesión de la CLI de Vercel, los secretos del',
+      '            repositorio y que la clave de Resend siga viva (necesita red)',
       '  --json    el veredicto en JSON, para encadenar con otras herramientas',
       '  --help    esto',
       '',
@@ -996,7 +1107,7 @@ function usage() {
   );
 }
 
-function main() {
+async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) return usage();
 
@@ -1010,6 +1121,10 @@ function main() {
 
   const values = readValues();
   const facts = { ...readLocalFacts(), ...(args.online ? probeOnline() : {}) };
+  // La sonda de Resend va aparte de `probeOnline` porque es la única que necesita
+  // el valor de la clave, y `probeOnline` sigue siendo síncrona como los comandos
+  // que consulta.
+  if (args.online) facts.resendKey = await probeResend({ key: values.RESEND_API_KEY ?? null });
   const findings = auditCredentials({ values, facts });
   const exitCode = exitCodeFor(findings);
 
@@ -1051,5 +1166,5 @@ function main() {
 
 // Solo corre al ejecutarse: así los tests pueden importar el núcleo.
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
-  main();
+  await main();
 }
