@@ -44,7 +44,16 @@ describe('stock en UF', () => {
 describe('monto en pesos', () => {
   it('con %CCA 100 cobra la fórmula de siempre', () => {
     // UF 100.000 × $40.000 ÷ 1.000.000 = $4.000.
-    expect(ccaMonthlyClp(100_000, UF)).toBe(4_000);
+    expect(ccaMonthlyClp(100_000, UF, 100)).toBe(4_000);
+  });
+
+  it('con el %CCA de partida una cartera de $180 millones paga $15.000 al mes', () => {
+    // 180.000.000 ÷ 40.000 = 4.500 UF → $180 de base; el 0,1 % anual son $180.000
+    // al año, o sea $15.000 al mes: el CCA pesa como la mensualidad del plan.
+    const stock = ccaStockUf([180_000_000], UF);
+
+    expect(stock).toBe(4_500);
+    expect(Math.round(ccaMonthlyClp(stock, UF))).toBe(15_000);
   });
 
   it('el %CCA mueve el monto: 50 cobra la mitad y 200, el doble', () => {

@@ -136,6 +136,8 @@ const HEALTHY_ROUTES: Record<string, () => Response> = {
   [`${BASE}/rest/v1/kyb_evaluations?select=score&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/kyb_decisions?select=decided_by&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/plan_settings?select=value&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/kyb_applications?select=cca_authorized_at&limit=1`]: () => jsonResponse(200, []),
+  [`${BASE}/rest/v1/partner_cca_ledger?select=amount_clp&limit=1`]: () => jsonResponse(200, []),
   [`${BASE}/rest/v1/rpc/rix7_partner_id`]: () => jsonResponse(200, null),
   [`${BASE}/rest/v1/rpc/get_properties_filtered`]: () => jsonResponse(200, [{ id: 'p1' }]),
 };
@@ -188,6 +190,8 @@ describe('schemaPlan', () => {
     expect(ids).toContain('kyb_applications.status');
     expect(ids).toContain('kyb_decisions.decided_by');
     expect(ids).toContain('plan_settings.value');
+    expect(ids).toContain('kyb_applications.cca_authorized_at');
+    expect(ids).toContain('partner_cca_ledger.amount_clp');
     expect(ids).toContain('rix7_partner_id()');
     expect(ids).toContain('get_properties_filtered(bbox)');
     expect(new Set(REQUIRED_SCHEMA.map((item) => item.migration))).toEqual(
@@ -204,6 +208,7 @@ describe('schemaPlan', () => {
         '0027_kyb_rechazo_y_decisiones',
         '0030_plan_settings',
         '0032_puente_registro_y_recordatorios',
+        '0033_cca_cuenta_corriente',
       ])
     );
   });
@@ -382,6 +387,10 @@ describe('runSchemaCheck', () => {
       // La 0027 (decisiones del equipo) también está aplicada acá.
       [`${BASE}/rest/v1/kyb_decisions?select=decided_by&limit=1`]: () => jsonResponse(200, []),
       [`${BASE}/rest/v1/plan_settings?select=value&limit=1`]: () => jsonResponse(200, []),
+      [`${BASE}/rest/v1/kyb_applications?select=cca_authorized_at&limit=1`]: () =>
+        jsonResponse(200, []),
+      [`${BASE}/rest/v1/partner_cca_ledger?select=amount_clp&limit=1`]: () =>
+        jsonResponse(200, []),
       [`${BASE}/rest/v1/rpc/rix7_partner_id`]: () => jsonResponse(404, MISSING_FUNCTION),
       [`${BASE}/rest/v1/rpc/get_properties_filtered`]: () => jsonResponse(200, []),
     });

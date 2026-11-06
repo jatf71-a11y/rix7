@@ -105,7 +105,7 @@ export function defaultProposalAmounts(
  * Plan del catálogo que le corresponde a cada perfil.
  *
  * Es el que la propuesta propone de partida y el que el correo de calificación
- * anuncia con sus publicaciones incluidas. El equipo puede enviar otro plan;
+ * anuncia con sus usuarios incluidos. El equipo puede enviar otro plan;
  * esto es el punto de partida, no una regla.
  */
 export const DEFAULT_PLAN_BY_PROFILE: Record<PartnerKind, KybPlanId> = {
@@ -122,10 +122,11 @@ export function defaultPlanForProfile(profile: PartnerKind): KybPlanId {
  * Las condiciones de la suscripción que se informan al calificar.
  *
  * Es el correo del paso **Calificado**: tiene que decir con qué perfil quedó el
- * socio, cuánto se cobra al dar de alta, cuánto por mes, cuántos usuarios y
- * cuántas publicaciones incluye, y a cuánto sale la captación si la quiere. Los
- * montos salen de **Planes** (lo que el equipo definió), no del código; las
- * publicaciones, del plan del catálogo que le corresponde al perfil.
+ * socio, cuánto se cobra al dar de alta, cuánto por mes y cuántos usuarios
+ * incluye, y a cuánto sale la captación si la quiere. Los montos salen de
+ * **Planes** (lo que el equipo definió), no del código; los usuarios, del plan
+ * del catálogo que le corresponde al perfil. **No hay cupo de publicaciones**:
+ * el CCA se factura sobre la cartera, así que publicar más no cuesta un cupo.
  */
 export interface SubscriptionTerms {
   profileLabel: string;
@@ -134,7 +135,6 @@ export interface SubscriptionTerms {
   altaClp: number;
   monthlyClp: number;
   usuariosIncluidos: number;
-  listings: number;
   /** Suscripción Captación Activa del perfil, en pesos por mes. */
   captacionMonthlyClp: number;
 }
@@ -155,7 +155,6 @@ export function subscriptionTerms(
     altaClp: profilePrices?.altaInicialClp ?? 0,
     monthlyClp: profilePrices?.mensualBaseClp ?? 0,
     usuariosIncluidos: profilePrices?.usuariosIncluidos ?? catalog.users,
-    listings: catalog.listings,
     captacionMonthlyClp: captacionMonthlyFor(config, profile),
   };
 }
@@ -334,8 +333,6 @@ export interface AltaPlanSummary {
   /** Mensualidad, en pesos. */
   monthlyClp: number;
   usuariosIncluidos: number;
-  /** Tope de publicaciones activas del plan. */
-  listings: number;
   /** De dónde salieron los montos, para poder explicarlo en la pantalla. */
   source: 'propuesta' | 'planes';
 }
@@ -362,7 +359,6 @@ export function altaPlanSummary({
     altaClp: proposal ? proposal.altaClp : defaults.altaClp,
     monthlyClp: proposal ? proposal.monthlyClp : defaults.monthlyClp,
     usuariosIncluidos: profile?.usuariosIncluidos ?? catalog.users,
-    listings: catalog.listings,
     source: proposal ? 'propuesta' : 'planes',
   };
 }

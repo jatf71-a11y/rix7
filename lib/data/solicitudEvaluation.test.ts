@@ -57,8 +57,11 @@ describe('evaluateSolicitud', () => {
 
     expect(result.decision).toBe('Pendiente_Informacion');
     expect(result.score).toBeLessThan(SOLICITUD_PASS_SCORE);
+    // Las aclaraciones del motor y, siempre que queda pendiente, el informe de
+    // deudas de la CMF.
     expect(result.questions.map((question) => question.id).sort()).toEqual([
       'correo',
+      'debt_report',
       'sitio',
     ]);
   });

@@ -20,7 +20,10 @@ const rateLimiter = createRateLimiter({ max: 20, windowMs: 10 * 60 * 1000 });
 function statusFor(error: string | undefined): number {
   if (!error) return 400;
   if (/enlace|token|expir/i.test(error)) return 403;
-  if (/plan/i.test(error)) return 400;
+  // Falta la autorización del CCA o el plan no existe: es la petición la que está
+  // incompleta, no el servidor. 400, para que el cliente muestre el mensaje en
+  // vez de reintentar como si fuera una caída.
+  if (/plan|CCA/i.test(error)) return 400;
   return 502;
 }
 

@@ -35,6 +35,8 @@ import { assertTransition, type KybStatus } from '@/lib/kyb/status';
 import { ensureAltaForSolicitud } from './socioAltaBridge';
 import { solicitudAltaId } from './socios';
 import { generateKybToken, hashKybToken, isKybTokenShape, kybTokenExpiry } from '@/lib/kyb/tokens';
+import { DEBT_REPORT_QUESTION_ID } from '@/lib/kyb/debtReport';
+import { isDebtReportFromOwner } from '@/lib/kyb/documents';
 import {
   evaluateSolicitud,
   SOLICITUD_REVIEW_KEYS as REVIEW_KEYS,
@@ -392,6 +394,18 @@ export async function submitSolicitudAnswers(
 
   const normalized = normalizeAnswers(questions, input);
   if (!normalized.ok) return { ok: false, code: 'invalid', error: normalized.error };
+
+  // El informe de deudas se responde con el id del PDF subido con este token, no
+  // con texto: sin esa comprobación la ronda se cerraría apuntando a un archivo
+  // que no existe.
+  const report = normalized.answers.find((answer) => answer.id === DEBT_REPORT_QUESTION_ID);
+  if (report && !(await isDebtReportFromOwner('solicitud', solicitud.id, report.answer))) {
+    return {
+      ok: false,
+      code: 'invalid',
+      error: 'El informe de deudas no se terminó de subir. Súbelo de nuevo desde el enlace.',
+    };
+  }
 
   const stored = await updateSolicitudReview(solicitud.id, { answers: normalized.answers });
   if (!stored.ok || !stored.solicitud) {

@@ -260,7 +260,7 @@ export function buildKybAcceptedEmail({
     '',
     `Plan ${plan.planName} — ${monthly}/mes`,
     `Alta inicial: ${alta}`,
-    `${plan.usuariosIncluidos} usuario(s) y ${plan.listings} publicaciones activas.`,
+    `${plan.usuariosIncluidos} usuario(s) con acceso al panel.`,
     ...captacionTextLines(captacionMonthlyClp),
     '',
     'Al confirmar el plan creamos el acceso al panel de publicaciones y te enviamos el enlace',
@@ -282,7 +282,7 @@ export function buildKybAcceptedEmail({
           <tr>
             <td style="padding:10px 0;border-bottom:1px solid #e2e8f0">
               <div style="color:#0f172a;font-size:14px;font-weight:700">${escapeHtml(plan.planName)}</div>
-              <div style="color:#64748b;font-size:12px">${plan.listings} publicaciones · ${plan.usuariosIncluidos} usuario(s) · alta ${escapeHtml(alta)}</div>
+              <div style="color:#64748b;font-size:12px">${plan.usuariosIncluidos} usuario(s) · alta ${escapeHtml(alta)}</div>
             </td>
             <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;text-align:right;color:#0f172a;font-size:14px;font-weight:700;white-space:nowrap">
               ${escapeHtml(monthly)}<span style="color:#94a3b8;font-size:11px;font-weight:400">/mes</span>
@@ -401,7 +401,7 @@ export function buildKybEvaluatingEmail({
  * quedó aceptada **y** calificada. Lleva la calificación en función de lo que se
  * verificó, el perfil de socio que le corresponde (profesional independiente,
  * corredora o inmobiliaria) y las condiciones completas de la suscripción —alta,
- * mensualidad, usuarios y publicaciones— con los montos de **Planes**.
+ * mensualidad y usuarios— con los montos de **Planes**.
  *
  * Se pide un «De acuerdo» explícito porque es la primera vez que la persona ve la
  * plata: la propuesta con el enlace de aceptación llega a continuación, y sin ese
@@ -434,7 +434,7 @@ export function buildKybQualifiedEmail({
     `Perfil de socio: ${terms.profileLabel}`,
     '',
     'Condiciones de tu suscripción:',
-    `- Plan ${terms.planName}: ${terms.listings} publicaciones activas.`,
+    `- Plan ${terms.planName}: sin cupo de publicaciones (el CCA se factura sobre tu cartera).`,
     `- Alta inicial: ${alta} (pago único).`,
     `- Mensualidad: ${monthly} por mes.`,
     `- Usuarios incluidos en el panel: ${terms.usuariosIncluidos}.`,
@@ -470,7 +470,7 @@ export function buildKybQualifiedEmail({
         </p>
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
           ${row('Plan', terms.planName)}
-          ${row('Publicaciones activas', String(terms.listings))}
+          ${row('Publicaciones', 'sin cupo · se facturan por CCA')}
           ${row('Usuarios incluidos', String(terms.usuariosIncluidos))}
           ${row('Alta inicial (pago único)', alta)}
           ${row('Mensualidad', `${monthly} /mes`)}

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { AlertCircle, CheckCircle, Loader2, Send } from 'lucide-react';
 import type { SolicitudQuestion } from '@/lib/data/solicitudEvaluation';
+import DebtReportField from '@/components/kyb/DebtReportField';
 import { answersPayload, friendlyAnswersError, missingAnswers } from '@/lib/kyb/portal';
 
 /**
@@ -119,6 +120,29 @@ export default function ResponderForm({
           const inputId = `respuesta-${index}`;
           const hintId = `${inputId}-hint`;
           const isMissing = missing.includes(question.id);
+
+          // El informe de deudas va como archivo: el id del PDF es la respuesta y
+          // el servidor comprueba que se haya subido con este enlace.
+          if (question.kind === 'document') {
+            return (
+              <li key={question.id} className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                <p className="text-sm font-semibold text-slate-800">
+                  <span className="mr-1.5 text-slate-400">{index + 1}.</span>
+                  {question.question}
+                </p>
+                <DebtReportField
+                  token={token}
+                  value={values[question.id] ?? ''}
+                  onUploaded={(documentId) => update(question.id, documentId)}
+                />
+                {isMissing && (
+                  <p className="mt-1.5 text-[11px] font-semibold text-red-600">
+                    Falta adjuntar el informe en PDF.
+                  </p>
+                )}
+              </li>
+            );
+          }
 
           return (
             <li key={question.id} className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">

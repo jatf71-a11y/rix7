@@ -78,7 +78,8 @@ export default function ProposalPanel({
       </p>
       <p className="mt-1 text-[11px] leading-relaxed text-indigo-900/80">
         La solicitud está calificada. Envía el plan y los precios: el candidato recibe un enlace
-        para aceptarla y recién ahí sigue el alta.
+        para aceptarla y recién ahí sigue el alta. Los planes no traen cupo de publicaciones: se
+        factura la mensualidad y, sobre la cartera del socio, el CCA.
       </p>
 
       {sent ? (
@@ -97,8 +98,10 @@ export default function ProposalPanel({
               {KYB_PLANS.map((item) => (
                 <option key={item.id} value={item.id}>
                   {/* El precio no está en el catálogo: lo define Planes por
-                      perfil, y los montos de esta propuesta se editan abajo. */}
-                  {item.name} · {item.listings} publicaciones
+                      perfil, y los montos de esta propuesta se editan abajo. No
+                      se ofrece un cupo de publicaciones porque no se cobra por
+                      publicación: los usuarios sí son parte del plan. */}
+                  {item.name} · {item.users} usuario(s)
                 </option>
               ))}
             </select>

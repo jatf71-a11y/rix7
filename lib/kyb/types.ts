@@ -47,6 +47,14 @@ export interface KybApplication {
   /** Socio creado al activar el plan; `null` hasta que el alta lo crea. */
   partnerId: string | null;
   /**
+   * Cuándo el solicitante autorizó el cobro del CCA.
+   *
+   * Se registra en la etapa de `Alta`, junto con la confirmación del plan: el
+   * CCA es un cargo mensual que depende de sus publicaciones, así que nadie
+   * debería recibirlo sin haberlo aprobado antes. `null` = todavía no lo aprobó.
+   */
+  ccaAuthorizedAt: string | null;
+  /**
    * Registro de «Publicar» del que salió esta alta.
    *
    * `null` en las altas directas (API o formulario de empresas). Cuando existe,
@@ -92,6 +100,7 @@ export interface KybApplicationRow {
   token_purpose: string | null;
   token_expires_at: string | null;
   partner_id: string | null;
+  cca_authorized_at: string | null;
   solicitud_origen?: string | null;
   reminders_sent?: number | null;
   last_reminder_at?: string | null;
@@ -101,7 +110,7 @@ export interface KybApplicationRow {
 }
 
 export const KYB_COLUMNS =
-  'id, status, legal_name, rut, website, domain, email, contact_name, phone, consent, coverage, regions, message, registration_kind, contact_role, score, plan, panel_enabled, activated_at, token_hash, token_purpose, token_expires_at, partner_id, solicitud_origen, reminders_sent, last_reminder_at, proposal, created_at, updated_at';
+  'id, status, legal_name, rut, website, domain, email, contact_name, phone, consent, coverage, regions, message, registration_kind, contact_role, score, plan, panel_enabled, activated_at, token_hash, token_purpose, token_expires_at, partner_id, cca_authorized_at, solicitud_origen, reminders_sent, last_reminder_at, proposal, created_at, updated_at';
 
 export interface KybEvaluationRecord {
   id: string;
@@ -190,6 +199,7 @@ export type KybStatusPatch = Partial<
     | 'tokenPurpose'
     | 'tokenExpiresAt'
     | 'partnerId'
+    | 'ccaAuthorizedAt'
     | 'proposal'
     | 'remindersSent'
     | 'lastReminderAt'

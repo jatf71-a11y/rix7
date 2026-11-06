@@ -55,7 +55,7 @@ El flujo corre en el servidor y la empresa se identifica con el token del correo
 | `POST` | `/api/kyb/answers` | token | Guarda respuestas y re-evalúa. |
 | `POST` | `/api/kyb/[id]/proposal` | admin | Envía la propuesta comercial (plan y montos) al candidato. |
 | `POST` | `/api/kyb/proposal` | token | El candidato acepta o rechaza la propuesta. |
-| `POST` | `/api/kyb/activate` | token | Elige plan y habilita el panel. |
+| `POST` | `/api/kyb/activate` | token | Elige plan, autoriza el cobro del CCA (`ccaAccepted`) y habilita el panel. |
 | `GET` | `/api/admin/cobranza` | admin | Situación de cobranza de cada socio. |
 | `POST` | `/api/admin/cobranza` | admin | Registra un pago o cambia la morosidad. |
 
@@ -170,9 +170,22 @@ la evaluación se repite al responder un pedido de información).
 | En evaluación | el mismo en el alta; `buildSolicitudEvaluatingEmail` en el registro | con qué datos: los que entregó la empresa y los que Rix7 consigue (SII, reputación, dominio) |
 | Pendiente de información | `buildKybPendingEmail` / `buildSolicitudPendingEmail` | las preguntas concretas y el enlace de 7 días; el recordatorio (`buildKybReminderEmail`, `reminder: true`) insiste sobre lo pendiente |
 | Aceptada | `buildSolicitudAcceptedEmail` (registro) y, en el alta, el de Calificado | que la verificación salió bien |
-| Calificado | `buildKybQualifiedEmail` | perfil de socio (profesional, corredora, inmobiliaria), alta, mensualidad, usuarios, publicaciones y captación, con los montos de **Planes**, y pide un «De acuerdo» |
+| Calificado | `buildKybQualifiedEmail` | perfil de socio (profesional, corredora, inmobiliaria), alta, mensualidad, usuarios y captación, con los montos de **Planes**, y pide un «De acuerdo» |
 | Propuesta comercial | `buildKybProposalEmail` + la página del enlace | plan y montos; en la página, la aceptación y la captación; el CCA se avisa como determinación posterior |
-| Alta | `buildKybAcceptedEmail` y `buildKybActivatedEmail` | plan confirmado y captación aceptada; después, el panel habilitado |
+| Alta | `buildKybAcceptedEmail` y `buildKybActivatedEmail` | plan confirmado, captación aceptada y autorización del CCA; después, el panel habilitado |
+
+En «Pendiente de información» cada ronda incluye además el **informe de deudas
+de la CMF** como documento obligatorio ([`lib/kyb/debtReport.ts`](../lib/kyb/debtReport.ts)):
+personas naturales para un profesional independiente, personas jurídicas para
+corredora e inmobiliaria. El correo lleva el enlace y las dos pantallas de
+respuesta un campo de archivo; al subirlo se guarda en el bucket privado
+`kyb-documents` (migración 0035), se lee el texto —total adeudado, acreedores,
+impagas y castigadas— y la ficha del equipo muestra el resultado
+(`components/admin/kyb/DebtReportPanel.tsx`). Un PDF sin texto queda como
+`unreadable`: el archivo se guarda y se avisa, en vez de darlo por bueno.
+
+Aparte del pipeline, **`buildCcaChangeEmail`** avisa al socio cada vez que cambia
+el monto mensual de su CCA (ver *La autorización del CCA y su cuenta corriente*).
 
 El correo de calificación lo manda también el puente registro→alta
 (`notifyQualifiedForApplication`), así un socio aprobado desde Solicitudes recibe
@@ -215,16 +228,18 @@ $99.990 / $99.990 / 15—, así que la pantalla abre con lo que definió el equi
 
 El **CCA** es la suma de todas las publicaciones de un socio, en UF, y se pasa a
 pesos con `$CCA = CCA × valor de la UF ÷ 1.000.000 × %CCA`; el resultado **es el
-monto en pesos**. Un CCA de 100.000 con una UF de $40.000 son $4.000 a cobrar. No
-se guarda: depende del stock publicado de cada socio y de la UF del día, que se
-trae de `/api/indicators`. La cuenta vive en `ccaAmountClp`.
+monto en pesos**. Con el `%CCA` de partida (8.333,33) la fórmula se reduce a la
+cartera dividida por 12.000: **0,1 % de la cartera al año**, facturado mes a mes.
+Una cartera de $180 millones paga $15.000 al mes. No se guarda: depende del stock
+publicado de cada socio y de la UF del día, que se trae de `/api/indicators`. La
+cuenta vive en `ccaAmountClp`.
 
 El `÷ 1.000.000` es el **factor**, y el **%CCA** lo ajusta desde el panel: es un
-valor guardado con los precios (entre 1 y 1000, con dos decimales) y no una
-constante del código. `%CCA = 100` deja el factor en 1.000.000 y el monto de
-siempre; `50` lo sube a 2.000.000 y cobra la mitad; `200` lo baja a 500.000 y
-cobra el doble. `ccaFactor` devuelve el divisor equivalente, que el panel muestra
-al lado del campo para no tener que despejarlo a mano.
+valor guardado con los precios (entre 1 y 50.000, con dos decimales) y no una
+constante del código. El de partida es `8.333,33`, que deja el factor en 12.000;
+`%CCA = 100` deja el factor en 1.000.000 —la fórmula original—; `200` lo baja a
+500.000 y cobra el doble. `ccaFactor` devuelve el divisor equivalente, que el
+panel muestra al lado del campo para no tener que despejarlo a mano.
 
 #### El CCA se determina después del alta
 
@@ -244,11 +259,44 @@ Ahora sale de su cartera:
   (`/socio`, lectura de `/api/partner/cca`), sin contador de publicaciones: no se
   cobra por aviso.
 
-No hay nada que guardar: la tabla de precios ya dice el `%CCA`, las fichas ya
-dicen la cartera y la UF viene de `/api/indicators`. Persistir el monto obligaría
-a recalcularlo en cada propiedad y una cifra vieja se cobraría como si fuera la
-de hoy. La cuenta pura vive en [`lib/kyb/cca.ts`](../lib/kyb/cca.ts) y la lectura
-del socio en [`lib/data/ccaDetermination.ts`](../lib/data/ccaDetermination.ts).
+El monto **no se guarda como un valor único**: la tabla de precios ya dice el
+`%CCA`, las fichas ya dicen la cartera y la UF viene de `/api/indicators`.
+Persistir «el CCA actual» obligaría a recalcularlo en cada propiedad y una cifra
+vieja se cobraría como si fuera la de hoy. La cuenta pura vive en
+[`lib/kyb/cca.ts`](../lib/kyb/cca.ts) y la lectura del socio en
+[`lib/data/ccaDetermination.ts`](../lib/data/ccaDetermination.ts).
+
+#### La autorización del CCA y su cuenta corriente (0033)
+
+Como el CCA es un **cargo mensual que depende de las publicaciones**, hay dos
+cosas que el sistema tiene que poder probar:
+
+1. **Que el solicitante lo autorizó.** En la etapa de **Alta**, el paso de plan
+   muestra la fórmula y una casilla propia —«Autorizo el cobro mensual del CCA
+   sobre mis publicaciones»—; el botón no se habilita sin ella. `/api/kyb/activate`
+   exige `ccaAccepted: true` y `activateKybPlan` no cierra el alta sin eso: sin
+   autorización no se crea el socio ni el panel. La fecha queda en
+   `kyb_applications.cca_authorized_at` y la ficha de la solicitud en el panel la
+   muestra (o avisa que un alta anterior no tiene autorización registrada).
+2. **Cuánto se le va a facturar cada mes y por qué.** `partner_cca_ledger`
+   guarda **un movimiento por cada cambio de monto**, con la cuenta completa:
+   cartera en pesos, CCA en UF, UF del día, `%CCA` y monto resultante, más el
+   monto anterior y el motivo (`alta`, `cartera` o `planes`). Así se explica una
+   factura de hace tres meses sin recalcularla con datos de hoy.
+
+El movimiento se registra con `syncPartnerCca` después de **cada escritura de
+publicaciones** (`POST`, `PUT` y `DELETE` de `/api/partner/properties`) y con
+`syncAllPartnerCca` cuando **cambia el `%CCA`** en Planes —ese número multiplica
+la cartera de todos—. Si el monto cambió, sale un correo al socio
+(`buildCcaChangeEmail`) con el monto nuevo, el anterior y la cuenta completa; el
+correo dice explícitamente que no genera ningún cobro. El alta deja una línea
+base de $0: es contra la que se compara el primer cambio real, y no manda correo.
+
+El socio ve el historial en la tarjeta **CCA** de `/socio`
+(`/api/partner/cca` devuelve determinación, movimientos y fecha de autorización).
+Un fallo al registrar la cuenta **no revierte** la publicación ya guardada: se
+informa en la respuesta (`cca.error`). Sin cambios de monto no se escribe ni se
+avisa: editar el título de una ficha no mueve la factura.
 
 **Planes de Captación** no reemplazan a los de suscripción: un socio puede tener
 uno, el otro o los dos. Tienen una **Suscripción Captación Activa** por perfil
@@ -277,8 +325,11 @@ descubrirse al cobrar. Los valores viven en `DEFAULT_LEAD_BRACKETS` y la fila
 guardada de una versión anterior entra con ellos (`PLAN_PRICING_VERSION` 4).
 
 El precio configurado **es** el que se cobra en el alta. El catálogo de
-[`lib/kyb/plans.ts`](../lib/kyb/plans.ts) ya no tiene precios: solo nombres,
-cupo de publicaciones y beneficios. Los montos salen de `plan_settings` por
+[`lib/kyb/plans.ts`](../lib/kyb/plans.ts) ya no tiene precios ni cupo de
+publicaciones: solo nombres, usuarios y beneficios. No hay cupo porque no se
+cobra por publicación —lo que se factura sobre la cartera es el CCA—, así que
+ningún plan limita cuántas propiedades puede publicar un socio. Los montos salen
+de `plan_settings` por
 perfil, y `altaPlanSummary` arma lo que la empresa confirma en el paso de plan:
 el plan de la propuesta aceptada con sus montos —los del correo de la propuesta—
 y, si la solicitud llegó al alta sin propuesta, los de Planes para su perfil. Por

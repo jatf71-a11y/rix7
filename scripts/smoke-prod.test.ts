@@ -16,6 +16,9 @@ import {
   bridgeEmailFor,
   judgeAccessLink,
   judgeActivation,
+  judgeCcaAccount,
+  judgeCcaMovement,
+  judgeCcaRequired,
   judgeOperando,
   judgePanelSession,
   judgePayment,
@@ -23,6 +26,7 @@ import {
   judgeProposalSent,
   runAltaCheck,
   smokeBillingPeriod,
+  smokePublicationPayload,
   cleanupSignup,
   createSmokeStore,
   formatReport,
@@ -62,28 +66,31 @@ const HEALTH_OK = {
   missing: { broken: [], degraded: [], optional: [] },
 };
 
-/** Servidor simulado: se le pide una respuesta por ruta y método. */
-function server(routes: Record<string, () => Response>) {
+/**
+ * Servidor simulado: se le pide una respuesta por ruta y método.
+ *
+ * La ruta recibe el cuerpo de la petición para poder responder distinto según lo
+ * que se mandó: el alta se rechaza sin `ccaAccepted` y se acepta con él, y esa
+ * diferencia es justamente lo que se prueba.
+ */
+function server(routes: Record<string, (body?: any) => Response>) {
   const calls: { url: string; method: string; body: unknown }[] = [];
 
   const fetchImpl = (async (url: string, init?: RequestInit) => {
     const method = init?.method ?? 'GET';
     const key = `${new URL(url).pathname} ${method}`;
-    calls.push({
-      url,
-      method,
-      body: typeof init?.body === 'string' ? JSON.parse(init.body) : null,
-    });
+    const body = typeof init?.body === 'string' ? JSON.parse(init.body) : null;
+    calls.push({ url, method, body });
 
     const route = routes[key];
     if (!route) throw new Error(`ruta no simulada: ${key}`);
-    return route();
+    return route(body);
   }) as unknown as typeof fetch;
 
   return { fetchImpl, calls };
 }
 
-const happyRoutes = (overrides: Record<string, () => Response> = {}) => ({
+const happyRoutes = (overrides: Record<string, (body?: any) => Response> = {}) => ({
   '/ GET': () => htmlResponse(200, HOME_HTML),
   '/admin/registros GET': () => htmlResponse(200, ADMIN_HTML),
   '/socio GET': () => htmlResponse(200, SOCIO_HTML),
@@ -965,7 +972,7 @@ function altaStore(overrides: Record<string, unknown> = {}) {
     },
     cleanupAlta: async (ids: unknown) => {
       calls.cleanup.push(ids);
-      return { ok: true, alta: 1, solicitud: 1, partner: 1, billing: 1, errors: [] };
+      return { ok: true, alta: 1, solicitud: 1, partner: 1, billing: 1, properties: 1, errors: [] };
     },
     deleteAccount: async (email: string) => {
       calls.deleteAccount.push(email);
@@ -978,8 +985,12 @@ function altaStore(overrides: Record<string, unknown> = {}) {
 }
 
 /** Las rutas del alta completa, con el servidor ya respondiendo el camino bueno. */
-const altaRoutes = (overrides: Record<string, () => Response> = {}) => {
+const altaRoutes = (overrides: Record<string, (body?: any) => Response> = {}) => {
   const proposal = { planId: 'profesional', altaClp: 19_990, monthlyClp: 14_990, note: null };
+
+  // La cuenta del CCA se lee dos veces: la línea base del alta y, después de
+  // publicar, el movimiento de cartera. El contador reproduce ese orden.
+  let ccaReads = 0;
 
   return happyRoutes({
     '/api/kyb/alta-1/proposal POST': () =>
@@ -994,17 +1005,23 @@ const altaRoutes = (overrides: Record<string, () => Response> = {}) => {
         data: { status: 'Alta', decision: 'aceptada', already: false },
         email: { sent: true, skipped: false },
       }),
-    '/api/kyb/activate POST': () =>
-      jsonResponse(200, {
-        success: true,
-        data: {
-          status: 'Alta',
-          plan: 'profesional',
-          already: false,
-          panel: { enabled: true, partnerId: 'ficha-1', account: 'created' },
-        },
-        email: { sent: true, skipped: false },
-      }),
+    // El alta se rechaza sin la autorización del CCA y se acepta con ella.
+    '/api/kyb/activate POST': (body) =>
+      body?.ccaAccepted === true
+        ? jsonResponse(200, {
+            success: true,
+            data: {
+              status: 'Alta',
+              plan: 'profesional',
+              already: false,
+              panel: { enabled: true, partnerId: 'ficha-1', account: 'created' },
+            },
+            email: { sent: true, skipped: false },
+          })
+        : jsonResponse(400, {
+            success: false,
+            error: 'Falta autorizar el cobro del CCA.',
+          }),
     '/api/admin/cobranza POST': () =>
       jsonResponse(200, { success: true, data: { situacion: { estado: 'al_dia' } } }),
     '/auth/confirm GET': () =>
@@ -1017,6 +1034,49 @@ const altaRoutes = (overrides: Record<string, () => Response> = {}) => {
       }),
     '/api/partner/access GET': () =>
       jsonResponse(200, { success: true, data: { role: 'member', partnerId: 'ficha-1' } }),
+    '/api/partner/cca GET': () => {
+      ccaReads += 1;
+      const baseline = ccaReads === 1;
+      return jsonResponse(200, {
+        success: true,
+        data: {
+          stockClp: baseline ? 0 : 180_000_000,
+          ccaPct: 8_333.33,
+          persistent: true,
+          authorizedAt: '2026-11-05T00:00:00.000Z',
+          movements: [
+            baseline
+              ? {
+                  id: 'mov-1',
+                  reason: 'alta',
+                  amountClp: 0,
+                  previousAmountClp: null,
+                  stockClp: 0,
+                  ccaUf: 0,
+                  ccaPct: 8_333.33,
+                  createdAt: '2026-11-05T00:00:00.000Z',
+                }
+              : {
+                  id: 'mov-2',
+                  reason: 'cartera',
+                  amountClp: 15_000,
+                  previousAmountClp: 0,
+                  stockClp: 180_000_000,
+                  ccaUf: 4_500,
+                  ccaPct: 8_333.33,
+                  createdAt: '2026-11-05T00:01:00.000Z',
+                },
+          ],
+        },
+      });
+    },
+    '/api/partner/properties POST': (body) =>
+      jsonResponse(201, {
+        success: true,
+        data: { id: 'prop-1', price: body?.price ?? null },
+        persisted: true,
+        cca: { changed: true, amountClp: 15_000, emailed: true },
+      }),
     ...overrides,
   });
 };
@@ -1050,6 +1110,10 @@ describe('runAltaCheck', () => {
     expect((pago?.body as { amountClp: number }).amountClp).toBe(14_990);
     expect((pago?.body as { partnerId: string }).partnerId).toBe('ficha-1');
 
+    // La publicación de prueba tiene precio: es lo que mueve el CCA.
+    const publicacion = calls.find((call) => call.url.endsWith('/api/partner/properties'));
+    expect((publicacion?.body as { price: number }).price).toBeGreaterThan(0);
+
     // Y la limpieza se lleva la cuenta porque la creó esta corrida.
     expect(fake.calls.deleteAccount).toEqual(['quien+alta1234@correo.cl']);
     expect(fake.calls.cleanup[0]).toMatchObject({ altaId: 'alta-1', partnerId: 'ficha-1' });
@@ -1058,16 +1122,21 @@ describe('runAltaCheck', () => {
   it('no se lleva la cuenta si el correo ya tenía una', async () => {
     const { fetchImpl } = server(
       altaRoutes({
-        '/api/kyb/activate POST': () =>
-          jsonResponse(200, {
-            success: true,
-            data: {
-              status: 'Alta',
-              plan: 'profesional',
-              panel: { enabled: true, partnerId: 'ficha-1', account: 'linked' },
-            },
-            email: { sent: true, skipped: false },
-          }),
+        '/api/kyb/activate POST': (body) =>
+          body?.ccaAccepted === true
+            ? jsonResponse(200, {
+                success: true,
+                data: {
+                  status: 'Alta',
+                  plan: 'profesional',
+                  panel: { enabled: true, partnerId: 'ficha-1', account: 'linked' },
+                },
+                email: { sent: true, skipped: false },
+              })
+            : jsonResponse(400, {
+                success: false,
+                error: 'Falta autorizar el cobro del CCA.',
+              }),
       })
     );
     const fake = altaStore();
@@ -1166,7 +1235,14 @@ describe('runAltaCheck', () => {
   it('si la limpieza deja algo, lo dice con el nombre para encontrarlo', async () => {
     const { fetchImpl } = server(altaRoutes());
     const fake = altaStore({
-      cleanupAlta: async () => ({ ok: true, alta: 0, solicitud: 1, partner: 1, errors: [] }),
+      cleanupAlta: async () => ({
+        ok: true,
+        alta: 0,
+        solicitud: 1,
+        partner: 1,
+        properties: 1,
+        errors: [],
+      }),
     });
 
     const steps = await runAltaCheck({
@@ -1286,6 +1362,104 @@ describe('veredictos del alta', () => {
     expect(
       judgePayment(400, { error: 'El monto tiene que ser un entero en pesos.' }).level
     ).toBe('fail');
+  });
+
+  it('el alta sin autorización del CCA se rechaza por el CCA', () => {
+    const ok = judgeCcaRequired(400, {
+      success: false,
+      error: 'Falta autorizar el cobro del CCA.',
+    });
+    expect(ok.level).toBe('ok');
+
+    // Lo que este veredicto existe para atrapar: un 200 sin autorización.
+    expect(judgeCcaRequired(200, { success: true }).level).toBe('fail');
+    expect(judgeCcaRequired(400, { error: 'El plan indicado no existe.' }).level).toBe('fail');
+    // Un 429 no dice nada del CCA: darlo por bueno sería un verde falso.
+    expect(judgeCcaRequired(429, null).level).toBe('fail');
+  });
+
+  it('la cuenta corriente abre con la línea base de $0 y la autorización fechada', () => {
+    const body = {
+      success: true,
+      data: {
+        authorizedAt: '2026-11-05T00:00:00.000Z',
+        movements: [{ reason: 'alta', amountClp: 0, previousAmountClp: null }],
+      },
+    };
+    expect(judgeCcaAccount(200, body).level).toBe('ok');
+
+    expect(judgeCcaAccount(401, null).level).toBe('fail');
+    expect(
+      judgeCcaAccount(200, { success: true, data: { movements: body.data.movements } }).level
+    ).toBe('fail');
+    expect(
+      judgeCcaAccount(200, { success: true, data: { authorizedAt: 'x', movements: [] } }).level
+    ).toBe('fail');
+    expect(
+      judgeCcaAccount(200, {
+        success: true,
+        data: { authorizedAt: 'x', movements: [{ reason: 'cartera', amountClp: 500 }] },
+      }).level
+    ).toBe('fail');
+    // Un socio sin cartera no puede arrancar con un monto.
+    expect(
+      judgeCcaAccount(200, {
+        success: true,
+        data: { authorizedAt: 'x', movements: [{ reason: 'alta', amountClp: 12 }] },
+      }).level
+    ).toBe('fail');
+  });
+
+  it('publicar deja el movimiento con monto y el aviso enviado', () => {
+    const publish = {
+      success: true,
+      data: { id: 'prop-1' },
+      cca: { changed: true, amountClp: 15_000, emailed: true },
+    };
+    const account = (movement: Record<string, unknown>) => ({
+      success: true,
+      data: { movements: [movement] },
+    });
+    const cartera = { reason: 'cartera', amountClp: 15_000, previousAmountClp: 0 };
+
+    expect(judgeCcaMovement(201, publish, 200, account(cartera)).level).toBe('ok');
+
+    // Sin cambio de monto no hay nada que avisar, pero tampoco puede darse por bueno.
+    expect(
+      judgeCcaMovement(
+        201,
+        { ...publish, cca: { changed: false, amountClp: 0, emailed: false } },
+        200,
+        account(cartera)
+      ).level
+    ).toBe('fail');
+    // El movimiento sin correo deja al socio con una factura distinta sin saberlo.
+    expect(
+      judgeCcaMovement(
+        201,
+        { ...publish, cca: { changed: true, amountClp: 15_000, emailed: false } },
+        200,
+        account(cartera)
+      ).level
+    ).toBe('fail');
+    // La cuenta no lo guardó.
+    expect(judgeCcaMovement(201, publish, 200, { success: true, data: { movements: [] } }).level).toBe(
+      'fail'
+    );
+    // Dos números distintos para el mismo movimiento.
+    expect(
+      judgeCcaMovement(201, publish, 200, account({ ...cartera, amountClp: 99 })).level
+    ).toBe('fail');
+    // Y el movimiento tiene que colgar de la línea base del alta.
+    expect(
+      judgeCcaMovement(201, publish, 200, account({ ...cartera, previousAmountClp: null })).level
+    ).toBe('fail');
+  });
+
+  it('la publicación de prueba tiene precio: sin él no mueve el CCA', () => {
+    const payload = smokePublicationPayload(1);
+    expect(payload.price).toBeGreaterThan(0);
+    expect(payload.title).toContain('Prueba de humo');
   });
 
   it('el período de pago es el mes en curso en UTC', () => {

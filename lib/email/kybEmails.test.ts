@@ -86,7 +86,6 @@ describe('correos KYB', () => {
         altaClp: 49990,
         monthlyClp: 39990,
         usuariosIncluidos: 5,
-        listings: 50,
         source: 'propuesta',
       },
     });
@@ -147,7 +146,6 @@ describe('correos KYB', () => {
       altaClp: 49990,
       monthlyClp: 39990,
       usuariosIncluidos: 5,
-      listings: 50,
       captacionMonthlyClp: 19990,
     };
 
@@ -164,7 +162,9 @@ describe('correos KYB', () => {
     expect(email.text).toContain('49.990');
     expect(email.text).toContain('39.990');
     expect(email.text).toContain('Usuarios incluidos en el panel: 5');
-    expect(email.text).toContain('50 publicaciones activas');
+    // Sin cupo de publicaciones: el CCA se factura sobre la cartera.
+    expect(email.text).toContain('sin cupo de publicaciones');
+    expect(email.text).not.toContain('publicaciones activas');
     expect(email.text).toContain('19.990');
     // La respuesta que se pide, explícita.
     expect(email.text).toMatch(/«De acuerdo»/);
@@ -205,7 +205,6 @@ describe('correos KYB', () => {
         altaClp: 49990,
         monthlyClp: 39990,
         usuariosIncluidos: 5,
-        listings: 50,
         source: 'propuesta',
       },
       captacionMonthlyClp: 19990,
@@ -230,7 +229,6 @@ describe('correos KYB', () => {
         altaClp: 49990,
         monthlyClp: 39990,
         usuariosIncluidos: 5,
-        listings: 50,
         source: 'propuesta',
       },
       captacionMonthlyClp: null,

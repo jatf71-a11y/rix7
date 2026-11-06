@@ -18,6 +18,14 @@ import { friendlyActivationError } from '@/lib/kyb/portal';
  *
  * Lo que se envía sigue siendo solo el identificador del plan; el servidor lo
  * vuelve a validar contra el catálogo.
+ *
+ * Además, acá se **autoriza el cobro del CCA**. Es un cargo mensual distinto del
+ * plan: se calcula sobre la cartera del socio (la suma de sus publicaciones en
+ * UF) y cambia cada vez que publica o da de baja una propiedad. Nadie puede
+ * recibir esa factura sin haberla aprobado, así que el botón no se habilita sin
+ * las dos casillas. El monto no se estima acá: todavía no hay cartera, y una
+ * cifra inventada sería una promesa. Se explica cómo se calcula y se avisa que
+ * cada cambio llega por correo.
  */
 
 interface PlanStepProps {
@@ -29,11 +37,12 @@ interface PlanStepProps {
 
 export default function PlanStep({ token, planSummary, onActivated }: PlanStepProps) {
   const [confirmed, setConfirmed] = useState(false);
+  const [ccaAccepted, setCcaAccepted] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleConfirm() {
-    if (!confirmed || sending) return;
+    if (!confirmed || !ccaAccepted || sending) return;
     setError(null);
     setSending(true);
 
@@ -41,7 +50,7 @@ export default function PlanStep({ token, planSummary, onActivated }: PlanStepPr
       const response = await fetch('/api/kyb/activate', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ token, plan: planSummary.planId }),
+        body: JSON.stringify({ token, plan: planSummary.planId, ccaAccepted: true }),
       });
       const body = await response.json().catch(() => null);
 
@@ -90,10 +99,6 @@ export default function PlanStep({ token, planSummary, onActivated }: PlanStepPr
             <dd className="font-bold text-slate-900">{formatPlanPrice(planSummary.altaClp)}</dd>
           </div>
           <div className="flex items-baseline justify-between gap-4">
-            <dt>Publicaciones activas</dt>
-            <dd className="font-bold text-slate-900">{planSummary.listings}</dd>
-          </div>
-          <div className="flex items-baseline justify-between gap-4">
             <dt>Usuarios incluidos</dt>
             <dd className="font-bold text-slate-900">{planSummary.usuariosIncluidos}</dd>
           </div>
@@ -116,6 +121,33 @@ export default function PlanStep({ token, planSummary, onActivated }: PlanStepPr
         <span>Confirmo el plan y la mensualidad de la propuesta.</span>
       </label>
 
+      <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <p className="text-sm font-bold text-slate-900">Cobro del CCA</p>
+        <p className="mt-1 text-xs leading-relaxed text-slate-600">
+          Junto a la mensualidad se factura el <strong>CCA</strong>: la suma de tus publicaciones
+          expresada en UF, multiplicada por el valor del día y por el <strong>%CCA</strong> vigente
+          de Rix7. Se calcula después del alta, con tu cartera real, y cambia cada vez que publicas
+          o das de baja una propiedad. No se cobra por publicación.
+        </p>
+        <p className="mt-2 rounded-lg bg-white px-3 py-2 font-mono text-[11px] text-slate-500">
+          $CCA = CCA (UF) × valor UF ÷ 1.000.000 × %CCA
+        </p>
+        <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+          Cada vez que el monto cambie te llega un correo con la cuenta completa —cartera, CCA en
+          UF, %CCA y monto— y queda en el historial de tu panel.
+        </p>
+
+        <label className="mt-3 flex items-start gap-2.5 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={ccaAccepted}
+            onChange={(event) => setCcaAccepted(event.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-slate-300"
+          />
+          <span>Autorizo el cobro mensual del CCA sobre mis publicaciones.</span>
+        </label>
+      </div>
+
       {error && (
         <div
           role="alert"
@@ -128,13 +160,13 @@ export default function PlanStep({ token, planSummary, onActivated }: PlanStepPr
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[11px] leading-relaxed text-slate-400">
-          Este paso no cobra nada: queda registrado el plan que confirmes y el alta se cierra cuando
-          el pago quede registrado.
+          Este paso no cobra nada: queda registrado el plan que confirmes, tu autorización del CCA
+          y el alta se cierra cuando el pago quede registrado.
         </p>
         <button
           type="button"
           onClick={handleConfirm}
-          disabled={!confirmed || sending}
+          disabled={!confirmed || !ccaAccepted || sending}
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {sending && <Loader2 className="h-4 w-4 animate-spin" />}

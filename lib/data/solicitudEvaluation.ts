@@ -29,6 +29,7 @@
  */
 
 import { normalizeRut } from '@/lib/utils/rut';
+import { debtReportKindFor, withDebtReport } from '@/lib/kyb/debtReport';
 import type { Solicitud, SolicitudKind } from './solicitudes';
 
 /** Los caminos de «Publicar» que son un registro de socio. */
@@ -53,6 +54,8 @@ export interface SolicitudQuestion {
   /** Clave estable: es la que une la respuesta con su pregunta. */
   id: string;
   question: string;
+  /** `document` = informe de deudas de la CMF (la respuesta es el id del PDF). */
+  kind?: 'text' | 'document';
 }
 
 export interface SolicitudAnswer {
@@ -389,11 +392,18 @@ export function evaluateSolicitud(
   // Solo se pregunta lo que bloquea. Una advertencia que no bajó el puntaje
   // suficiente no genera un correo: pedir un dato que no cambia la decisión
   // enseña a ignorar los correos.
+  // A quien queda pendiente se le pide siempre el informe de deudas de la CMF,
+  // además de las aclaraciones: el documento es la prueba de lo que declara y el
+  // paso ya está detenido esperando algo de la persona. El perfil decide qué
+  // informe (personas naturales o jurídicas).
   const questions: SolicitudQuestion[] = accepted
     ? []
-    : clarified
-        .filter((check) => check.status !== 'pass' && check.question)
-        .map((check) => ({ id: check.id, question: check.question as string }));
+    : withDebtReport(
+        clarified
+          .filter((check) => check.status !== 'pass' && check.question)
+          .map((check) => ({ id: check.id, question: check.question as string })),
+        debtReportKindFor(solicitud.kind)
+      );
 
   const reasons: string[] = [];
   for (const check of clarified) {

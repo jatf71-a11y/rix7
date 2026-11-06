@@ -222,6 +222,24 @@ export const REQUIRED_SCHEMA = [
       'el panel de Planes guarda ahí los precios por plan y perfil; sin la tabla, guardar precios falla y la pantalla solo muestra los de partida',
   },
   {
+    id: 'kyb_applications.cca_authorized_at',
+    kind: 'column',
+    table: 'kyb_applications',
+    column: 'cca_authorized_at',
+    migration: '0033_cca_cuenta_corriente',
+    because:
+      'el paso de Alta guarda ahí la autorización del cobro del CCA; sin la columna, cerrar el alta falla y no queda prueba de que el socio aprobó el cargo',
+  },
+  {
+    id: 'partner_cca_ledger.amount_clp',
+    kind: 'column',
+    table: 'partner_cca_ledger',
+    column: 'amount_clp',
+    migration: '0033_cca_cuenta_corriente',
+    because:
+      'es la cuenta corriente del CCA: sin la tabla, cada publicación falla al registrar su movimiento y el socio no recibe el aviso de su nuevo monto',
+  },
+  {
     id: 'rix7_partner_id()',
     kind: 'rpc',
     name: 'rix7_partner_id',

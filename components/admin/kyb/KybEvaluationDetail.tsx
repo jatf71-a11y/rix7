@@ -15,6 +15,7 @@ import {
 } from '@/lib/kyb/admin';
 import type { KybEvaluation, KybManualDecision } from '@/lib/kyb/status';
 import type { KybApplication, KybDecision } from '@/lib/kyb/types';
+import DebtReportPanel from './DebtReportPanel';
 import DecisionPanel from './DecisionPanel';
 import ProposalPanel from './ProposalPanel';
 
@@ -299,6 +300,41 @@ export default function KybEvaluationDetail({
       )}
 
       <ProposalPanel application={application} onSent={onProposalSent} />
+
+      {/*
+        El CCA es un cargo mensual que depende de las publicaciones del socio, así
+        que se autoriza en la etapa de Alta, junto con el plan. El equipo tiene que
+        poder ver si esa autorización existe: es lo que respalda la primera factura.
+      */}
+      <div className="mt-4 rounded-xl border border-slate-200 bg-white px-3.5 py-3">
+        <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
+          Cobro del CCA
+        </p>
+        <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
+          {application.ccaAuthorizedAt ? (
+            <>
+              <span className="font-semibold text-emerald-700">Autorizado</span> el{' '}
+              {formatKybDateTime(application.ccaAuthorizedAt)}. El monto se calcula con la cartera
+              del socio y se le avisa por correo cada vez que cambia.
+            </>
+          ) : application.status === 'Alta' || application.status === 'Operando' ? (
+            <>
+              <span className="font-semibold text-amber-700">Sin autorización registrada.</span>{' '}
+              Es un alta anterior a este paso: conviene confirmarla con el socio antes de facturarle
+              el CCA.
+            </>
+          ) : (
+            'Se autoriza en la etapa de Alta, junto con la confirmación del plan.'
+          )}
+        </p>
+      </div>
+
+      {/*
+        El informe de deudas de la CMF se pide en «Pendiente de Información» y se
+        lee al subirlo. Va antes de la decisión porque es parte de lo que se
+        decide: total adeudado, impagas y acreedores, sin abrir el PDF.
+      */}
+      <DebtReportPanel ownerKind="alta" ownerId={application.id} />
 
       <DecisionPanel
         application={application}

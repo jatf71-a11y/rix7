@@ -53,9 +53,10 @@ function config(overrides: Partial<PlanPricingConfig> = {}): PlanPricingConfig {
 }
 
 describe('precios de partida', () => {
-  it('el %CCA de partida deja el factor en 1.000.000', () => {
-    expect(DEFAULT_PLAN_PRICING.ccaPct).toBe(100);
-    expect(ccaFactor(DEFAULT_PLAN_PRICING.ccaPct)).toBe(CCA_DIVISOR);
+  it('el %CCA de partida cobra 0,1 % de la cartera al año', () => {
+    // 8.333,33 deja el factor en 12.000: la cartera dividida por 12.000 al mes.
+    expect(DEFAULT_PLAN_PRICING.ccaPct).toBe(8_333.33);
+    expect(ccaFactor(DEFAULT_PLAN_PRICING.ccaPct)).toBeCloseTo(12_000, 2);
   });
 
   it('son los tres perfiles con los montos definidos por el equipo', () => {
@@ -82,18 +83,18 @@ describe('precios de partida', () => {
 });
 
 describe('CCA', () => {
-  it('el ejemplo del equipo: 100.000 de CCA con UF de $40.000 son $4.000', () => {
-    expect(ccaAmountClp(100_000, 40_000)).toBe(4000);
+  it('con el 100 % de siempre: 100.000 de CCA con UF de $40.000 son $4.000', () => {
+    expect(ccaAmountClp(100_000, 40_000, 100)).toBe(4000);
     expect(CCA_DIVISOR).toBe(1_000_000);
   });
 
   it('aplica la fórmula completa: CCA × UF ÷ 1.000.000', () => {
-    expect(ccaAmountClp(500_000, 40_000)).toBe(20_000);
-    expect(ccaAmountClp(30, 39_500)).toBeCloseTo(1.185, 6);
+    expect(ccaAmountClp(500_000, 40_000, 100)).toBe(20_000);
+    expect(ccaAmountClp(30, 39_500, 100)).toBeCloseTo(1.185, 6);
   });
 
   it('no redondea acá: deja los decimales a la vista del formato', () => {
-    expect(ccaAmountClp(5, 39_000)).toBeCloseTo(0.195, 6);
+    expect(ccaAmountClp(5, 39_000, 100)).toBeCloseTo(0.195, 6);
   });
 
   it('con datos raros devuelve cero en vez de NaN', () => {
@@ -108,9 +109,10 @@ describe('CCA', () => {
 });
 
 describe('%CCA: el ajuste del factor', () => {
-  it('sin indicarlo cobra como siempre: el factor es 1.000.000', () => {
-    expect(ccaAmountClp(100_000, 40_000, DEFAULT_CCA_PCT)).toBe(4000);
-    expect(ccaFactor(DEFAULT_CCA_PCT)).toBe(CCA_DIVISOR);
+  it('sin indicarlo aplica el %CCA de partida: 0,1 % anual', () => {
+    // 100.000 UF de cartera ($4.000 millones) → $333.333 al mes.
+    expect(Math.round(ccaAmountClp(100_000, 40_000, DEFAULT_CCA_PCT))).toBe(333_333);
+    expect(ccaFactor(DEFAULT_CCA_PCT)).toBeCloseTo(12_000, 2);
   });
 
   it('la mitad del %CCA cobra la mitad y duplica el divisor', () => {
@@ -138,8 +140,8 @@ describe('%CCA: el ajuste del factor', () => {
     expect(ccaFactor(Number.NaN)).toBe(CCA_DIVISOR);
   });
 
-  it('el ejemplo con la UF de hoy sigue dando $4.125 al 100 %', () => {
-    const amount = ccaAmountClp(100_000, 41_252.94, DEFAULT_CCA_PCT);
+  it('con el 100 % de siempre, el ejemplo con la UF de hoy sigue dando $4.125', () => {
+    const amount = ccaAmountClp(100_000, 41_252.94, 100);
     expect(amount).toBeCloseTo(4125.294, 6);
     expect(formatCcaAmount(amount)).toContain('4.125');
   });
@@ -188,7 +190,8 @@ describe('convención chilena de la calculadora', () => {
   it('el CCA del ejemplo no se infla al pasar por el campo', () => {
     const amount = ccaAmountClp(
       parseDecimalInput('100.000')!,
-      parseDecimalInput(formatDecimalInput(41_242.32))!
+      parseDecimalInput(formatDecimalInput(41_242.32))!,
+      100
     );
     expect(amount).toBeCloseTo(4124.232, 3);
   });

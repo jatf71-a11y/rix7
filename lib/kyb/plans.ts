@@ -14,8 +14,6 @@ export type KybPlanId = (typeof KYB_PLAN_IDS)[number];
 export interface KybPlan {
   id: KybPlanId;
   name: string;
-  /** Publicaciones activas incluidas. */
-  listings: number;
   /** Usuarios con acceso al panel que el plan trae de fábrica. */
   users: number;
   features: readonly string[];
@@ -31,14 +29,20 @@ export interface KybPlan {
  * comercial, que nace de esos precios y el candidato acepta.
  */
 
+/**
+ * **Ningún plan trae cupo de publicaciones.** Rix7 no cobra por publicación: se
+ * cobra la mensualidad del plan y, aparte, el CCA sobre la cartera del socio
+ * (`lib/kyb/cca.ts`, `docs/kyb-onboarding.md`). Poner un cupo acá era una
+ * promesa que además el sistema no aplicaba —nada bloquea publicar de más— y
+ * que en la propuesta comercial se leía como si se vendieran publicaciones.
+ */
 export const KYB_PLANS: readonly KybPlan[] = [
   {
     id: 'basico',
     name: 'Básico',
-    listings: 10,
     users: 1,
     features: [
-      '10 publicaciones activas',
+      'Publicaciones sin cupo: el CCA se factura sobre la cartera',
       'Ficha de empresa en el portal',
       'Un usuario con acceso al panel',
       'Contactos y visitas por publicación',
@@ -47,10 +51,9 @@ export const KYB_PLANS: readonly KybPlan[] = [
   {
     id: 'profesional',
     name: 'Profesional',
-    listings: 50,
     users: 5,
     features: [
-      '50 publicaciones activas',
+      'Publicaciones sin cupo: el CCA se factura sobre la cartera',
       'Cinco usuarios con acceso al panel',
       'Feed XML para agregadores',
       'Estadísticas de compartidos y contactos',
@@ -59,10 +62,9 @@ export const KYB_PLANS: readonly KybPlan[] = [
   {
     id: 'premium',
     name: 'Premium',
-    listings: 1000,
     users: 20,
     features: [
-      'Publicaciones sin tope práctico (1.000)',
+      'Publicaciones sin cupo: el CCA se factura sobre la cartera',
       'Veinte usuarios con acceso al panel',
       'Feed XML y landings compartibles',
       'Acompañamiento del equipo de Rix7',

@@ -42,6 +42,7 @@ import { KYB_STATUS_TONES } from '@/lib/kyb/portal';
 import type { KybEvaluation, KybManualDecision } from '@/lib/kyb/status';
 import type { KybApplication, KybDecision } from '@/lib/kyb/types';
 import KybEvaluationDetail from '@/components/admin/kyb/KybEvaluationDetail';
+import DebtReportPanel from '@/components/admin/kyb/DebtReportPanel';
 
 /**
  * Panel de socios: los registros de profesionales independientes y las altas
@@ -1418,6 +1419,9 @@ function RegistroFicha({
   return (
     <>
       {evaluation && <SolicitudEvaluationSummary evaluation={evaluation} />}
+      {/* El informe de deudas se pide en «Pendiente de información» y se lee al
+          subirlo: acá el equipo ve el total adeudado sin abrir el PDF. */}
+      <DebtReportPanel ownerKind="solicitud" ownerId={socio.id} />
       <div className="grid gap-4 px-5 py-4 sm:grid-cols-2">
         {details.map((item) => (
           <div key={item.label}>

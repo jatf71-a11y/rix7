@@ -14,6 +14,7 @@ import {
 } from '@/lib/data/propertiesStore';
 import { revalidatePublicationSurfaces } from '@/lib/data/publicSurfaces';
 import { situacionDePartner } from '@/lib/data/cobranzaStore';
+import { syncPartnerCca } from '@/lib/data/ccaLedger';
 
 // Panel del socio: las cuatro operaciones exigen rol member/admin **y** una
 // corredora vinculada (el guard devuelve 401/403 con el motivo), y toda
@@ -33,6 +34,26 @@ import { situacionDePartner } from '@/lib/data/cobranzaStore';
 /** Motivo del store → estado HTTP. */
 function statusFor(reason: 'not_found' | 'database' | undefined): number {
   return reason === 'not_found' ? 404 : 500;
+}
+
+/**
+ * Recalcula la cuenta corriente del CCA después de mover la cartera del socio.
+ *
+ * No es decorativo: es el aviso que promete la autorización del alta. Si el
+ * monto mensual cambió, queda el movimiento y sale el correo al socio. Un fallo
+ * acá **no** revierte la publicación —ya está guardada— así que se informa en la
+ * respuesta (`cca.error`) y se sigue.
+ */
+async function syncCca(partnerId: string) {
+  const result = await syncPartnerCca(partnerId, { reason: 'cartera' });
+  if (!result.ok) console.error('[cca] no se pudo recalcular la cuenta del socio:', result.error);
+  return result.ok
+    ? {
+        changed: result.changed,
+        amountClp: result.amountClp,
+        emailed: result.emailed,
+      }
+    : { changed: false, amountClp: result.amountClp, emailed: false, error: result.error };
 }
 
 /** Sin caché: cada socio ve las suyas y el listado cambia con cada escritura. */
@@ -96,9 +117,10 @@ export async function POST(request: NextRequest) {
     }
 
     await revalidatePublicationSurfaces(guard.partnerId, result.property?.id);
+    const cca = await syncCca(guard.partnerId);
 
     return NextResponse.json(
-      { success: true, data: result.property, persisted: result.persisted },
+      { success: true, data: result.property, persisted: result.persisted, cca },
       { status: 201 }
     );
   } catch {
@@ -130,11 +152,13 @@ export async function PUT(request: NextRequest) {
     }
 
     await revalidatePublicationSurfaces(guard.partnerId, result.property?.id ?? id);
+    const cca = await syncCca(guard.partnerId);
 
     return NextResponse.json({
       success: true,
       data: result.property,
       persisted: result.persisted,
+      cca,
     });
   } catch {
     return NextResponse.json({ success: false, error: 'Invalid request body' }, { status: 400 });
@@ -164,6 +188,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   await revalidatePublicationSurfaces(guard.partnerId, validation.data.id);
+  const cca = await syncCca(guard.partnerId);
 
-  return NextResponse.json({ success: true, persisted: result.persisted });
+  return NextResponse.json({ success: true, persisted: result.persisted, cca });
 }

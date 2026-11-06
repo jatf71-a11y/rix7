@@ -110,6 +110,7 @@ export function rowToApplication(row: KybApplicationRow): KybApplication {
     tokenPurpose: isKybTokenPurpose(row.token_purpose) ? row.token_purpose : null,
     tokenExpiresAt: row.token_expires_at,
     partnerId: row.partner_id ?? null,
+    ccaAuthorizedAt: row.cca_authorized_at ?? null,
     solicitudOrigen: row.solicitud_origen ?? null,
     remindersSent: typeof row.reminders_sent === 'number' ? row.reminders_sent : 0,
     lastReminderAt: row.last_reminder_at ?? null,
@@ -133,6 +134,7 @@ function patchToRow(patch: KybStatusPatch): Record<string, unknown> {
   // renegociación no borra la propuesta anterior.
   if (patch.proposal !== undefined) row.proposal = patch.proposal;
   if (patch.partnerId !== undefined) row.partner_id = patch.partnerId;
+  if (patch.ccaAuthorizedAt !== undefined) row.cca_authorized_at = patch.ccaAuthorizedAt;
   if (patch.remindersSent !== undefined) row.reminders_sent = patch.remindersSent;
   if (patch.lastReminderAt !== undefined) row.last_reminder_at = patch.lastReminderAt;
   return row;
@@ -180,6 +182,7 @@ export async function createApplication(
       tokenPurpose: null,
       tokenExpiresAt: null,
       partnerId: null,
+      ccaAuthorizedAt: null,
       solicitudOrigen,
       remindersSent: 0,
       lastReminderAt: null,

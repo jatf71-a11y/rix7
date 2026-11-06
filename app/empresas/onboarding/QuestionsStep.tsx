@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { AlertCircle, Loader2, Send } from 'lucide-react';
 import type { KybQuestion } from '@/lib/kyb/status';
 import { answersPayload, friendlyAnswersError, missingAnswers } from '@/lib/kyb/portal';
+import DebtReportField from '@/components/kyb/DebtReportField';
 
 /**
  * Formulario de la ronda de preguntas abierta.
@@ -89,6 +90,29 @@ export default function QuestionsStep({ token, questions, onAnswered }: Question
           const inputId = `kyb-answer-${index}`;
           const hintId = `${inputId}-hint`;
           const isMissing = missing.includes(question.id);
+
+          // El informe de deudas se sube como archivo: el id del PDF queda como
+          // respuesta y el servidor comprueba que sea de esta solicitud.
+          if (question.kind === 'document') {
+            return (
+              <li key={question.id} className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                <p className="text-sm font-semibold text-slate-800">
+                  <span className="mr-1.5 text-slate-400">{index + 1}.</span>
+                  {question.question}
+                </p>
+                <DebtReportField
+                  token={token}
+                  value={values[question.id] ?? ''}
+                  onUploaded={(documentId) => update(question.id, documentId)}
+                />
+                {isMissing && (
+                  <p className="mt-1.5 text-[11px] font-semibold text-red-600">
+                    Falta adjuntar el informe en PDF.
+                  </p>
+                )}
+              </li>
+            );
+          }
 
           return (
             <li key={question.id} className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">

@@ -18,15 +18,45 @@ import { formatPlanPrice } from '@/lib/kyb/plans';
  * No es un cobro por publicación: por eso no se muestran «publicaciones activas»
  * ni un contador de fichas. Lo que se cobra es el tamaño del CCA, no cada aviso.
  *
+ * Debajo va la **cuenta corriente**: cada movimiento que cambió el monto mensual,
+ * con la cartera, la UF y el `%CCA` que se usaron. Es lo que permite entender una
+ * factura de hace tres meses sin recalcularla con los datos de hoy, y lo que el
+ * socio recibe por correo cada vez que el número se mueve.
+ *
  * Se pide aparte del listado para que un fallo acá no deje las publicaciones sin
  * cargar. La UF sale de `/api/indicators`, la misma fuente que el resto del sitio.
  */
+
+interface Movement {
+  id: string;
+  amountClp: number;
+  previousAmountClp: number | null;
+  stockClp: number;
+  ccaUf: number;
+  ccaPct: number;
+  reason: 'alta' | 'cartera' | 'planes';
+  createdAt: string;
+}
 
 interface Determination {
   stockClp: number;
   ccaPct: number;
   persistent: boolean;
+  movements: Movement[];
+  authorizedAt: string | null;
   warning?: string;
+}
+
+const REASON_LABELS: Record<Movement['reason'], string> = {
+  alta: 'Alta',
+  cartera: 'Cambio de cartera',
+  planes: 'Cambio de %CCA',
+};
+
+function formatDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 export default function CcaCard() {
@@ -147,6 +177,64 @@ export default function CcaCard() {
       )}
 
       {data.warning && <p className="mt-2 text-[11px] text-slate-400">{data.warning}</p>}
+
+      <div className="mt-4 border-t border-slate-100 pt-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h4 className="text-xs font-bold text-slate-700">Cuenta corriente</h4>
+          <span className="text-[11px] text-slate-400">
+            {data.authorizedAt
+              ? `Cobro autorizado el ${formatDate(data.authorizedAt)}`
+              : 'Autorización del cobro registrada en el alta'}
+          </span>
+        </div>
+
+        {data.movements.length === 0 ? (
+          <p className="mt-2 text-[11px] leading-relaxed text-slate-400">
+            Sin movimientos todavía. La primera línea aparece cuando cargues una propiedad y el CCA
+            deje de ser 0.
+          </p>
+        ) : (
+          <ul className="mt-2 divide-y divide-slate-100 text-xs">
+            {data.movements.map((movement) => {
+              const delta =
+                movement.previousAmountClp === null
+                  ? null
+                  : movement.amountClp - movement.previousAmountClp;
+              return (
+                <li key={movement.id} className="flex items-start justify-between gap-3 py-2">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-700">
+                      {REASON_LABELS[movement.reason]}
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      {formatDate(movement.createdAt)} · cartera {formatPlanPrice(movement.stockClp)}{' '}
+                      · {formatNumber(movement.ccaUf)} UF · {formatNumber(movement.ccaPct)}%
+                    </p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="font-black text-slate-900">{formatPlanPrice(movement.amountClp)}</p>
+                    {delta !== null && delta !== 0 && (
+                      <p
+                        className={
+                          delta > 0 ? 'text-[11px] text-amber-600' : 'text-[11px] text-emerald-600'
+                        }
+                      >
+                        {delta > 0 ? '+' : '−'}
+                        {formatPlanPrice(Math.abs(delta))}
+                      </p>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        <p className="mt-2 text-[11px] leading-relaxed text-slate-400">
+          Cada movimiento que cambia el monto se te avisa por correo. El CCA se factura junto a tu
+          mensualidad; acá no se cobra nada.
+        </p>
+      </div>
     </div>
   );
 }

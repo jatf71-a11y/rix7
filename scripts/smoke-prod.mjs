@@ -130,6 +130,8 @@ export const ALTA_STEP_LABELS = {
   plan: 'Alta · POST /api/kyb/activate (plan y panel)',
   pago: 'Alta · POST /api/admin/cobranza (pago → Operando)',
   acceso: 'Alta · enlace del correo abre /socio con sesión',
+  cca: 'Alta · CCA autorizado y cuenta corriente abierta',
+  publicacion: 'Alta · publicar mueve el CCA y avisa por correo',
   cleanup: 'Limpieza del alta completa',
 };
 
@@ -632,6 +634,166 @@ export function judgeActivation(status, body) {
   };
 }
 
+/**
+ * Cómo leer el intento de alta **sin** autorizar el CCA.
+ *
+ * El CCA es un cargo mensual que depende de las publicaciones del socio, así que
+ * el alta no puede cerrarse sin que lo haya aprobado. Este paso manda la misma
+ * petición sin `ccaAccepted` y exige que la rechace: si la aceptara, el servidor
+ * estaría cobrando algo que nadie autorizó. Un 400 es lo correcto —la petición
+ * está incompleta— y el mensaje tiene que nombrar el CCA; un 200 es el defecto
+ * que este paso existe para encontrar.
+ */
+export function judgeCcaRequired(status, body) {
+  if (status === 429) {
+    return { level: 'fail', detail: 'HTTP 429: el límite de peticiones tapó la comprobación' };
+  }
+  if (status !== 400 && status !== 422) {
+    return {
+      level: 'fail',
+      detail: `HTTP ${status}: el alta no exigió la autorización del CCA — ${bodyError(body)}`,
+    };
+  }
+
+  const error = bodyError(body, '');
+  if (!/CCA/i.test(error)) {
+    return {
+      level: 'fail',
+      detail: `se rechazó con HTTP ${status}, pero no por el CCA: ${error || 'sin mensaje'}`,
+    };
+  }
+
+  return { level: 'ok', detail: `sin autorización el alta se rechaza (HTTP ${status})` };
+}
+
+/**
+ * Cómo leer la cuenta corriente del CCA al cerrar el alta.
+ *
+ * El alta abre la cuenta con una línea base de $0 —todavía no hay cartera— y
+ * deja fechada la autorización. Sin esa línea el primer cambio de monto no
+ * tendría contra qué compararse y el socio no recibiría el aviso. Se lee con la
+ * sesión del socio: es el mismo camino que usa el panel.
+ */
+export function judgeCcaAccount(status, body) {
+  if (status === 401) {
+    return { level: 'fail', detail: 'la sesión del socio no puede leer la cuenta del CCA (HTTP 401)' };
+  }
+  if (status !== 200 || body?.success !== true) {
+    return { level: 'fail', detail: `HTTP ${status}: ${bodyError(body)}` };
+  }
+  if (!body?.data?.authorizedAt) {
+    return { level: 'fail', detail: 'el alta quedó sin la autorización del CCA registrada' };
+  }
+
+  const movements = Array.isArray(body?.data?.movements) ? body.data.movements : [];
+  const baseline = movements[0];
+  if (!baseline) {
+    return { level: 'fail', detail: 'la cuenta corriente no registró la línea base del alta' };
+  }
+  if (baseline.reason !== 'alta') {
+    return { level: 'fail', detail: `el primer movimiento es «${baseline.reason}» y no el alta` };
+  }
+  if (baseline.amountClp !== 0) {
+    return {
+      level: 'fail',
+      detail: `la línea base quedó en $${baseline.amountClp} y no en $0: un socio sin cartera no paga CCA`,
+    };
+  }
+
+  return { level: 'ok', detail: 'autorización fechada · cuenta abierta con la línea base de $0' };
+}
+
+/**
+ * Cómo leer el CCA después de publicar.
+ *
+ * Es la mitad que el socio va a vivir todos los meses: una propiedad más mueve
+ * la cartera, el monto cambia y tiene que salir el aviso. Se miran las dos
+ * puntas —el resumen que devuelve la publicación y el movimiento guardado que
+ * lee después el panel— porque un «cambió» en la respuesta no prueba que la
+ * cuenta corriente lo tenga.
+ *
+ * `emailed: false` es un rojo, no un aviso: el movimiento ya está y el socio
+ * quedaría con una factura distinta sin enterarse.
+ *
+ * @param {number} status        HTTP del alta de la publicación
+ * @param {any} body             su respuesta, con el resumen `cca`
+ * @param {number} accountStatus HTTP de la relectura de la cuenta
+ * @param {any} accountBody      la cuenta ya con el movimiento
+ */
+export function judgeCcaMovement(status, body, accountStatus, accountBody) {
+  if (status !== 201 || body?.success !== true) {
+    return { level: 'fail', detail: `la publicación no se guardó (HTTP ${status}): ${bodyError(body)}` };
+  }
+
+  const cca = body?.cca;
+  if (!cca || cca.error) {
+    return {
+      level: 'fail',
+      detail: `la propiedad quedó publicada pero el CCA no se registró: ${cca?.error ?? 'sin resumen'}`,
+    };
+  }
+  if (cca.changed !== true) {
+    return { level: 'fail', detail: 'la cartera cambió y el CCA no registró el movimiento' };
+  }
+  if (!(cca.amountClp > 0)) {
+    return {
+      level: 'fail',
+      detail: `el CCA quedó en $${cca.amountClp ?? 0} con una propiedad publicada`,
+    };
+  }
+  if (cca.emailed !== true) {
+    return { level: 'fail', detail: 'el movimiento quedó registrado pero el aviso al socio no salió' };
+  }
+
+  if (accountStatus !== 200 || accountBody?.success !== true) {
+    return { level: 'fail', detail: `la cuenta no se pudo leer (HTTP ${accountStatus})` };
+  }
+
+  const movements = Array.isArray(accountBody?.data?.movements) ? accountBody.data.movements : [];
+  const last = movements[0];
+  if (!last || last.reason !== 'cartera') {
+    return { level: 'fail', detail: 'la cuenta corriente no muestra el movimiento de cartera' };
+  }
+  if (last.amountClp !== cca.amountClp) {
+    return {
+      level: 'fail',
+      detail: `la cuenta dice $${last.amountClp} y la publicación $${cca.amountClp}: no es el mismo movimiento`,
+    };
+  }
+  if (last.previousAmountClp !== 0) {
+    return { level: 'fail', detail: 'el movimiento no quedó enlazado con la línea base de $0' };
+  }
+
+  return {
+    level: 'ok',
+    detail: `propiedad publicada · CCA $${cca.amountClp}/mes (antes $0) · aviso enviado al socio`,
+  };
+}
+
+/**
+ * La publicación de prueba.
+ *
+ * Necesita precio > 0: es lo único que mueve la cartera y, con ella, el CCA. Una
+ * ficha sin precio pasaría el alta y no probaría nada del cobro.
+ */
+export function smokePublicationPayload(now = Date.now()) {
+  return {
+    title: `${SMOKE_ALTA_NAME} · ${now}`,
+    description: 'Publicación de la prueba de humo: se borra al terminar.',
+    price: 180_000_000,
+    property_type: 'apartment',
+    status: 'for_sale',
+    bedrooms: 2,
+    bathrooms: 1,
+    area_sqm: 60,
+    parking_spots: 1,
+    address: 'Av. Prueba 123',
+    city: 'Santiago',
+    lat: -33.4489,
+    lng: -70.6693,
+  };
+}
+
 /** Cómo leer el registro del pago. */
 export function judgePayment(status, body) {
   if (status !== 200 || body?.success !== true) {
@@ -1084,7 +1246,7 @@ export function createSmokeStore({ url, key, fetchImpl = fetch }) {
      * `deleteAccount`, porque vive en otro servicio.
      */
     async cleanupAlta({ altaId, solicitudId, partnerId }) {
-      const counts = { billing: 0, alta: 0, solicitud: 0, partner: 0 };
+      const counts = { billing: 0, alta: 0, solicitud: 0, partner: 0, properties: 0 };
       const errors = [];
 
       const remove = async (table, query, key) => {
@@ -1104,6 +1266,13 @@ export function createSmokeStore({ url, key, fetchImpl = fetch }) {
       }
       if (solicitudId) {
         await remove('solicitudes', `id=eq.${encodeURIComponent(solicitudId)}`, 'solicitud');
+      }
+      // Las publicaciones van antes que la ficha: `properties.partner_id` tiene
+      // clave foránea contra `partners` sin cascada, así que el socio no se puede
+      // borrar mientras tenga fichas. La cuenta del CCA sí cae con la ficha
+      // (cascada de la 0033).
+      if (partnerId) {
+        await remove('properties', `partner_id=eq.${encodeURIComponent(partnerId)}`, 'properties');
       }
       if (partnerId) {
         await remove('partners', `id=eq.${encodeURIComponent(partnerId)}`, 'partner');
@@ -1421,7 +1590,13 @@ export async function runAltaCheck({
   };
 
   /** Lo que se creó, para poder borrarlo aunque un paso del medio falle. */
-  const created = { solicitudId: null, altaId: null, partnerId: null, account: null };
+  const created = {
+    solicitudId: null,
+    altaId: null,
+    partnerId: null,
+    account: null,
+    propertyId: null,
+  };
   const destino = email ? altaEmailFor(email, now) : null;
 
   if (!email) {
@@ -1557,9 +1732,33 @@ export async function runAltaCheck({
       return steps;
     }
 
+    // Primero la misma petición **sin** la autorización: el alta no se cierra
+    // sin aprobar el CCA. Se usa el mismo token porque un rechazo no lo
+    // consume; si cambiara eso, la activación de abajo lo delataría.
+    const sinAutorizacion = await postJson('/api/kyb/activate', {
+      token: activationToken.token,
+      plan: 'profesional',
+    });
+
+    if (!sinAutorizacion.ok) {
+      done(L.plan, { level: 'fail', detail: `no respondió: ${sinAutorizacion.error}` });
+      notTried(ALTA_ORDER.slice(5));
+      return steps;
+    }
+
+    const required = judgeCcaRequired(sinAutorizacion.status, sinAutorizacion.body);
+    if (required.level !== 'ok') {
+      done(L.plan, required);
+      notTried(ALTA_ORDER.slice(5));
+      return steps;
+    }
+
+    // `ccaAccepted` es obligatorio: el alta no se cierra sin la autorización del
+    // cobro del CCA, que es un cargo mensual sobre las publicaciones.
     const activated = await postJson('/api/kyb/activate', {
       token: activationToken.token,
       plan: 'profesional',
+      ccaAccepted: true,
     });
 
     if (!activated.ok) {
@@ -1575,7 +1774,9 @@ export async function runAltaCheck({
       L.plan,
       activation.level === 'ok' && !created.partnerId
         ? { level: 'fail', detail: 'el panel quedó habilitado pero sin ficha de socio' }
-        : activation
+        : activation.level === 'ok'
+          ? { ...activation, detail: `${activation.detail} · ${required.detail}` }
+          : activation
     );
     if (activation.level !== 'ok' || !created.partnerId) {
       notTried(ALTA_ORDER.slice(5));
@@ -1630,6 +1831,7 @@ export async function runAltaCheck({
     const link = await store.mintMagicLink(destino);
     if (!link.ok) {
       done(L.acceso, { level: 'fail', detail: link.error });
+      notTried(ALTA_ORDER.slice(7));
       return steps;
     }
 
@@ -1640,6 +1842,7 @@ export async function runAltaCheck({
 
     if (!confirm.ok) {
       done(L.acceso, { level: 'fail', detail: `no respondió: ${confirm.error}` });
+      notTried(ALTA_ORDER.slice(7));
       return steps;
     }
 
@@ -1649,6 +1852,7 @@ export async function runAltaCheck({
     );
     if (linkVerdict.level !== 'ok') {
       done(L.acceso, linkVerdict);
+      notTried(ALTA_ORDER.slice(7));
       return steps;
     }
 
@@ -1662,16 +1866,55 @@ export async function runAltaCheck({
         level: 'fail',
         detail: 'la redirección no dejó cookies: el enlace abriría el panel sin sesión',
       });
+      notTried(ALTA_ORDER.slice(7));
       return steps;
     }
 
     const panel = await getJson('/api/partner/access', { Cookie: session });
     if (!panel.ok) {
       done(L.acceso, { level: 'fail', detail: `no respondió: ${panel.error}` });
+      notTried(ALTA_ORDER.slice(7));
       return steps;
     }
 
     done(L.acceso, judgePanelSession(panel.status, panel.body, created.partnerId));
+
+    // La cuenta corriente del CCA, con la misma sesión del socio: la autorización
+    // quedó fechada y la línea base es de $0 porque todavía no hay cartera.
+    const cca = await getJson('/api/partner/cca', { Cookie: session });
+    if (!cca.ok) {
+      done(L.cca, { level: 'fail', detail: `no respondió: ${cca.error}` });
+      return steps;
+    }
+
+    done(L.cca, judgeCcaAccount(cca.status, cca.body));
+
+    // Publicar mueve la cartera y con ella el CCA: queda el movimiento con monto
+    // y sale el aviso. Se lee la cuenta otra vez, porque lo que vale es lo
+    // guardado y no el resumen de la respuesta.
+    const publication = await postJson(
+      '/api/partner/properties',
+      smokePublicationPayload(now),
+      { Cookie: session }
+    );
+    if (!publication.ok) {
+      done(L.publicacion, { level: 'fail', detail: `no respondió: ${publication.error}` });
+      return steps;
+    }
+
+    created.propertyId =
+      typeof publication.body?.data?.id === 'string' ? publication.body.data.id : null;
+
+    const movida = await getJson('/api/partner/cca', { Cookie: session });
+    if (!movida.ok) {
+      done(L.publicacion, { level: 'fail', detail: `la cuenta no se pudo releer: ${movida.error}` });
+      return steps;
+    }
+
+    done(
+      L.publicacion,
+      judgeCcaMovement(publication.status, publication.body, movida.status, movida.body)
+    );
   } finally {
     steps.push(await cleanupAlta({ store, created, email: destino }));
   }
@@ -1687,7 +1930,7 @@ export async function runAltaCheck({
  */
 async function cleanupAlta({ store, created, email }) {
   const label = ALTA_STEP_LABELS.cleanup;
-  const { altaId, solicitudId, partnerId, account } = created;
+  const { altaId, solicitudId, partnerId, account, propertyId } = created;
 
   if (!altaId && !solicitudId && !partnerId) {
     return { level: 'info', label, detail: 'no se creó nada' };
@@ -1710,6 +1953,7 @@ async function cleanupAlta({ store, created, email }) {
     ['alta', altaId, removed.alta],
     ['solicitud', solicitudId, removed.solicitud],
     ['ficha', partnerId, removed.partner],
+    ['publicación', propertyId, removed.properties],
   ].filter(([, id]) => Boolean(id));
 
   const missing = expectations.filter(([, , count]) => count !== 1).map(([name]) => name);

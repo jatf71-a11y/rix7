@@ -32,6 +32,8 @@ import {
   kybProposalUrl,
 } from '@/lib/email/kybEmails';
 import { normalizeDecision } from './decisions';
+import { DEBT_REPORT_QUESTION_ID, debtReportKindFor, withDebtReport } from './debtReport';
+import { isDebtReportFromOwner } from './documents';
 import {
   altaPlanSummary,
   latestProposal,
@@ -64,6 +66,7 @@ import { evaluateKyb, type KybClarifications, type KybEngineDeps } from './engin
 import { normalizeKybApplication, type KybApplicationInput } from './application';
 import { provisionCompanyPanel } from './provisioning';
 import { readPlanPricing } from '@/lib/data/planPricingStore';
+import { syncPartnerCca } from '@/lib/data/ccaLedger';
 import {
   assertTransition,
   canDecideManually,
@@ -254,6 +257,21 @@ export async function evaluateById(
     };
   }
 
+  // La ronda que se guarda, se manda y se responde incluye el informe de deudas
+  // de la CMF: el motor decide con sus verificaciones, pero a quien queda
+  // pendiente se le pide el documento del perfil además de las aclaraciones. Se
+  // agrega acá —y no en el motor— para que la evaluación guardada y la ronda
+  // sean exactamente lo que ve la empresa.
+  if (evaluation.decision === 'Pendiente_Informacion') {
+    evaluation = {
+      ...evaluation,
+      questions: withDebtReport(
+        evaluation.questions,
+        debtReportKindFor(application.registrationKind)
+      ),
+    };
+  }
+
   let email: EmailOutcome | undefined;
 
   if (evaluation.decision === 'Aceptada') {
@@ -402,6 +420,9 @@ export async function decideApplication({
   const before = application.status;
   let email: EmailOutcome | undefined;
   let after: KybStatus = chosen.decision;
+  // Lo que se le pide a la empresa. Pedir información suma el informe de deudas
+  // del perfil; aprobar o rechazar no le pide nada.
+  let askedQuestions: KybQuestion[] = chosen.questions;
 
   if (chosen.decision === 'Rechazada') {
     const updated = await updateApplication(id, {
@@ -462,7 +483,15 @@ export async function decideApplication({
       }
     }
 
-    await createInformationRequest(id, chosen.questions);
+    // El pedido de información siempre lleva el informe de deudas del perfil:
+    // es lo que el equipo necesita para decidir y lo que la empresa puede
+    // adjuntar en el mismo enlace del correo.
+    askedQuestions = withDebtReport(
+      chosen.questions,
+      debtReportKindFor(application.registrationKind)
+    );
+
+    await createInformationRequest(id, askedQuestions);
     const { token } = await issueToken(id, 'answers');
 
     email = await notify(
@@ -470,7 +499,7 @@ export async function decideApplication({
       buildKybPendingEmail({
         legalName: application.legalName,
         contactName: application.contactName,
-        questions: chosen.questions,
+        questions: askedQuestions,
         token,
         siteUrl: SITE_URL,
       })
@@ -496,7 +525,7 @@ export async function decideApplication({
     ok: true,
     application: refreshed.data ?? application,
     status: after,
-    questions: chosen.questions,
+    questions: askedQuestions,
     email,
     ...(recorded.ok ? {} : { error: `La decisión se aplicó, pero no se pudo registrar en el historial: ${recorded.error}` }),
   };
@@ -556,6 +585,18 @@ export async function answerKybQuestions({
     return {
       ok: false,
       error: `Faltan respuestas: ${missing.map((question) => question.id).join(', ')}.`,
+    };
+  }
+
+  // La pregunta del informe no se contesta con texto: la respuesta tiene que ser
+  // el id de un PDF subido con este mismo token. Sin esta comprobación la ronda
+  // se cerraría con un documento que no existe y la decisión quedaría sin el
+  // respaldo que el equipo necesita.
+  const reportId = submitted.get(DEBT_REPORT_QUESTION_ID);
+  if (reportId && !(await isDebtReportFromOwner('alta', application.id, reportId))) {
+    return {
+      ok: false,
+      error: 'El informe de deudas no se terminó de subir. Súbelo de nuevo desde el enlace.',
     };
   }
 
@@ -673,9 +714,12 @@ export interface ActivateResult {
 export async function activateKybPlan({
   token,
   plan,
+  ccaAccepted,
 }: {
   token: unknown;
   plan: unknown;
+  /** El solicitante aprobó el cobro del CCA en esta misma pantalla. */
+  ccaAccepted?: unknown;
 }): Promise<ActivateResult> {
   if (!isKybTokenShape(token)) return { ok: false, error: 'El enlace no es válido.' };
   if (!isKybPlanId(plan)) return { ok: false, error: 'El plan indicado no existe.' };
@@ -698,6 +742,17 @@ export async function activateKybPlan({
     return { ok: false, error: 'El enlace no sirve para activar: la solicitud aún no está aceptada.' };
   }
 
+  // El CCA es un cargo mensual que depende de las publicaciones del socio: el
+  // alta no se cierra sin que lo haya aprobado. Se exige solo acá (no en la
+  // forma) para que un reintento de una alta ya autorizada siga funcionando.
+  if (ccaAccepted !== true) {
+    return {
+      ok: false,
+      error:
+        'Falta autorizar el cobro del CCA: es un cargo mensual sobre tus publicaciones y el alta no se puede cerrar sin tu aprobación.',
+    };
+  }
+
   const provision = await provisionCompanyPanel(application);
   if (!provision.ok) {
     return { ok: false, error: provision.error ?? 'No se pudo habilitar el panel.' };
@@ -707,6 +762,10 @@ export async function activateKybPlan({
     plan,
     panelEnabled: true,
     activatedAt: new Date().toISOString(),
+    // La autorización del CCA queda fechada en la solicitud: es la prueba de que
+    // el cobro se aprobó antes de la primera factura. Si ya estaba (reintento),
+    // se conserva la fecha original.
+    ccaAuthorizedAt: application.ccaAuthorizedAt ?? new Date().toISOString(),
     // `Alta`, no `Operando`: el plan elegido todavía no está pagado. La solicitud
     // pasa a operando cuando la cobranza registra el pago del período; si se
     // marcara acá, un cliente sin pagar aparecería como activo en el pipeline.
@@ -721,6 +780,15 @@ export async function activateKybPlan({
 
   if (!updated.ok || !updated.data) {
     return { ok: false, error: updated.error ?? 'No se pudo guardar la activación.' };
+  }
+
+  // Línea base de la cuenta corriente del CCA. Un socio recién creado no tiene
+  // cartera, así que el primer movimiento es de $0 y no manda correo: sirve para
+  // que el primer cambio de monto tenga contra qué compararse. Se registra sin
+  // poder tumbar el alta: la activación ya está guardada.
+  if (provision.partnerId) {
+    const cca = await syncPartnerCca(provision.partnerId, { reason: 'alta' });
+    if (!cca.ok) console.error('[kyb] no se pudo abrir la cuenta corriente del CCA:', cca.error);
   }
 
   const planData = getKybPlan(plan);

@@ -22,8 +22,8 @@
  *   $CCA = CCA × valor de la UF ÷ 1.000.000 × %CCA
  *
  * El divisor —el **factor**— y el resultado **son pesos**: un socio cuyo CCA
- * suma 100.000 y una UF de $40.000 paga
- * `100.000 × 40.000 ÷ 1.000.000 = $4.000` por concepto de CCA.
+ * suma 100.000 UF gasta `100.000 × 40.000 ÷ 1.000.000 = $4.000` **antes** del
+ * %CCA; con el valor de partida (8.333,33) son $333.333 al mes.
  *
  * Ese `÷ 1.000.000` no es una constante intocable: es el factor con el que se
  * traduce el CCA a pesos y el equipo lo ajusta desde el panel con **%CCA**, un
@@ -35,7 +35,12 @@
  *
  * O sea que el porcentaje **es** el precio relativo: más % es más plata, y el
  * factor equivalente (`ccaFactor`) se muestra en el panel para que no haya que
- * hacer la cuenta mentalmente. La cuenta vive en `ccaAmountClp` para que la
+ * hacer la cuenta mentalmente.
+ *
+ * El valor de partida es `8.333,33`: deja el factor en 12.000, o sea **0,1 % de
+ * la cartera al año** facturado mes a mes (`$CCA = cartera ÷ 12.000`). Una
+ * cartera de $180 millones paga $15.000 al mes; con el antiguo 100 pagaba $180,
+ * que al lado de una mensualidad de $14.990 era ruido. La cuenta vive en `ccaAmountClp` para que la
  * pantalla y cualquier pieza futura usen la misma y no dos copias que se
  * despeguen.
  *
@@ -148,17 +153,21 @@ export function profileLabel(profile: PartnerKind): string {
 export const CCA_DIVISOR = 1_000_000;
 
 /**
- * %CCA de partida: 100 deja el factor en 1.000.000, o sea la fórmula de siempre.
+ * %CCA de partida: 8.333,33 deja el factor en 12.000, o sea 0,1 % de la cartera
+ * al año facturado mes a mes. Es la escala que hace que el CCA pese como la
+ * mensualidad ($180 millones de cartera → $15.000 al mes) en vez de ser un
+ * cargo simbólico.
  * Guardado con los precios, así el ajuste sobrevive al reinicio del proceso.
  */
-export const DEFAULT_CCA_PCT = 100;
+export const DEFAULT_CCA_PCT = 8_333.33;
 
 /**
  * Rango del %CCA. El piso en 1 evita dejar el concepto en cero por un campo
- * vacío que se interpretó como 0; el techo corta un 999999 de tipeo.
+ * vacío que se interpretó como 0; el techo —0,6 % de la cartera al año— acota el
+ * ajuste comercial y sigue cortando un 999999 de tipeo.
  */
 export const MIN_CCA_PCT = 1;
-export const MAX_CCA_PCT = 1000;
+export const MAX_CCA_PCT = 50_000;
 
 /**
  * Suscripciones de captación de partida: lo que definió el equipo por perfil.

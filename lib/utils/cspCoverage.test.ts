@@ -85,6 +85,11 @@ const SERVER_ONLY = [
   // (`lib/kyb/engine.ts`), nunca el navegador. Sin `EXA_API_KEY` el adaptador
   // responde con la simulación y no sale a la red.
   'lib/kyb/adapters/reputation.ts',
+  // Valor de la UF para la cuenta corriente del CCA: lo lee el servidor desde
+  // Node, con la clave de servicio. La tarjeta del socio pide la UF a
+  // `/api/indicators` (mismo dato, ya permitido en `connect-src`), así que el
+  // navegador nunca pide mindicador.cl de forma directa.
+  'lib/data/ccaLedger.ts',
 ];
 
 /** Artefactos generados por `postinstall` (copias de dependencias), no código propio. */

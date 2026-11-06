@@ -591,9 +591,11 @@ export default function AdminPlanesPage() {
                 </span>
               </div>
               <p className="mt-1 text-[10px] leading-relaxed text-slate-400">
-                Cuánto del valor base del CCA se cobra. 100 % deja el factor en{' '}
-                {formatDecimalInput(CCA_DIVISOR)} —la fórmula de siempre—; 50 % cobra la mitad y
-                200 %, el doble. Se guarda con los precios, entre {MIN_CCA_PCT} y {MAX_CCA_PCT}.
+                Cuánto del valor base del CCA se cobra. El de partida,{' '}
+                {formatDecimalInput(DEFAULT_CCA_PCT)} %, deja el factor en{' '}
+                {formatDecimalInput(Math.round(ccaFactor(DEFAULT_CCA_PCT)))} —0,1 % de la cartera al
+                año—; 100 % lo deja en {formatDecimalInput(CCA_DIVISOR)}, la fórmula de siempre. Se
+                guarda con los precios, entre {MIN_CCA_PCT} y {MAX_CCA_PCT}.
               </p>
             </div>
           </div>

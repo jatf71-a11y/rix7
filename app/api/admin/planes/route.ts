@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/supabase/auth-guard';
 import { readPlanPricing, writePlanPricing } from '@/lib/data/planPricingStore';
+import { syncAllPartnerCca } from '@/lib/data/ccaLedger';
 
 /**
  * `/api/admin/planes` — precios de los planes por perfil de socio.
@@ -56,6 +57,11 @@ export async function PUT(request: NextRequest) {
       ? (body as { config: unknown }).config
       : body;
 
+  // El `%CCA` multiplica la cartera de cada socio: si cambia, la facturación de
+  // todos cambia ese mismo mes. Se lee antes de guardar para saber si de verdad
+  // se movió, y solo entonces se recalculan las cuentas corrientes.
+  const before = await readPlanPricing();
+
   const saved = await writePlanPricing(payload);
   if (!saved.ok) {
     return NextResponse.json({ success: false, error: saved.error }, { status: 400 });
@@ -63,10 +69,20 @@ export async function PUT(request: NextRequest) {
 
   const result = await readPlanPricing();
 
+  // Recalcular es parte de guardar el `%CCA`, no un extra: cada socio con
+  // cartera recibe su nuevo monto por correo y el movimiento queda en su
+  // cuenta. Un fallo acá no revierte los precios ya guardados; se informa.
+  const ccaPctChanged =
+    Math.round(before.config.ccaPct * 100) !== Math.round(result.config.ccaPct * 100);
+  const cca = ccaPctChanged
+    ? await syncAllPartnerCca({ reason: 'planes' })
+    : null;
+
   return NextResponse.json({
     success: true,
     data: result.config,
     persisted: saved.persistent,
+    ...(cca ? { cca } : {}),
     ...(saved.persistent
       ? {}
       : { warning: 'Guardado en memoria: se pierde al reiniciar el proceso.' }),

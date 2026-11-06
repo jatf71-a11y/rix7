@@ -152,8 +152,7 @@ describe('el plan del paso de alta', () => {
     expect(summary.altaClp).toBe(120000);
     expect(summary.monthlyClp).toBe(80000);
     expect(summary.source).toBe('propuesta');
-    // Los usuarios y el cupo de publicaciones sí son del plan y del perfil.
-    expect(summary.listings).toBe(1000);
+    // Los usuarios sí son del plan y del perfil: no hay cupo de publicaciones.
     expect(summary.usuariosIncluidos).toBe(5);
   });
 
@@ -202,9 +201,9 @@ describe('condiciones del paso Calificado', () => {
   it('cada perfil recibe su plan, sus precios y su captación', () => {
     const corredora = subscriptionTerms('corredora');
     expect(corredora.profileLabel).toBe('Corredora');
-    // Plan Profesional del catálogo: 50 publicaciones, 5 usuarios en Planes.
+    // Plan Profesional del catálogo y 5 usuarios en Planes. Sin cupo de
+    // publicaciones: eso se factura por CCA, no por plan.
     expect(corredora.planName).toBe('Profesional');
-    expect(corredora.listings).toBe(50);
     expect(corredora.usuariosIncluidos).toBe(5);
     expect(corredora.altaClp).toBe(49990);
     expect(corredora.monthlyClp).toBe(39990);
@@ -212,12 +211,10 @@ describe('condiciones del paso Calificado', () => {
 
     const inmobiliaria = subscriptionTerms('inmobiliaria');
     expect(inmobiliaria.profileLabel).toBe('Inmobiliaria');
-    expect(inmobiliaria.listings).toBe(1000);
     expect(inmobiliaria.usuariosIncluidos).toBe(15);
 
     const profesional = subscriptionTerms(null);
     expect(profesional.profileLabel).toBe('Profesional');
-    expect(profesional.listings).toBe(10);
   });
 
   it('respeta los precios que el equipo cambió en Planes', () => {

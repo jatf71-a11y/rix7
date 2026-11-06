@@ -117,6 +117,25 @@ beforeEach(() => {
   });
 });
 
+const DEBT_REPORT_ID = 'debt_report';
+
+/**
+ * Sube un informe de prueba con el token de la ronda.
+ *
+ * Sin clave de servicio el documento vive en memoria, así que alcanza con un
+ * PDF mínimo: lo que se prueba acá es el vínculo entre la subida y la respuesta,
+ * no el lector (que tiene sus propios tests en `debtReport.test.ts`).
+ */
+async function uploadReport(token: string): Promise<string> {
+  const { saveDebtReport } = await import('./documents');
+  const file = new File([new Uint8Array([0x25, 0x50, 0x44, 0x46])], 'informe.pdf', {
+    type: 'application/pdf',
+  });
+  const saved = await saveDebtReport({ token, file });
+  if (!saved.ok) throw new Error(saved.error);
+  return saved.document.id;
+}
+
 describe('flujo KYB', () => {
   it('acepta una empresa limpia y la deja calificada, sin token todavía', async () => {
     const result = await submitKybApplication(empresa, { deps });
@@ -163,16 +182,20 @@ describe('flujo KYB', () => {
     const submitted = await submitKybApplication(informal, { deps });
 
     expect(submitted.status).toBe('Pendiente_Informacion');
-    expect(submitted.questions?.length).toBe(3);
+    // Tres aclaraciones del motor y el informe de deudas de la CMF.
+    expect(submitted.questions?.length).toBe(4);
 
     const token = tokenFromLastEmail();
     const stored = await getApplication(submitted.applicationId as string);
     expect(stored.data?.tokenPurpose).toBe('answers');
 
+    const reportId = await uploadReport(token);
     const answers = (submitted.questions ?? []).map((question) => ({
       id: question.id,
       answer:
-        'El dominio corporativo es torrespropiedades.cl y el correo oficial es contacto@torrespropiedades.cl.',
+        question.id === DEBT_REPORT_ID
+          ? reportId
+          : 'El dominio corporativo es torrespropiedades.cl y el correo oficial es contacto@torrespropiedades.cl.',
     }));
 
     const answered = await answerKybQuestions({ token, answers, deps });
@@ -200,9 +223,8 @@ describe('flujo KYB', () => {
 
     expect(asked.ok).toBe(true);
     expect(asked.status).toBe('Pendiente_Informacion');
-    expect(asked.questions).toEqual([
-      { id: 'manual_1', question: '¿Cuál es el domicilio comercial exacto donde opera la empresa?' },
-    ]);
+    // La ronda lleva la pregunta del equipo y el informe de deudas del perfil.
+    expect(asked.questions?.map((question) => question.id)).toEqual(['manual_1', DEBT_REPORT_ID]);
     // El correo sale igual que en el camino automático: es el de preguntas.
     const mail = sendEmail.mock.calls.at(-1)?.[0] as { subject: string; text: string };
     expect(mail.subject).toMatch(/falta información/i);
@@ -223,9 +245,13 @@ describe('flujo KYB', () => {
     const secondToken = tokenFromLastEmail();
     expect(secondToken).not.toBe(firstToken);
 
+    const reportId = await uploadReport(secondToken);
     const answered = await answerKybQuestions({
       token: secondToken,
-      answers: [{ id: 'manual_1', answer: 'Av. Providencia 1234, oficina 56, Santiago.' }],
+      answers: [
+        { id: 'manual_1', answer: 'Av. Providencia 1234, oficina 56, Santiago.' },
+        { id: DEBT_REPORT_ID, answer: reportId },
+      ],
       deps,
     });
     expect(answered.ok).toBe(true);
@@ -390,7 +416,7 @@ describe('flujo KYB', () => {
       source: 'propuesta',
     });
 
-    const activated = await activateKybPlan({ token, plan: 'profesional' });
+    const activated = await activateKybPlan({ token, plan: 'profesional', ccaAccepted: true });
     expect(activated.ok).toBe(true);
     expect(activated.already).toBe(false);
     // Elegir plan no cierra el alta: falta el pago. La solicitud queda en «Alta»
@@ -406,8 +432,11 @@ describe('flujo KYB', () => {
     expect(stored.data?.plan).toBe('profesional');
     expect(stored.data?.partnerId).toBe('catedral-propiedades-spa-2103');
     expect(stored.data?.activatedAt).toBeTruthy();
+    // La autorización del CCA queda fechada en la solicitud: es lo que respalda
+    // la primera factura del concepto.
+    expect(stored.data?.ccaAuthorizedAt).toBeTruthy();
 
-    const again = await activateKybPlan({ token, plan: 'profesional' });
+    const again = await activateKybPlan({ token, plan: 'profesional', ccaAccepted: true });
     expect(again.ok).toBe(true);
     expect(again.already).toBe(true);
     // No se volvió a crear ficha ni cuenta.
@@ -423,7 +452,7 @@ describe('flujo KYB', () => {
       error: 'Falta SUPABASE_SERVICE_ROLE_KEY',
     });
 
-    const activated = await activateKybPlan({ token, plan: 'basico' });
+    const activated = await activateKybPlan({ token, plan: 'basico', ccaAccepted: true });
     expect(activated.ok).toBe(false);
     expect(activated.error).toMatch(/SERVICE_ROLE_KEY/);
 
@@ -435,11 +464,27 @@ describe('flujo KYB', () => {
     expect(stored.data?.status).toBe('Alta');
   });
 
+  it('no cierra el alta sin autorización del cobro del CCA', async () => {
+    const submitted = await submitKybApplication(empresa, { deps });
+    const token = await propuestaAceptada(submitted.applicationId as string);
+
+    const result = await activateKybPlan({ token, plan: 'profesional' });
+    expect(result.ok).toBe(false);
+    expect(result.error).toMatch(/CCA/);
+
+    // Sin autorización no se crea nada: ni panel, ni socio, ni fecha.
+    expect(provisionCompanyPanel).not.toHaveBeenCalled();
+    const stored = await getApplication(submitted.applicationId as string);
+    expect(stored.data?.panelEnabled).toBe(false);
+    expect(stored.data?.ccaAuthorizedAt).toBeNull();
+    expect(stored.data?.status).toBe('Alta');
+  });
+
   it('no deja elegir un plan inexistente', async () => {
     const submitted = await submitKybApplication(empresa, { deps });
     const token = await propuestaAceptada(submitted.applicationId as string);
 
-    const result = await activateKybPlan({ token, plan: 'platino' });
+    const result = await activateKybPlan({ token, plan: 'platino', ccaAccepted: true });
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/plan/i);
     expect(submitted.applicationId).toBeTruthy();
@@ -450,7 +495,7 @@ describe('flujo KYB', () => {
     await submitKybApplication(informal, { deps });
     const token = tokenFromLastEmail();
 
-    const result = await activateKybPlan({ token, plan: 'basico' });
+    const result = await activateKybPlan({ token, plan: 'basico', ccaAccepted: true });
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/no sirve para activar/);
   });

@@ -53,7 +53,6 @@ describe('paso de plan', () => {
     altaClp: 49990,
     monthlyClp: 39990,
     usuariosIncluidos: 5,
-    listings: 50,
     source: 'propuesta' as const,
   };
 
@@ -70,7 +69,6 @@ describe('paso de plan', () => {
     expect(html).toContain('39.990');
     expect(html).toContain('49.990');
     expect(html).toContain('5');
-    expect(html).toContain('50');
     // Un solo plan: ya quedó fijado cuando el candidato aceptó la propuesta.
     expect((html.match(/type="radio"/g) ?? []).length).toBe(0);
     expect(html).not.toContain('Básico');

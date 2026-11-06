@@ -79,7 +79,10 @@ export async function readCcaDetermination(partnerId: string): Promise<CcaDeterm
     const prices = ((data ?? []) as PropertyRow[]).map((row) => toNumber(row.price));
 
     return {
-      stockClp: prices.reduce((sum, price) => sum + price, 0),
+      // Mismo criterio que la cuenta corriente (`ccaLedger.ccaSnapshot`): una
+      // ficha sin precio no resta. Si acá se sumara el negativo, el panel
+      // mostraría un monto distinto del que se factura.
+      stockClp: prices.reduce((sum, price) => (price > 0 ? sum + price : sum), 0),
       ccaPct: pricing.config.ccaPct,
       persistent: true,
       ...(error ? { warning: `No se pudo leer tu cartera (${error.message}).` } : {}),
@@ -138,7 +141,8 @@ export async function readCcaStocks(partnerIds: string[]): Promise<CcaStockSumma
     const stocks = { ...empty };
     for (const row of (data ?? []) as PartnerPriceRow[]) {
       if (!row.partner_id) continue;
-      stocks[row.partner_id] = (stocks[row.partner_id] ?? 0) + toNumber(row.price);
+      const price = toNumber(row.price);
+      if (price > 0) stocks[row.partner_id] = (stocks[row.partner_id] ?? 0) + price;
     }
 
     return {

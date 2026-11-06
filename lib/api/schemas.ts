@@ -710,4 +710,16 @@ export const kybActivatePostSchema = z.object({
     required_error: 'Elige un plan.',
     invalid_type_error: 'El plan indicado no existe.',
   }),
+  /**
+   * Autorización del cobro del CCA.
+   *
+   * Es obligatoria y el servidor exige `true`: el CCA es un cargo mensual que
+   * depende de las publicaciones del socio, así que el alta no puede cerrarse
+   * sin que la persona lo haya aprobado en la pantalla. Acá solo se valida la
+   * forma; la regla de negocio vive en `activateKybPlan`.
+   */
+  ccaAccepted: z.boolean({
+    required_error: 'Falta autorizar el cobro del CCA.',
+    invalid_type_error: 'La autorización del CCA no es válida.',
+  }),
 });
