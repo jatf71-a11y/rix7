@@ -214,7 +214,7 @@ function citedReviews(signals: ReputationSignals): string[] {
 function scoreOf(checks: KybCheck[]): number {
   const total = checks.reduce((sum, check) => {
     if (check.status === 'pass') return sum + check.weight;
-    if (check.status === 'warn') return sum + check.weight / 2;
+    if (check.status === 'warn') return sum + (check.earned ?? check.weight / 2);
     return sum;
   }, 0);
 
@@ -240,6 +240,12 @@ export async function evaluateKyb(
   // le puede pedir la acreditación corporativa de una corredora, pero la falta de
   // presencia institucional tampoco da lo mismo que tenerla: baja el puntaje.
   const isProfessional = application.registrationKind === 'agente';
+
+  // Lo que la empresa respondió en el registro: «no tengo sitio» y «el correo es
+  // personal». No es un dato que falta —no hay que pedir lo que ya se contestó—
+  // sino el perfil de un socio más básico: advierte, baja el puntaje y no bloquea.
+  const declaredNoSite = application.hasWebsite === false;
+  const declaredPersonalEmail = application.hasCompanyEmail === false;
 
   // ── 1. RUT: formato y dígito verificador ────────────────────────────────
   // Ya se validó al normalizar la solicitud, pero el motor no confía en su
@@ -467,13 +473,28 @@ export async function evaluateKyb(
       status: 'warn',
       detail: isProfessional
         ? 'No informó sitio web. Un profesional independiente trabaja sin sitio propio: baja el puntaje y no bloquea.'
-        : 'La solicitud no informa un sitio web.',
+        : declaredNoSite
+          ? 'La empresa declaró que no tiene sitio web: se evalúa como socio básico, sin presencia digital que contrastar.'
+          : 'La solicitud no informa un sitio web.',
       weight: WEIGHTS.domainWeb,
+      // Para el profesional, declarar la ausencia deja menos puntaje que no
+      // responder: «no tengo» es una respuesta, el silencio sigue siendo un
+      // dato faltante. En una empresa la pregunta es obligatoria, así que no
+      // existe el caso sin responder y el peso no cambia.
+      earned:
+        isProfessional && declaredNoSite
+          ? Math.round(WEIGHTS.domainWeb * 0.35)
+          : undefined,
       evidence: { source: 'declared' },
-      facts: [{ label: 'Sitio informado', value: 'ninguno' }],
-      question: isProfessional
+      facts: [
+        { label: 'Sitio informado', value: 'ninguno' },
+        ...(declaredNoSite ? [{ label: 'Declaración', value: 'sin sitio web' }] : []),
+      ],
+      // Lo declarado no se vuelve a preguntar: la pregunta solo tiene sentido
+      // cuando el dato falta, no cuando la respuesta fue «no tengo».
+      question: isProfessional || declaredNoSite
         ? undefined
-        : 'No informaste un sitio web. ¿Cuál es el dominio oficial de la empresa donde podamos verificar su actividad?',
+        : 'No informaste un sitio web. ¿Cuál es el dominio oficial de la empresa donde podamos verificar su actividad?'
     });
   } else if (isFreeHosting(normalizedSite)) {
     checks.push({
@@ -512,16 +533,41 @@ export async function evaluateKyb(
       status: 'warn',
       detail: isProfessional
         ? `El contacto usa un correo personal (${mailDomain}), lo esperable en un profesional independiente: baja el puntaje y no bloquea.`
-        : `El contacto usa un correo personal (${mailDomain}).`,
+        : declaredPersonalEmail
+          ? `El contacto declaró un correo personal (${mailDomain}): se evalúa como socio básico y no se le pide uno corporativo.`
+          : `El contacto usa un correo personal (${mailDomain}).`,
       weight: WEIGHTS.emailCorporate,
+      earned:
+        isProfessional && declaredPersonalEmail
+          ? Math.round(WEIGHTS.emailCorporate * 0.35)
+          : undefined,
       evidence: { source: 'declared' },
       facts: [
         { label: 'Dominio del correo', value: mailDomain ?? 'sin dominio' },
         { label: 'Tipo', value: 'proveedor personal' },
       ],
-      question: isProfessional
+      question: isProfessional || declaredPersonalEmail
         ? undefined
         : 'El correo de contacto es de un proveedor personal. ¿Cuál es el correo corporativo con el dominio de la empresa?',
+    });
+  } else if (declaredPersonalEmail) {
+    // El dominio es propio, pero se declaró que el correo es personal: manda la
+    // declaración, porque describe cómo opera el negocio y no qué dominio usa.
+    checks.push({
+      id: 'email_corporate',
+      label: 'Correo corporativo',
+      status: 'warn',
+      detail: isProfessional
+        ? `Declaraste que el correo es personal (${mailDomain}), aunque el dominio es propio: se evalúa como perfil básico y no bloquea.`
+        : `La empresa declaró que el correo es personal (${mailDomain}), aunque el dominio es propio: se evalúa como socio básico.`,
+      weight: WEIGHTS.emailCorporate,
+      earned: isProfessional ? Math.round(WEIGHTS.emailCorporate * 0.35) : undefined,
+      evidence: { source: 'declared' },
+      facts: [
+        { label: 'Dominio del correo', value: mailDomain ?? 'sin dominio' },
+        { label: 'Tipo', value: 'propio' },
+        { label: 'Declaración', value: 'correo personal' },
+      ],
     });
   } else {
     checks.push({
@@ -548,12 +594,16 @@ export async function evaluateKyb(
         ? 'Sin sitio web no hay dominio que comparar; no se le pide un sitio a un profesional independiente.'
         : 'Sin sitio web no hay dominio contra el cual comparar el correo.',
       weight: WEIGHTS.emailDomainMatch,
+      earned:
+        isProfessional && declaredNoSite
+          ? Math.round(WEIGHTS.emailDomainMatch * 0.35)
+          : undefined,
       evidence: { source: 'declared' },
       facts: [
         { label: 'Dominio del correo', value: mailDomain ?? 'sin dominio' },
         { label: 'Dominio del sitio', value: 'ninguno' },
       ],
-      question: isProfessional
+      question: isProfessional || declaredNoSite
         ? undefined
         : 'Sin sitio web no podemos comprobar que el correo pertenezca a la empresa. ¿Puedes indicar el dominio corporativo?',
     });

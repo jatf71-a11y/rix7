@@ -16,6 +16,8 @@ import {
 import { CHILE_REGIONS } from '@/lib/data/chileLocations';
 import { KYB_STATUS_LABELS, type KybQuestion, type KybStatus } from '@/lib/kyb/status';
 import { toKybPayload, usesKybFlow } from '@/lib/kyb/registration';
+import { formatRutInput, normalizeRut } from '@/lib/utils/rut';
+import { formatChilePhone, formatPhoneInput, normalizeChilePhone } from '@/lib/utils/phone';
 
 /**
  * Registro inicial de quien va a publicar: corredora, inmobiliaria o
@@ -149,6 +151,9 @@ interface FormState {
   phone: string;
   coverage: Coverage;
   regions: string[];
+  /** Respuesta explícita del registro de empresas; `''` = sin responder. */
+  hasWebsite: '' | 'si' | 'no';
+  hasCompanyEmail: '' | 'si' | 'no';
   website: string;
   message: string;
   consent: boolean;
@@ -163,6 +168,8 @@ const INITIAL: FormState = {
   phone: '',
   coverage: '',
   regions: [],
+  hasWebsite: '',
+  hasCompanyEmail: '',
   website: '',
   message: '',
   consent: false,
@@ -176,8 +183,11 @@ const INITIAL: FormState = {
  * contacto, porque su
  * registro no pasa por el motor.
  */
+/** Registro previo con el mismo RUT o correo, si lo hubo. */
+type Duplicate = { field: 'rut' | 'email' };
+
 type Success =
-  | { mode: 'solicitud'; id: string | null; persisted: boolean }
+  | { mode: 'solicitud'; id: string | null; persisted: boolean; duplicate: Duplicate | null }
   | {
       mode: 'kyb';
       id: string | null;
@@ -186,6 +196,7 @@ type Success =
       persisted: boolean;
       /** El acuse no salió: no se puede prometer un correo que no existe. */
       emailSkipped: boolean;
+      duplicate: Duplicate | null;
     };
 
 export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
@@ -198,6 +209,14 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<Success | null>(null);
+
+  // El RUT se valida también acá y no solo en el servidor: un dígito verificador
+  // mal escrito se descubre al enviar, con el formulario entero lleno. Mientras
+  // se escribe no se acusa nada; el aviso aparece cuando ya hay cuerpo y dígito.
+  const rutError =
+    form.rut.length > 0 && form.rut.replace(/\D/g, '').length >= 8 && !normalizeRut(form.rut)
+      ? 'Revisa el RUT: el dígito verificador no coincide.'
+      : null;
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -215,6 +234,37 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+
+    // El RUT viaja canónico (`76.123.456-0`) y solo si el módulo 11 cuadra: el
+    // servidor lo vuelve a comprobar, pero acá se evita el viaje en vano.
+    const rut = normalizeRut(form.rut);
+    if (!rut) {
+      setError('Revisa el RUT: revisa el dígito verificador (ej: 76.123.456-0).');
+      return;
+    }
+
+    // El teléfono también viaja canónico: `+56 9 1234 5678`, con los nueve
+    // dígitos nacionales. Sin eso no hay forma de llamar a quien se registra.
+    const phoneE164 = normalizeChilePhone(form.phone);
+    if (!phoneE164) {
+      setError('Revisa el teléfono: tiene que tener 9 dígitos después de +56 (ej: +56 9 1234 5678).');
+      return;
+    }
+    const phone = formatChilePhone(phoneE164);
+
+    // Las dos preguntas del registro de empresas no se pueden saltar: son la
+    // diferencia entre «no tiene sitio» y «no lo llenó», y de eso depende que la
+    // evaluación sepa que se trata de un socio más básico.
+    if (usesKybFlow(kind)) {
+      if (!form.hasWebsite) {
+        setError('Indica si la empresa tiene sitio web. Si todavía no tiene, elige «No tiene sitio».');
+        return;
+      }
+      if (!form.hasCompanyEmail) {
+        setError('Indica si el correo de contacto es de la empresa o personal.');
+        return;
+      }
+    }
 
     // Las casillas de región no pueden usar `required` por separado (haría
     // falta marcarlas todas), así que el grupo se valida acá antes de viajar.
@@ -236,7 +286,30 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
       const response = await fetch(kyb ? '/api/kyb' : '/api/solicitudes', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(kyb ? toKybPayload(form, kind) : { kind, ...form }),
+        body: JSON.stringify(
+          kyb
+            ? toKybPayload(
+                {
+                  ...form,
+                  rut,
+                  phone,
+                  hasWebsite: form.hasWebsite === 'si',
+                  hasCompanyEmail: form.hasCompanyEmail === 'si',
+                },
+                kind
+              )
+            : {
+                kind,
+                ...form,
+                rut,
+                phone,
+                // `''` es «no respondió»; se manda `null` para que el servidor
+                // no lo lea como un «no tengo» que el profesional no dijo.
+                hasWebsite: form.hasWebsite === '' ? null : form.hasWebsite === 'si',
+                hasCompanyEmail:
+                  form.hasCompanyEmail === '' ? null : form.hasCompanyEmail === 'si',
+              }
+        ),
       });
       const body = await response.json().catch(() => null);
 
@@ -253,9 +326,15 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
           questions: Array.isArray(body?.data?.questions) ? body.data.questions : [],
           persisted: body?.persistent !== false,
           emailSkipped: body?.email?.skipped === true,
+          duplicate: body?.data?.duplicate ?? null,
         });
       } else {
-        setSuccess({ mode: 'solicitud', id: body?.id ?? null, persisted: body?.persisted !== false });
+        setSuccess({
+          mode: 'solicitud',
+          id: body?.id ?? null,
+          persisted: body?.persisted !== false,
+          duplicate: body?.autopilot?.duplicate ?? null,
+        });
       }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -361,6 +440,14 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
           </>
         )}
 
+        {success.duplicate && (
+          <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            Ya teníamos un registro con {success.duplicate.field === 'rut' ? 'este RUT' : 'este correo'}.
+            El equipo lo revisa para no duplicar la ficha; si es una corrección de ese registro,
+            respóndenos el correo que te enviamos.
+          </p>
+        )}
+
         {success.id && (
           <p className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
             Referencia:{' '}
@@ -439,34 +526,96 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
               id="rut"
               type="text"
               value={form.rut}
-              onChange={(event) => update('rut', event.target.value)}
+              onChange={(event) => update('rut', formatRutInput(event.target.value))}
+              onBlur={() => {
+                // Al salir del campo, un RUT válido se deja en su forma canónica;
+                // si no lo es, se respeta lo escrito para poder corregirlo.
+                const canonical = normalizeRut(form.rut);
+                if (canonical) update('rut', canonical);
+              }}
               placeholder={copy.rutPlaceholder}
-              className={inputClass}
+              className={`${inputClass} ${rutError ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : ''}`}
               required
               minLength={8}
               maxLength={20}
+              aria-invalid={rutError ? true : undefined}
               aria-describedby="rut-ayuda"
             />
-            <p id="rut-ayuda" className="mt-1 text-[11px] text-slate-400">
-              Obligatorio, con dígito verificador. Ej: {copy.rutPlaceholder}
+            <p
+              id="rut-ayuda"
+              className={`mt-1 text-[11px] ${rutError ? 'text-red-600' : 'text-slate-400'}`}
+            >
+              {rutError ?? `Obligatorio, con dígito verificador. Ej: ${copy.rutPlaceholder}`}
             </p>
           </div>
 
-          <div>
-            <label htmlFor="website" className={labelClass}>
-              Sitio web <span className="font-normal text-slate-400">(opcional)</span>
-            </label>
-            <input
-              id="website"
-              type="url"
-              inputMode="url"
-              value={form.website}
-              onChange={(event) => update('website', event.target.value)}
-              placeholder={copy.websitePlaceholder}
-              className={inputClass}
-              maxLength={300}
-            />
-          </div>
+          <>
+            <div>
+              <label htmlFor="hasWebsite" className={labelClass}>
+                {asksCompany ? '¿La empresa tiene sitio web?' : '¿Tienes sitio web?'}{' '}
+                {!asksCompany && <span className="font-normal text-slate-400">(opcional)</span>}
+              </label>
+                <select
+                  id="hasWebsite"
+                  value={form.hasWebsite}
+                  onChange={(event) => {
+                    const value = event.target.value as '' | 'si' | 'no';
+                    update('hasWebsite', value);
+                    // Si dice que no tiene, la dirección se limpia: no se guarda
+                    // ni se evalúa un sitio que la empresa acaba de negar.
+                    if (value === 'no') update('website', '');
+                  }}
+                  className={inputClass}
+                  required={asksCompany}
+                >
+                  <option value="">Selecciona…</option>
+                  <option value="si">Sí, tiene sitio</option>
+                  <option value="no">No tiene sitio</option>
+                </select>
+            </div>
+
+            <div>
+              <label htmlFor="hasCompanyEmail" className={labelClass}>
+                {asksCompany ? '¿El correo es de la empresa?' : '¿Usas un correo de empresa?'}{' '}
+                {!asksCompany && <span className="font-normal text-slate-400">(opcional)</span>}
+              </label>
+                <select
+                  id="hasCompanyEmail"
+                  value={form.hasCompanyEmail}
+                onChange={(event) =>
+                  update('hasCompanyEmail', event.target.value as '' | 'si' | 'no')
+                }
+                className={inputClass}
+                required={asksCompany}
+              >
+                <option value="">Selecciona…</option>
+                <option value="si">Sí, es del dominio de la empresa</option>
+                <option value="no">No, es un correo personal</option>
+              </select>
+            </div>
+          </>
+
+          {form.hasWebsite !== 'no' && (
+            <div>
+              <label htmlFor="website" className={labelClass}>
+                Sitio web{' '}
+                {form.hasWebsite !== 'si' && (
+                  <span className="font-normal text-slate-400">(opcional)</span>
+                )}
+              </label>
+              <input
+                id="website"
+                type="url"
+                inputMode="url"
+                value={form.website}
+                onChange={(event) => update('website', event.target.value)}
+                placeholder={copy.websitePlaceholder}
+                className={inputClass}
+                maxLength={300}
+                required={form.hasWebsite === 'si'}
+              />
+            </div>
+          )}
 
           <div className="sm:col-span-2">
             <fieldset>
@@ -609,11 +758,15 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
               type="tel"
               autoComplete="tel"
               value={form.phone}
-              onChange={(event) => update('phone', event.target.value)}
+              onChange={(event) => update('phone', formatPhoneInput(event.target.value))}
+              onBlur={() => {
+                // Al salir del campo queda en su forma canónica si está completo.
+                const canonical = normalizeChilePhone(form.phone);
+                if (canonical) update('phone', formatChilePhone(canonical));
+              }}
               placeholder="+56 9 1234 5678"
               className={inputClass}
               required
-              minLength={6}
               maxLength={40}
             />
           </div>

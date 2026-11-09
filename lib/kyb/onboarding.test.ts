@@ -156,6 +156,29 @@ describe('flujo KYB', () => {
     expect(qualifiedEmail.text).not.toMatch(/token=/);
   });
 
+  it('evalúa con las declaraciones del registro: no vuelve a pedir lo que ya contestó', async () => {
+    const result = await submitKybApplication(
+      {
+        ...empresa,
+        website: '',
+        email: 'ana.torres@gmail.com',
+        registrationKind: 'corredora',
+        hasWebsite: false,
+        hasCompanyEmail: false,
+      },
+      { deps }
+    );
+
+    const stored = await getApplication(result.applicationId as string);
+    expect(stored.data?.hasWebsite).toBe(false);
+    expect(stored.data?.hasCompanyEmail).toBe(false);
+
+    // Son las dos preguntas que el motor hacía a quien acababa de decir «no».
+    const ids = (result.questions ?? []).map((question) => question.id);
+    expect(ids).not.toContain('domain_web');
+    expect(ids).not.toContain('email_corporate');
+  });
+
   it('guarda la cobertura, las regiones y el mensaje del registro de empresas', async () => {
     const result = await submitKybApplication(
       {

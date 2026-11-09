@@ -293,7 +293,14 @@ export function buildSolicitudPendingEmail({
   };
 }
 
-/** Registro aceptado: qué sigue, sin prometer un panel que todavía no existe. */
+/**
+ * Registro recibido: qué sigue, sin prometer un panel que todavía no existe.
+ *
+ * Dice «recibido» y no «aceptado» a propósito: `Aceptada` es el nombre de una
+ * etapa del flujo y en la bandeja la misma palabra se lee como si el proceso
+ * hubiera terminado. Lo que el correo tiene que decir es que el registro entró,
+ * que pasó la evaluación automática y que lo que sigue es la propuesta.
+ */
 export function buildSolicitudAcceptedEmail({
   name,
   offerLabel,
@@ -308,7 +315,7 @@ export function buildSolicitudAcceptedEmail({
   const text = [
     hello,
     '',
-    `Tu registro en Rix7 quedó aceptado: ${offerLabel} pasó la evaluación automática.`,
+    `Tu registro en Rix7 quedó recibido: ${offerLabel} pasó la evaluación automática.`,
     'Lo que sigue es la propuesta comercial: te enviamos el plan y los precios a este',
     'correo. Cuando la aceptes, eliges el plan y habilitas tu panel de publicaciones.',
     '',
@@ -319,12 +326,12 @@ export function buildSolicitudAcceptedEmail({
   ].join('\n');
 
   return {
-    subject: 'Tu registro en Rix7 quedó aceptado',
+    subject: 'Tu registro en Rix7 quedó recibido',
     text,
     html: shell({
       siteUrl,
-      title: '¡Registro aceptado!',
-      intro: `${escapeHtml(hello)} ${escapeHtml(offerLabel)} pasó la evaluación automática y quedó <strong>aceptado</strong>.`,
+      title: '¡Registro recibido!',
+      intro: `${escapeHtml(hello)} ${escapeHtml(offerLabel)} pasó la evaluación automática y quedó <strong>recibido</strong>.`,
       body: `
         <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:14px 16px;color:#065f46;font-size:13px;line-height:1.65">
           Lo que sigue es la propuesta comercial: te enviamos el plan y los precios a este

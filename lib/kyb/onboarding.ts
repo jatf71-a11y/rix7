@@ -48,6 +48,8 @@ import {
 } from './proposal';
 import { captacionMonthlyFor, profileLabel, type LeadBracket } from './planPricing';
 import { SITE_URL } from '@/lib/site';
+import { findApplicantDuplicate, type ApplicantDuplicate } from '@/lib/data/applicantDuplicates';
+import { listSolicitudesForReview } from '@/lib/data/solicitudesStore';
 import { getKybPlan, isKybPlanId, type KybPlanId } from './plans';
 import {
   createApplication,
@@ -55,6 +57,7 @@ import {
   findByTokenHash,
   getApplication,
   latestInformationRequest,
+  listApplications,
   recordDecision,
   saveAnswers,
   saveEvaluation,
@@ -134,6 +137,8 @@ export interface SubmitResult {
   questions?: KybQuestion[];
   persisted?: boolean;
   email?: EmailOutcome;
+  /** Ya había un registro con el mismo RUT o correo (no impide el alta). */
+  duplicate?: ApplicantDuplicate | null;
   error?: string;
 }
 
@@ -148,6 +153,27 @@ export async function submitKybApplication(
   const created = await createApplication(normalized.application);
   if (!created.ok || !created.data) {
     return { ok: false, persisted: created.persisted, error: created.error ?? 'No se pudo guardar la solicitud.' };
+  }
+
+  // ¿Ya hay otra ficha con este RUT o correo? No se rechaza el alta —puede ser
+  // una corrección o un caso legítimo— pero el solicitante se entera y el panel
+  // ve que hay dos. Se ignora la fila recién creada, que coincide consigo misma.
+  let duplicate: ApplicantDuplicate | null = null;
+  try {
+    const [applications, solicitudes] = await Promise.all([
+      listApplications(),
+      listSolicitudesForReview(),
+    ]);
+    duplicate = findApplicantDuplicate({
+      rut: created.data.rut,
+      email: created.data.email,
+      applications: applications.data?.applications ?? [],
+      solicitudes,
+      ignoreIds: [created.data.id],
+    });
+  } catch (error) {
+    // La ficha ya está guardada: no poder comprobar duplicados no la tumba.
+    console.error('[kyb] no se pudo comprobar si el solicitante ya existía:', error);
   }
 
   const received = await notify(
@@ -169,6 +195,7 @@ export async function submitKybApplication(
     questions: evaluated.questions,
     persisted: created.persisted,
     email: received,
+    duplicate,
     ...(evaluated.error ? { error: evaluated.error } : {}),
   };
 }
@@ -245,6 +272,11 @@ export async function evaluateById(
         message: application.message,
         registrationKind: application.registrationKind,
         contactRole: application.contactRole,
+        // Las declaraciones del registro viajan al motor. Sin ellas se le
+        // vuelve a preguntar por un sitio (o un correo) que la empresa ya
+        // contestó, y la respuesta guardada no cambia la evaluación.
+        hasWebsite: application.hasWebsite,
+        hasCompanyEmail: application.hasCompanyEmail,
       },
       options.clarifications ?? {},
       options.deps

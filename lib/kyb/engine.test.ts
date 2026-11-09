@@ -87,6 +87,41 @@ describe('evaluateKyb', () => {
     expect(evaluation.questions).toEqual([]);
   });
 
+  it('un profesional que declara su ausencia puntúa más bajo que uno que no responde', async () => {
+    const deps = { tax: taxAdapter(), reputation: reputationAdapter() };
+    const profesional: NormalizedKybApplication = {
+      ...empresa,
+      registrationKind: 'agente',
+      website: null,
+      domain: null,
+      email: 'ana.torres@gmail.com',
+    };
+
+    const sinResponder = await evaluateKyb(profesional, {}, deps);
+    const declarado = await evaluateKyb(
+      { ...profesional, hasWebsite: false, hasCompanyEmail: false },
+      {},
+      deps
+    );
+
+    expect(sinResponder.decision).toBe('Aceptada');
+    expect(declarado.decision).toBe('Aceptada');
+    expect(declarado.score).toBeLessThan(sinResponder.score);
+  });
+
+  it('el correo personal declarado pesa aunque el dominio sea propio', async () => {
+    const evaluation = await evaluateKyb(
+      { ...empresa, hasCompanyEmail: false },
+      {},
+      { tax: taxAdapter(), reputation: reputationAdapter() }
+    );
+
+    const check = evaluation.checks.find((candidate) => candidate.id === 'email_corporate');
+    expect(check?.status).toBe('warn');
+    expect(check?.detail).toMatch(/declaró que el correo es personal/i);
+    expect(evaluation.questions.map((question) => question.id)).not.toContain('email_corporate');
+  });
+
   it('los pesos de las siete verificaciones suman 100', async () => {
     const evaluation = await evaluateKyb(empresa, {}, {
       tax: taxAdapter(),

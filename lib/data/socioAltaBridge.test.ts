@@ -61,6 +61,29 @@ describe('highFromSolicitud', () => {
     expect(result.application.regions).toEqual(['Valparaíso']);
   });
 
+  it('el alta hereda las declaraciones del registro', () => {
+    const result = highFromSolicitud(
+      solicitud({
+        kind: 'corredora',
+        company: 'Catedral Propiedades SpA',
+        payload: {
+          rut: '12.345.678-5',
+          coverage: 'nacional',
+          regions: [],
+          hasWebsite: false,
+          hasCompanyEmail: false,
+        },
+      })
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    // Si el alta las pierde, el panel vuelve a pedir un sitio que la empresa
+    // acaba de negar.
+    expect(result.application.hasWebsite).toBe(false);
+    expect(result.application.hasCompanyEmail).toBe(false);
+  });
+
   it('sin RUT no inventa un alta: explica qué falta', () => {
     const result = highFromSolicitud(solicitud({ payload: { coverage: 'nacional' } }));
 

@@ -24,6 +24,8 @@ export interface KybApplicationInput {
   message?: unknown;
   registrationKind?: unknown;
   contactRole?: unknown;
+  hasWebsite?: unknown;
+  hasCompanyEmail?: unknown;
 }
 
 /** Alcance declarado en el registro de empresas. El alta directa no lo pide. */
@@ -52,6 +54,10 @@ export interface NormalizedKybApplication {
   message: string | null;
   registrationKind: KybRegistrationKind | null;
   contactRole: string | null;
+  /** `false` = la empresa declaró no tener sitio web; ausente = sin dato. */
+  hasWebsite?: boolean | null;
+  /** `false` = el contacto declaró usar correo personal; ausente = sin dato. */
+  hasCompanyEmail?: boolean | null;
 }
 
 export const KYB_LIMITS = {
@@ -223,6 +229,23 @@ export function normalizeKybApplication(input: KybApplicationInput): KybValidati
     website = rawWebsite;
   }
 
+  // ── Declaraciones del registro ─────────────────────────────────────────
+  // Solo un booleano cuenta como respuesta; cualquier otra cosa queda como
+  // «sin dato» para que el motor no invente una declaración que nadie hizo.
+  const hasWebsite = input.hasWebsite === true ? true : input.hasWebsite === false ? false : null;
+  const hasCompanyEmail =
+    input.hasCompanyEmail === true ? true : input.hasCompanyEmail === false ? false : null;
+
+  // La declaración manda: quien dijo «no tengo sitio» no puede además mandar una
+  // URL, y quien dijo «sí tengo» tiene que decir cuál. Así el motor no recibe
+  // dos respuestas contradictorias sobre lo mismo.
+  if (hasWebsite === false && website) {
+    return { ok: false, error: 'Declaraste no tener sitio web, pero enviaste una dirección.' };
+  }
+  if (hasWebsite === true && !website) {
+    return { ok: false, error: 'Indica el sitio web de la empresa o marca que no tiene.' };
+  }
+
   // ── Datos operativos del registro de empresas ───────────────────────────
   // Son opcionales: el alta directa por API no los pide. Se validan acá y no en
   // el motor porque no participan de la verificación.
@@ -303,6 +326,8 @@ export function normalizeKybApplication(input: KybApplicationInput): KybValidati
       message,
       registrationKind,
       contactRole,
+      hasWebsite,
+      hasCompanyEmail,
     },
   };
 }

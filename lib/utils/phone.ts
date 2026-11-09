@@ -84,3 +84,31 @@ export function whatsappHref(value: string, text?: string): string | null {
   const base = `https://api.whatsapp.com/send?phone=${digits}`;
   return text ? `${base}&text=${encodeURIComponent(text)}` : base;
 }
+
+/** Dígitos nacionales: sin 00, sin 56 y sin el cero de larga distancia. */
+function nationalDigits(value: string): string {
+  let digits = digitsOf(value);
+  if (digits.startsWith('00')) digits = digits.slice(2);
+  if (digits.startsWith(CL_COUNTRY)) digits = digits.slice(CL_COUNTRY.length);
+  if (digits.startsWith('0')) digits = digits.slice(1);
+  return digits.slice(0, 9);
+}
+
+/**
+ * Teléfono en la forma que se muestra mientras se escribe: `+56 9 1234 5678`.
+ *
+ * A diferencia de `formatChilePhone`, no exige un número completo: agrupa lo que
+ * hay para que el campo se lea bien desde el primer dígito y el `+56` no se
+ * teclee. No valida; `normalizeChilePhone` es quien decide si el número sirve.
+ */
+export function formatPhoneInput(value: string): string {
+  const national = nationalDigits(value);
+  if (!national) return '';
+
+  const rest = national.slice(1);
+  const groups: string[] = [];
+  for (let index = 0; index < rest.length; index += 4) {
+    groups.push(rest.slice(index, index + 4));
+  }
+  return [`+${CL_COUNTRY}`, national.slice(0, 1), ...groups].join(' ');
+}

@@ -101,6 +101,10 @@ const FIXTURE: Array<Record<string, unknown>> = [
     city: 'Providencia',
     state: 'Región Metropolitana de Santiago',
     location: 'POINT(-70.6100 -33.4250)',
+    // Fechas distintas: el RPC ordena por `created_at` y cinco filas
+    // insertadas en una sola transacción comparten timestamp, así que sin
+    // esto el reparto entre páginas no sería determinista.
+    created_at: '2026-01-05T12:00:00Z',
   },
   {
     title: 'ITEST Arriendo en Providencia',
@@ -114,6 +118,7 @@ const FIXTURE: Array<Record<string, unknown>> = [
     city: 'Providencia',
     state: 'Región Metropolitana de Santiago',
     location: 'POINT(-70.6050 -33.4300)',
+    created_at: '2026-01-04T12:00:00Z',
   },
   {
     title: 'ITEST Premium en Vitacura',
@@ -127,6 +132,7 @@ const FIXTURE: Array<Record<string, unknown>> = [
     city: 'Vitacura',
     state: 'Región Metropolitana de Santiago',
     location: 'POINT(-70.5450 -33.4050)',
+    created_at: '2026-01-03T12:00:00Z',
   },
   {
     title: 'ITEST Casa en Viña del Mar',
@@ -140,6 +146,7 @@ const FIXTURE: Array<Record<string, unknown>> = [
     city: 'Viña del Mar',
     state: 'Valparaíso',
     location: 'POINT(-71.5500 -33.0200)',
+    created_at: '2026-01-02T12:00:00Z',
   },
   {
     title: 'ITEST Parcela en Zapallar',
@@ -153,6 +160,7 @@ const FIXTURE: Array<Record<string, unknown>> = [
     city: 'Zapallar',
     state: 'Valparaíso',
     location: 'POINT(-71.4600 -32.5500)',
+    created_at: '2026-01-01T12:00:00Z',
   },
 ].map((row) => ({ ...row, partner_id: PARTNER_ID }));
 
@@ -297,5 +305,95 @@ describeIf('GET /api/properties · integración con base Supabase real', () => {
     expect(body.total).toBe(0);
     expect(body.data).toEqual([]);
     expect(body.totalCatalog).toBeUndefined();
+  });
+
+  /**
+   * La migración 0037 tiene que estar aplicada en la base de prueba: sin ella
+   * la ruta cae en silencio al camino anterior y esta suite dejaría de probar
+   * el RPC paginado creyendo que lo probó.
+   */
+  it('la base de prueba tiene el RPC paginado de la migración 0037', async () => {
+    const { data, error } = await admin.rpc('search_properties_catalog', {
+      p_partner_id: PARTNER_ID,
+      p_page: 1,
+      p_limit: 50,
+    });
+
+    expect(error).toBeNull();
+    const page = data as {
+      data: unknown[];
+      total: number;
+      category_counts: Record<string, number>;
+      operation_counts: { for_sale: number; for_rent: number };
+    };
+    expect(page.total).toBe(FIXTURE.length);
+    expect(page.category_counts.all).toBe(FIXTURE.length);
+    expect(page.operation_counts).toEqual({ for_sale: 3, for_rent: 2 });
+  });
+
+  it('pagina de a dos: total estable, sin duplicados y en orden de publicación', async () => {
+    const pages: Property[][] = [];
+    for (const page of [1, 2, 3]) {
+      const body = await get(`operation=all&propertyType=all&page=${page}&limit=2`);
+      expect(body.total).toBe(FIXTURE.length);
+      expect(body.totalPages).toBe(3);
+      pages.push(body.data);
+    }
+
+    expect(pages.map((rows) => rows.length)).toEqual([2, 2, 1]);
+    const ids = pages.flat().map((p) => p.id);
+    expect(new Set(ids).size).toBe(FIXTURE.length);
+
+    // Orden por `created_at` descendente, fijado en el fixture.
+    expect(pages[0][0].title).toBe('ITEST Departamento en Providencia');
+    expect(pages[1][0].title).toBe('ITEST Premium en Vitacura');
+    expect(pages[2][0].title).toBe('ITEST Parcela en Zapallar');
+  });
+
+  it('una página fuera de rango devuelve vacío sin mover el total', async () => {
+    const body = await get('operation=all&propertyType=all&page=99&limit=2');
+
+    expect(body.total).toBe(FIXTURE.length);
+    expect(body.totalPages).toBe(3);
+    expect(body.data).toEqual([]);
+  });
+
+  it('la paginación conserva el filtro de comuna', async () => {
+    const first = await get(
+      'operation=all&propertyType=all&commune=providencia&page=1&limit=1'
+    );
+    const second = await get(
+      'operation=all&propertyType=all&commune=providencia&page=2&limit=1'
+    );
+
+    expect(first.total).toBe(2);
+    expect(first.totalPages).toBe(2);
+    expect(first.data[0].city).toBe('Providencia');
+    expect(second.data[0].city).toBe('Providencia');
+    expect(first.data[0].id).not.toBe(second.data[0].id);
+  });
+
+  it('los contadores de categoría se calculan sobre la base filtrada por operación', async () => {
+    const body = await get('operation=for_rent&propertyType=all&page=1&limit=50');
+
+    expect(body.categoryCounts).toMatchObject({
+      all: 2,
+      apartment: 1,
+      parcel: 1,
+      house: 0,
+      premium: 0,
+    });
+  });
+
+  it('los contadores de categoría con todas las operaciones suman el fixture', async () => {
+    const body = await get('operation=all&propertyType=all&page=1&limit=50');
+
+    expect(body.categoryCounts).toMatchObject({
+      all: 5,
+      apartment: 2,
+      house: 1,
+      premium: 1,
+      parcel: 1,
+    });
   });
 });

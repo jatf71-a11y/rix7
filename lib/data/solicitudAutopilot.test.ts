@@ -125,7 +125,9 @@ describe('autopilotSolicitud', () => {
     const [evaluating, mail, qualified] = sendEmail.mock.calls.map(([sent]) => sent);
     expect(evaluating.subject).toMatch(/Estamos evaluando/);
     expect(mail.to).toBe('camila@catedralpropiedades.cl');
-    expect(mail.subject).toContain('aceptado');
+    // El resultado se anuncia como «recibido» y no como «aceptado»: `Aceptada`
+    // es el nombre de una etapa y en la bandeja se lee como el final del trámite.
+    expect(mail.subject).toContain('recibido');
     expect(qualified.subject).toMatch(/calificada/);
     expect(result.evaluatingEmail?.sent).toBe(true);
     expect(qualified.text).toContain('Perfil de socio:');
@@ -211,7 +213,7 @@ describe('submitSolicitudAnswers', () => {
     // La re-evaluación también anuncia el paso y después el resultado.
     expect(sendEmail).toHaveBeenCalledTimes(2);
     expect(sendEmail.mock.calls[0][0].subject).toMatch(/Estamos evaluando/);
-    expect(sendEmail.mock.calls[1][0].subject).toContain('aceptado');
+    expect(sendEmail.mock.calls[1][0].subject).toContain('recibido');
   });
 
   it('un token con forma inválida no llega a la base', async () => {

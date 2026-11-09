@@ -147,6 +147,10 @@ export interface SolicitudInput {
   rut?: unknown;
   role?: unknown;
   website?: unknown;
+  /** Declaración opcional del profesional independiente: «no tengo sitio». */
+  hasWebsite?: unknown;
+  /** Declaración opcional: «el correo es personal, no de la empresa». */
+  hasCompanyEmail?: unknown;
   /** `nacional` o `regional`; obligatorio en corredora, inmobiliaria y agente. */
   coverage?: unknown;
   /** Nombres de región cuando el alcance es regional. */
@@ -497,6 +501,20 @@ export function normalizeSolicitud(input: SolicitudInput): SolicitudValidation {
     return { ok: false, error: 'El sitio web debe empezar con http:// o https://.' };
   }
 
+  // Declaraciones del profesional independiente. No son obligatorias —un agente
+  // puede o no tener sitio y correo corporativo—, pero sí cuentan: el motor
+  // distingue «no lo llenó» de «no lo tiene», y eso mueve el puntaje.
+  const hasWebsite = input.hasWebsite === true ? true : input.hasWebsite === false ? false : null;
+  const hasCompanyEmail =
+    input.hasCompanyEmail === true ? true : input.hasCompanyEmail === false ? false : null;
+
+  if (hasWebsite === false && website.value) {
+    return { ok: false, error: 'Declaraste no tener sitio web, pero enviaste una dirección.' };
+  }
+  if (hasWebsite === true && !website.value) {
+    return { ok: false, error: 'Indica el sitio web o marca que no tienes.' };
+  }
+
   return {
     ok: true,
     solicitud: {
@@ -512,6 +530,10 @@ export function normalizeSolicitud(input: SolicitudInput): SolicitudValidation {
         coverage,
         regions,
         website: website.value,
+        // Solo se guarda lo que se respondió: `null` es «no se preguntó» y el
+        // panel no debe mostrar una declaración que nadie hizo.
+        ...(hasWebsite === null ? {} : { hasWebsite }),
+        ...(hasCompanyEmail === null ? {} : { hasCompanyEmail }),
       },
       consent: true,
     },

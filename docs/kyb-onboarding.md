@@ -169,7 +169,7 @@ la evaluación se repite al responder un pedido de información).
 | Recibida | `buildKybReceivedEmail` / `buildSolicitudReceivedEmail` | la solicitud entró; en el alta, además, que la evaluación ya está en curso |
 | En evaluación | el mismo en el alta; `buildSolicitudEvaluatingEmail` en el registro | con qué datos: los que entregó la empresa y los que Rix7 consigue (SII, reputación, dominio) |
 | Pendiente de información | `buildKybPendingEmail` / `buildSolicitudPendingEmail` | las preguntas concretas y el enlace de 7 días; el recordatorio (`buildKybReminderEmail`, `reminder: true`) insiste sobre lo pendiente |
-| Aceptada | `buildSolicitudAcceptedEmail` (registro) y, en el alta, el de Calificado | que la verificación salió bien |
+| Aceptada | `buildSolicitudAcceptedEmail` (registro) y, en el alta, el de Calificado | que la verificación salió bien; en el registro el texto dice «recibido», porque «aceptado» es el nombre de la etapa y en la bandeja se lee como si el proceso hubiera terminado |
 | Calificado | `buildKybQualifiedEmail` | perfil de socio (profesional, corredora, inmobiliaria), alta, mensualidad, usuarios y captación, con los montos de **Planes**, y pide un «De acuerdo» |
 | Propuesta comercial | `buildKybProposalEmail` + la página del enlace | plan y montos; en la página, la aceptación y la captación; el CCA se avisa como determinación posterior |
 | Alta | `buildKybAcceptedEmail` y `buildKybActivatedEmail` | plan confirmado, captación aceptada y autorización del CCA; después, el panel habilitado |

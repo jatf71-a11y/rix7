@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isValidRut, normalizeRut, rutCheckDigit } from './rut';
+import { formatRutInput, isValidRut, normalizeRut, rutCheckDigit } from './rut';
 
 describe('normalizeRut', () => {
   it('acepta los formatos en que la gente escribe el RUT y devuelve la forma canónica', () => {
@@ -34,5 +34,27 @@ describe('normalizeRut', () => {
   it('isValidRut sigue la misma regla que normalizeRut', () => {
     expect(isValidRut('12.345.678-5')).toBe(true);
     expect(isValidRut('12.345.678-9')).toBe(false);
+  });
+});
+
+describe('formatRutInput', () => {
+  it('agrupa el cuerpo y separa el dígito verificador mientras se escribe', () => {
+    expect(formatRutInput('1')).toBe('1');
+    expect(formatRutInput('123')).toBe('123');
+    expect(formatRutInput('1234')).toBe('1.234');
+    expect(formatRutInput('12345678')).toBe('12.345.678');
+    expect(formatRutInput('123456785')).toBe('12.345.678-5');
+  });
+
+  it('acepta la K y limpia lo que se pega con puntos o guion', () => {
+    expect(formatRutInput('10000013k')).toBe('10.000.013-K');
+    expect(formatRutInput('76.123.456-0')).toBe('76.123.456-0');
+    expect(formatRutInput('76 123 456 0')).toBe('76.123.456-0');
+  });
+
+  it('no deja crecer el cuerpo ni el dígito verificador', () => {
+    expect(formatRutInput('123456789999')).toBe('12.345.678-9');
+    expect(formatRutInput('')).toBe('');
+    expect(formatRutInput('abc')).toBe('');
   });
 });

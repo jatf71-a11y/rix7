@@ -19,7 +19,9 @@
  * Decisión: se acepta con 80 puntos o más y sin ninguna verificación en rojo.
  * Las advertencias pesan la mitad —una corredora con Gmail no es un fraude—
  * pero dejan la pregunta escrita, y cuando la persona la responde la
- * verificación pasa y el puntaje sube.
+ * verificación pasa y el puntaje sube. La ausencia **declarada** («no tengo
+ * sitio», «mi correo es personal») no es una advertencia neutra: pesa menos que
+ * la mitad, porque describir el perfil básico no es lo mismo que no responderlo.
  *
  * El peso de cada verificación depende del perfil. Una corredora o una
  * inmobiliaria tiene que acreditar presencia corporativa; un **profesional
@@ -30,6 +32,7 @@
 
 import { normalizeRut } from '@/lib/utils/rut';
 import { debtReportKindFor, withDebtReport } from '@/lib/kyb/debtReport';
+import type { DuplicateField } from './applicantDuplicates';
 import type { Solicitud, SolicitudKind } from './solicitudes';
 
 /** Los caminos de «Publicar» que son un registro de socio. */
@@ -42,6 +45,12 @@ export interface SolicitudCheck {
   detail: string;
   /** Peso en el puntaje; los pesos de este motor suman 100. */
   weight: number;
+  /**
+   * Puntos que aporta una advertencia cuando no basta con la mitad del peso.
+   * Lo usa la ausencia **declarada**: es una respuesta, no un dato faltante,
+   * así que deja menos puntaje que no responder.
+   */
+  earned?: number;
   /** Pregunta concreta para el solicitante cuando no pasa. */
   question?: string;
   /** Lo que respondió la persona y resolvió la advertencia. */
@@ -66,6 +75,11 @@ export interface SolicitudAnswer {
 export interface SolicitudEvaluation {
   score: number;
   decision: 'Aceptada' | 'Pendiente_Informacion';
+  /**
+   * Ya hay otro registro con el mismo RUT o correo: qué dato coincidió y con
+   * qué ficha. Se informa al solicitante; no bloquea el registro.
+   */
+  duplicate?: { field: DuplicateField; id: string };
   checks: SolicitudCheck[];
   questions: SolicitudQuestion[];
   /** Motivos de la decisión, en el orden en que se evaluaron. */
@@ -139,7 +153,7 @@ export const SOLICITUD_REVIEW_KEYS = {
 /** Puntaje de una verificación: pasa entera, advierte la mitad, falla en cero. */
 function checkScore(check: SolicitudCheck): number {
   if (check.status === 'pass') return check.weight;
-  if (check.status === 'warn') return Math.round(check.weight / 2);
+  if (check.status === 'warn') return check.earned ?? Math.round(check.weight / 2);
   return 0;
 }
 
@@ -237,6 +251,9 @@ export function evaluateSolicitud(
   const email = solicitud.email.toLowerCase();
   const emailDomain = domainOfEmail(email);
   const freeMail = emailDomain ? FREE_MAIL_DOMAINS.has(emailDomain) : false;
+  // Respondió que el correo es personal. No es un dato faltante: es el perfil
+  // de quien opera sin correo corporativo, y baja el puntaje sin bloquear.
+  const declaredPersonalEmail = payload.hasCompanyEmail === false;
   checks.push({
     id: 'correo',
     label: 'Correo de contacto',
@@ -244,22 +261,43 @@ export function evaluateSolicitud(
     // dominio propio le resta puntaje pero no lo deja detenido pidiéndole un
     // correo corporativo que no va a tener. Una empresa que atiende desde un
     // Gmail no tiene canal corporativo que verificar.
-    status: freeMail ? 'warn' : 'pass',
+    // La declaración pesa aunque el dominio sea propio: si la persona dice que
+    // el correo es personal, no se evalúa como canal corporativo por el solo
+    // hecho de que el dominio exista.
+    status: freeMail || declaredPersonalEmail ? 'warn' : 'pass',
     detail: freeMail
       ? isAgent
-        ? 'Es un correo personal, lo esperable en un profesional independiente: baja el puntaje y no bloquea.'
-        : `El correo es de un proveedor gratuito (${emailDomain}).`
-      : `El correo usa el dominio ${emailDomain}.`,
+        ? declaredPersonalEmail
+          ? 'Declaraste que el correo es personal: se evalúa como perfil básico y no bloquea.'
+          : 'Es un correo personal, lo esperable en un profesional independiente: baja el puntaje y no bloquea.'
+        : declaredPersonalEmail
+          ? `El correo es de un proveedor gratuito (${emailDomain}) y se declaró como personal: se evalúa como socio básico.`
+          : `El correo es de un proveedor gratuito (${emailDomain}).`
+      : declaredPersonalEmail
+        ? `Declaraste que el correo es personal (${emailDomain}), aunque el dominio es propio: se evalúa como perfil básico.`
+        : `El correo usa el dominio ${emailDomain}.`,
     weight: weight.correo,
+    // Declarar la ausencia deja menos que la mitad neutra de una advertencia:
+    // «no lo tengo» es parte del perfil, «no lo respondí» sigue siendo un dato
+    // faltante. Solo el profesional puede quedar sin responder.
+    earned:
+      isAgent && declaredPersonalEmail ? Math.round(weight.correo * 0.2) : undefined,
+    // Si ya dijo que su correo es personal, no se le pide uno corporativo.
     question:
-      freeMail && !isAgent
+      freeMail && !isAgent && !declaredPersonalEmail
         ? 'El correo que dejaste es de un proveedor gratuito. ¿Cuál es el correo corporativo de la empresa?'
         : undefined,
-    facts: [{ label: 'Dominio del correo', value: emailDomain ?? 'sin dato' }],
+    facts: [
+      { label: 'Dominio del correo', value: emailDomain ?? 'sin dato' },
+      ...(declaredPersonalEmail ? [{ label: 'Declaración', value: 'correo personal' }] : []),
+    ],
   });
 
   // ── 3. Sitio web ──────────────────────────────────────────────────────────
   const siteDomain = domainOfWebsite(payload.website);
+  // «No tengo sitio» es una respuesta, no un campo vacío: se evalúa como perfil
+  // básico y no se le vuelve a preguntar por un dominio que ya negó.
+  const declaredNoSite = payload.hasWebsite === false;
   const website = typeof payload.website === 'string' ? payload.website.trim() : '';
   const mismatched = !!siteDomain && !!emailDomain && siteDomain !== emailDomain;
   // Sitio propio con correo personal: para un profesional independiente es la
@@ -294,18 +332,28 @@ export function evaluateSolicitud(
       id: 'sitio',
       label: 'Sitio web',
       status: 'warn',
-      detail:
-        'No declaró sitio web, que no es un requisito para un profesional independiente: baja el puntaje y no bloquea.',
+      detail: declaredNoSite
+        ? 'Declaraste no tener sitio web: es lo esperable en un profesional independiente, baja el puntaje y no bloquea.'
+        : 'No declaró sitio web, que no es un requisito para un profesional independiente: baja el puntaje y no bloquea.',
       weight: weight.sitio,
+      earned: declaredNoSite ? Math.round(weight.sitio * 0.2) : undefined,
+      facts: declaredNoSite ? [{ label: 'Declaración', value: 'sin sitio web' }] : undefined,
     });
   } else {
     checks.push({
       id: 'sitio',
       label: 'Sitio web',
       status: 'warn',
-      detail: 'No declaró sitio web, así que no hay presencia que contrastar con el correo.',
+      detail: declaredNoSite
+        ? 'La empresa declaró no tener sitio web, así que se evalúa como socio básico sin presencia que contrastar con el correo.'
+        : 'No declaró sitio web, así que no hay presencia que contrastar con el correo.',
       weight: weight.sitio,
-      question: 'No declaraste un sitio web. ¿Cuál es la dirección del sitio de la empresa?',
+      // Lo declarado no se pregunta de nuevo: la pregunta solo sirve cuando el
+      // dato falta, no cuando la respuesta es «no tengo».
+      question: declaredNoSite
+        ? undefined
+        : 'No declaraste un sitio web. ¿Cuál es la dirección del sitio de la empresa?',
+      facts: declaredNoSite ? [{ label: 'Declaración', value: 'sin sitio web' }] : undefined,
     });
   }
 
@@ -417,6 +465,9 @@ export function evaluateSolicitud(
   return {
     score,
     decision: accepted ? 'Aceptada' : 'Pendiente_Informacion',
+    ...(duplicate
+      ? { duplicate: { field: sameRut(duplicate) ? 'rut' : 'email', id: duplicate.id } }
+      : {}),
     checks: clarified,
     questions,
     reasons,

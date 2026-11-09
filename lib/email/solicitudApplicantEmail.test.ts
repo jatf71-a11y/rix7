@@ -105,6 +105,20 @@ describe('correos del registro profesional', () => {
     expect(`${evaluating.subject}\n${evaluating.text}`).not.toMatch(/soci[oa]s?\b/i);
   });
 
+  it('el registro recibido no usa «aceptado», que es el nombre de una etapa', () => {
+    const accepted = buildSolicitudAcceptedEmail({
+      name: 'María Soto',
+      offerLabel: 'tu registro de Corredora',
+      siteUrl: SITE,
+    });
+
+    // `Aceptada` es una etapa del flujo: en la bandeja la misma palabra se lee
+    // como si el proceso hubiera terminado, así que el correo dice «recibido».
+    expect(accepted.subject).toBe('Tu registro en Rix7 quedó recibido');
+    expect(accepted.html).toContain('¡Registro recibido!');
+    expect(`${accepted.subject}\n${accepted.text}\n${accepted.html}`).not.toMatch(/aceptad/i);
+  });
+
   it('el pedido de información sigue llevando sus preguntas y su enlace', () => {
     const pending = buildSolicitudPendingEmail({
       name: 'María Soto',

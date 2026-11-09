@@ -80,7 +80,14 @@ beforeEach(async () => {
   vi.resetModules();
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://example.supabase.co');
   rpc.mockReset();
-  rpc.mockResolvedValue({ data: CATALOG.map((r) => ({ ...r })), error: null });
+  // Por defecto la función paginada no está aplicada y manda el camino
+  // anterior: así estos tests siguen fijando las reglas del pipeline de
+  // JavaScript, que es el que responde mientras la migración no esté en la base.
+  rpc.mockImplementation(async (name: string) =>
+    name === 'search_properties_catalog'
+      ? { data: null, error: { code: 'PGRST202', message: 'función no aplicada' } }
+      : { data: CATALOG.map((r) => ({ ...r })), error: null }
+  );
   route = await import('./route');
 });
 
@@ -274,5 +281,90 @@ describe('GET /api/properties · rama Supabase', () => {
 
     expect(body.source).toBe('national_catalog');
     expect(body.totalCatalog).toBeGreaterThan(0);
+  });
+});
+
+describe('GET /api/properties · camino rápido (RPC paginado)', () => {
+  const fastPayload = (overrides: Record<string, unknown> = {}) => ({
+    data: [row({ id: 'fast-1', city: 'Providencia' })],
+    total: 1,
+    catalog_size: 1200,
+    category_counts: {
+      all: 1200,
+      apartment: 1200,
+      house: 0,
+      premium: 0,
+      parcel: 0,
+      office: 0,
+      land: 0,
+      parking: 0,
+      local: 0,
+      warehouse: 0,
+    },
+    operation_counts: { for_sale: 900, for_rent: 300 },
+    commune_counts: { Providencia: 1 },
+    ...overrides,
+  });
+
+  it('usa el RPC paginado y devuelve su página y contadores', async () => {
+    rpc.mockImplementation(async (name: string) =>
+      name === 'search_properties_catalog'
+        ? { data: fastPayload(), error: null }
+        : { data: [], error: null }
+    );
+
+    const res = await get(
+      'operation=for_sale&propertyType=apartment&commune=providencia&page=2&limit=24'
+    );
+    const body = await res.json();
+
+    expect(body.source).toBe('supabase');
+    expect(body.total).toBe(1);
+    expect(body.page).toBe(2);
+    expect(body.totalPages).toBe(1);
+    expect(body.data[0].city).toBe('Providencia');
+    expect(body.categoryCounts.all).toBe(1200);
+    expect(body.operationCounts).toEqual({ for_sale: 900, for_rent: 300 });
+    expect(body.communeCounts).toEqual({ Providencia: 1 });
+
+    // La consulta viaja con los filtros y la página: la base no devuelve el
+    // catálogo entero, solo la página pedida.
+    const [call] = rpc.mock.calls;
+    expect(call[0]).toBe('search_properties_catalog');
+    expect(call[1]).toMatchObject({
+      p_operation: 'for_sale',
+      p_property_type: 'apartment',
+      p_commune: 'providencia',
+      p_page: 2,
+      p_limit: 24,
+    });
+  });
+
+  it('si la función no está aplicada, cae al camino anterior', async () => {
+    rpc.mockImplementation(async (name: string) =>
+      name === 'search_properties_catalog'
+        ? { data: null, error: { code: 'PGRST202', message: 'no existe' } }
+        : { data: CATALOG.map((r) => ({ ...r })), error: null }
+    );
+
+    const res = await get('operation=all&propertyType=all&commune=providencia');
+    const body = await res.json();
+
+    expect(body.source).toBe('supabase');
+    expect(body.total).toBe(1);
+    expect(body.data[0].city).toBe('Providencia');
+  });
+
+  it('con la tabla vacía cae al catálogo del build', async () => {
+    rpc.mockImplementation(async (name: string) =>
+      name === 'search_properties_catalog'
+        ? { data: fastPayload({ data: [], total: 0, catalog_size: 0 }), error: null }
+        : { data: [], error: null }
+    );
+
+    const res = await get('operation=all&propertyType=all');
+    const body = await res.json();
+
+    expect(body.source).toBe('national_catalog');
   });
 });

@@ -85,6 +85,16 @@ export function applicationInputFromSolicitud(solicitud: Solicitud): KybApplicat
     message: solicitud.message ?? '',
     registrationKind: solicitud.kind,
     contactRole: typeof payload.role === 'string' ? payload.role : '',
+    // El alta hereda lo que el registro declaró: si la persona dijo «no tengo
+    // sitio», el panel no puede volver a pedirle el dominio como si faltara.
+    hasWebsite:
+      payload.hasWebsite === false ? false : payload.hasWebsite === true ? true : null,
+    hasCompanyEmail:
+      payload.hasCompanyEmail === false
+        ? false
+        : payload.hasCompanyEmail === true
+          ? true
+          : null,
   };
 }
 

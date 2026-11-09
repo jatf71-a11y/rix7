@@ -656,6 +656,11 @@ export const kybApplicationPostSchema = z.object({
   message: z.string().trim().max(1200).optional(),
   registrationKind: z.enum(['corredora', 'inmobiliaria']).optional(),
   contactRole: z.string().trim().max(80).optional(),
+  // Declaraciones del registro: «no tengo sitio web» y «mi correo es personal».
+  // Distinguen una respuesta de un dato que falta, y el motor las usa para no
+  // pedir lo que la empresa ya contestó.
+  hasWebsite: z.boolean().optional(),
+  hasCompanyEmail: z.boolean().optional(),
   consent: z
     .boolean({ required_error: 'Debes aceptar la verificación de datos.' })
     .refine((value) => value === true, 'Debes aceptar la verificación de datos.'),

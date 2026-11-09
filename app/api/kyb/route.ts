@@ -71,6 +71,8 @@ export async function POST(request: NextRequest) {
           status: result.status,
           score: result.score ?? null,
           questions: result.questions ?? [],
+          // Ya había una ficha con este RUT o correo: la pantalla lo dice.
+          duplicate: result.duplicate ?? null,
         },
         ...(result.ok ? {} : { warning: result.error }),
         email: result.email ?? null,

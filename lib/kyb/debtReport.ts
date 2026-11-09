@@ -65,10 +65,6 @@ export function debtReportKindFor(registrationKind: unknown): DebtReportKind {
     : 'natural';
 }
 
-export function debtReportTitle(kind: DebtReportKind): string {
-  return DEBT_REPORTS[kind].title;
-}
-
 /** La pregunta que viaja en la ronda, el correo y el formulario. */
 export function debtReportQuestion(kind: DebtReportKind): KybQuestion {
   const document = DEBT_REPORTS[kind];

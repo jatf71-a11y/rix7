@@ -102,6 +102,9 @@ export function rowToApplication(row: KybApplicationRow): KybApplication {
         ? row.registration_kind
         : null,
     contactRole: row.contact_role ?? null,
+    hasWebsite: row.has_website === false ? false : row.has_website === true ? true : null,
+    hasCompanyEmail:
+      row.has_company_email === false ? false : row.has_company_email === true ? true : null,
     score: typeof row.score === 'number' ? row.score : null,
     plan: isKybPlanId(row.plan) ? row.plan : null,
     panelEnabled: !!row.panel_enabled,
@@ -174,6 +177,8 @@ export async function createApplication(
       message: input.message,
       registrationKind: input.registrationKind,
       contactRole: input.contactRole,
+      hasWebsite: input.hasWebsite,
+      hasCompanyEmail: input.hasCompanyEmail,
       score: null,
       plan: null,
       panelEnabled: false,
@@ -215,6 +220,8 @@ export async function createApplication(
         message: input.message,
         registration_kind: input.registrationKind,
         contact_role: input.contactRole,
+        has_website: input.hasWebsite,
+        has_company_email: input.hasCompanyEmail,
         solicitud_origen: solicitudOrigen,
       })
       .select(KYB_COLUMNS)

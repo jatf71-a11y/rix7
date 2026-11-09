@@ -23,6 +23,10 @@ export interface CompanyRegistrationInput {
   phone: string;
   coverage: '' | 'nacional' | 'regional';
   regions: string[];
+  /** `false` = la empresa respondió que no tiene sitio web. */
+  hasWebsite?: boolean | null;
+  /** `false` = el contacto respondió que usa un correo personal. */
+  hasCompanyEmail?: boolean | null;
   message: string;
   consent: boolean;
 }
@@ -40,6 +44,8 @@ export interface KybRegistrationPayload {
   message?: string;
   registrationKind?: CompanyRegistrationKind;
   contactRole?: string;
+  hasWebsite?: boolean;
+  hasCompanyEmail?: boolean;
 }
 
 /**
@@ -76,5 +82,9 @@ export function toKybPayload(
     regions: input.coverage === 'regional' ? input.regions : [],
     ...(message ? { message } : {}),
     ...(role ? { contactRole: role } : {}),
+    // Se envían solo cuando se respondieron: `null` es «no se preguntó», y el
+    // servidor lo trata distinto de un «no tengo» explícito.
+    ...(input.hasWebsite == null ? {} : { hasWebsite: input.hasWebsite }),
+    ...(input.hasCompanyEmail == null ? {} : { hasCompanyEmail: input.hasCompanyEmail }),
   };
 }

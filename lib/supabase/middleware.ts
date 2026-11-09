@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { hasAuthSessionCookie } from '@/lib/utils/authCookie';
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -12,6 +13,21 @@ export async function updateSession(request: NextRequest) {
   // llamada de red (antes cada request del middleware esperaba en vano a
   // un host inexistente, sumando latencia a todas las rutas).
   if (!supabaseUrl || supabaseUrl.includes('placeholder')) {
+    return supabaseResponse;
+  }
+
+  // Sin cookie de sesión no hay nada que refrescar: se evita construir el
+  // cliente SSR y su fontanería de cookies en cada request anónimo, que es la
+  // mayoría del tráfico (home, fichas, listado y APIs públicas). Medido en
+  // local: ~3 ms → ~2 ms por request. El caso con sesión no cambia —sigue
+  // refrescando igual— porque la señal es la misma que ya usa el portal
+  // (`hasAuthSessionCookie`) y una cookie partida (`…auth-token.0`) también
+  // cuenta.
+  const cookieHeader = request.cookies
+    .getAll()
+    .map((cookie) => `${cookie.name}=${cookie.value}`)
+    .join('; ');
+  if (!hasAuthSessionCookie(cookieHeader)) {
     return supabaseResponse;
   }
 

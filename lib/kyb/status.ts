@@ -197,6 +197,12 @@ export interface KybCheck {
   detail: string;
   /** Peso en el puntaje; los pesos del motor suman 100. */
   weight: number;
+  /**
+   * Puntos que aporta una advertencia cuando no basta con la mitad del peso.
+   * Lo usa la ausencia declarada por el profesional: es una respuesta, no un
+   * dato faltante, así que deja menos puntaje que no responder.
+   */
+  earned?: number;
   /** Pregunta concreta para la empresa cuando no pasa. */
   question?: string;
   /** Origen del dato, para que el panel explique la advertencia. */

@@ -245,7 +245,12 @@ export async function POST(request: NextRequest) {
   // Registro de socio: se evalúa y avanza (o pide datos) sin esperar a una
   // persona. Nunca hace fallar el alta: la solicitud ya está guardada y lo peor
   // que puede pasar es que quede en `Recibida` para que el equipo la mire.
-  let autopilot: { status?: string; decision?: string; questions?: unknown } | null = null;
+  let autopilot: {
+    status?: string;
+    decision?: string;
+    questions?: unknown;
+    duplicate?: unknown;
+  } | null = null;
   if (isSocioRegistro(validation.solicitud.kind) && typeof stored.id === 'string') {
     try {
       const saved = await getSolicitud(stored.id);
@@ -256,6 +261,9 @@ export async function POST(request: NextRequest) {
             status: result.status,
             decision: result.evaluation?.decision,
             questions: result.questions ?? [],
+            // Ya había un registro con el mismo RUT o correo: se informa en la
+            // respuesta para que la pantalla lo diga, sin bloquear el registro.
+            duplicate: result.evaluation?.duplicate ?? null,
           };
         } else {
           console.warn('[solicitudes] el autómata no pudo evaluar:', result.error);

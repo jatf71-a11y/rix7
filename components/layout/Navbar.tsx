@@ -8,7 +8,7 @@ import { useRegistration } from '../auth/RegistrationProvider';
 import { useFavorites } from '../auth/FavoritesProvider';
 import { useCurrency } from '../currency/CurrencyProvider';
 import { formatNumber } from '@/lib/utils/formatters';
-import { LogOut, PlusCircle, Heart, Menu, X, Info, Building2 } from 'lucide-react';
+import { LogOut, Heart, Menu, X, Info, Building2 } from 'lucide-react';
 
 /** Prefijos de rutas sin barra de navegación (se lista, no se esconde después). */
 const STANDALONE_PATHS = ['/compartir'];
@@ -140,16 +140,9 @@ function NavbarContent() {
                 </button>
               </div>
 
-              {/* Publicar lleva al alta real del panel de socios. Antes era un
-                  `alert()` de recordatorio: la acción más importante para una
-                  corredora no tenía destino. */}
-              <Link
-                href="/publicar"
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-all"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Publicar</span>
-              </Link>
+              {/* Sin un segundo «Publicar»: el menú ya lo tiene, con el mismo
+                  destino. Repetirlo al lado de la cuenta hacía que la barra
+                  mostrara dos veces la misma acción. */}
             </div>
           ) : registration ? (
             /* Identificado por el registro de este dispositivo (sin cuenta del

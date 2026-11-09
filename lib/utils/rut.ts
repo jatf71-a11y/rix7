@@ -71,3 +71,24 @@ export function normalizeRut(value: string): string | null {
 export function isValidRut(value: string): boolean {
   return normalizeRut(value) !== null;
 }
+
+/**
+ * RUT en la forma que se muestra mientras se escribe: `12.345.678-5`.
+ *
+ * El cuerpo se agrupa con puntos y el dígito verificador se agrega con guion en
+ * cuanto aparece, para que el campo nunca quede como una tira de dígitos donde
+ * no se distingue cuál es el verificador. Acepta la `k` minúscula y descarta
+ * todo lo demás: pegar `76.123.456-0` o `76123456k` deja el campo ordenado.
+ *
+ * Es solo presentación: no valida. Quien decide si el RUT sirve es
+ * `normalizeRut`, que además comprueba el módulo 11.
+ */
+export function formatRutInput(value: string): string {
+  const cleaned = value.toUpperCase().replace(/[^0-9K]/g, '');
+  if (!cleaned) return '';
+
+  const body = cleaned.slice(0, 8);
+  const checkDigit = cleaned.slice(8, 9);
+  const withDots = formatBody(body);
+  return checkDigit ? `${withDots}-${checkDigit}` : withDots;
+}

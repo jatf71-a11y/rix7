@@ -631,7 +631,26 @@ export default function AdminSolicitudesPage() {
             .
           </p>
         </div>
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          {/* Combobox de tipo: elige qué categoría de socio revisar y manda
+              sobre el tablero y la lista. Comparte estado con los chips, así
+              que los dos caminos muestran siempre el mismo filtro. */}
+          <label className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600">
+            <span className="text-[11px] uppercase tracking-wide text-slate-500">Tipo</span>
+            <select
+              aria-label="Elegir qué tipo de solicitud revisar"
+              value={filter}
+              onChange={(event) => setFilter(event.target.value as SocioFilter)}
+              className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs font-semibold text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            >
+              {filters.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label} ({counts[option.value]})
+                </option>
+              ))}
+            </select>
+          </label>
+
           <div
             className="inline-flex rounded-lg border border-slate-300 p-0.5"
             role="group"
