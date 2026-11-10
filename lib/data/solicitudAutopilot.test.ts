@@ -131,7 +131,7 @@ describe('autopilotSolicitud', () => {
     expect(qualified.subject).toMatch(/calificada/);
     expect(result.evaluatingEmail?.sent).toBe(true);
     expect(qualified.text).toContain('Perfil de socio:');
-    expect(qualified.text).toContain('Usuarios incluidos en el panel:');
+    expect(qualified.text).toMatch(/· \d+ usuarios?/);
 
     // Dos movimientos de estado: el paso por En_Evaluacion y el estado final. El
     // token se borra al aceptar para que un enlace viejo no siga abriendo el

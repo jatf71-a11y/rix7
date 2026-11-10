@@ -25,13 +25,11 @@
 
 import type { KybRegistrationKind } from './application';
 import type { PartnerKind } from '@/lib/data/partners';
-import { getKybPlan, isKybPlanId, type KybPlanId } from './plans';
+import { KYB_PLANS, getKybPlan, isKybPlanId, type KybPlanId } from './plans';
 import {
   DEFAULT_PLAN_PRICING,
   MAX_PRICE_CLP,
-  captacionMonthlyFor,
-  profileLabel,
-  profilePlan,
+  planPrice,
   type PlanPricingConfig,
 } from './planPricing';
 import { isKybProposalDecision, type KybProposalDecision } from './status';
@@ -89,15 +87,22 @@ export function profileForRegistration(kind: KybRegistrationKind | null): Partne
   return 'agente';
 }
 
-/** Montos de partida de la propuesta, según el perfil y los precios guardados. */
+/**
+ * Montos de partida de la propuesta, según el plan que se está ofreciendo.
+ *
+ * Antes salían del perfil del registro; ahora el candidato elige plan en el
+ * correo de calificación y lo que se le propone es lo que cuesta ese plan en
+ * **Planes**. El perfil sigue mandando en la captación de leads, que es otro
+ * producto.
+ */
 export function defaultProposalAmounts(
-  kind: KybRegistrationKind | null,
+  planId: KybPlanId,
   config: PlanPricingConfig = DEFAULT_PLAN_PRICING
 ): { altaClp: number; monthlyClp: number } {
-  const plan = profilePlan(config, profileForRegistration(kind));
+  const price = planPrice(config, planId);
   return {
-    altaClp: plan?.altaInicialClp ?? 0,
-    monthlyClp: plan?.mensualBaseClp ?? 0,
+    altaClp: price?.altaInicialClp ?? 0,
+    monthlyClp: price?.mensualBaseClp ?? 0,
   };
 }
 
@@ -119,44 +124,43 @@ export function defaultPlanForProfile(profile: PartnerKind): KybPlanId {
 }
 
 /**
- * Las condiciones de la suscripción que se informan al calificar.
+ * Un plan ofrecido en el correo de calificación y en su pantalla de elección.
  *
- * Es el correo del paso **Calificado**: tiene que decir con qué perfil quedó el
- * socio, cuánto se cobra al dar de alta, cuánto por mes y cuántos usuarios
- * incluye, y a cuánto sale la captación si la quiere. Los montos salen de
- * **Planes** (lo que el equipo definió), no del código; los usuarios, del plan
- * del catálogo que le corresponde al perfil. **No hay cupo de publicaciones**:
- * el CCA se factura sobre la cartera, así que publicar más no cuesta un cupo.
+ * Es el catálogo (`plans.ts`) con los montos de **Planes**. El precio vive en la
+ * configuración del equipo y no en el código: cambiar cuánto cuesta un plan no
+ * puede depender de un deploy. **Ningún plan trae cupo de publicaciones**: el
+ * CCA se factura sobre la cartera.
  */
-export interface SubscriptionTerms {
-  profileLabel: string;
+export interface PlanOption {
   planId: KybPlanId;
   planName: string;
   altaClp: number;
   monthlyClp: number;
   usuariosIncluidos: number;
-  /** Suscripción Captación Activa del perfil, en pesos por mes. */
-  captacionMonthlyClp: number;
+  features: readonly string[];
+  /** El que corresponde al perfil del registro, para señalarlo como sugerido. */
+  recommended: boolean;
 }
 
-export function subscriptionTerms(
+/** Los tres planes con sus precios vigentes, en el orden del catálogo. */
+export function planOptions(
   kind: KybRegistrationKind | null,
   config: PlanPricingConfig = DEFAULT_PLAN_PRICING
-): SubscriptionTerms {
-  const profile = profileForRegistration(kind);
-  const profilePrices = profilePlan(config, profile);
-  const planId = defaultPlanForProfile(profile);
-  const catalog = getKybPlan(planId);
+): PlanOption[] {
+  const recommended = defaultPlanForProfile(profileForRegistration(kind));
 
-  return {
-    profileLabel: profileLabel(profile),
-    planId,
-    planName: catalog.name,
-    altaClp: profilePrices?.altaInicialClp ?? 0,
-    monthlyClp: profilePrices?.mensualBaseClp ?? 0,
-    usuariosIncluidos: profilePrices?.usuariosIncluidos ?? catalog.users,
-    captacionMonthlyClp: captacionMonthlyFor(config, profile),
-  };
+  return KYB_PLANS.map((catalog) => {
+    const price = planPrice(config, catalog.id);
+    return {
+      planId: catalog.id,
+      planName: catalog.name,
+      altaClp: price?.altaInicialClp ?? 0,
+      monthlyClp: price?.mensualBaseClp ?? 0,
+      usuariosIncluidos: price?.usuariosIncluidos ?? catalog.users,
+      features: catalog.features,
+      recommended: catalog.id === recommended,
+    };
+  });
 }
 
 /**
@@ -223,7 +227,6 @@ function amount(value: unknown, label: string): number | string {
  */
 export function normalizeProposal(
   input: { plan?: unknown; altaClp?: unknown; monthlyClp?: unknown; note?: unknown },
-  kind: KybRegistrationKind | null,
   config: PlanPricingConfig = DEFAULT_PLAN_PRICING
 ): ProposalValidation {
   if (!isKybPlanId(input.plan)) {
@@ -231,7 +234,7 @@ export function normalizeProposal(
   }
   const planId = input.plan;
 
-  const defaults = defaultProposalAmounts(kind, config);
+  const defaults = defaultProposalAmounts(planId, config);
 
   const alta = input.altaClp === undefined ? defaults.altaClp : amount(input.altaClp, 'El alta inicial');
   if (typeof alta === 'string') return { ok: false, error: alta };
@@ -340,25 +343,23 @@ export interface AltaPlanSummary {
 export function altaPlanSummary({
   plan,
   proposal,
-  kind,
   config = DEFAULT_PLAN_PRICING,
 }: {
   plan: KybPlanId | null;
   proposal: KybProposal | null;
-  kind: KybRegistrationKind | null;
   config?: PlanPricingConfig;
 }): AltaPlanSummary {
   const planId = proposal?.planId ?? plan ?? 'profesional';
   const catalog = getKybPlan(planId);
-  const profile = profilePlan(config, profileForRegistration(kind));
-  const defaults = defaultProposalAmounts(kind, config);
+  const price = planPrice(config, planId);
+  const defaults = defaultProposalAmounts(planId, config);
 
   return {
     planId,
     planName: catalog.name,
     altaClp: proposal ? proposal.altaClp : defaults.altaClp,
     monthlyClp: proposal ? proposal.monthlyClp : defaults.monthlyClp,
-    usuariosIncluidos: profile?.usuariosIncluidos ?? catalog.users,
+    usuariosIncluidos: price?.usuariosIncluidos ?? catalog.users,
     source: proposal ? 'propuesta' : 'planes',
   };
 }

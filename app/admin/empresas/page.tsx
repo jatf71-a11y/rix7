@@ -346,7 +346,7 @@ function AdminEmpresasPage() {
   };
 
   return (
-    <div className="max-w-6xl">
+    <div className="w-full">
       {/* Aviso de almacenamiento: sin Supabase, lo que se guarde acá no dura */}
       {storage && !storage.persistent && (
         <div className="flex items-start gap-2 px-4 py-3 mb-5 rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-800">

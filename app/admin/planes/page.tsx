@@ -21,21 +21,23 @@ import {
   formatDecimalInput,
   normalizePlanPricing,
   parseDecimalInput,
+  planPrice,
   profileLabel,
-  profilePlan,
   type LeadBracket,
+  type PlanPrice,
   type PlanPricingConfig,
-  type ProfilePlan,
 } from '@/lib/kyb/planPricing';
-import { formatPlanPrice } from '@/lib/kyb/plans';
+import { KYB_PLAN_IDS, formatPlanPrice, getKybPlan } from '@/lib/kyb/plans';
 import type { PartnerKind } from '@/lib/data/partners';
 
 /**
  * Planes: dos productos en paralelo y el CCA.
  *
- * **Planes de Suscripción** es el producto de siempre: para cada perfil, cuánto
- * se cobra una vez (alta inicial), cuánto por mes (mensualidad base) y cuántos
- * usuarios entran en esa mensualidad.
+ * **Planes de Suscripción** es el producto de siempre: para cada plan —básico,
+ * profesional, premium— cuánto se cobra una vez (alta inicial), cuánto por mes
+ * (mensualidad base) y cuántos usuarios entran en esa mensualidad. Es lo que la
+ * empresa elige desde el correo de calificación y con lo que se arma su
+ * propuesta; el perfil del socio define la captación, no el precio.
  *
  * **Planes de Captación** es el otro: la suscripción mensual para estar activo
  * en el reparto de leads, y lo que cuesta acceder a un lead según su valor (en
@@ -200,13 +202,13 @@ export default function AdminPlanesPage() {
     };
   }, [ccaUf, ufValue, ccaPct]);
 
-  function updateProfile(profile: PartnerKind, patch: Partial<ProfilePlan>) {
+  function updatePlan(plan: PlanPrice['plan'], patch: Partial<PlanPrice>) {
     setConfig((current) =>
       current
         ? {
             ...current,
-            profiles: current.profiles.map((item) =>
-              item.profile === profile ? { ...item, ...patch } : item
+            plans: current.plans.map((item) =>
+              item.plan === plan ? { ...item, ...patch } : item
             ),
           }
         : current
@@ -297,7 +299,7 @@ export default function AdminPlanesPage() {
 
   if (loading) {
     return (
-      <div className="max-w-5xl">
+      <div className="w-full">
         <p className="text-sm font-semibold text-slate-400">Cargando precios…</p>
       </div>
     );
@@ -305,7 +307,7 @@ export default function AdminPlanesPage() {
 
   if (!config) {
     return (
-      <div className="max-w-5xl">
+      <div className="w-full">
         <div
           role="alert"
           className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
@@ -318,13 +320,13 @@ export default function AdminPlanesPage() {
   }
 
   return (
-    <div className="max-w-5xl">
+    <div className="w-full">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-black text-slate-900">Planes</h1>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-500">
             Dos productos: <strong className="font-semibold text-slate-700">Planes de Suscripción</strong>{' '}
-            (alta, mensualidad y usuarios por perfil, con el CCA) y{' '}
+            (alta, mensualidad y usuarios por plan, con el CCA) y{' '}
             <strong className="font-semibold text-slate-700">Planes de Captación</strong> (suscripción
             de captación y precio de acceso a cada lead).
           </p>
@@ -393,7 +395,9 @@ export default function AdminPlanesPage() {
         <div className="border-b border-slate-100 px-5 py-4">
           <h2 className="text-sm font-bold text-slate-900">Planes de Suscripción</h2>
           <p className="mt-0.5 text-[11px] text-slate-400">
-            Montos en pesos chilenos. La mensualidad es la base, sin IVA.
+            Montos en pesos chilenos, sin IVA. Son los que ve la empresa en el correo de
+            calificación y con los que se arma la propuesta al elegir plan; el perfil del socio
+            define la captación, no el precio de la suscripción.
           </p>
         </div>
 
@@ -402,7 +406,7 @@ export default function AdminPlanesPage() {
             <thead>
               <tr>
                 <th className="w-40 pb-3 text-left text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                  Perfil
+                  Plan
                 </th>
                 <th className="pb-3 text-right text-[11px] font-bold uppercase tracking-wide text-slate-400">
                   Alta inicial
@@ -416,13 +420,14 @@ export default function AdminPlanesPage() {
               </tr>
             </thead>
             <tbody>
-              {PRICING_PROFILES.map((profile) => {
-                const plan = profilePlan(config, profile);
+              {KYB_PLAN_IDS.map((planId) => {
+                const plan = planPrice(config, planId);
                 if (!plan) return null;
+                const catalog = getKybPlan(planId);
                 return (
-                  <tr key={profile} className="border-t border-slate-100">
+                  <tr key={planId} className="border-t border-slate-100">
                     <th scope="row" className="py-3 text-left font-semibold text-slate-800">
-                      {profileLabel(profile)}
+                      {catalog.name}
                     </th>
                     <td className="py-3 pl-3 text-right">
                       <span className="inline-flex items-center gap-1">
@@ -437,9 +442,9 @@ export default function AdminPlanesPage() {
                           onChange={(event) => {
                             const parsed = parseInteger(event.target.value);
                             if (parsed === null || parsed > MAX_PRICE_CLP) return;
-                            updateProfile(profile, { altaInicialClp: parsed });
+                            updatePlan(planId, { altaInicialClp: parsed });
                           }}
-                          aria-label={`Alta inicial de ${profileLabel(profile)}`}
+                          aria-label={`Alta inicial del plan ${catalog.name}`}
                           className="w-28 rounded-lg border border-slate-300 px-2 py-1.5 text-right text-sm font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                         />
                       </span>
@@ -457,9 +462,9 @@ export default function AdminPlanesPage() {
                           onChange={(event) => {
                             const parsed = parseInteger(event.target.value);
                             if (parsed === null || parsed > MAX_PRICE_CLP) return;
-                            updateProfile(profile, { mensualBaseClp: parsed });
+                            updatePlan(planId, { mensualBaseClp: parsed });
                           }}
-                          aria-label={`Mensualidad base de ${profileLabel(profile)}`}
+                          aria-label={`Mensualidad base del plan ${catalog.name}`}
                           className="w-28 rounded-lg border border-slate-300 px-2 py-1.5 text-right text-sm font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                         />
                       </span>
@@ -475,9 +480,9 @@ export default function AdminPlanesPage() {
                         onChange={(event) => {
                           const parsed = parseInteger(event.target.value);
                           if (parsed === null || parsed < MIN_USERS || parsed > MAX_USERS) return;
-                          updateProfile(profile, { usuariosIncluidos: parsed });
+                          updatePlan(planId, { usuariosIncluidos: parsed });
                         }}
-                        aria-label={`Usuarios incluidos en ${profileLabel(profile)}`}
+                        aria-label={`Usuarios incluidos en el plan ${catalog.name}`}
                         className="w-20 rounded-lg border border-slate-300 px-2 py-1.5 text-right text-sm font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                       />
                     </td>
@@ -489,10 +494,10 @@ export default function AdminPlanesPage() {
         </div>
 
         <p className="border-t border-slate-100 px-5 py-3 text-[11px] leading-relaxed text-slate-400">
-          Así queda hoy: {PRICING_PROFILES.map((profile) => {
-            const plan = profilePlan(config, profile);
+          Así queda hoy: {KYB_PLAN_IDS.map((planId) => {
+            const plan = planPrice(config, planId);
             if (!plan) return null;
-            return `${profileLabel(profile)} ${formatPlanPrice(plan.altaInicialClp)} de alta y ${formatPlanPrice(
+            return `${getKybPlan(planId).name} ${formatPlanPrice(plan.altaInicialClp)} de alta y ${formatPlanPrice(
               plan.mensualBaseClp
             )} al mes`;
           })
@@ -593,9 +598,9 @@ export default function AdminPlanesPage() {
               <p className="mt-1 text-[10px] leading-relaxed text-slate-400">
                 Cuánto del valor base del CCA se cobra. El de partida,{' '}
                 {formatDecimalInput(DEFAULT_CCA_PCT)} %, deja el factor en{' '}
-                {formatDecimalInput(Math.round(ccaFactor(DEFAULT_CCA_PCT)))} —0,1 % de la cartera al
-                año—; 100 % lo deja en {formatDecimalInput(CCA_DIVISOR)}, la fórmula de siempre. Se
-                guarda con los precios, entre {MIN_CCA_PCT} y {MAX_CCA_PCT}.
+                {formatDecimalInput(Math.round(ccaFactor(DEFAULT_CCA_PCT)))} —el divisor base,{' '}
+                {formatDecimalInput(CCA_DIVISOR)}—: el monto es CCA × UF ÷ 1.000.000. Se guarda con
+                los precios, entre {MIN_CCA_PCT} y {MAX_CCA_PCT}.
               </p>
             </div>
           </div>

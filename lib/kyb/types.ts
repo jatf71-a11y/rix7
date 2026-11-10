@@ -43,6 +43,8 @@ export interface KybApplication {
   hasWebsite?: boolean | null;
   /** `false` = «el correo es personal, no de la empresa». */
   hasCompanyEmail?: boolean | null;
+  /** Correo corporativo declarado en el registro; `null` = no se informó. */
+  companyEmail?: string | null;
   score: number | null;
   plan: KybPlanId | null;
   panelEnabled: boolean;
@@ -101,6 +103,7 @@ export interface KybApplicationRow {
   contact_role: string | null;
   has_website?: boolean | null;
   has_company_email?: boolean | null;
+  company_email?: string | null;
   score: number | null;
   plan: string | null;
   panel_enabled: boolean;
@@ -119,7 +122,7 @@ export interface KybApplicationRow {
 }
 
 export const KYB_COLUMNS =
-  'id, status, legal_name, rut, website, domain, email, contact_name, phone, consent, coverage, regions, message, registration_kind, contact_role, has_website, has_company_email, score, plan, panel_enabled, activated_at, token_hash, token_purpose, token_expires_at, partner_id, cca_authorized_at, solicitud_origen, reminders_sent, last_reminder_at, proposal, created_at, updated_at';
+  'id, status, legal_name, rut, website, domain, email, contact_name, phone, consent, coverage, regions, message, registration_kind, contact_role, has_website, has_company_email, company_email, score, plan, panel_enabled, activated_at, token_hash, token_purpose, token_expires_at, partner_id, cca_authorized_at, solicitud_origen, reminders_sent, last_reminder_at, proposal, created_at, updated_at';
 
 export interface KybEvaluationRecord {
   id: string;

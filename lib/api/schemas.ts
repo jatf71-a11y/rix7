@@ -661,6 +661,14 @@ export const kybApplicationPostSchema = z.object({
   // pedir lo que la empresa ya contestó.
   hasWebsite: z.boolean().optional(),
   hasCompanyEmail: z.boolean().optional(),
+  // Correo corporativo aparte del de contacto: opcional, y `normalizeKybApplication`
+  // vuelve a validar la forma con la misma regla que el correo principal.
+  companyEmail: z
+    .string()
+    .trim()
+    .max(200)
+    .email('El correo de la empresa no tiene un formato válido.')
+    .optional(),
   consent: z
     .boolean({ required_error: 'Debes aceptar la verificación de datos.' })
     .refine((value) => value === true, 'Debes aceptar la verificación de datos.'),

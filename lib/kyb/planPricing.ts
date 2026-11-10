@@ -22,8 +22,8 @@
  *   $CCA = CCA × valor de la UF ÷ 1.000.000 × %CCA
  *
  * El divisor —el **factor**— y el resultado **son pesos**: un socio cuyo CCA
- * suma 100.000 UF gasta `100.000 × 40.000 ÷ 1.000.000 = $4.000` **antes** del
- * %CCA; con el valor de partida (8.333,33) son $333.333 al mes.
+ * suma 100.000 UF gasta `100.000 × 40.000 ÷ 1.000.000 = $4.000` con el %CCA de
+ * partida, que es 100 y deja la fórmula en su forma original.
  *
  * Ese `÷ 1.000.000` no es una constante intocable: es el factor con el que se
  * traduce el CCA a pesos y el equipo lo ajusta desde el panel con **%CCA**, un
@@ -37,29 +37,29 @@
  * factor equivalente (`ccaFactor`) se muestra en el panel para que no haya que
  * hacer la cuenta mentalmente.
  *
- * El valor de partida es `8.333,33`: deja el factor en 12.000, o sea **0,1 % de
- * la cartera al año** facturado mes a mes (`$CCA = cartera ÷ 12.000`). Una
- * cartera de $180 millones paga $15.000 al mes; con el antiguo 100 pagaba $180,
- * que al lado de una mensualidad de $14.990 era ruido. La cuenta vive en `ccaAmountClp` para que la
- * pantalla y cualquier pieza futura usen la misma y no dos copias que se
- * despeguen.
+ * El valor de partida es `100`: deja el factor en 1.000.000 y el monto es el
+ * valor de la cartera en pesos (CCA en UF × valor de la UF), sin ajuste. La
+ * cuenta vive en `ccaAmountClp` para que la pantalla y cualquier pieza futura
+ * usen la misma y no dos copias que se despeguen.
  *
  * El módulo es puro (sin React, sin red, sin base): acá está lo que hay que
  * poder probar, y la pantalla solo dibuja lo que esto calcula.
  */
 
 import { PARTNER_KIND_LABELS, type PartnerKind } from '@/lib/data/partners';
+import { KYB_PLAN_IDS, getKybPlan, isKybPlanId, type KybPlanId } from './plans';
 
 /** Clave con la que la configuración se guarda en `plan_settings`. */
 export const PLAN_PRICING_KEY = 'planes';
 
 /**
  * Versión del formato. Subió a 2 cuando el precio pasó de ser «por plan» a
- * «por perfil» (alta inicial, mensual y usuarios). Una fila guardada con otra
- * versión se descarta y vuelven los valores de partida, en vez de leerse con la
- * forma equivocada.
+ * «por perfil» (alta inicial, mensual y usuarios), y a 5 cuando el %CCA de
+ * partida volvió a 100, y a 6 cuando la suscripción volvió a tener precio por plan
+ * (básico, profesional, premium), que es lo que la empresa elige. Una fila guardada con otra versión se descarta y
+ * vuelven los valores de partida, en vez de leerse con la forma equivocada.
  */
-export const PLAN_PRICING_VERSION = 4 as const;
+export const PLAN_PRICING_VERSION = 6 as const;
 
 /** Lo que se cobra por un perfil de socio. */
 export interface ProfilePlan {
@@ -67,6 +67,24 @@ export interface ProfilePlan {
   /** Cobro único al habilitar la cuenta, en pesos. */
   altaInicialClp: number;
   /** Mensualidad base, en pesos, sin IVA. */
+  mensualBaseClp: number;
+  /** Usuarios con acceso al panel que entran en la mensualidad. */
+  usuariosIncluidos: number;
+}
+
+/**
+ * Lo que se cobra por un plan del catálogo: básico, profesional o premium.
+ *
+ * Es el precio que la empresa ve en el correo de calificación y con el que se
+ * arma su propuesta al elegir. Se separó del perfil porque la elección es del
+ * candidato: una corredora puede quedarse en Básico y pagar lo que cuesta Básico,
+ * sin que su tipo de empresa le fije el precio.
+ */
+export interface PlanPrice {
+  plan: KybPlanId;
+  /** Cobro único del alta, en pesos. */
+  altaInicialClp: number;
+  /** Mensualidad, en pesos, sin IVA. */
   mensualBaseClp: number;
   /** Usuarios con acceso al panel que entran en la mensualidad. */
   usuariosIncluidos: number;
@@ -116,6 +134,8 @@ export interface PlanPricingConfig {
    */
   ccaPct: number;
   profiles: ProfilePlan[];
+  /** Precio de cada plan del catálogo; es de donde sale la propuesta. */
+  plans: PlanPrice[];
   captacion: CaptacionPlans;
 }
 
@@ -153,13 +173,21 @@ export function profileLabel(profile: PartnerKind): string {
 export const CCA_DIVISOR = 1_000_000;
 
 /**
- * %CCA de partida: 8.333,33 deja el factor en 12.000, o sea 0,1 % de la cartera
- * al año facturado mes a mes. Es la escala que hace que el CCA pese como la
- * mensualidad ($180 millones de cartera → $15.000 al mes) en vez de ser un
- * cargo simbólico.
+ * %CCA de partida: 100, la fórmula original. El factor queda en 1.000.000, así
+ * que el monto es el valor de la cartera en pesos (CCA en UF × valor de la UF)
+ * y el equipo solo lo ajusta desde **Planes** si quiere cobrar una fracción.
  * Guardado con los precios, así el ajuste sobrevive al reinicio del proceso.
  */
-export const DEFAULT_CCA_PCT = 8_333.33;
+export const DEFAULT_CCA_PCT = 100;
+
+/**
+ * %CCA que traía la versión 4 como valor de partida.
+ *
+ * Esa cifra dejaba el factor en 12.000 (0,1 % de la cartera al año). Una fila
+ * guardada con ella se lee como 100: era el valor de la escala vieja, no una
+ * decisión del equipo.
+ */
+const LEGACY_CCA_PCT = 8_333.33;
 
 /**
  * Rango del %CCA. El piso en 1 evita dejar el concepto en cero por un campo
@@ -205,11 +233,33 @@ export const DEFAULT_LEAD_BRACKETS: CaptacionPlans = {
   ],
 };
 
+/**
+ * Precios de partida de cada plan del catálogo.
+ *
+ * Es la escalera que el equipo ya tenía por perfil, ahora atada al plan que el
+ * candidato elige: Básico de entrada, Profesional el intermedio y Premium el
+ * más completo. Los usuarios salen del catálogo (`plans.ts`), que es lo que el
+ * plan promete.
+ */
+export const DEFAULT_PLAN_PRICES: readonly PlanPrice[] = [
+  { plan: 'basico', altaInicialClp: 19990, mensualBaseClp: 14990, usuariosIncluidos: 1 },
+  { plan: 'profesional', altaInicialClp: 49990, mensualBaseClp: 39990, usuariosIncluidos: 5 },
+  { plan: 'premium', altaInicialClp: 99990, mensualBaseClp: 99990, usuariosIncluidos: 20 },
+];
+
+/** Perfil cuyo precio se usaba para cada plan antes de que existiera el precio propio. */
+const PLAN_PROFILE_EQUIVALENT: Record<KybPlanId, PartnerKind> = {
+  basico: 'agente',
+  profesional: 'corredora',
+  premium: 'inmobiliaria',
+};
+
 /** Precios de partida: los que definió el equipo para cada perfil. */
 export const DEFAULT_PLAN_PRICING: PlanPricingConfig = {
   version: PLAN_PRICING_VERSION,
   ccaPct: DEFAULT_CCA_PCT,
   captacion: DEFAULT_LEAD_BRACKETS,
+  plans: DEFAULT_PLAN_PRICES.map((price) => ({ ...price })),
   profiles: [
     {
       profile: 'agente',
@@ -238,6 +288,23 @@ export function profilePlan(
   profile: PartnerKind
 ): ProfilePlan | null {
   return config.profiles.find((item) => item.profile === profile) ?? null;
+}
+
+/** El precio de un plan; `null` si la configuración no lo trae (no debería pasar: `normalize` completa). */
+export function planPrice(config: PlanPricingConfig, plan: KybPlanId): PlanPrice | null {
+  return config.plans.find((item) => item.plan === plan) ?? null;
+}
+
+/** Precio de un plan según los valores de partida. */
+function defaultPlanPrice(plan: KybPlanId): PlanPrice {
+  return (
+    DEFAULT_PLAN_PRICES.find((item) => item.plan === plan) ?? {
+      plan,
+      altaInicialClp: 0,
+      mensualBaseClp: 0,
+      usuariosIncluidos: 1,
+    }
+  );
 }
 
 /**
@@ -487,9 +554,11 @@ export function normalizePlanPricing(input: unknown): NormalizePricingResult {
   // Las filas guardadas con versiones anteriores se aceptan: los campos que no
   // existían entran con el valor de partida, así un guardado viejo no deja el
   // panel en «configuración de otra versión» ni pierde los precios que sí tenía.
-  // La 2 no conocía el %CCA y la 3, los planes de captación.
-  const MIGRATABLE = new Set([2, 3]);
-  if (raw.version !== undefined && raw.version !== PLAN_PRICING_VERSION && !MIGRATABLE.has(raw.version as number)) {
+  // La 2 no conocía el %CCA, la 3 los planes de captación y la 5 el precio por
+  // plan (hasta la 5 el precio de la suscripción era el del perfil).
+  const MIGRATABLE = new Set([2, 3, 4, 5]);
+  const legacyRow = raw.version !== undefined && raw.version !== PLAN_PRICING_VERSION;
+  if (legacyRow && !MIGRATABLE.has(raw.version as number)) {
     return {
       ok: false,
       error: `La configuración guardada es de otra versión (${String(raw.version)}).`,
@@ -512,6 +581,10 @@ export function normalizePlanPricing(input: unknown): NormalizePricingResult {
     }
     // Dos decimales alcanzan para un ajuste comercial y evitan guardar 33,33333.
     ccaPct = Math.round(value * 100) / 100;
+
+    // La 4 guardaba 8.333,33 como valor de partida. No era un ajuste elegido:
+    // se lee como 100 y la fila queda con el valor nuevo al próximo guardado.
+    if (legacyRow && ccaPct === LEGACY_CCA_PCT) ccaPct = DEFAULT_CCA_PCT;
   }
 
   const profiles: ProfilePlan[] = [];
@@ -543,6 +616,43 @@ export function normalizePlanPricing(input: unknown): NormalizePricingResult {
 
     profiles.push({
       profile: candidate.profile,
+      altaInicialClp: candidate.altaInicialClp,
+      mensualBaseClp: candidate.mensualBaseClp,
+      usuariosIncluidos: candidate.usuariosIncluidos,
+    });
+  }
+
+  // ── Precios por plan ────────────────────────────────────────────────────────
+  const rawPlans = Array.isArray(raw.plans) ? raw.plans : [];
+  const plans: PlanPrice[] = [];
+
+  for (const item of rawPlans) {
+    if (!item || typeof item !== 'object') continue;
+    const candidate = item as Record<string, unknown>;
+    if (!isKybPlanId(candidate.plan)) continue;
+    const label = `«${getKybPlan(candidate.plan).name}»`;
+
+    if (!isIntegerInRange(candidate.altaInicialClp, 0, MAX_PRICE_CLP)) {
+      return {
+        ok: false,
+        error: `El alta inicial del plan ${label} tiene que ser un entero entre 0 y ${MAX_PRICE_CLP.toLocaleString('es-CL')}.`,
+      };
+    }
+    if (!isIntegerInRange(candidate.mensualBaseClp, 0, MAX_PRICE_CLP)) {
+      return {
+        ok: false,
+        error: `La mensualidad del plan ${label} tiene que ser un entero entre 0 y ${MAX_PRICE_CLP.toLocaleString('es-CL')}.`,
+      };
+    }
+    if (!isIntegerInRange(candidate.usuariosIncluidos, MIN_USERS, MAX_USERS)) {
+      return {
+        ok: false,
+        error: `Los usuarios del plan ${label} tienen que ser un entero entre ${MIN_USERS} y ${MAX_USERS}.`,
+      };
+    }
+
+    plans.push({
+      plan: candidate.plan,
       altaInicialClp: candidate.altaInicialClp,
       mensualBaseClp: candidate.mensualBaseClp,
       usuariosIncluidos: candidate.usuariosIncluidos,
@@ -589,16 +699,43 @@ export function normalizePlanPricing(input: unknown): NormalizePricingResult {
   );
   if (!arriendos.ok) return { ok: false, error: arriendos.error };
 
+  // Orden canónico y valores faltantes del predeterminado: la tabla que ve el
+  // panel es siempre la misma aunque la base tenga una fila vieja.
+  const resolvedProfiles = PRICING_PROFILES.map(
+    (profile) => profiles.find((item) => item.profile === profile) ?? defaultFor(profile)
+  );
+
+  // Una fila anterior a la 6 no tiene precios por plan: se derivan de los
+  // perfiles —la escalera que el equipo ya tenía— en vez de los de partida, así
+  // publicar esto no mueve ningún precio que ya estuviera cargado.
+  const resolvedPlans = KYB_PLAN_IDS.map((plan) => {
+    const stored = plans.find((item) => item.plan === plan);
+    if (stored) return stored;
+
+    if (legacyRow) {
+      const profile = resolvedProfiles.find(
+        (item) => item.profile === PLAN_PROFILE_EQUIVALENT[plan]
+      );
+      if (profile) {
+        return {
+          plan,
+          altaInicialClp: profile.altaInicialClp,
+          mensualBaseClp: profile.mensualBaseClp,
+          usuariosIncluidos: profile.usuariosIncluidos,
+        };
+      }
+    }
+
+    return defaultPlanPrice(plan);
+  });
+
   return {
     ok: true,
     config: {
       version: PLAN_PRICING_VERSION,
       ccaPct,
-      // Orden canónico y valores faltantes del predeterminado: la tabla que ve
-      // el panel es siempre la misma aunque la base tenga una fila vieja.
-      profiles: PRICING_PROFILES.map(
-        (profile) => profiles.find((item) => item.profile === profile) ?? defaultFor(profile)
-      ),
+      profiles: resolvedProfiles,
+      plans: resolvedPlans,
       captacion: {
         monthly: PRICING_PROFILES.map(
           (profile) =>

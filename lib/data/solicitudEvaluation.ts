@@ -31,7 +31,13 @@
  */
 
 import { normalizeRut } from '@/lib/utils/rut';
-import { debtReportKindFor, withDebtReport } from '@/lib/kyb/debtReport';
+import {
+  debtReportDebtFinding,
+  debtReportKindFor,
+  debtReportRutFinding,
+  withDebtReport,
+  type DebtReportAnalysis,
+} from '@/lib/kyb/debtReport';
 import type { DuplicateField } from './applicantDuplicates';
 import type { Solicitud, SolicitudKind } from './solicitudes';
 
@@ -120,8 +126,26 @@ export const SOLICITUD_PASS_SCORE = 80;
  * existen o no, y su falta resta sin bloquear.
  */
 const WEIGHTS = {
-  empresa: { rut: 20, correo: 20, sitio: 25, cobertura: 15, telefono: 10, duplicado: 10 },
-  profesional: { rut: 25, correo: 10, sitio: 10, cobertura: 20, telefono: 20, duplicado: 15 },
+  empresa: {
+    rut: 16,
+    correo: 16,
+    sitio: 20,
+    cobertura: 12,
+    telefono: 8,
+    duplicado: 8,
+    deudaTitular: 8,
+    deuda: 12,
+  },
+  profesional: {
+    rut: 20,
+    correo: 8,
+    sitio: 8,
+    cobertura: 16,
+    telefono: 16,
+    duplicado: 12,
+    deudaTitular: 8,
+    deuda: 12,
+  },
 } as const;
 
 /**
@@ -194,6 +218,9 @@ function applyClarification(
 ): SolicitudCheck {
   const answer = clarifications[check.id]?.trim();
   if (!answer || check.status === 'pass') return check;
+  // El informe de deudas se corrige subiendo otro documento, no con una
+  // explicación: sus verificaciones no se resuelven por texto.
+  if (check.id.startsWith('deuda')) return check;
   return {
     ...check,
     status: 'pass',
@@ -215,6 +242,8 @@ export function evaluateSolicitud(
   options: {
     existing?: readonly Solicitud[];
     clarifications?: Record<string, string>;
+    /** Informe de deudas ya leído, cuando la ronda lo trajo. */
+    debtReport?: DebtReportAnalysis | null;
     now?: Date;
   } = {}
 ): SolicitudEvaluation {
@@ -432,8 +461,47 @@ export function evaluateSolicitud(
     facts: duplicate ? [{ label: 'Solicitud previa', value: duplicate.id }] : [],
   });
 
+  // ── 7. Informe de deudas de la CMF ────────────────────────────────────────
+  // Solo cuando la ronda trajo el informe: el registro que pasó limpio no lo
+  // pide. Que sea del titular es la verificación que impide adjuntar cualquier
+  // documento; la situación de deuda advierte y baja el puntaje sin bloquear
+  // —tener un crédito vigente es normal—. La pregunta por un informe que no
+  // sirve no va acá: la ronda ya pide el documento correcto.
+  if (options.debtReport) {
+    const titular = debtReportRutFinding(options.debtReport, rut);
+    checks.push({
+      id: 'deuda_titular',
+      label: 'Informe de deudas: titular',
+      status: titular.status,
+      detail: titular.detail,
+      weight: weight.deudaTitular,
+      facts: titular.facts,
+    });
+
+    const situacion = debtReportDebtFinding(options.debtReport);
+    checks.push({
+      id: 'deuda',
+      label: 'Informe de deudas: situación',
+      status: situacion.status,
+      detail: situacion.detail,
+      weight: weight.deuda,
+      facts: situacion.facts,
+    });
+  }
+
   const clarified = checks.map((check) => applyClarification(check, clarifications));
-  const score = clarified.reduce((total, check) => total + checkScore(check), 0);
+  // Normalizado sobre los pesos presentes: sin informe de deudas sus dos
+  // verificaciones no existen, y sin esto el puntaje máximo sería 80.
+  const weightTotal = clarified.reduce((total, check) => total + check.weight, 0);
+  const score =
+    weightTotal > 0
+      ? Math.min(
+          100,
+          Math.round(
+            (clarified.reduce((total, check) => total + checkScore(check), 0) / weightTotal) * 100
+          )
+        )
+      : 0;
   const failed = clarified.filter((check) => check.status === 'fail');
   const accepted = score >= SOLICITUD_PASS_SCORE && failed.length === 0;
 

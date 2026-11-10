@@ -11,6 +11,7 @@ import {
   List,
   Loader2,
   RefreshCw,
+  Search,
   Send,
   UserRound,
   X,
@@ -114,6 +115,18 @@ const STATUS_STYLE: Record<SolicitudStatus, { column: string; dot: string }> = {
   Rechazada: { column: 'border-rose-200', dot: 'bg-rose-400' },
 };
 
+/**
+ * Minúsculas y sin tildes: el buscador tiene que encontrar «Pérez» escribiendo
+ * «perez», que es como se teclea con el teclado en la mano.
+ */
+function normalizeSearch(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
 interface DetailState {
   application: KybApplication;
   evaluation: KybEvaluation | null;
@@ -158,6 +171,11 @@ export default function AdminSolicitudesPage() {
   });
 
   const [filter, setFilter] = useState<SocioFilter>('todas');
+  /** Buscador de empresas solicitantes: texto del combo y socio elegido. */
+  const [companyQuery, setCompanyQuery] = useState('');
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const [companyOpen, setCompanyOpen] = useState(false);
+  const [activeCompany, setActiveCompany] = useState(0);
   // Arranca en el tablero: es la pregunta con la que se entra («¿en qué etapa
   // está cada socio?»). La lista, con la ficha y las decisiones, queda a un clic.
   const [view, setView] = useState<'lista' | 'tablero'>('tablero');
@@ -587,9 +605,56 @@ export default function AdminSolicitudesPage() {
     return base;
   }, [counts.empresa]);
 
+  /**
+   * Las empresas que ofrece el combo.
+   *
+   * Sin texto lista todas (tope de 40: es un buscador, no un índice) y con
+   * texto busca por nombre, contacto y correo, sin tildes ni mayúsculas.
+   */
+  const companyMatches = useMemo(() => {
+    const term = normalizeSearch(companyQuery);
+    const sorted = [...socios].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+    const matches = term
+      ? sorted.filter((socio) =>
+          [socio.name, socio.contactName, socio.email].some((field) =>
+            normalizeSearch(field ?? '').includes(term)
+          )
+        )
+      : sorted;
+    return matches.slice(0, 40);
+  }, [companyQuery, socios]);
+
+  /**
+   * Elige una empresa y limpia el filtro de categoría.
+   *
+   * El combo lista todas las empresas, así que elegir una de otra categoría con
+   * un chip activo dejaría la pantalla vacía sin explicar por qué: el chip se
+   * vuelve a «Todas» para que la empresa elegida siempre aparezca.
+   */
+  const pickCompany = useCallback((socio: SocioSolicitud | null) => {
+    if (socio === null) {
+      setSelectedCompanyId(null);
+      setCompanyQuery('');
+    } else {
+      setSelectedCompanyId(socio.id);
+      setCompanyQuery(socio.name);
+      setFilter('todas');
+    }
+    setCompanyOpen(false);
+    setActiveCompany(0);
+  }, []);
+
+  const activeCompanyIndex = Math.min(activeCompany, Math.max(companyMatches.length - 1, 0));
+  const searchingCompany = selectedCompanyId !== null || companyQuery.trim() !== '';
+
   const visible = useMemo(
-    () => (filter === 'todas' ? socios : socios.filter((socio) => socio.category === filter)),
-    [filter, socios]
+    () =>
+      socios.filter(
+        (socio) =>
+          (filter === 'todas' || socio.category === filter) &&
+          (selectedCompanyId === null || socio.id === selectedCompanyId)
+      ),
+    [filter, selectedCompanyId, socios]
   );
 
   /**
@@ -614,7 +679,10 @@ export default function AdminSolicitudesPage() {
   ].filter((item): item is string => item !== null);
 
   return (
-    <div className="max-w-6xl">
+    // Sin tope de ancho: el tablero tiene una columna por etapa y en un monitor
+    // ancho caben todas. El `max-w-6xl` de antes dejaba media pantalla vacía a la
+    // derecha dentro del `flex-1` del panel.
+    <div className="w-full">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-black text-slate-900">Solicitudes</h1>
@@ -632,24 +700,113 @@ export default function AdminSolicitudesPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-          {/* Combobox de tipo: elige qué categoría de socio revisar y manda
-              sobre el tablero y la lista. Comparte estado con los chips, así
-              que los dos caminos muestran siempre el mismo filtro. */}
-          <label className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600">
-            <span className="text-[11px] uppercase tracking-wide text-slate-500">Tipo</span>
-            <select
-              aria-label="Elegir qué tipo de solicitud revisar"
-              value={filter}
-              onChange={(event) => setFilter(event.target.value as SocioFilter)}
-              className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs font-semibold text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-            >
-              {filters.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label} ({counts[option.value]})
-                </option>
-              ))}
-            </select>
-          </label>
+          {/* Buscador de empresas solicitantes: se escribe el nombre del socio
+              y el combo acota el tablero y la lista a esa empresa. La
+              categoría sigue en los chips de abajo. */}
+          <div className="relative">
+            <label htmlFor="buscador-empresa" className="sr-only">
+              Buscar empresa solicitante por nombre de socio
+            </label>
+            <div className="relative">
+              <Search
+                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
+                aria-hidden="true"
+              />
+              <input
+                id="buscador-empresa"
+                type="text"
+                role="combobox"
+                aria-expanded={companyOpen}
+                aria-controls="buscador-empresa-opciones"
+                aria-autocomplete="list"
+                aria-activedescendant={
+                  companyOpen && companyMatches[activeCompanyIndex]
+                    ? `empresa-opcion-${companyMatches[activeCompanyIndex].id}`
+                    : undefined
+                }
+                autoComplete="off"
+                placeholder="Buscar empresa o socio…"
+                value={companyQuery}
+                onChange={(event) => {
+                  setCompanyQuery(event.target.value);
+                  setSelectedCompanyId(null);
+                  setCompanyOpen(true);
+                  setActiveCompany(0);
+                }}
+                onFocus={() => setCompanyOpen(true)}
+                onBlur={() => setCompanyOpen(false)}
+                onKeyDown={(event) => {
+                  if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    setCompanyOpen(true);
+                    setActiveCompany((index) =>
+                      Math.min(index + 1, Math.max(companyMatches.length - 1, 0))
+                    );
+                  } else if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    setActiveCompany((index) => Math.max(index - 1, 0));
+                  } else if (event.key === 'Enter') {
+                    if (!companyOpen) return;
+                    event.preventDefault();
+                    pickCompany(companyMatches[activeCompanyIndex] ?? null);
+                  } else if (event.key === 'Escape') {
+                    setCompanyOpen(false);
+                  }
+                }}
+                className="w-56 rounded-lg border border-slate-300 bg-white py-2 pl-8 pr-8 text-xs font-semibold text-slate-700 placeholder:font-normal placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+              />
+              {searchingCompany && (
+                <button
+                  type="button"
+                  onClick={() => pickCompany(null)}
+                  aria-label="Quitar el filtro de empresa"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+
+            {companyOpen && (
+              <ul
+                id="buscador-empresa-opciones"
+                role="listbox"
+                aria-label="Empresas solicitantes"
+                className="absolute right-0 z-40 mt-1 max-h-64 w-72 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-xl"
+              >
+                {companyMatches.length === 0 ? (
+                  <li className="px-3 py-2 text-xs text-slate-500">
+                    Ninguna empresa coincide con la búsqueda.
+                  </li>
+                ) : (
+                  companyMatches.map((socio, index) => (
+                    <li
+                      key={`${socio.source}-${socio.id}`}
+                      id={`empresa-opcion-${socio.id}`}
+                      role="option"
+                      aria-selected={index === activeCompanyIndex}
+                      tabIndex={-1}
+                      // Sin esto el blur del input cierra la lista antes del
+                      // clic y la opción nunca llega a elegirse.
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => pickCompany(socio)}
+                      onMouseEnter={() => setActiveCompany(index)}
+                      className={`cursor-pointer px-3 py-2 ${
+                        index === activeCompanyIndex ? 'bg-blue-50' : ''
+                      }`}
+                    >
+                      <span className="block truncate text-xs font-semibold text-slate-900">
+                        {socio.name}
+                      </span>
+                      <span className="block truncate text-[10px] text-slate-500">
+                        {SOCIO_CATEGORY_LABELS[socio.category]} · {socio.contactName}
+                      </span>
+                    </li>
+                  ))
+                )}
+              </ul>
+            )}
+          </div>
 
           <div
             className="inline-flex rounded-lg border border-slate-300 p-0.5"
@@ -765,7 +922,11 @@ export default function AdminSolicitudesPage() {
         <div className="mt-10 rounded-2xl border border-dashed border-slate-300 bg-white/60 px-6 py-12 text-center">
           <Inbox className="mx-auto h-8 w-8 text-slate-300" />
           <p className="mt-3 text-sm font-semibold text-slate-700">
-            {filter === 'todas' ? 'No hay solicitudes de socios todavía' : 'No hay socios en esta categoría'}
+            {searchingCompany
+              ? 'Ninguna empresa coincide con la búsqueda'
+              : filter === 'todas'
+                ? 'No hay solicitudes de socios todavía'
+                : 'No hay socios en esta categoría'}
           </p>
           <p className="mt-1 text-xs text-slate-500">
             El registro de{' '}

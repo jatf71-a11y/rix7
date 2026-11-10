@@ -108,7 +108,7 @@ export default function AdminRegistrosPage() {
   }, [signups]);
 
   return (
-    <div className="max-w-6xl">
+    <div className="w-full">
       {/* No se pudo leer: se dice, en vez de mostrar una lista vacía */}
       {!loading && failure && (
         <div

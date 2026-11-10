@@ -118,7 +118,7 @@ export default function AdminLandingsPage() {
   const sinActividad = !!report && report.partners.length === 0;
 
   return (
-    <div className="max-w-6xl">
+    <div className="w-full">
       {/* Aviso: sin Supabase las aperturas viven en memoria */}
       {!loading && !persistent && (
         <div className="flex items-start gap-2 px-4 py-3 mb-5 rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-800">

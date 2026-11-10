@@ -27,6 +27,8 @@ export interface CompanyRegistrationInput {
   hasWebsite?: boolean | null;
   /** `false` = el contacto respondió que usa un correo personal. */
   hasCompanyEmail?: boolean | null;
+  /** Correo corporativo, cuando el de contacto es personal. */
+  companyEmail?: string;
   message: string;
   consent: boolean;
 }
@@ -46,6 +48,7 @@ export interface KybRegistrationPayload {
   contactRole?: string;
   hasWebsite?: boolean;
   hasCompanyEmail?: boolean;
+  companyEmail?: string;
 }
 
 /**
@@ -66,6 +69,7 @@ export function toKybPayload(
   const website = input.website.trim();
   const message = input.message.trim();
   const role = input.role.trim();
+  const companyEmail = (input.companyEmail ?? '').trim();
 
   return {
     legalName: input.company.trim(),
@@ -86,5 +90,6 @@ export function toKybPayload(
     // servidor lo trata distinto de un «no tengo» explícito.
     ...(input.hasWebsite == null ? {} : { hasWebsite: input.hasWebsite }),
     ...(input.hasCompanyEmail == null ? {} : { hasCompanyEmail: input.hasCompanyEmail }),
+    ...(companyEmail ? { companyEmail } : {}),
   };
 }

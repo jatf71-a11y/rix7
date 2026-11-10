@@ -9,7 +9,7 @@ import {
   kybAccessUrl,
 } from './kybEmails';
 import { DEFAULT_LEAD_BRACKETS } from '@/lib/kyb/planPricing';
-import type { SubscriptionTerms } from '@/lib/kyb/proposal';
+import type { PlanOption } from '@/lib/kyb/proposal';
 
 const token = 'a'.repeat(43);
 const siteUrl = 'https://rix7.cl';
@@ -138,36 +138,62 @@ describe('correos KYB', () => {
     expect(email.html).toContain('Con los datos que nos entregaste');
   });
 
-  it('el correo de calificación lleva el perfil y las condiciones completas', () => {
-    const terms: SubscriptionTerms = {
-      profileLabel: 'Corredora',
-      planId: 'profesional',
-      planName: 'Profesional',
-      altaClp: 49990,
-      monthlyClp: 39990,
-      usuariosIncluidos: 5,
-      captacionMonthlyClp: 19990,
-    };
+  it('el correo de calificación lleva los tres planes y el enlace para elegir', () => {
+    const plans: PlanOption[] = [
+      {
+        planId: 'basico',
+        planName: 'Básico',
+        altaClp: 19990,
+        monthlyClp: 14990,
+        usuariosIncluidos: 1,
+        features: ['Ficha de empresa en el portal'],
+        recommended: false,
+      },
+      {
+        planId: 'profesional',
+        planName: 'Profesional',
+        altaClp: 49990,
+        monthlyClp: 39990,
+        usuariosIncluidos: 5,
+        features: ['Cinco usuarios con acceso al panel'],
+        recommended: true,
+      },
+      {
+        planId: 'premium',
+        planName: 'Premium',
+        altaClp: 99990,
+        monthlyClp: 99990,
+        usuariosIncluidos: 20,
+        features: ['Veinte usuarios con acceso al panel'],
+        recommended: false,
+      },
+    ];
 
     const email = buildKybQualifiedEmail({
       legalName: 'Catedral Propiedades SpA',
       contactName: 'Ana Torres',
       siteUrl,
-      terms,
+      profileLabel: 'Corredora',
+      plans,
+      captacionMonthlyClp: 19990,
+      planUrl: `${siteUrl}/empresas/plan?token=${token}`,
     });
 
-    // Paso 4 (aceptada) y paso 5 (calificada con condiciones).
+    // Paso 4 (aceptada) y paso 5 (calificada, con los planes a la vista).
     expect(email.text).toMatch(/quedó aceptada y calificada/);
     expect(email.text).toContain('Perfil de socio: Corredora');
-    expect(email.text).toContain('49.990');
-    expect(email.text).toContain('39.990');
-    expect(email.text).toContain('Usuarios incluidos en el panel: 5');
+    expect(email.text).toContain('Plan Básico: $19.990 de alta y $14.990 al mes');
+    expect(email.text).toContain('Plan Profesional: $49.990 de alta y $39.990 al mes');
+    expect(email.text).toContain('Plan Premium: $99.990 de alta y $99.990 al mes');
+    expect(email.text).toContain('5 usuarios');
     // Sin cupo de publicaciones: el CCA se factura sobre la cartera.
-    expect(email.text).toContain('sin cupo de publicaciones');
+    expect(email.text).toContain('sin cupo');
     expect(email.text).not.toContain('publicaciones activas');
+    // El enlace para elegir y la captación del perfil.
+    expect(email.text).toMatch(/empresas\/plan\?token=/);
     expect(email.text).toContain('19.990');
-    // La respuesta que se pide, explícita.
-    expect(email.text).toMatch(/«De acuerdo»/);
+    expect(email.html).toContain('Elegir mi plan');
+    expect(email.html).toContain('sugerido para tu perfil');
     expect(email.html).toContain('Corredora');
   });
 

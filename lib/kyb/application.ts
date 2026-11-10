@@ -26,6 +26,8 @@ export interface KybApplicationInput {
   contactRole?: unknown;
   hasWebsite?: unknown;
   hasCompanyEmail?: unknown;
+  /** Correo corporativo, aparte del correo de contacto del formulario. */
+  companyEmail?: unknown;
 }
 
 /** Alcance declarado en el registro de empresas. El alta directa no lo pide. */
@@ -58,12 +60,15 @@ export interface NormalizedKybApplication {
   hasWebsite?: boolean | null;
   /** `false` = el contacto declaró usar correo personal; ausente = sin dato. */
   hasCompanyEmail?: boolean | null;
+  /** Correo de la empresa, ya normalizado; ausente = no se informó. */
+  companyEmail?: string | null;
 }
 
 export const KYB_LIMITS = {
   legalName: 160,
   website: 300,
   email: 200,
+  companyEmail: 200,
   contactName: 120,
   phone: 40,
   message: 1200,
@@ -205,6 +210,22 @@ export function normalizeKybApplication(input: KybApplicationInput): KybValidati
     return { ok: false, error: 'El correo no tiene un formato válido.' };
   }
 
+  // El correo de la empresa es opcional y distinto del de contacto: la persona
+  // puede atender desde su correo personal y aun así dejar el corporativo. Se
+  // guarda en minúsculas, como el de contacto, para compararlos sin sorpresas.
+  let companyEmail: string | null = null;
+  const rawCompanyEmail = text(input.companyEmail);
+  if (rawCompanyEmail) {
+    if (rawCompanyEmail.length > KYB_LIMITS.companyEmail) {
+      return { ok: false, error: 'El correo de la empresa es demasiado largo.' };
+    }
+    const canonicalCompanyEmail = rawCompanyEmail.toLowerCase();
+    if (!EMAIL_RE.test(canonicalCompanyEmail) || !emailDomain(canonicalCompanyEmail)) {
+      return { ok: false, error: 'El correo de la empresa no tiene un formato válido.' };
+    }
+    companyEmail = canonicalCompanyEmail;
+  }
+
   const phone = required(input.phone, KYB_LIMITS.phone, 'El teléfono', 6);
   if (!phone.ok) return phone;
   const digits = phone.value.replace(/\D/g, '');
@@ -328,6 +349,7 @@ export function normalizeKybApplication(input: KybApplicationInput): KybValidati
       contactRole,
       hasWebsite,
       hasCompanyEmail,
+      ...(companyEmail ? { companyEmail } : {}),
     },
   };
 }

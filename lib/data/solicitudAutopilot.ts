@@ -36,7 +36,7 @@ import { ensureAltaForSolicitud } from './socioAltaBridge';
 import { solicitudAltaId } from './socios';
 import { generateKybToken, hashKybToken, isKybTokenShape, kybTokenExpiry } from '@/lib/kyb/tokens';
 import { DEBT_REPORT_QUESTION_ID } from '@/lib/kyb/debtReport';
-import { isDebtReportFromOwner } from '@/lib/kyb/documents';
+import { findDebtReportAnalysis, isDebtReportFromOwner } from '@/lib/kyb/documents';
 import {
   evaluateSolicitud,
   SOLICITUD_REVIEW_KEYS as REVIEW_KEYS,
@@ -267,8 +267,14 @@ export async function autopilotSolicitud(
 
   const existing = options.existing ?? (await listSolicitudesForReview());
   const clarifications = clarificationsFromAnswers(solicitud);
+  // El informe de deudas que la ronda trajo se evalúa: sin cargarlo acá el
+  // análisis queda guardado y no influye en el puntaje ni en la decisión.
+  const reportId = clarifications[DEBT_REPORT_QUESTION_ID];
+  const debtReport = reportId
+    ? await findDebtReportAnalysis('solicitud', solicitud.id, reportId)
+    : null;
 
-  const evaluation = evaluateSolicitud(solicitud, { existing, clarifications });
+  const evaluation = evaluateSolicitud(solicitud, { existing, clarifications, debtReport });
   return applyEvaluation(solicitud, evaluation, { email: options.email !== false });
 }
 

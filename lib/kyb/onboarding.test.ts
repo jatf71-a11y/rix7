@@ -19,11 +19,60 @@ vi.mock('@/lib/email/sendEmail', () => ({
 
 vi.mock('./provisioning', () => ({ provisionCompanyPanel }));
 
+// El lector real de PDF no puede leer un PDF de cuatro bytes, y desde que el
+// informe se evalúa la subida lo rechaza. Lo que se prueba acá es el vínculo
+// entre la subida y la respuesta, no el lector (que tiene sus propios tests en
+// `debtReport.test.ts` y `debtReportFindings.test.ts`).
+const { saveDebtReport, isDebtReportFromOwner } = vi.hoisted(() => ({
+  saveDebtReport: vi.fn(),
+  isDebtReportFromOwner: vi.fn(),
+}));
+
+vi.mock('./documents', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./documents')>()),
+  saveDebtReport,
+  isDebtReportFromOwner,
+}));
+
+let savedReports = 0;
+saveDebtReport.mockImplementation(async () => {
+  savedReports += 1;
+  return {
+    ok: true as const,
+    document: {
+      id: `informe-${savedReports}`,
+      ownerKind: 'alta' as const,
+      ownerId: 'alta',
+      kind: 'juridica' as const,
+      fileName: 'informe.pdf',
+      sizeBytes: 1024,
+      status: 'analyzed' as const,
+      analysis: {
+        read: true,
+        issuedAt: '2026-11-01',
+        rut: '76.543.210-3',
+        debtor: 'CATEDRAL PROPIEDADES SPA',
+        totalDebtClp: 1_200_000,
+        creditors: 2,
+        currentClp: 1_200_000,
+        overdueClp: 0,
+        writtenOffClp: 0,
+        summary: 'Informe leído',
+        notes: [],
+      },
+      createdAt: new Date().toISOString(),
+    },
+  };
+});
+isDebtReportFromOwner.mockResolvedValue(true);
+
 import {
   activateKybPlan,
   answerKybQuestions,
+  chooseKybPlan,
   decideApplication,
   decideKybProposal,
+  kybPlanChoicesByToken,
   kybProposalByToken,
   kybStatusByToken,
   sendKybProposal,
@@ -137,7 +186,7 @@ async function uploadReport(token: string): Promise<string> {
 }
 
 describe('flujo KYB', () => {
-  it('acepta una empresa limpia y la deja calificada, sin token todavía', async () => {
+  it('acepta una empresa limpia y la deja calificada con el enlace para elegir plan', async () => {
     const result = await submitKybApplication(empresa, { deps });
 
     expect(result.ok).toBe(true);
@@ -145,15 +194,18 @@ describe('flujo KYB', () => {
     expect(result.score).toBe(100);
 
     const stored = await getApplication(result.applicationId as string);
-    // Calificar no habilita nada: el enlace llega con la propuesta comercial.
-    expect(stored.data?.tokenPurpose).toBeNull();
-    expect(stored.data?.tokenHash).toBeNull();
+    // Calificar no habilita nada: emite el enlace para elegir plan, y de esa
+    // elección sale la propuesta comercial.
+    expect(stored.data?.tokenPurpose).toBe('plan');
     expect(stored.data?.status).toBe('Calificado');
     expect(stored.data?.proposal).toEqual([]);
 
     const qualifiedEmail = sendEmail.mock.calls.at(-1)?.[0] as { subject: string; text: string };
     expect(qualifiedEmail.subject).toMatch(/calificada/i);
-    expect(qualifiedEmail.text).not.toMatch(/token=/);
+    // Los tres planes con precios y el enlace para elegir uno.
+    expect(qualifiedEmail.text).toContain('Plan Básico');
+    expect(qualifiedEmail.text).toContain('Plan Premium');
+    expect(qualifiedEmail.text).toMatch(/empresas\/plan\?token=/);
   });
 
   it('evalúa con las declaraciones del registro: no vuelve a pedir lo que ya contestó', async () => {
@@ -329,17 +381,55 @@ describe('flujo KYB', () => {
     expect(result.error).toMatch(/no es válido|expiró/);
   });
 
-  it('el correo de calificación lleva el perfil y las condiciones de Planes', async () => {
+  it('el correo de calificación lleva el perfil y los tres planes de Planes', async () => {
     await submitKybApplication({ ...empresa, registrationKind: 'corredora' }, { deps });
 
     const mail = sendEmail.mock.calls.at(-1)?.[0] as { subject: string; text: string };
     expect(mail.subject).toMatch(/calificada/);
     expect(mail.text).toContain('Perfil de socio: Corredora');
     expect(mail.text).toMatch(/quedó aceptada y calificada/);
-    expect(mail.text).toContain('49.990');
-    expect(mail.text).toContain('39.990');
-    expect(mail.text).toContain('Usuarios incluidos en el panel: 5');
-    expect(mail.text).toMatch(/«De acuerdo»/);
+    // Los tres planes con sus montos, y el enlace para elegir uno.
+    expect(mail.text).toContain('Plan Básico: $19.990 de alta y $14.990 al mes');
+    expect(mail.text).toContain('Plan Profesional: $49.990 de alta y $39.990 al mes');
+    expect(mail.text).toContain('Plan Premium: $99.990 de alta y $99.990 al mes');
+    expect(mail.text).toMatch(/empresas\/plan\?token=/);
+  });
+
+  it('la empresa elige plan desde su correo y eso arma la propuesta', async () => {
+    const submitted = await submitKybApplication(
+      { ...empresa, registrationKind: 'corredora' },
+      { deps }
+    );
+    const id = submitted.applicationId as string;
+
+    const planToken = tokenFromLastEmail();
+    const choices = await kybPlanChoicesByToken(planToken);
+    expect(choices.ok).toBe(true);
+    expect(choices.plans?.map((plan) => plan.planId)).toEqual([
+      'basico',
+      'profesional',
+      'premium',
+    ]);
+
+    const chosen = await chooseKybPlan({ token: planToken, plan: 'premium' });
+    expect(chosen.ok).toBe(true);
+    expect(chosen.proposal?.planId).toBe('premium');
+
+    const stored = await getApplication(id);
+    expect(stored.data?.status).toBe('Propuesta_Comercial');
+    // El token de plan ya no sirve: se reemplazó por el de la propuesta.
+    expect(stored.data?.tokenPurpose).toBe('proposal');
+    expect(stored.data?.proposal).toHaveLength(1);
+    // Los montos son los del plan elegido en Planes, no los del perfil.
+    expect(stored.data?.proposal[0]).toMatchObject({
+      planId: 'premium',
+      altaClp: 99990,
+      monthlyClp: 99990,
+    });
+
+    // El enlace de elección deja de abrir después de usarlo.
+    const reused = await kybPlanChoicesByToken(planToken);
+    expect(reused.ok).toBe(false);
   });
 
   it('la propuesta se acepta sin CCA y el correo del alta no lo menciona', async () => {
@@ -414,9 +504,9 @@ describe('flujo KYB', () => {
     const view = await kybProposalByToken(proposalToken);
     expect(view.ok).toBe(true);
     expect(view.proposal?.planId).toBe('profesional');
-    // Los montos salen de Planes: una empresa sin tipo de registro usa el
-    // perfil más chico, que es el que no cobra de más.
-    expect(view.proposal?.altaClp).toBe(19990);
+    // Los montos salen de Planes: son los del plan que se envía, no los del
+    // perfil del registro.
+    expect(view.proposal?.altaClp).toBe(49990);
 
     const accepted = await decideKybProposal({
       token: proposalToken,
@@ -434,8 +524,8 @@ describe('flujo KYB', () => {
     // Planes: el catálogo del código ya no tiene precios que los contradigan.
     expect(status.planSummary).toMatchObject({
       planId: 'profesional',
-      monthlyClp: 14990,
-      altaClp: 19990,
+      monthlyClp: 39990,
+      altaClp: 49990,
       source: 'propuesta',
     });
 
@@ -547,8 +637,9 @@ describe('decisiones del equipo', () => {
 
     const stored = await getApplication(id);
     expect(stored.data?.status).toBe('Calificado');
-    // El token de activación se emite cuando el candidato acepta la propuesta.
-    expect(stored.data?.tokenPurpose).toBeNull();
+    // Aprobar emite el enlace para elegir plan; el de activación llega cuando el
+    // candidato acepta la propuesta.
+    expect(stored.data?.tokenPurpose).toBe('plan');
 
     const subject = (sendEmail.mock.calls.at(-1)?.[0] as { subject: string }).subject;
     expect(subject).toMatch(/calificada/i);

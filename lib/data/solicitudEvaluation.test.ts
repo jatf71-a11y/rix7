@@ -148,13 +148,76 @@ describe('evaluateSolicitud', () => {
     );
   });
 
-  it('los pesos suman 100: el puntaje se puede leer como porcentaje', () => {
-    const result = evaluateSolicitud(solicitud());
+  it('sin informe los pesos suman 80 y el puntaje se normaliza: se lee como porcentaje', () => {
+    const result = evaluateSolicitud(
+      solicitud(
+        { email: 'camila@catedralpropiedades.cl' },
+        { website: 'https://catedralpropiedades.cl' }
+      )
+    );
     const total = result.checks.reduce((sum, check) => sum + check.weight, 0);
 
+    // Las dos verificaciones del informe de deudas solo existen cuando la ronda
+    // lo trajo; sin ellas, los pesos presentes suman 80 y el puntaje se
+    // normaliza, así que un registro limpio sigue dando 100.
+    expect(total).toBe(80);
+    expect(result.score).toBe(100);
+  });
+
+  it('con el informe cargado los pesos suman 100 y se evalúa el titular y la deuda', () => {
+    const base = solicitud(
+      { email: 'camila@catedralpropiedades.cl' },
+      { website: 'https://catedralpropiedades.cl' }
+    );
+    const result = evaluateSolicitud(base, {
+      debtReport: {
+        read: true,
+        issuedAt: '2026-11-01',
+        rut: base.payload.rut as string,
+        debtor: String(base.payload.legalName ?? 'CATEDRAL PROPIEDADES SPA'),
+        totalDebtClp: 5_000_000,
+        creditors: 2,
+        currentClp: 5_000_000,
+        overdueClp: 0,
+        writtenOffClp: 0,
+        summary: 'Informe leído',
+        notes: [],
+      },
+    });
+
+    const total = result.checks.reduce((sum, check) => sum + check.weight, 0);
     expect(total).toBe(100);
-    expect(result.score).toBeGreaterThanOrEqual(0);
-    expect(result.score).toBeLessThanOrEqual(100);
+    expect(result.checks.find((check) => check.id === 'deuda_titular')?.status).toBe('pass');
+    expect(result.checks.find((check) => check.id === 'deuda')?.status).toBe('pass');
+    expect(result.score).toBe(100);
+    expect(result.decision).toBe('Aceptada');
+  });
+
+  it('un informe de otro RUT deja el registro pendiente, aunque el resto pase', () => {
+    const result = evaluateSolicitud(
+      solicitud(
+        { email: 'camila@catedralpropiedades.cl' },
+        { website: 'https://catedralpropiedades.cl' }
+      ),
+      {
+      debtReport: {
+        read: true,
+        issuedAt: '2026-11-01',
+        rut: '12.345.678-5',
+        debtor: 'OTRA EMPRESA SPA',
+        totalDebtClp: 0,
+        creditors: 0,
+        currentClp: 0,
+        overdueClp: 0,
+        writtenOffClp: 0,
+          summary: 'Informe leído',
+          notes: [],
+        },
+      }
+    );
+
+    expect(result.checks.find((check) => check.id === 'deuda_titular')?.status).toBe('fail');
+    expect(result.decision).toBe('Pendiente_Informacion');
   });
 
   it('una advertencia que no bloquea no genera preguntas', () => {

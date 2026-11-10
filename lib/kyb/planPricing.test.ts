@@ -28,6 +28,11 @@ function config(overrides: Partial<PlanPricingConfig> = {}): PlanPricingConfig {
     version: PLAN_PRICING_VERSION,
     ccaPct: DEFAULT_CCA_PCT,
     captacion: DEFAULT_LEAD_BRACKETS,
+    plans: [
+      { plan: 'basico', altaInicialClp: 10000, mensualBaseClp: 5000, usuariosIncluidos: 1 },
+      { plan: 'profesional', altaInicialClp: 20000, mensualBaseClp: 15000, usuariosIncluidos: 5 },
+      { plan: 'premium', altaInicialClp: 30000, mensualBaseClp: 25000, usuariosIncluidos: 15 },
+    ],
     profiles: [
       {
         profile: 'agente',
@@ -53,10 +58,10 @@ function config(overrides: Partial<PlanPricingConfig> = {}): PlanPricingConfig {
 }
 
 describe('precios de partida', () => {
-  it('el %CCA de partida cobra 0,1 % de la cartera al año', () => {
-    // 8.333,33 deja el factor en 12.000: la cartera dividida por 12.000 al mes.
-    expect(DEFAULT_PLAN_PRICING.ccaPct).toBe(8_333.33);
-    expect(ccaFactor(DEFAULT_PLAN_PRICING.ccaPct)).toBeCloseTo(12_000, 2);
+  it('el %CCA de partida es 100: la fórmula de siempre, sin ajuste', () => {
+    // 100 deja el factor en 1.000.000: CCA × UF ÷ 1.000.000, el valor de la cartera.
+    expect(DEFAULT_PLAN_PRICING.ccaPct).toBe(100);
+    expect(ccaFactor(DEFAULT_PLAN_PRICING.ccaPct)).toBe(1_000_000);
   });
 
   it('son los tres perfiles con los montos definidos por el equipo', () => {
@@ -109,10 +114,10 @@ describe('CCA', () => {
 });
 
 describe('%CCA: el ajuste del factor', () => {
-  it('sin indicarlo aplica el %CCA de partida: 0,1 % anual', () => {
-    // 100.000 UF de cartera ($4.000 millones) → $333.333 al mes.
-    expect(Math.round(ccaAmountClp(100_000, 40_000, DEFAULT_CCA_PCT))).toBe(333_333);
-    expect(ccaFactor(DEFAULT_CCA_PCT)).toBeCloseTo(12_000, 2);
+  it('sin indicarlo aplica el %CCA de partida: 100, sin ajuste', () => {
+    // 100.000 UF de cartera ($4.000 millones) → $4.000 al mes.
+    expect(Math.round(ccaAmountClp(100_000, 40_000, DEFAULT_CCA_PCT))).toBe(4_000);
+    expect(ccaFactor(DEFAULT_CCA_PCT)).toBe(1_000_000);
   });
 
   it('la mitad del %CCA cobra la mitad y duplica el divisor', () => {
@@ -251,6 +256,17 @@ describe('normalizePlanPricing', () => {
     expect(result.ok).toBe(true);
     expect(result.config?.version).toBe(PLAN_PRICING_VERSION);
     expect(result.config?.ccaPct).toBe(DEFAULT_CCA_PCT);
+  });
+
+  it('una fila de la versión 4 con el %CCA viejo se lee como 100', () => {
+    const result = normalizePlanPricing({ version: 4, ccaPct: 8_333.33, profiles: [] });
+    expect(result.ok).toBe(true);
+    expect(result.config?.version).toBe(PLAN_PRICING_VERSION);
+    expect(result.config?.ccaPct).toBe(100);
+  });
+
+  it('un 8.333,33 elegido con la versión nueva se respeta', () => {
+    expect(normalizePlanPricing({ ccaPct: 8_333.33, profiles: [] }).config?.ccaPct).toBe(8_333.33);
   });
 
   it('guarda el %CCA que se le pase, con dos decimales como mucho', () => {

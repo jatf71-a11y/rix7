@@ -154,6 +154,8 @@ interface FormState {
   /** Respuesta explícita del registro de empresas; `''` = sin responder. */
   hasWebsite: '' | 'si' | 'no';
   hasCompanyEmail: '' | 'si' | 'no';
+  /** Correo corporativo, cuando el de contacto es personal. */
+  companyEmail: string;
   website: string;
   message: string;
   consent: boolean;
@@ -170,6 +172,7 @@ const INITIAL: FormState = {
   regions: [],
   hasWebsite: '',
   hasCompanyEmail: '',
+  companyEmail: '',
   website: '',
   message: '',
   consent: false,
@@ -594,6 +597,31 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
               </select>
             </div>
           </>
+
+          {/* El correo de contacto puede ser personal. Este campo deja el
+              corporativo en la ficha aunque quien postula atienda desde Gmail. */}
+          {asksCompany && (
+            <div className="sm:col-span-2">
+              <label htmlFor="companyEmail" className={labelClass}>
+                Correo de la empresa{' '}
+                <span className="font-normal text-slate-400">(opcional)</span>
+              </label>
+              <input
+                id="companyEmail"
+                type="email"
+                autoComplete="email"
+                value={form.companyEmail}
+                onChange={(event) => update('companyEmail', event.target.value)}
+                placeholder="contacto@tuempresa.cl"
+                className={inputClass}
+                maxLength={200}
+              />
+              <p className="mt-1 text-[11px] text-slate-400">
+                Si el correo de contacto es personal, acá va el corporativo con el dominio de la
+                empresa.
+              </p>
+            </div>
+          )}
 
           {form.hasWebsite !== 'no' && (
             <div>

@@ -95,7 +95,7 @@ export function evaluatingCopy(status: KybStatus): StageCopy {
     case 'Calificado':
       return {
         title: 'Tu empresa quedó calificada',
-        body: 'La verificación salió bien. Estamos armando la propuesta comercial —plan y precios— y te la enviamos al correo de la empresa.',
+        body: 'La verificación salió bien. Te enviamos al correo de la empresa el enlace para elegir tu plan —básico, profesional o premium— con los precios a la vista; con esa elección armamos la propuesta comercial.',
       };
     case 'Propuesta_Comercial':
       return {

@@ -136,7 +136,7 @@ export default function AdminCobranzaPage() {
 
   if (loading && socios.length === 0) {
     return (
-      <div className="max-w-6xl">
+      <div className="w-full">
         <p className="flex items-center gap-2 text-sm font-semibold text-slate-400">
           <Loader2 className="h-4 w-4 animate-spin" /> Cargando cobranza…
         </p>
@@ -145,7 +145,7 @@ export default function AdminCobranzaPage() {
   }
 
   return (
-    <div className="max-w-6xl">
+    <div className="w-full">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-black text-slate-900">Cobranza</h1>

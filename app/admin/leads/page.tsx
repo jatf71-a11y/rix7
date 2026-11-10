@@ -118,7 +118,7 @@ export default function AdminLeadsPage() {
   }, [leads]);
 
   return (
-    <div className="max-w-6xl">
+    <div className="w-full">
       <LeadsTabs />
 
       {/* No se pudo leer: se dice, en vez de mostrar una lista vacía */}

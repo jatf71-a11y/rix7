@@ -360,6 +360,21 @@ export default function KybEvaluationDetail({
             </a>
           </dd>
         </div>
+        {application.companyEmail && (
+          <div>
+            <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
+              Correo empresa
+            </dt>
+            <dd className="text-xs text-slate-700">
+              <a
+                href={`mailto:${application.companyEmail}`}
+                className="text-blue-700 hover:underline"
+              >
+                {application.companyEmail}
+              </a>
+            </dd>
+          </div>
+        )}
         <div>
           <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-400">RUT</dt>
           <dd className="text-xs text-slate-700">{application.rut}</dd>

@@ -29,24 +29,35 @@ import {
   buildKybRejectedEmail,
   buildKybReminderEmail,
   kybAccessUrl,
+  kybPlanUrl,
   kybProposalUrl,
 } from '@/lib/email/kybEmails';
 import { normalizeDecision } from './decisions';
 import { DEBT_REPORT_QUESTION_ID, debtReportKindFor, withDebtReport } from './debtReport';
-import { isDebtReportFromOwner } from './documents';
+import {
+  findDebtReportAnalysis,
+  findLatestDebtReportAnalysis,
+  isDebtReportFromOwner,
+} from './documents';
 import {
   altaPlanSummary,
   latestProposal,
   normalizeCommercial,
   normalizeProposal,
+  planOptions,
   profileForRegistration,
   proposalPlanName,
-  subscriptionTerms,
   type AltaPlanSummary,
   type KybCommercialTerms,
   type KybProposal,
+  type PlanOption,
 } from './proposal';
-import { captacionMonthlyFor, profileLabel, type LeadBracket } from './planPricing';
+import {
+  captacionMonthlyFor,
+  planPrice,
+  profileLabel,
+  type LeadBracket,
+} from './planPricing';
 import { SITE_URL } from '@/lib/site';
 import { findApplicantDuplicate, type ApplicantDuplicate } from '@/lib/data/applicantDuplicates';
 import { listSolicitudesForReview } from '@/lib/data/solicitudesStore';
@@ -106,17 +117,23 @@ async function notify(
 }
 
 /**
- * Correo del paso **Calificado**: perfil de socio y condiciones de la suscripción.
+ * Correo del paso **Calificado**: perfil de socio y los tres planes con precios.
  *
  * Se exporta porque también lo manda el puente registro→alta: un registro de
  * corredora que se aprueba crea su alta ya en `Calificado`, y esa persona tiene
- * que recibir sus condiciones igual que una empresa que llegó por el formulario.
+ * que recibir sus opciones igual que una empresa que llegó por el formulario.
  * Los montos se leen de **Planes** en cada envío, no del código.
+ *
+ * El correo lleva un token de propósito `plan`, distinto del de la propuesta: la
+ * elección de plan es del candidato y de ella sale la propuesta, así que no
+ * puede reusar el enlace de una etapa que todavía no existe.
  */
 export async function notifyQualifiedForApplication(
   application: KybApplication
 ): Promise<EmailOutcome> {
   const pricing = await readPlanPricing();
+  const profile = profileForRegistration(application.registrationKind);
+  const { token } = await issueToken(application.id, 'plan');
 
   return notify(
     application.email,
@@ -124,9 +141,150 @@ export async function notifyQualifiedForApplication(
       legalName: application.legalName,
       contactName: application.contactName,
       siteUrl: SITE_URL,
-      terms: subscriptionTerms(application.registrationKind, pricing.config),
+      profileLabel: profileLabel(profile),
+      plans: planOptions(application.registrationKind, pricing.config),
+      captacionMonthlyClp: captacionMonthlyFor(pricing.config, profile),
+      planUrl: kybPlanUrl(SITE_URL, token),
     })
   );
+}
+
+export interface PlanChoiceView {
+  ok: boolean;
+  legalName?: string;
+  profileLabel?: string;
+  plans?: PlanOption[];
+  captacionMonthlyClp?: number;
+  error?: string;
+}
+
+/**
+ * Lo que ve la empresa en la pantalla de elección de plan.
+ *
+ * Solo los tres planes, con los montos de **Planes**, y la captación de su
+ * perfil. Nada del historial ni de la evaluación: el token de `plan` sirve una
+ * sola cosa y la pantalla muestra lo mínimo para decidir.
+ */
+export async function kybPlanChoicesByToken(token: unknown): Promise<PlanChoiceView> {
+  if (!isKybTokenShape(token)) return { ok: false, error: 'El enlace no es válido.' };
+
+  const found = await findByTokenHash(hashKybToken(token));
+  if (!found.ok || !found.data) return { ok: false, error: 'El enlace no es válido o ya expiró.' };
+  const application = found.data;
+
+  if (!tokenAllows(application, 'plan')) {
+    return {
+      ok: false,
+      error: 'Este enlace ya no está disponible. Responde el último correo de Rix7 y te enviamos otro.',
+    };
+  }
+
+  const pricing = await readPlanPricing();
+  const profile = profileForRegistration(application.registrationKind);
+
+  return {
+    ok: true,
+    legalName: application.legalName,
+    profileLabel: profileLabel(profile),
+    plans: planOptions(application.registrationKind, pricing.config),
+    captacionMonthlyClp: captacionMonthlyFor(pricing.config, profile),
+  };
+}
+
+export interface PlanChoiceResult {
+  ok: boolean;
+  already?: boolean;
+  plan?: KybPlanId;
+  proposal?: KybProposal;
+  /** Token de la propuesta recién armada, para abrirla sin esperar el correo. */
+  proposalToken?: string;
+  status?: KybStatus;
+  email?: EmailOutcome;
+  error?: string;
+}
+
+/**
+ * La empresa elige plan desde el correo de calificación y se arma su propuesta.
+ *
+ * El precio sale de **Planes** para ese plan, no del perfil: lo que se le ofrece
+ * es exactamente lo que cuesta lo que eligió. La propuesta queda en el historial
+ * y mueve el estado a `Propuesta_Comercial`, igual que si la hubiera enviado el
+ * equipo; el token de `plan` se reemplaza por el de `proposal`, así el enlace
+ * que abrió deja de servir.
+ *
+ * Se manda también el correo de la propuesta: si la persona cierra la pantalla,
+ * tiene el enlace para aceptarla o rechazarla sin depender de esa sesión.
+ */
+export async function chooseKybPlan({
+  token,
+  plan,
+}: {
+  token: unknown;
+  plan: unknown;
+}): Promise<PlanChoiceResult> {
+  if (!isKybTokenShape(token)) return { ok: false, error: 'El enlace no es válido.' };
+  if (!isKybPlanId(plan)) return { ok: false, error: 'El plan indicado no existe.' };
+
+  const found = await findByTokenHash(hashKybToken(token));
+  if (!found.ok || !found.data) return { ok: false, error: 'El enlace no es válido o ya expiró.' };
+  const application = found.data;
+
+  if (!tokenAllows(application, 'plan')) {
+    return {
+      ok: false,
+      error: 'Este enlace ya no está disponible. Responde el último correo de Rix7 y te enviamos otro.',
+    };
+  }
+
+  const transition = assertTransition('Calificado', 'Propuesta_Comercial');
+  if (!transition.ok) return { ok: false, error: transition.error };
+
+  const pricing = await readPlanPricing();
+  const price = planPrice(pricing.config, plan);
+  const proposal: KybProposal = {
+    planId: plan,
+    altaClp: price?.altaInicialClp ?? 0,
+    monthlyClp: price?.mensualBaseClp ?? 0,
+    note: null,
+    sentAt: new Date().toISOString(),
+    decidedAt: null,
+    decision: null,
+    commercial: null,
+  };
+
+  const updated = await updateApplication(application.id, {
+    status: 'Propuesta_Comercial',
+    plan,
+    proposal: [...application.proposal, proposal],
+  });
+  if (!updated.ok || !updated.data) {
+    return { ok: false, error: updated.error ?? 'No se pudo guardar la propuesta.' };
+  }
+
+  const { token: proposalToken } = await issueToken(application.id, 'proposal');
+
+  const email = await notify(
+    application.email,
+    buildKybProposalEmail({
+      legalName: application.legalName,
+      contactName: application.contactName,
+      planName: proposalPlanName(plan),
+      altaClp: proposal.altaClp,
+      monthlyClp: proposal.monthlyClp,
+      note: null,
+      token: proposalToken,
+      siteUrl: SITE_URL,
+    })
+  );
+
+  return {
+    ok: true,
+    plan,
+    proposal,
+    proposalToken,
+    status: 'Propuesta_Comercial',
+    email,
+  };
 }
 
 export interface SubmitResult {
@@ -255,6 +413,17 @@ export async function evaluateById(
     if (!moved.ok) return { ok: false, error: moved.error };
   }
 
+  // El informe de deudas que la ronda trajo se carga para que el motor lo
+  // evalúe: sin esto el análisis queda guardado y no influye en el puntaje ni
+  // en la decisión. Se busca por id **y por dueño**, así que una respuesta
+  // armada a mano no puede hacer que se lea el informe de otra empresa.
+  const reportId = options.clarifications?.[DEBT_REPORT_QUESTION_ID];
+  const debtReport = reportId
+    ? await findDebtReportAnalysis('alta', application.id, reportId)
+    : // Re-evaluación desde el panel: no hay ronda, así que se usa el último
+      // informe del titular para no perder su puntaje al reintentar.
+      await findLatestDebtReportAnalysis('alta', application.id);
+
   let evaluation: KybEvaluation;
   try {
     evaluation = await evaluateKyb(
@@ -279,7 +448,7 @@ export async function evaluateById(
         hasCompanyEmail: application.hasCompanyEmail,
       },
       options.clarifications ?? {},
-      options.deps
+      { ...options.deps, debtReport }
     );
   } catch (error) {
     return {
@@ -705,7 +874,6 @@ export async function kybStatusByToken(token: unknown): Promise<{
     planSummary = altaPlanSummary({
       plan: isKybPlanId(application.plan) ? application.plan : null,
       proposal: latestProposal(application.proposal),
-      kind: application.registrationKind,
       config: pricing.config,
     });
   }
@@ -895,10 +1063,10 @@ export async function sendKybProposal({
     };
   }
 
-  const validation = normalizeProposal(
-    { plan, altaClp, monthlyClp, note },
-    application.registrationKind
-  );
+  // Los montos por defecto son los del plan en **Planes**: enviar una propuesta
+  // sin números tiene que ofrecer el precio vigente de ese plan, no uno de código.
+  const pricing = await readPlanPricing();
+  const validation = normalizeProposal({ plan, altaClp, monthlyClp, note }, pricing.config);
   if (!validation.ok) return { ok: false, code: 'invalid', error: validation.error };
   const data = validation.data;
 
@@ -1118,7 +1286,6 @@ export async function decideKybProposal({
   const planSummary = altaPlanSummary({
     plan: decided.planId,
     proposal: decided,
-    kind: application.registrationKind,
     config: pricing.config,
   });
 
@@ -1277,7 +1444,6 @@ export async function resendKybLink(
     const planSummary = altaPlanSummary({
       plan: application.plan,
       proposal: latestProposal(application.proposal),
-      kind: application.registrationKind,
       config: pricing.config,
     });
 

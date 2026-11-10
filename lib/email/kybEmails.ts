@@ -11,7 +11,7 @@
 
 import { escapeHtml } from './alertEmail';
 import { formatPlanPrice } from '@/lib/kyb/plans';
-import type { AltaPlanSummary, SubscriptionTerms } from '@/lib/kyb/proposal';
+import type { AltaPlanSummary, PlanOption } from '@/lib/kyb/proposal';
 import type { LeadBracket } from '@/lib/kyb/planPricing';
 import type { KybQuestion } from '@/lib/kyb/status';
 import { DEBT_REPORT_MAX_AGE_DAYS } from '@/lib/kyb/debtReport';
@@ -30,6 +30,11 @@ export function kybAccessUrl(siteUrl: string, token: string): string {
 /** Enlace de la propuesta comercial: se acepta o se rechaza ahí. */
 export function kybProposalUrl(siteUrl: string, token: string): string {
   return `${siteUrl.replace(/\/+$/, '')}/empresas/propuesta?token=${encodeURIComponent(token)}`;
+}
+
+/** Enlace para elegir plan: el del correo de calificación. */
+export function kybPlanUrl(siteUrl: string, token: string): string {
+  return `${siteUrl.replace(/\/+$/, '')}/empresas/plan?token=${encodeURIComponent(token)}`;
 }
 
 function shell({
@@ -383,12 +388,12 @@ export function buildKybEvaluatingEmail({
   siteUrl: string;
 }): BuiltKybEmail {
   return {
-    subject: `Estamos reevaluando la solicitud de ${legalName}`,
-    text: `Recibimos las respuestas de ${legalName}. La evaluación se está repitiendo automáticamente y te escribimos con el resultado.\n\nRix7 — Alta de empresas\n${siteUrl}`,
+    subject: `Estamos revisando la solicitud de ${legalName}`,
+    text: `Recibimos las respuestas de ${legalName}. La evaluación se está revisando automáticamente y te escribimos con el resultado.\n\nRix7 — Alta de empresas\n${siteUrl}`,
     html: shell({
       siteUrl,
       title: 'Recibimos tus respuestas',
-      intro: `La evaluación de <strong>${escapeHtml(legalName)}</strong> se está repitiendo con la información que enviaste. Te escribimos con el resultado.`,
+      intro: `La evaluación de <strong>${escapeHtml(legalName)}</strong> se está revisando con la información que enviaste. Te escribimos con el resultado.`,
       body: '',
     }),
   };
@@ -400,30 +405,46 @@ export function buildKybEvaluatingEmail({
  * Cubre los pasos 4 y 5 del flujo, que ocurren en la misma corrida: la solicitud
  * quedó aceptada **y** calificada. Lleva la calificación en función de lo que se
  * verificó, el perfil de socio que le corresponde (profesional independiente,
- * corredora o inmobiliaria) y las condiciones completas de la suscripción —alta,
- * mensualidad y usuarios— con los montos de **Planes**.
+ * corredora o inmobiliaria) y **los tres planes con sus precios** —los de
+ * **Planes**— para que la empresa elija con cuál quiere operar.
  *
- * Se pide un «De acuerdo» explícito porque es la primera vez que la persona ve la
- * plata: la propuesta con el enlace de aceptación llega a continuación, y sin ese
- * sí no se mueve nada.
+ * El enlace abre la pantalla de elección con un token de propósito `plan`. Al
+ * elegir, la propuesta comercial se arma con el precio de ese plan y se abre en
+ * la pantalla de aceptación: el correo ya no anuncia un plan fijo ni pide un
+ * «de acuerdo» a ciegas.
  */
 export function buildKybQualifiedEmail({
   legalName,
   contactName,
   siteUrl,
-  terms,
+  profileLabel,
+  plans,
+  captacionMonthlyClp,
+  planUrl,
 }: {
   legalName: string;
   contactName: string;
   siteUrl: string;
-  /** Perfil de socio y condiciones de la suscripción, con los montos de Planes. */
-  terms: SubscriptionTerms;
+  /** Perfil de socio del registro, para nombrarlo en el correo. */
+  profileLabel: string;
+  /** Los tres planes del catálogo con los montos de Planes. */
+  plans: readonly PlanOption[];
+  /** Suscripción Captación Activa del perfil, en pesos por mes. */
+  captacionMonthlyClp: number;
+  /** Enlace de un solo uso para elegir plan. */
+  planUrl: string;
 }): BuiltKybEmail {
   const first = contactName.trim().split(/\s+/)[0] || '';
   const greeting = first ? `Hola ${first},` : 'Hola,';
-  const alta = formatPlanPrice(terms.altaClp);
-  const monthly = formatPlanPrice(terms.monthlyClp);
-  const captacion = formatPlanPrice(terms.captacionMonthlyClp);
+  const captacion = formatPlanPrice(captacionMonthlyClp);
+  const recommended = plans.find((plan) => plan.recommended) ?? plans[0];
+
+  const planLines = plans.map(
+    (plan) =>
+      `- Plan ${plan.planName}: ${formatPlanPrice(plan.altaClp)} de alta y ${formatPlanPrice(
+        plan.monthlyClp
+      )} al mes · ${plan.usuariosIncluidos} usuario${plan.usuariosIncluidos === 1 ? '' : 's'}`
+  );
 
   const text = [
     greeting,
@@ -431,21 +452,23 @@ export function buildKybQualifiedEmail({
     `La solicitud de ${legalName} quedó aceptada y calificada: pasó la verificación de`,
     'identidad, registro comercial y reputación.',
     '',
-    `Perfil de socio: ${terms.profileLabel}`,
+    `Perfil de socio: ${profileLabel}`,
     '',
-    'Condiciones de tu suscripción:',
-    `- Plan ${terms.planName}: sin cupo de publicaciones (el CCA se factura sobre tu cartera).`,
-    `- Alta inicial: ${alta} (pago único).`,
-    `- Mensualidad: ${monthly} por mes.`,
-    `- Usuarios incluidos en el panel: ${terms.usuariosIncluidos}.`,
+    'Elige el plan con el que quieres operar:',
+    ...planLines,
     '',
-    `Puedes contratar la captación de leads por ${captacion} al mes.`,
+    'Todos los planes publican sin cupo: el CCA se factura sobre tu cartera.',
+    `Sugerido para tu perfil: ${recommended.planName}.`,
+    '',
+    'Con el plan que elijas armamos la propuesta comercial con esos montos, y la aceptas',
+    'desde el enlace. También puedes sumar la captación de leads, por',
+    `${captacion} al mes.`,
+    '',
     'El CCA —la suma de tus publicaciones en UF— no se firma ahora: se determina después',
     'del alta, con las propiedades que cargues, y se factura aparte de la mensualidad.',
     '',
-    'El paso siguiente es la propuesta comercial con el enlace para responder. Si estás de',
-    'acuerdo con estas condiciones, responde ese correo con «De acuerdo» y seguimos con el',
-    'alta.',
+    'Elige tu plan acá (el enlace vale 7 días):',
+    planUrl,
     '',
     'Rix7 — Alta de empresas',
     siteUrl,
@@ -457,33 +480,49 @@ export function buildKybQualifiedEmail({
             <td style="padding:9px 0;border-bottom:1px solid #e2e8f0;text-align:right;color:#0f172a;font-size:13px;font-weight:700;white-space:nowrap">${escapeHtml(value)}</td>
           </tr>`;
 
+  const planBlocks = plans
+    .map(
+      (plan) => `
+        <div style="border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin:0 0 10px">
+          <p style="margin:0;color:#0f172a;font-size:14px;font-weight:700">
+            ${escapeHtml(plan.planName)}${plan.recommended ? '<span style="color:#2563eb;font-size:11px;font-weight:700"> · sugerido para tu perfil</span>' : ''}
+          </p>
+          <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-top:6px">
+            ${row('Alta inicial (pago único)', formatPlanPrice(plan.altaClp))}
+            ${row('Mensualidad', `${formatPlanPrice(plan.monthlyClp)} /mes`)}
+            ${row('Usuarios incluidos', String(plan.usuariosIncluidos))}
+          </table>
+        </div>`
+    )
+    .join('');
+
   return {
-    subject: `Tu empresa quedó calificada: estas son tus condiciones (${legalName})`,
+    subject: `Tu empresa quedó calificada: elige tu plan (${legalName})`,
     text,
     html: shell({
       siteUrl,
       title: 'Tu empresa quedó calificada',
-      intro: `${escapeHtml(greeting)} <strong>${escapeHtml(legalName)}</strong> quedó aceptada y pasó la verificación de identidad y reputación. Este es el perfil y la suscripción que te corresponden.`,
+      intro: `${escapeHtml(greeting)} <strong>${escapeHtml(legalName)}</strong> quedó aceptada y pasó la verificación de identidad y reputación. Perfil de socio: <strong>${escapeHtml(profileLabel)}</strong>.`,
       body: `
-        <p style="margin:0 0 14px;color:#0f172a;font-size:13px;line-height:1.65">
-          Perfil de socio: <strong>${escapeHtml(terms.profileLabel)}</strong>
+        <p style="margin:0 0 12px;color:#0f172a;font-size:13px;line-height:1.65">
+          Elige el plan con el que quieres operar; con esa elección armamos tu propuesta comercial.
         </p>
-        <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-          ${row('Plan', terms.planName)}
-          ${row('Publicaciones', 'sin cupo · se facturan por CCA')}
-          ${row('Usuarios incluidos', String(terms.usuariosIncluidos))}
-          ${row('Alta inicial (pago único)', alta)}
-          ${row('Mensualidad', `${monthly} /mes`)}
-          ${row('Captación de leads (opcional)', `${captacion} /mes`)}
-        </table>
-        <p style="margin:14px 0 0;color:#475569;font-size:13px;line-height:1.65">
-          En la propuesta eliges si contratas la captación de leads. El <strong>CCA</strong> —la
-          suma de tus publicaciones en UF— se determina después del alta, con las propiedades que
-          cargues, y se factura aparte de la mensualidad.
+        ${planBlocks}
+        <p style="margin:12px 0 0;color:#475569;font-size:12px;line-height:1.65">
+          Todos los planes publican sin cupo: el <strong>CCA</strong> se factura sobre tu cartera y se
+          determina después del alta, con las propiedades que cargues.
         </p>
+        <p style="margin:12px 0 0;color:#475569;font-size:12px;line-height:1.65">
+          Puedes sumar la <strong>captación de leads</strong> por ${escapeHtml(captacion)} al mes.
+        </p>
+        <div style="margin:22px 0 0">
+          <a href="${escapeHtml(planUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:700;padding:12px 22px;border-radius:12px;text-decoration:none">
+            Elegir mi plan
+          </a>
+        </div>
         <p style="margin:14px 0 0;color:#64748b;font-size:12px;line-height:1.6">
-          Te enviamos la propuesta comercial con el enlace para responder en los próximos días.
-          Si estás de acuerdo con estas condiciones, responde con «De acuerdo» y seguimos con el alta.
+          El enlace vale 7 días. Al elegir el plan te mostramos la propuesta con esos montos para que
+          la aceptes o la rechaces.
         </p>`,
     }),
   };

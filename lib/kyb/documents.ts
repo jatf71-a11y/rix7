@@ -21,6 +21,7 @@
 import { findSolicitudByAnswerToken } from '@/lib/data/solicitudesStore';
 import { SOLICITUD_REVIEW_KEYS } from '@/lib/data/solicitudEvaluation';
 import { isServiceRoleConfigured } from '@/lib/supabase/admin';
+import { normalizeRut } from '@/lib/utils/rut';
 import {
   DEBT_REPORTS_BUCKET,
   analyzeDebtReportText,
@@ -84,7 +85,14 @@ async function serviceClient() {
 async function ownerFromToken(
   token: string
 ): Promise<
-  | { ok: true; ownerKind: DebtReportOwner; ownerId: string; kind: DebtReportKind }
+  | {
+      ok: true;
+      ownerKind: DebtReportOwner;
+      ownerId: string;
+      kind: DebtReportKind;
+      /** RUT del titular, para comprobar que el informe es suyo. */
+      rut: string | null;
+    }
   | { ok: false; status: number; error: string }
 > {
   if (!isKybTokenShape(token)) {
@@ -110,6 +118,7 @@ async function ownerFromToken(
       ownerKind: 'alta',
       ownerId: application.id,
       kind: debtReportKindFor(application.registrationKind),
+      rut: application.rut,
     };
   }
 
@@ -127,6 +136,7 @@ async function ownerFromToken(
       ownerKind: 'solicitud',
       ownerId: solicitud.id,
       kind: debtReportKindFor(solicitud.kind),
+      rut: typeof solicitud.payload.rut === 'string' ? solicitud.payload.rut : null,
     };
   }
 
@@ -174,6 +184,40 @@ export async function saveDebtReport({
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   const analysis = analyzeDebtReportText(await pdfText(bytes));
+
+  // El informe tiene que ser del titular: si el RUT del PDF no es el de la
+  // solicitud, el documento no acredita nada y no se guarda. Sin texto legible
+  // tampoco hay cómo comprobarlo, y aceptarlo sería justamente lo que permite
+  // subir cualquier archivo.
+  if (!analysis.read) {
+    return {
+      ok: false,
+      status: 400,
+      error:
+        'El PDF no tiene texto legible (parece una foto o un escaneo). Sube el original que descargaste del portal de la CMF.',
+    };
+  }
+
+  const expectedRut = owner.rut ? normalizeRut(owner.rut) : null;
+  const reportedRut = analysis.rut ? normalizeRut(analysis.rut) : null;
+
+  if (!reportedRut) {
+    return {
+      ok: false,
+      status: 400,
+      error:
+        'No pudimos leer el RUT del informe. Sube el PDF original de la CMF, completo y sin recortes.',
+    };
+  }
+
+  if (expectedRut && reportedRut !== expectedRut) {
+    return {
+      ok: false,
+      status: 400,
+      error: `El informe está a nombre del RUT ${reportedRut}, no del RUT ${expectedRut} de esta solicitud. Sube el informe del titular.`,
+    };
+  }
+
   const record: DebtReportRecord = {
     id: crypto.randomUUID(),
     ownerKind: owner.ownerKind,
@@ -306,6 +350,86 @@ export async function listDebtReports(
     return views;
   } catch {
     return [];
+  }
+}
+
+/**
+ * Análisis guardado de un informe, para incorporarlo a la evaluación.
+ *
+ * Se busca por id **y por dueño**: el id viaja como respuesta de la ronda, y
+ * sin el filtro del dueño una respuesta armada a mano podría hacer que la
+ * evaluación lea el informe de otra empresa.
+ */
+export async function findDebtReportAnalysis(
+  ownerKind: DebtReportOwner,
+  ownerId: string,
+  documentId: string
+): Promise<DebtReportAnalysis | null> {
+  if (!documentId.trim()) return null;
+
+  if (!isServiceRoleConfigured()) {
+    const found = memoryStore().documents.find(
+      (document) =>
+        document.id === documentId &&
+        document.ownerKind === ownerKind &&
+        document.ownerId === ownerId
+    );
+    return found?.analysis ?? null;
+  }
+
+  try {
+    const supabase = await serviceClient();
+    const { data, error } = await supabase
+      .from('kyb_documents')
+      .select('analysis')
+      .eq('id', documentId)
+      .eq('owner_kind', ownerKind)
+      .eq('owner_id', ownerId)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return (data as { analysis: DebtReportAnalysis | null }).analysis ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * El último informe analizado del dueño.
+ *
+ * Sirve para **reevaluar** desde el panel sin la ronda de respuestas: el id del
+ * documento solo viaja en la respuesta, y sin este respaldo la re-evaluación
+ * perdería el análisis y el puntaje de deuda. Si no hay ninguno, no hay nada
+ * que evaluar y el motor sigue con las verificaciones que tenga.
+ */
+export async function findLatestDebtReportAnalysis(
+  ownerKind: DebtReportOwner,
+  ownerId: string
+): Promise<DebtReportAnalysis | null> {
+  if (!isServiceRoleConfigured()) {
+    const found = memoryStore()
+      .documents.filter(
+        (document) => document.ownerKind === ownerKind && document.ownerId === ownerId
+      )
+      .at(-1);
+    return found?.analysis ?? null;
+  }
+
+  try {
+    const supabase = await serviceClient();
+    const { data, error } = await supabase
+      .from('kyb_documents')
+      .select('analysis')
+      .eq('owner_kind', ownerKind)
+      .eq('owner_id', ownerId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return (data as { analysis: DebtReportAnalysis | null }).analysis ?? null;
+  } catch {
+    return null;
   }
 }
 

@@ -151,10 +151,17 @@ export function canEvaluate(status: KybStatus): boolean {
   );
 }
 
-export type KybTokenPurpose = 'answers' | 'proposal' | 'activation';
+/**
+ * Para qué sirve el enlace que lleva un token.
+ *
+ * `plan` es el del correo de calificación: abre la pantalla donde la empresa
+ * elige básico, profesional o premium. Con esa elección se arma la propuesta
+ * (`proposal`), que es la que se acepta o se rechaza.
+ */
+export type KybTokenPurpose = 'answers' | 'plan' | 'proposal' | 'activation';
 
 export function isKybTokenPurpose(value: unknown): value is KybTokenPurpose {
-  return value === 'answers' || value === 'proposal' || value === 'activation';
+  return value === 'answers' || value === 'plan' || value === 'proposal' || value === 'activation';
 }
 
 /**

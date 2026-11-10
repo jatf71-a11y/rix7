@@ -8,9 +8,9 @@ import {
   latestProposal,
   normalizeCommercial,
   normalizeProposal,
+  planOptions,
   profileForRegistration,
   readProposals,
-  subscriptionTerms,
   type KybProposal,
 } from './proposal';
 
@@ -43,43 +43,37 @@ describe('perfil de la propuesta', () => {
     expect(profileForRegistration(null)).toBe('agente');
   });
 
-  it('los montos de partida son los que definió Planes', () => {
-    expect(defaultProposalAmounts('corredora')).toEqual({ altaClp: 49990, monthlyClp: 39990 });
-    expect(defaultProposalAmounts('inmobiliaria')).toEqual({
-      altaClp: 99990,
-      monthlyClp: 99990,
-    });
-    expect(defaultProposalAmounts(null)).toEqual({ altaClp: 19990, monthlyClp: 14990 });
+  it('los montos de partida son los del plan que eligió la empresa', () => {
+    expect(defaultProposalAmounts('basico')).toEqual({ altaClp: 19990, monthlyClp: 14990 });
+    expect(defaultProposalAmounts('profesional')).toEqual({ altaClp: 49990, monthlyClp: 39990 });
+    expect(defaultProposalAmounts('premium')).toEqual({ altaClp: 99990, monthlyClp: 99990 });
     // Y respetan una configuración guardada distinta.
     const custom = {
       ...DEFAULT_PLAN_PRICING,
-      profiles: DEFAULT_PLAN_PRICING.profiles.map((item) =>
-        item.profile === 'corredora' ? { ...item, altaInicialClp: 60000 } : item
+      plans: DEFAULT_PLAN_PRICING.plans.map((item) =>
+        item.plan === 'profesional' ? { ...item, altaInicialClp: 60000 } : item
       ),
     };
-    expect(defaultProposalAmounts('corredora', custom).altaClp).toBe(60000);
+    expect(defaultProposalAmounts('profesional', custom).altaClp).toBe(60000);
   });
 });
 
 describe('normalizeProposal', () => {
-  it('con solo el plan, completa los montos del perfil', () => {
-    const result = normalizeProposal({ plan: 'basico' }, 'corredora');
+  it('con solo el plan, completa los montos de ese plan', () => {
+    const result = normalizeProposal({ plan: 'basico' });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toEqual({
         planId: 'basico',
-        altaClp: 49990,
-        monthlyClp: 39990,
+        altaClp: 19990,
+        monthlyClp: 14990,
         note: null,
       });
     }
   });
 
   it('acepta montos negociados a mano', () => {
-    const result = normalizeProposal(
-      { plan: 'premium', altaClp: 0, monthlyClp: 45000 },
-      'inmobiliaria'
-    );
+    const result = normalizeProposal({ plan: 'premium', altaClp: 0, monthlyClp: 45000 });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data.altaClp).toBe(0);
@@ -88,20 +82,20 @@ describe('normalizeProposal', () => {
   });
 
   it('rechaza un plan que no existe', () => {
-    expect(normalizeProposal({ plan: 'platino' }, null).ok).toBe(false);
+    expect(normalizeProposal({ plan: 'platino' }).ok).toBe(false);
   });
 
   it('rechaza montos que no son enteros en pesos', () => {
-    expect(normalizeProposal({ plan: 'basico', altaClp: 1.5 }, null).ok).toBe(false);
-    expect(normalizeProposal({ plan: 'basico', monthlyClp: -1 }, null).ok).toBe(false);
-    expect(normalizeProposal({ plan: 'basico', monthlyClp: 'mucho' }, null).ok).toBe(false);
+    expect(normalizeProposal({ plan: 'basico', altaClp: 1.5 }).ok).toBe(false);
+    expect(normalizeProposal({ plan: 'basico', monthlyClp: -1 }).ok).toBe(false);
+    expect(normalizeProposal({ plan: 'basico', monthlyClp: 'mucho' }).ok).toBe(false);
   });
 
   it('corta la nota que no entra en el correo', () => {
-    const result = normalizeProposal(
-      { plan: 'basico', note: 'x'.repeat(KYB_PROPOSAL_NOTE_MAX + 1) },
-      null
-    );
+    const result = normalizeProposal({
+      plan: 'basico',
+      note: 'x'.repeat(KYB_PROPOSAL_NOTE_MAX + 1),
+    });
     expect(result.ok).toBe(false);
   });
 });
@@ -144,7 +138,6 @@ describe('el plan del paso de alta', () => {
     const summary = altaPlanSummary({
       plan: 'basico',
       proposal: proposal({ planId: 'premium', altaClp: 120000, monthlyClp: 80000 }),
-      kind: 'corredora',
     });
 
     expect(summary.planId).toBe('premium');
@@ -152,92 +145,81 @@ describe('el plan del paso de alta', () => {
     expect(summary.altaClp).toBe(120000);
     expect(summary.monthlyClp).toBe(80000);
     expect(summary.source).toBe('propuesta');
-    // Los usuarios sí son del plan y del perfil: no hay cupo de publicaciones.
-    expect(summary.usuariosIncluidos).toBe(5);
+    // Los usuarios son los del plan: no hay cupo de publicaciones.
+    expect(summary.usuariosIncluidos).toBe(20);
   });
 
-  it('sin propuesta, los montos son los de Planes para el perfil', () => {
-    const summary = altaPlanSummary({ plan: null, proposal: null, kind: 'inmobiliaria' });
+  it('sin propuesta, los montos son los del plan en Planes', () => {
+    const summary = altaPlanSummary({ plan: null, proposal: null });
 
-    const inmobiliaria = DEFAULT_PLAN_PRICING.profiles.find((p) => p.profile === 'inmobiliaria');
-    expect(summary.altaClp).toBe(inmobiliaria?.altaInicialClp);
-    expect(summary.monthlyClp).toBe(inmobiliaria?.mensualBaseClp);
-    expect(summary.usuariosIncluidos).toBe(inmobiliaria?.usuariosIncluidos);
+    const profesional = DEFAULT_PLAN_PRICING.plans.find((p) => p.plan === 'profesional');
+    expect(summary.planId).toBe('profesional');
+    expect(summary.altaClp).toBe(profesional?.altaInicialClp);
+    expect(summary.monthlyClp).toBe(profesional?.mensualBaseClp);
+    expect(summary.usuariosIncluidos).toBe(profesional?.usuariosIncluidos);
     expect(summary.source).toBe('planes');
   });
 
   it('respeta la configuración que el equipo guardó en Planes', () => {
     const config = {
       ...DEFAULT_PLAN_PRICING,
-      profiles: DEFAULT_PLAN_PRICING.profiles.map((item) =>
-        item.profile === 'agente'
+      plans: DEFAULT_PLAN_PRICING.plans.map((item) =>
+        item.plan === 'profesional'
           ? { ...item, altaInicialClp: 990, mensualBaseClp: 1, usuariosIncluidos: 2 }
           : item
       ),
     };
 
-    const summary = altaPlanSummary({
-      plan: null,
-      proposal: null,
-      kind: null,
-      config,
-    });
+    const summary = altaPlanSummary({ plan: null, proposal: null, config });
 
     expect(summary.altaClp).toBe(990);
     expect(summary.monthlyClp).toBe(1);
     expect(summary.usuariosIncluidos).toBe(2);
   });
 
-  it('un registro sin tipo cae en el perfil más chico, nunca en el más caro', () => {
-    const summary = altaPlanSummary({ plan: null, proposal: null, kind: null });
-    const profesional = DEFAULT_PLAN_PRICING.profiles.find((p) => p.profile === 'agente');
+  it('un plan explícito manda sobre el perfil del registro', () => {
+    const summary = altaPlanSummary({ plan: 'basico', proposal: null });
 
-    expect(summary.altaClp).toBe(profesional?.altaInicialClp);
-    expect(summary.monthlyClp).toBe(profesional?.mensualBaseClp);
+    expect(summary.planId).toBe('basico');
+    expect(summary.planName).toBe('Básico');
+    expect(summary.usuariosIncluidos).toBe(1);
   });
 });
 
-describe('condiciones del paso Calificado', () => {
-  it('cada perfil recibe su plan, sus precios y su captación', () => {
-    const corredora = subscriptionTerms('corredora');
-    expect(corredora.profileLabel).toBe('Corredora');
-    // Plan Profesional del catálogo y 5 usuarios en Planes. Sin cupo de
-    // publicaciones: eso se factura por CCA, no por plan.
-    expect(corredora.planName).toBe('Profesional');
-    expect(corredora.usuariosIncluidos).toBe(5);
-    expect(corredora.altaClp).toBe(49990);
-    expect(corredora.monthlyClp).toBe(39990);
-    expect(corredora.captacionMonthlyClp).toBe(19990);
+describe('planes del paso Calificado', () => {
+  it('ofrece los tres planes con los precios de Planes y marca el sugerido', () => {
+    const plans = planOptions('corredora');
 
-    const inmobiliaria = subscriptionTerms('inmobiliaria');
-    expect(inmobiliaria.profileLabel).toBe('Inmobiliaria');
-    expect(inmobiliaria.usuariosIncluidos).toBe(15);
-
-    const profesional = subscriptionTerms(null);
-    expect(profesional.profileLabel).toBe('Profesional');
+    expect(plans.map((plan) => plan.planId)).toEqual(['basico', 'profesional', 'premium']);
+    expect(plans.map((plan) => plan.planName)).toEqual(['Básico', 'Profesional', 'Premium']);
+    expect(plans[0].altaClp).toBe(19990);
+    expect(plans[0].monthlyClp).toBe(14990);
+    expect(plans[1].altaClp).toBe(49990);
+    expect(plans[1].monthlyClp).toBe(39990);
+    expect(plans[2].monthlyClp).toBe(99990);
+    // Sin cupo de publicaciones: eso se factura por CCA, no por plan.
+    expect(plans[0].features.join(' ')).toContain('sin cupo');
+    // La corredora queda sugerida en Profesional; sin tipo, en Básico.
+    expect(plans.find((plan) => plan.recommended)?.planId).toBe('profesional');
+    expect(planOptions(null).find((plan) => plan.recommended)?.planId).toBe('basico');
   });
 
   it('respeta los precios que el equipo cambió en Planes', () => {
     const config = {
       ...DEFAULT_PLAN_PRICING,
-      profiles: DEFAULT_PLAN_PRICING.profiles.map((item) =>
-        item.profile === 'corredora'
+      plans: DEFAULT_PLAN_PRICING.plans.map((item) =>
+        item.plan === 'profesional'
           ? { ...item, altaInicialClp: 1, mensualBaseClp: 2, usuariosIncluidos: 9 }
           : item
       ),
-      captacion: {
-        ...DEFAULT_PLAN_PRICING.captacion,
-        monthly: DEFAULT_PLAN_PRICING.captacion.monthly.map((item) =>
-          item.profile === 'corredora' ? { ...item, monthlyClp: 7777 } : item
-        ),
-      },
     };
 
-    const terms = subscriptionTerms('corredora', config);
-    expect(terms.altaClp).toBe(1);
-    expect(terms.monthlyClp).toBe(2);
-    expect(terms.usuariosIncluidos).toBe(9);
-    expect(terms.captacionMonthlyClp).toBe(7777);
+    const profesional = planOptions('corredora', config).find(
+      (plan) => plan.planId === 'profesional'
+    );
+    expect(profesional?.altaClp).toBe(1);
+    expect(profesional?.monthlyClp).toBe(2);
+    expect(profesional?.usuariosIncluidos).toBe(9);
   });
 });
 

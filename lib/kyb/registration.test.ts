@@ -59,6 +59,18 @@ describe('mapeo al alta', () => {
     expect('contactRole' in payload).toBe(false);
   });
 
+  it('manda el correo de la empresa cuando se informó, recortado', () => {
+    const payload = toKybPayload(
+      { ...FORM, companyEmail: '  Contacto@CatedralPropiedades.cl ' },
+      'corredora'
+    );
+    expect(payload.companyEmail).toBe('Contacto@CatedralPropiedades.cl');
+  });
+
+  it('sin correo de empresa no viaja un campo vacío', () => {
+    expect('companyEmail' in toKybPayload(FORM, 'corredora')).toBe(false);
+  });
+
   it('cobertura nacional no arrastra regiones', () => {
     const payload = toKybPayload({ ...FORM, coverage: 'nacional' }, 'corredora');
     expect(payload.coverage).toBe('nacional');

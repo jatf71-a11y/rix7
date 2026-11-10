@@ -170,7 +170,7 @@ la evaluación se repite al responder un pedido de información).
 | En evaluación | el mismo en el alta; `buildSolicitudEvaluatingEmail` en el registro | con qué datos: los que entregó la empresa y los que Rix7 consigue (SII, reputación, dominio) |
 | Pendiente de información | `buildKybPendingEmail` / `buildSolicitudPendingEmail` | las preguntas concretas y el enlace de 7 días; el recordatorio (`buildKybReminderEmail`, `reminder: true`) insiste sobre lo pendiente |
 | Aceptada | `buildSolicitudAcceptedEmail` (registro) y, en el alta, el de Calificado | que la verificación salió bien; en el registro el texto dice «recibido», porque «aceptado» es el nombre de la etapa y en la bandeja se lee como si el proceso hubiera terminado |
-| Calificado | `buildKybQualifiedEmail` | perfil de socio (profesional, corredora, inmobiliaria), alta, mensualidad, usuarios y captación, con los montos de **Planes**, y pide un «De acuerdo» |
+| Calificado | `buildKybQualifiedEmail` | perfil de socio y **los tres planes** (básico, profesional, premium) con alta, mensualidad y usuarios de **Planes**; lleva un enlace con token `plan` para elegir el plan, y de esa elección sale la propuesta |
 | Propuesta comercial | `buildKybProposalEmail` + la página del enlace | plan y montos; en la página, la aceptación y la captación; el CCA se avisa como determinación posterior |
 | Alta | `buildKybAcceptedEmail` y `buildKybActivatedEmail` | plan confirmado, captación aceptada y autorización del CCA; después, el panel habilitado |
 
@@ -189,8 +189,15 @@ el monto mensual de su CCA (ver *La autorización del CCA y su cuenta corriente*
 
 El correo de calificación lo manda también el puente registro→alta
 (`notifyQualifiedForApplication`), así un socio aprobado desde Solicitudes recibe
-su perfil y sus condiciones igual que una empresa del formulario, y en el orden
-del pipeline: primero la aprobación, después las condiciones.
+sus opciones igual que una empresa del formulario, y en el orden del pipeline:
+primero la aprobación, después los planes.
+
+La elección de plan ocurre en `/empresas/plan?token=…` (`chooseKybPlan`): el
+servidor toma el precio de ese plan en **Planes**, guarda la propuesta en el
+historial, mueve la solicitud a `Propuesta_Comercial` y emite el token de
+aceptación, que la pantalla abre de inmediato. El token de `plan` solo vale en
+`Calificado`; al elegir se reemplaza por el de `proposal`. El propósito `plan`
+lo habilita la migración `0039`.
 
 ### Cobranza: quién paga y quién está moroso
 
@@ -228,17 +235,16 @@ $99.990 / $99.990 / 15—, así que la pantalla abre con lo que definió el equi
 
 El **CCA** es la suma de todas las publicaciones de un socio, en UF, y se pasa a
 pesos con `$CCA = CCA × valor de la UF ÷ 1.000.000 × %CCA`; el resultado **es el
-monto en pesos**. Con el `%CCA` de partida (8.333,33) la fórmula se reduce a la
-cartera dividida por 12.000: **0,1 % de la cartera al año**, facturado mes a mes.
-Una cartera de $180 millones paga $15.000 al mes. No se guarda: depende del stock
-publicado de cada socio y de la UF del día, que se trae de `/api/indicators`. La
-cuenta vive en `ccaAmountClp`.
+monto en pesos**. Con el `%CCA` de partida (100) el factor queda en 1.000.000 y
+el monto es el valor de la cartera en pesos: una cartera de $180 millones paga
+$180 al mes. No se guarda: depende del stock publicado de cada socio y de la UF
+del día, que se trae de `/api/indicators`. La cuenta vive en `ccaAmountClp`.
 
 El `÷ 1.000.000` es el **factor**, y el **%CCA** lo ajusta desde el panel: es un
 valor guardado con los precios (entre 1 y 50.000, con dos decimales) y no una
-constante del código. El de partida es `8.333,33`, que deja el factor en 12.000;
-`%CCA = 100` deja el factor en 1.000.000 —la fórmula original—; `200` lo baja a
-500.000 y cobra el doble. `ccaFactor` devuelve el divisor equivalente, que el
+constante del código. El de partida es `100`, que deja el factor en 1.000.000
+—la fórmula original—; `50` lo sube a 2.000.000 y cobra la mitad; `200` lo baja
+a 500.000 y cobra el doble. `ccaFactor` devuelve el divisor equivalente, que el
 panel muestra al lado del campo para no tener que despejarlo a mano.
 
 #### El CCA se determina después del alta
@@ -347,14 +353,28 @@ lo mueve en la misma corrida.
 
 | Verificación | Peso empresa | Peso profesional | Qué mira |
 | --- | --- | --- | --- |
-| `rut` | 20 | 25 | Módulo 11 sobre el RUT informado |
-| `correo` | 20 | 10 | Correo corporativo vs. proveedor gratuito |
-| `sitio` | 25 | 10 | Sitio declarado y coincidencia de dominio con el correo |
-| `cobertura` | 15 | 20 | Nacional, o regional con al menos una región |
-| `contacto` | 10 | 20 | Teléfono con forma de número chileno |
-| `duplicado` | 10 | 15 | Mismo RUT o correo que otra solicitud |
+| `rut` | 16 | 20 | Módulo 11 sobre el RUT informado |
+| `correo` | 16 | 8 | Correo corporativo vs. proveedor gratuito |
+| `sitio` | 20 | 8 | Sitio declarado y coincidencia de dominio con el correo |
+| `cobertura` | 12 | 16 | Nacional, o regional con al menos una región |
+| `contacto` | 8 | 16 | Teléfono con forma de número chileno |
+| `duplicado` | 8 | 12 | Mismo RUT o correo que otra solicitud |
+| `deuda_titular` | 8 | 8 | RUT del informe de deudas de la CMF vs. el de la solicitud |
+| `deuda` | 12 | 12 | Deuda impaga, castigada y antigüedad del informe |
 
-Las dos columnas suman 100: cambia el peso, no el umbral. Para una empresa, el
+Las dos columnas suman 100 **con el informe de deudas cargado**. Sin él, las
+seis verificaciones anteriores suman 80 y el puntaje se normaliza sobre los pesos
+presentes: un registro limpio sin informe sigue dando 100.
+
+El **informe de deudas de la CMF** se evalúa cuando la ronda lo trajo. Que sea
+del titular es **bloqueante**: un PDF de otro RUT, ilegible o sin RUT no acredita
+nada y deja el registro pendiente. La situación de deuda solo advierte —tener
+deuda vigente es normal; lo que resta puntaje es la deuda **impaga** o
+**castigada**, y un informe emitido hace más de 30 días—. El documento se
+corrige subiendo otro, no con una explicación, así que esas verificaciones no se
+resuelven por texto.
+
+Cambia el peso, no el umbral. Para una empresa, el
 correo y el sitio son la mitad de lo que se acredita; para una persona, lo que
 define es su identidad, su alcance y su teléfono. Por eso un **profesional
 independiente** con Gmail y sin sitio se acepta con **90** puntos y sin preguntas
@@ -449,16 +469,23 @@ espera creciente: el estado ya avanzó y la persona necesita el enlace.
 
 | Verificación | Peso | Fuente |
 | --- | --- | --- |
-| `tax_rut` | 18 | Módulo 11 local |
-| `tax_registry` | 22 | Adaptador fiscal (SII o simulación) |
-| `reputation` | 18 | Adaptador de búsqueda (o simulación) |
-| `domain_web` | 14 | Dominio informado, alojamiento propio |
-| `email_corporate` | 9 | Proveedor del correo |
-| `email_domain_match` | 9 | Correo vs. sitio |
-| `company_size` | 10 | Dotación y ventas del adaptador fiscal |
+| `tax_rut` | 14 | Módulo 11 local |
+| `tax_registry` | 18 | Adaptador fiscal (SII o simulación) |
+| `reputation` | 14 | Adaptador de búsqueda (o simulación) |
+| `domain_web` | 11 | Dominio informado, alojamiento propio |
+| `email_corporate` | 7 | Proveedor del correo |
+| `email_domain_match` | 7 | Correo vs. sitio |
+| `company_size` | 9 | Dotación y ventas del adaptador fiscal |
+| `debt_report_rut` | 8 | RUT del informe de deudas vs. el de la solicitud |
+| `debt_report` | 12 | Deuda impaga, castigada y antigüedad del informe |
 
-Los pesos suman 100; al sumar la séptima verificación, los seis originales se
-reescalaron manteniendo su proporción.
+Los pesos suman 100 con el informe cargado; al sumarlo, los siete anteriores se
+reescalaron manteniendo su proporción. El informe solo existe cuando la ronda lo
+trajo, así que el puntaje se normaliza sobre los pesos presentes (sin informe,
+los siete anteriores suman 80 y un alta limpia igual puntúa 100).
+
+El RUT del informe es **bloqueante**: uno de otro titular, ilegible o sin RUT no
+acredita a nadie. La situación de deuda advierte y resta sin bloquear.
 
 Se acepta solo si ninguna verificación falla, no quedan preguntas y el puntaje
 llega a 75. Las respuestas de la empresa suben un escalón las verificaciones

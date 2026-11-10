@@ -66,10 +66,22 @@ import {
   type TaxVerification,
 } from './adapters/tax';
 import type { KybCheck, KybCheckFact, KybEvaluation, KybQuestion } from './status';
+import {
+  debtReportDebtFinding,
+  debtReportRutFinding,
+  type DebtReportAnalysis,
+} from './debtReport';
 
 export interface KybEngineDeps {
   tax: TaxAdapter;
   reputation: ReputationAdapter;
+  /**
+   * Informe de deudas de la CMF ya leído, cuando la ronda lo trajo.
+   *
+   * Es un dato, no una dependencia de red: el motor sigue siendo puro y quien
+   * llama (`evaluateById`) es el que carga el análisis desde la base.
+   */
+  debtReport?: DebtReportAnalysis | null;
 }
 
 /** Respuestas acumuladas: `check.id` → texto que contestó la empresa. */
@@ -107,18 +119,24 @@ const MAX_CITED_REVIEWS = 3;
 /**
  * Peso de cada verificación. Suma 100 para que el puntaje sea comparable.
  *
- * Al sumar la séptima verificación, los pesos de las seis originales se
- * reescalaron (×0,9): la proporción con la que el motor venía decidiendo no
- * cambia.
+ * Al sumar el informe de deudas —dos verificaciones más— los pesos anteriores
+ * se reescalaron a 80 y las nuevas se llevan 20: la proporción con la que el
+ * motor venía decidiendo cambia lo mínimo y el informe pasa a pesar como una
+ * verificación más, no como un adorno.
+ *
+ * El informe solo está disponible cuando la ronda de información lo trajo, así
+ * que el puntaje se normaliza sobre los pesos presentes (`scoreOf`).
  */
 const WEIGHTS = {
-  taxRut: 18,
-  taxRegistry: 22,
-  reputation: 18,
-  domainWeb: 14,
-  emailCorporate: 9,
-  emailDomainMatch: 9,
-  companySize: 10,
+  taxRut: 14,
+  taxRegistry: 18,
+  reputation: 14,
+  domainWeb: 11,
+  emailCorporate: 7,
+  emailDomainMatch: 7,
+  companySize: 9,
+  debtReportRut: 8,
+  debtReport: 12,
 } as const;
 
 export type KybSizeBandId = 'micro' | 'pequena' | 'mediana' | 'grande';
@@ -178,7 +196,9 @@ function isFreeHosting(domain: string | null): boolean {
 function applyClarification(check: KybCheck, clarification: string | undefined): KybCheck {
   if (!clarification) return check;
   if (check.status === 'pass') return check;
-  if (check.id.startsWith('tax_')) return check;
+  // Lo fiscal y el informe de deudas no se arreglan con texto: el RUT del
+  // titular y los montos son hechos del documento, no una explicación.
+  if (check.id.startsWith('tax_') || check.id.startsWith('debt_')) return check;
   if (clarification.trim().length < MIN_CLARIFICATION_LENGTH) return check;
 
   const upgraded: KybCheck['status'] = check.status === 'fail' ? 'warn' : 'pass';
@@ -218,7 +238,13 @@ function scoreOf(checks: KybCheck[]): number {
     return sum;
   }, 0);
 
-  return Math.max(0, Math.min(100, Math.round(total)));
+  // Normalizado sobre los pesos presentes: cuando la ronda no trajo el informe
+  // de deudas sus dos verificaciones no existen, y sin esto un alta limpia sin
+  // informe puntuaría 80 en vez de 100.
+  const weightTotal = checks.reduce((sum, check) => sum + check.weight, 0);
+  if (weightTotal <= 0) return 0;
+
+  return Math.max(0, Math.min(100, Math.round((total / weightTotal) * 100)));
 }
 
 export async function evaluateKyb(
@@ -739,6 +765,35 @@ export async function evaluateKyb(
     });
   }
 
+  // ── 8. Informe de deudas de la CMF ──────────────────────────────────────
+  // Solo cuando la ronda de información lo trajo: el alta que pasa limpia no lo
+  // pide, y sin documento no hay nada que verificar.
+  if (deps?.debtReport) {
+    const titular = debtReportRutFinding(deps.debtReport, application.rut);
+    checks.push({
+      id: 'debt_report_rut',
+      label: 'Informe de deudas: titular',
+      status: titular.status,
+      detail: titular.detail,
+      weight: WEIGHTS.debtReportRut,
+      evidence: { source: 'declared' },
+      facts: titular.facts,
+      question: titular.question,
+    });
+
+    const situacion = debtReportDebtFinding(deps.debtReport);
+    checks.push({
+      id: 'debt_report',
+      label: 'Informe de deudas: situación',
+      status: situacion.status,
+      detail: situacion.detail,
+      weight: WEIGHTS.debtReport,
+      evidence: { source: 'declared' },
+      facts: situacion.facts,
+      question: situacion.question,
+    });
+  }
+
   const resolved = checks.map((check) => applyClarification(check, clarifications[check.id]));
   const score = scoreOf(resolved);
   const questions: KybQuestion[] = resolved
@@ -753,7 +808,7 @@ export async function evaluateKyb(
 
   if (decision === 'Aceptada') {
     reasons.push(
-      `Las siete verificaciones pasaron o quedaron resueltas; puntaje ${score}/100.`
+      `Las verificaciones pasaron o quedaron resueltas; puntaje ${score}/100.`
     );
   } else {
     reasons.push(

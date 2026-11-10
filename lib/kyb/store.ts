@@ -105,6 +105,7 @@ export function rowToApplication(row: KybApplicationRow): KybApplication {
     hasWebsite: row.has_website === false ? false : row.has_website === true ? true : null,
     hasCompanyEmail:
       row.has_company_email === false ? false : row.has_company_email === true ? true : null,
+    companyEmail: row.company_email ?? null,
     score: typeof row.score === 'number' ? row.score : null,
     plan: isKybPlanId(row.plan) ? row.plan : null,
     panelEnabled: !!row.panel_enabled,
@@ -179,6 +180,7 @@ export async function createApplication(
       contactRole: input.contactRole,
       hasWebsite: input.hasWebsite,
       hasCompanyEmail: input.hasCompanyEmail,
+      companyEmail: input.companyEmail ?? null,
       score: null,
       plan: null,
       panelEnabled: false,
@@ -222,6 +224,7 @@ export async function createApplication(
         contact_role: input.contactRole,
         has_website: input.hasWebsite,
         has_company_email: input.hasCompanyEmail,
+        company_email: input.companyEmail ?? null,
         solicitud_origen: solicitudOrigen,
       })
       .select(KYB_COLUMNS)
@@ -775,6 +778,7 @@ export function tokenAllows(
   if (!application.tokenExpiresAt) return false;
   if (Date.parse(application.tokenExpiresAt) <= Date.now()) return false;
   if (purpose === 'answers') return application.status === 'Pendiente_Informacion';
+  if (purpose === 'plan') return application.status === 'Calificado';
   if (purpose === 'proposal') return application.status === 'Propuesta_Comercial';
   return application.status === 'Alta';
 }

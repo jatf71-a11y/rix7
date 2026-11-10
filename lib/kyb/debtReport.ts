@@ -20,6 +20,7 @@
  * `lib/kyb/documents.ts`, que sí habla con Supabase.
  */
 
+import { normalizeRut } from '@/lib/utils/rut';
 import type { KybQuestion } from './status';
 
 /** Id estable de la pregunta del informe: la respuesta guarda el id del PDF. */
@@ -309,6 +310,152 @@ export function isDebtReportOutdated(
 ): boolean {
   const days = debtReportAgeDays(issuedAt, now);
   return days !== null && days > DEBT_REPORT_MAX_AGE_DAYS;
+}
+
+/** Resultado de mirar el informe para la evaluación. */
+export type DebtReportVerdict = 'pass' | 'warn' | 'fail';
+
+export interface DebtReportFinding {
+  status: DebtReportVerdict;
+  detail: string;
+  /** Lo que se le pide al solicitante cuando el informe no sirve. */
+  question?: string;
+  facts: { label: string; value: string }[];
+}
+
+/**
+ * ¿El informe es del titular de la solicitud?
+ *
+ * Es la verificación que impide que se adjunte cualquier PDF: el informe de la
+ * CMF trae el RUT del deudor, y si no coincide con el de la solicitud el
+ * documento no acredita nada. Sin texto legible o sin RUT tampoco se puede
+ * comprobar, así que también falla: un informe que no se puede leer no sirve
+ * para decidir.
+ */
+export function debtReportRutFinding(
+  analysis: DebtReportAnalysis,
+  expectedRut: string
+): DebtReportFinding {
+  const expected = normalizeRut(expectedRut);
+  const reported = analysis.rut ? normalizeRut(analysis.rut) : null;
+  const facts = [
+    { label: 'RUT de la solicitud', value: expected ?? expectedRut ?? 'sin dato' },
+    { label: 'RUT del informe', value: reported ?? analysis.rut ?? 'no se pudo leer' },
+  ];
+
+  if (!analysis.read) {
+    return {
+      status: 'fail',
+      detail: 'El PDF del informe no tiene texto legible: no se puede comprobar de quién es.',
+      question:
+        'El informe que subiste no tiene texto legible (parece una foto o un escaneo). Sube el PDF original que descargaste del portal de la CMF, completo y sin recortes.',
+      facts: [...facts, { label: 'Texto del PDF', value: 'sin capa de texto' }],
+    };
+  }
+
+  if (!reported) {
+    return {
+      status: 'fail',
+      detail: 'El informe no trae un RUT legible, así que no se puede comprobar el titular.',
+      question:
+        'No pudimos leer el RUT del informe. Sube el PDF original de la CMF, completo y sin recortes.',
+      facts,
+    };
+  }
+
+  if (expected && reported === expected) {
+    return {
+      status: 'pass',
+      detail: `El informe corresponde al RUT ${expected} de la solicitud.`,
+      facts,
+    };
+  }
+
+  return {
+    status: 'fail',
+    detail: `El informe está a nombre del RUT ${reported} y la solicitud es del RUT ${
+      expected ?? expectedRut
+    }: no corresponde al solicitante.`,
+    question: `El informe de deudas que subiste está a nombre del RUT ${reported}, no del RUT ${
+      expected ?? expectedRut
+    } de esta solicitud. Sube el informe del titular.`,
+    facts,
+  };
+}
+
+/**
+ * Qué dice el informe sobre la deuda del solicitante.
+ *
+ * No se inventa un umbral de rechazo: tener deuda vigente es normal (un crédito
+ * hipotecario, una línea de capital de trabajo) y lo que importa es la deuda
+ * **impaga** o **castigada**, que es la que dice que no se está cumpliendo. Eso
+ * advierte y baja el puntaje; el equipo decide con el detalle a la vista. Un
+ * informe viejo también advierte: la CMF publica con desfase y un documento de
+ * hace dos meses no describe la deuda de hoy.
+ */
+export function debtReportDebtFinding(
+  analysis: DebtReportAnalysis,
+  now: Date = new Date()
+): DebtReportFinding {
+  const money = (value: number | null) => (value === null ? 'sin dato' : clp(value));
+  const facts = [
+    { label: 'Total informado', value: money(analysis.totalDebtClp) },
+    { label: 'Deuda vigente', value: money(analysis.currentClp) },
+    { label: 'Deuda impaga (mora)', value: money(analysis.overdueClp) },
+    { label: 'Deuda castigada', value: money(analysis.writtenOffClp) },
+    { label: 'Acreedores', value: analysis.creditors === null ? 'sin dato' : String(analysis.creditors) },
+    { label: 'Emitido', value: analysis.issuedAt ?? 'sin fecha legible' },
+  ];
+
+  if (!analysis.read) {
+    return {
+      status: 'warn',
+      detail: 'El informe no se pudo leer, así que no hay montos que evaluar.',
+      facts,
+    };
+  }
+
+  const problems: string[] = [];
+  if (analysis.writtenOffClp !== null && analysis.writtenOffClp > 0) {
+    problems.push(`deuda castigada por ${clp(analysis.writtenOffClp)}`);
+  }
+  if (analysis.overdueClp !== null && analysis.overdueClp > 0) {
+    problems.push(`deuda impaga por ${clp(analysis.overdueClp)}`);
+  }
+  const age = debtReportAgeDays(analysis.issuedAt, now);
+  if (isDebtReportOutdated(analysis.issuedAt, now) && age !== null) {
+    problems.push(`el informe se emitió hace ${age} días`);
+  }
+
+  if (problems.length > 0) {
+    return {
+      status: 'warn',
+      detail: `El informe muestra ${problems.join(', ')}.`,
+      question: `El informe de deudas muestra ${problems.join(
+        ', '
+      )}. ¿Puedes explicar la situación y en qué estado está la regularización?`,
+      facts,
+    };
+  }
+
+  if (analysis.totalDebtClp === null) {
+    return {
+      status: 'warn',
+      detail: 'El informe se leyó pero no se reconocieron los montos: revísalo a mano.',
+      question:
+        'No pudimos leer los montos del informe de deudas. Sube el PDF original de la CMF, completo y sin recortes.',
+      facts,
+    };
+  }
+
+  return {
+    status: 'pass',
+    detail:
+      `Sin deuda impaga ni castigada en el informe (total informado ${clp(
+        analysis.totalDebtClp
+      )}).`,
+    facts,
+  };
 }
 
 /**

@@ -110,7 +110,7 @@ export default function AdminPropietariosPage() {
   }, [solicitudes]);
 
   return (
-    <div className="max-w-6xl">
+    <div className="w-full">
       <LeadsTabs />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

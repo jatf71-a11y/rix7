@@ -122,14 +122,79 @@ describe('evaluateKyb', () => {
     expect(evaluation.questions.map((question) => question.id)).not.toContain('email_corporate');
   });
 
-  it('los pesos de las siete verificaciones suman 100', async () => {
+  it('los pesos sin informe de deudas suman 80 y se normalizan a 100', async () => {
     const evaluation = await evaluateKyb(empresa, {}, {
       tax: taxAdapter(),
       reputation: reputationAdapter(),
     });
 
     const total = evaluation.checks.reduce((sum, check) => sum + check.weight, 0);
-    expect(total).toBe(100);
+    // El informe solo existe cuando la ronda lo trajo: sin él los pesos
+    // presentes suman 80 y `scoreOf` normaliza, así que un alta limpia sin
+    // informe sigue puntuando 100.
+    expect(total).toBe(80);
+    expect(evaluation.score).toBe(100);
+  });
+
+  it('evalúa el informe de deudas cuando la ronda lo trae', async () => {
+    const evaluation = await evaluateKyb(
+      empresa,
+      {},
+      {
+        tax: taxAdapter(),
+        reputation: reputationAdapter(),
+        debtReport: {
+          read: true,
+          issuedAt: '2026-11-01',
+          rut: empresa.rut,
+          debtor: empresa.legalName,
+          totalDebtClp: 12_000_000,
+          creditors: 3,
+          currentClp: 12_000_000,
+          overdueClp: 0,
+          writtenOffClp: 0,
+          summary: 'Informe leído',
+          notes: [],
+        },
+      }
+    );
+
+    expect(evaluation.checks).toHaveLength(9);
+    expect(evaluation.checks.reduce((sum, check) => sum + check.weight, 0)).toBe(100);
+    expect(evaluation.checks.find((check) => check.id === 'debt_report_rut')?.status).toBe('pass');
+    expect(evaluation.checks.find((check) => check.id === 'debt_report')?.status).toBe('pass');
+    expect(evaluation.score).toBe(100);
+    expect(evaluation.decision).toBe('Aceptada');
+  });
+
+  it('un informe de otro RUT no acredita al solicitante', async () => {
+    const evaluation = await evaluateKyb(
+      empresa,
+      {},
+      {
+        tax: taxAdapter(),
+        reputation: reputationAdapter(),
+        debtReport: {
+          read: true,
+          issuedAt: '2026-11-01',
+          rut: '12.345.678-5',
+          debtor: 'OTRA EMPRESA SPA',
+          totalDebtClp: 0,
+          creditors: 0,
+          currentClp: 0,
+          overdueClp: 0,
+          writtenOffClp: 0,
+          summary: 'Informe leído',
+          notes: [],
+        },
+      }
+    );
+
+    const titular = evaluation.checks.find((check) => check.id === 'debt_report_rut');
+    expect(titular?.status).toBe('fail');
+    expect(titular?.detail).toMatch(/no corresponde al solicitante/i);
+    expect(evaluation.questions.map((question) => question.id)).toContain('debt_report_rut');
+    expect(evaluation.decision).toBe('Pendiente_Informacion');
   });
 
   it('el tramo de tamaño sale de la dotación y la facturación solo lo acompaña', async () => {

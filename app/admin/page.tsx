@@ -33,7 +33,7 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <div className="max-w-6xl">
+    <div className="w-full">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-black text-slate-900">Panel de Administración</h1>
