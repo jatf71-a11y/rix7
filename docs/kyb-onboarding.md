@@ -167,22 +167,28 @@ la evaluación se repite al responder un pedido de información).
 | Paso | Correo | Qué informa |
 | --- | --- | --- |
 | Recibida | `buildKybReceivedEmail` / `buildSolicitudReceivedEmail` | la solicitud entró; en el alta, además, que la evaluación ya está en curso |
-| En evaluación | el mismo en el alta; `buildSolicitudEvaluatingEmail` en el registro | con qué datos: los que entregó la empresa y los que Rix7 consigue (SII, reputación, dominio) |
+| Evaluando | el mismo en el alta; `buildSolicitudEvaluatingEmail` en el registro | con qué datos: los que entregó la empresa y los que Rix7 consigue (SII, reputación, dominio) |
 | Pendiente de información | `buildKybPendingEmail` / `buildSolicitudPendingEmail` | las preguntas concretas y el enlace de 7 días; el recordatorio (`buildKybReminderEmail`, `reminder: true`) insiste sobre lo pendiente |
 | Aceptada | `buildSolicitudAcceptedEmail` (registro) y, en el alta, el de Calificado | que la verificación salió bien; en el registro el texto dice «recibido», porque «aceptado» es el nombre de la etapa y en la bandeja se lee como si el proceso hubiera terminado |
 | Calificado | `buildKybQualifiedEmail` | perfil de socio y **los tres planes** (básico, profesional, premium) con alta, mensualidad y usuarios de **Planes**; lleva un enlace con token `plan` para elegir el plan, y de esa elección sale la propuesta |
 | Propuesta comercial | `buildKybProposalEmail` + la página del enlace | plan y montos; en la página, la aceptación y la captación; el CCA se avisa como determinación posterior |
 | Alta | `buildKybAcceptedEmail` y `buildKybActivatedEmail` | plan confirmado, captación aceptada y autorización del CCA; después, el panel habilitado |
 
-En «Pendiente de información» cada ronda incluye además el **informe de deudas
-de la CMF** como documento obligatorio ([`lib/kyb/debtReport.ts`](../lib/kyb/debtReport.ts)):
-personas naturales para un profesional independiente, personas jurídicas para
-corredora e inmobiliaria. El correo lleva el enlace y las dos pantallas de
-respuesta un campo de archivo; al subirlo se guarda en el bucket privado
-`kyb-documents` (migración 0035), se lee el texto —total adeudado, acreedores,
-impagas y castigadas— y la ficha del equipo muestra el resultado
-(`components/admin/kyb/DebtReportPanel.tsx`). Un PDF sin texto queda como
-`unreadable`: el archivo se guarda y se avisa, en vez de darlo por bueno.
+El **informe de deudas de la CMF** es obligatorio **desde la primera ronda**
+([`lib/kyb/debtReport.ts`](../lib/kyb/debtReport.ts)): toda solicitud nueva queda
+en `Pendiente_Informacion` pidiéndolo, aunque el resto de las verificaciones haya
+pasado, y la evaluación se cierra cuando se sube. Qué informe corresponde no es
+una preferencia: personas naturales para un profesional independiente, personas
+jurídicas para corredora e inmobiliaria. El correo lleva el enlace y las dos
+pantallas de respuesta un campo de archivo; al subirlo se guarda en el bucket
+privado `kyb-documents` (migración 0035), se lee el texto —total adeudado,
+acreedores, impagas y castigadas— y la ficha del equipo muestra el resultado
+(`components/admin/kyb/DebtReportPanel.tsx`). Su resumen —total, impaga, castigada
+y fecha de emisión— aparece junto al puntaje en ambas fichas
+(`components/admin/kyb/DebtSummary.tsx`), para no tener que bajar hasta el
+detalle antes de decidir. El PDF tiene que ser legible y del
+titular: si no trae texto, no trae RUT o el RUT no es el de la solicitud, la
+subida responde 400 y el archivo no se guarda.
 
 Aparte del pipeline, **`buildCcaChangeEmail`** avisa al socio cada vez que cambia
 el monto mensual de su CCA (ver *La autorización del CCA y su cuenta corriente*).
@@ -362,13 +368,17 @@ lo mueve en la misma corrida.
 | `deuda_titular` | 8 | 8 | RUT del informe de deudas de la CMF vs. el de la solicitud |
 | `deuda` | 12 | 12 | Deuda impaga, castigada y antigüedad del informe |
 
-Las dos columnas suman 100 **con el informe de deudas cargado**. Sin él, las
-seis verificaciones anteriores suman 80 y el puntaje se normaliza sobre los pesos
-presentes: un registro limpio sin informe sigue dando 100.
+Las dos columnas suman 100 **con el informe de deudas cargado**, y desde la
+primera ronda el informe es obligatorio: la evaluación no se cierra sin él. La
+normalización sobre los pesos presentes queda para las fichas anteriores, que se
+evaluaron cuando el documento solo se pedía al quedar pendientes.
 
-El **informe de deudas de la CMF** se evalúa cuando la ronda lo trajo. Que sea
-del titular es **bloqueante**: un PDF de otro RUT, ilegible o sin RUT no acredita
-nada y deja el registro pendiente. La situación de deuda solo advierte —tener
+El **informe de deudas de la CMF** es obligatorio desde la primera ronda: la
+solicitud queda en `Pendiente_Informacion` pidiéndolo y la evaluación se cierra
+cuando se sube. Que sea del titular es **bloqueante** en las tres puertas: la
+subida rechaza (400) un PDF de otro RUT, ilegible o sin RUT; la verificación sale
+en rojo si aun así llegara; y la respuesta no puede ser texto, tiene que apuntar
+al PDF subido con esa solicitud. La situación de deuda solo advierte —tener
 deuda vigente es normal; lo que resta puntaje es la deuda **impaga** o
 **castigada**, y un informe emitido hace más de 30 días—. El documento se
 corrige subiendo otro, no con una explicación, así que esas verificaciones no se
@@ -480,9 +490,10 @@ espera creciente: el estado ya avanzó y la persona necesita el enlace.
 | `debt_report` | 12 | Deuda impaga, castigada y antigüedad del informe |
 
 Los pesos suman 100 con el informe cargado; al sumarlo, los siete anteriores se
-reescalaron manteniendo su proporción. El informe solo existe cuando la ronda lo
-trajo, así que el puntaje se normaliza sobre los pesos presentes (sin informe,
-los siete anteriores suman 80 y un alta limpia igual puntúa 100).
+reescalaron manteniendo su proporción. El informe es obligatorio desde la primera
+ronda, así que toda evaluación nueva cierra con él; el puntaje se normaliza sobre
+los pesos presentes para las fichas anteriores, que se evaluaron sin documento
+(los siete anteriores suman 80 y un alta limpia igual puntuaba 100).
 
 El RUT del informe es **bloqueante**: uno de otro titular, ilegible o sin RUT no
 acredita a nadie. La situación de deuda advierte y resta sin bloquear.

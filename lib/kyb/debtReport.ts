@@ -172,7 +172,20 @@ export interface DebtReportAnalysis {
 
 function parseClp(raw: string | undefined): number | null {
   if (!raw) return null;
-  const digits = raw.replace(/[^\d]/g, '');
+
+  // Un monto se escribe con dígitos y separadores de miles. Si trae cualquier
+  // otro carácter —típico de un PDF con la codificación rota, como
+  // «$6.\u00156.000»— no es un monto: recortarlo a los dígitos que queden daría
+  // «6», un número inventado que en una evaluación de riesgo es peor que «sin
+  // dato».
+  const compact = raw.replace(/\s+/g, '');
+  const shaped =
+    /^\$?\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?$/.test(compact) ||
+    /^\$?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?$/.test(compact) ||
+    /^\$?\d+$/.test(compact);
+  if (!shaped) return null;
+
+  const digits = compact.replace(/[^\d]/g, '');
   if (!digits) return null;
   const value = Number(digits);
   return Number.isSafeInteger(value) ? value : null;
@@ -180,7 +193,9 @@ function parseClp(raw: string | undefined): number | null {
 
 /** Primer monto de la línea: prioriza el que trae `$`. */
 function firstAmount(line: string): number | null {
-  const currency = line.match(/\$\s*([\d]{1,3}(?:[.,]\d{3})*|\d+)/);
+  // Se toma el token completo que sigue al `$`, no solo los dígitos: si el PDF
+  // entrega «$6.\u00156.000», quedarse con «6» sería inventar una cifra.
+  const currency = line.match(/\$[ \t]*([^ \t]{1,24})/);
   if (currency) return parseClp(currency[1]);
 
   const grouped = line.match(/([\d]{1,3}(?:\.[\d]{3})+)/);
@@ -438,6 +453,20 @@ export function debtReportDebtFinding(
     };
   }
 
+  // Un total leído sin desglose de mora no alcanza para afirmar que no hay deuda
+  // impaga: el informe se leyó a medias y lo que falta es justo lo que importa.
+  // Antes esto devolvía `pass` con cualquier total, así que un PDF cuyo único
+  // número legible era el total se leía como «sin deuda impaga».
+  if (analysis.totalDebtClp !== null && analysis.totalDebtClp > 0 && analysis.overdueClp === null) {
+    return {
+      status: 'warn',
+      detail: 'Se leyó el total adeudado pero no el desglose de mora: revísalo a mano.',
+      question:
+        'No pudimos leer el desglose de mora del informe de deudas. Sube el PDF original de la CMF, completo y sin recortes.',
+      facts,
+    };
+  }
+
   if (analysis.totalDebtClp === null) {
     return {
       status: 'warn',
@@ -687,10 +716,21 @@ export function analyzeDebtReportText(text: string): DebtReportAnalysis {
 
   // «…consignadas a nombre de: NOMBRE…, Rut 1-9»: el nombre termina en la coma.
   // En el modelo actual no hay rótulo: el nombre va en mayúsculas antes del RUT.
+  // En el modelo actual el nombre va en mayúsculas en su propia línea, justo
+  // antes del RUT. Se admiten solo espacios dentro del nombre: con `\s` el
+  // patrón cruzaba el salto de línea y se llevaba la última palabra de la línea
+  // anterior («… HXGDV\nMARTÍN VICENTE CABEZAS PÉREZ»).
   const debtorLine =
     clean.match(
       /(?:nombre|raz[oó]n social|deudor)\s*(?:o\s*raz[oó]n social)?\s*(?:de\s*)?[:\-]\s*([^,\n]{2,90})/i
-    ) ?? clean.match(/([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s]{5,}?)\s+Rut\s*:?\s*\d/i);
+    ) ??
+    // El nombre ocupa su propia línea, inmediatamente antes del RUT. Se ancla al
+    // inicio de línea para no arrastrar la línea anterior —en los PDF con la
+    // codificación rota esa línea puede ser basura— y se admite el salto de
+    // línea entre el nombre y el RUT, que es como lo extrae el lector real.
+    clean.match(
+      /(?:^|\n)[ \t]*([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ .,&\-]{5,}?)[ \t]*\n[ \t]*Rut[ \t]*:?[ \t]*\d/i
+    );
   const debtor = debtorLine ? debtorLine[1].trim().replace(/\s{2,}/g, ' ') : null;
 
   // Primero el informe actual (tablas de cinco columnas), después el anterior

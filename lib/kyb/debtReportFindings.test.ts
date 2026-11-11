@@ -97,6 +97,17 @@ describe('debtReportDebtFinding', () => {
     expect(finding.detail).toMatch(/emitió hace/i);
   });
 
+  it('no da por buena una deuda cuyo desglose de mora no se pudo leer', () => {
+    const finding = debtReportDebtFinding(
+      analysis({ totalDebtClp: 12_000_000, currentClp: null, overdueClp: null }),
+      NOW
+    );
+
+    expect(finding.status).toBe('warn');
+    expect(finding.detail).toMatch(/desglose de mora/i);
+    expect(finding.question).toMatch(/desglose de mora/i);
+  });
+
   it('advierte si se leyó pero no se reconocieron montos', () => {
     const finding = debtReportDebtFinding(
       analysis({ totalDebtClp: null, currentClp: null, creditors: null }),

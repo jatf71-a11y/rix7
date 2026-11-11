@@ -66,7 +66,7 @@ export interface AutopilotResult {
   evaluation?: SolicitudEvaluation;
   questions?: SolicitudQuestion[];
   email?: AutopilotEmailOutcome;
-  /** Aviso del paso **En evaluación**, que sale antes del resultado. */
+  /** Aviso del paso **Evaluando**, que sale antes del resultado. */
   evaluatingEmail?: AutopilotEmailOutcome;
   /** Alta creada al aprobar: desde acá el registro sigue el tramo comercial. */
   alta?: { id: string; created: boolean };

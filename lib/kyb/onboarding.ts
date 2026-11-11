@@ -418,11 +418,14 @@ export async function evaluateById(
   // en la decisión. Se busca por id **y por dueño**, así que una respuesta
   // armada a mano no puede hacer que se lea el informe de otra empresa.
   const reportId = options.clarifications?.[DEBT_REPORT_QUESTION_ID];
-  const debtReport = reportId
+  const storedReport = reportId
     ? await findDebtReportAnalysis('alta', application.id, reportId)
     : // Re-evaluación desde el panel: no hay ronda, así que se usa el último
       // informe del titular para no perder su puntaje al reintentar.
       await findLatestDebtReportAnalysis('alta', application.id);
+  // `deps.debtReport` es la costura de las pruebas: el motor recibe el análisis
+  // ya leído. En producción el informe siempre sale de la base.
+  const debtReport = options.deps?.debtReport ?? storedReport;
 
   let evaluation: KybEvaluation;
   try {
@@ -463,9 +466,21 @@ export async function evaluateById(
   // pendiente se le pide el documento del perfil además de las aclaraciones. Se
   // agrega acá —y no en el motor— para que la evaluación guardada y la ronda
   // sean exactamente lo que ve la empresa.
-  if (evaluation.decision === 'Pendiente_Informacion') {
+  //
+  // El informe es obligatorio desde la primera ronda: sin ninguno cargado la
+  // evaluación no se cierra, aunque el resto haya pasado. Que falte no es un
+  // fallo de la empresa —todavía no se lo pidieron—, así que queda pendiente con
+  // el documento como única pregunta; el puntaje se confirma cuando lo sube.
+  const needsReport = !debtReport;
+
+  if (needsReport) {
     evaluation = {
       ...evaluation,
+      decision: 'Pendiente_Informacion',
+      reasons: [
+        ...evaluation.reasons.filter((reason) => !/cumple el mínimo/.test(reason)),
+        'Falta el informe de deudas de la CMF: es obligatorio para cerrar la evaluación.',
+      ],
       questions: withDebtReport(
         evaluation.questions,
         debtReportKindFor(application.registrationKind)

@@ -112,7 +112,26 @@ const reputationClean: ReputationAdapter = {
   },
 };
 
-const deps = { tax: taxOk, reputation: reputationClean };
+const deps = {
+  tax: taxOk,
+  reputation: reputationClean,
+  // El informe de deudas de la CMF es obligatorio desde la primera ronda. Acá se
+  // entrega ya leído para que las pruebas recorran el resto del flujo; la subida
+  // y la lectura del PDF tienen sus propios tests.
+  debtReport: {
+    read: true,
+    issuedAt: '2026-11-01',
+    rut: '76.543.210-3',
+    debtor: 'CATEDRAL PROPIEDADES SPA',
+    totalDebtClp: 0,
+    creditors: 0,
+    currentClp: 0,
+    overdueClp: 0,
+    writtenOffClp: 0,
+    summary: 'Informe leído',
+    notes: [],
+  },
+};
 
 const empresa = {
   legalName: 'Catedral Propiedades SpA',
@@ -257,20 +276,18 @@ describe('flujo KYB', () => {
     const submitted = await submitKybApplication(informal, { deps });
 
     expect(submitted.status).toBe('Pendiente_Informacion');
-    // Tres aclaraciones del motor y el informe de deudas de la CMF.
-    expect(submitted.questions?.length).toBe(4);
+    // Las tres aclaraciones del motor: el informe de la CMF ya está cargado, así
+    // que la ronda no lo vuelve a pedir.
+    expect(submitted.questions?.length).toBe(3);
 
     const token = tokenFromLastEmail();
     const stored = await getApplication(submitted.applicationId as string);
     expect(stored.data?.tokenPurpose).toBe('answers');
 
-    const reportId = await uploadReport(token);
     const answers = (submitted.questions ?? []).map((question) => ({
       id: question.id,
       answer:
-        question.id === DEBT_REPORT_ID
-          ? reportId
-          : 'El dominio corporativo es torrespropiedades.cl y el correo oficial es contacto@torrespropiedades.cl.',
+        'El dominio corporativo es torrespropiedades.cl y el correo oficial es contacto@torrespropiedades.cl.',
     }));
 
     const answered = await answerKybQuestions({ token, answers, deps });

@@ -38,6 +38,30 @@ vi.mock('./solicitudesStore', () => ({
 
 vi.mock('@/lib/email/sendEmail', () => ({ sendEmail }));
 
+// El informe de deudas es obligatorio desde la primera ronda: sin un análisis
+// cargado la evaluación no se cierra. Acá se entrega uno limpio —la subida y la
+// lectura del PDF tienen sus propios tests— para poder probar la decisión.
+const { cleanReport } = vi.hoisted(() => ({
+  cleanReport: {
+    read: true,
+    issuedAt: '2026-11-01',
+    rut: '76123456-0',
+    debtor: 'CATEDRAL PROPIEDADES SPA',
+    totalDebtClp: 0,
+    creditors: 0,
+    currentClp: 0,
+    overdueClp: 0,
+    writtenOffClp: 0,
+    summary: 'Informe leído',
+    notes: [],
+  },
+}));
+
+vi.mock('@/lib/kyb/documents', () => ({
+  findDebtReportAnalysis: async () => cleanReport,
+  isDebtReportFromOwner: async () => true,
+}));
+
 import {
   autopilotSolicitud,
   normalizeAnswers,
@@ -114,7 +138,13 @@ beforeEach(() => {
 
 describe('autopilotSolicitud', () => {
   it('acepta sola y avisa al solicitante, sin emitir token de respuestas', async () => {
-    const result = await autopilotSolicitud(COMPLETA);
+    const result = await autopilotSolicitud({
+      ...COMPLETA,
+      payload: {
+        ...COMPLETA.payload,
+        [REVIEW_KEYS.answers]: [{ id: 'debt_report', answer: 'informe-1' }],
+      },
+    });
 
     expect(result.ok).toBe(true);
     expect(result.status).toBe('Aceptada');
@@ -153,7 +183,7 @@ describe('autopilotSolicitud', () => {
     expect(patch.answerTokenHash).toMatch(/^[a-f0-9]{64}$/);
     expect(typeof patch.answerTokenExpiresAt).toBe('string');
 
-    // Primero el paso En evaluación, después el pedido de información.
+    // Primero el paso Evaluando, después el pedido de información.
     const [evaluating, mail] = sendEmail.mock.calls.map(([sent]) => sent);
     expect(evaluating.subject).toMatch(/Estamos evaluando/);
     expect(mail.text).toContain('/socios/responder/');
@@ -187,6 +217,7 @@ describe('submitSolicitudAnswers', () => {
     questions: [
       { id: 'sitio', question: '¿Cuál es el sitio de la empresa?' },
       { id: 'correo', question: '¿Cuál es el correo corporativo?' },
+      { id: 'debt_report', question: 'Adjunta el informe de deudas de la CMF.' },
     ],
     reasons: [],
     createdAt: '2026-10-29T10:00:00.000Z',
@@ -206,6 +237,7 @@ describe('submitSolicitudAnswers', () => {
     const result = await submitSolicitudAnswers(TOKEN, [
       { id: 'sitio', answer: 'https://catedralpropiedades.cl' },
       { id: 'correo', answer: 'camila@catedralpropiedades.cl' },
+      { id: 'debt_report', answer: 'informe-1' },
     ]);
 
     expect(result.ok).toBe(true);

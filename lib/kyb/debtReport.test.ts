@@ -296,3 +296,38 @@ Totales`);
     expect(analysis.notes.some((note) => /revisa el pdf/i.test(note))).toBe(true);
   });
 });
+
+describe('la lectura del PDF real de la CMF', () => {
+  /**
+   * Fragmento tal como lo extrae `unpdf` del volante oficial de la CMF
+   * (`cmfchile.cl/educa/621/articles-74626_recurso_1.pdf`): el nombre va en su
+   * propia línea, el RUT en la siguiente, y la línea anterior al nombre es
+   * basura de la codificación del PDF.
+   */
+  const REAL_FLYER = `INFORME DE DEUDAS
+ΖQIRUPH GH 'HXGDV
+MARTÍN VICENTE CABEZAS PÉREZ
+Rut: 9.876.456-2
+INFORME EMITIDO EL 07/07/2023 - INFORMACIÓN ACTUALIZADA AL 02/07/2023
+Deuda total y estado de pago $6.736.000`;
+
+  it('no arrastra la línea anterior al nombre del titular', () => {
+    const analysis = analyzeDebtReportText(REAL_FLYER);
+
+    expect(analysis.read).toBe(true);
+    expect(analysis.debtor).toBe('MARTÍN VICENTE CABEZAS PÉREZ');
+    expect(analysis.rut).toBe('9.876.456-2');
+    expect(analysis.issuedAt).toBe('2023-07-07');
+    expect(analysis.totalDebtClp).toBe(6_736_000);
+  });
+
+  it('un monto con la codificación rota no se recorta a un número inventado', () => {
+    const analysis = analyzeDebtReportText(
+      'INFORME DE DEUDAS\nDeuda total y estado de pago $6.\u00156.000\nTotal $6.\u00156.000 $0 $0 $0 $6.\u00156.000'
+    );
+
+    expect(analysis.totalDebtClp).toBeNull();
+    expect(analysis.currentClp).toBeNull();
+    expect(analysis.overdueClp).toBeNull();
+  });
+});

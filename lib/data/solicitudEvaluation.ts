@@ -503,32 +503,40 @@ export function evaluateSolicitud(
         )
       : 0;
   const failed = clarified.filter((check) => check.status === 'fail');
-  const accepted = score >= SOLICITUD_PASS_SCORE && failed.length === 0;
+  // El informe de deudas de la CMF es obligatorio desde la primera ronda: sin él
+  // la evaluación no se cierra, aunque todo lo demás esté en orden. Que falte no
+  // es un fallo del solicitante —todavía no se lo pidieron—, así que la corrida
+  // queda pendiente pidiéndolo y el puntaje se confirma cuando llega.
+  const needsReport = !options.debtReport;
+  const accepted = score >= SOLICITUD_PASS_SCORE && failed.length === 0 && !needsReport;
 
   // Solo se pregunta lo que bloquea. Una advertencia que no bajó el puntaje
   // suficiente no genera un correo: pedir un dato que no cambia la decisión
   // enseña a ignorar los correos.
-  // A quien queda pendiente se le pide siempre el informe de deudas de la CMF,
-  // además de las aclaraciones: el documento es la prueba de lo que declara y el
-  // paso ya está detenido esperando algo de la persona. El perfil decide qué
-  // informe (personas naturales o jurídicas).
+  // El informe de deudas se pide cuando falta: es obligatorio desde la primera
+  // ronda, y si ya está cargado no se vuelve a pedir —lo que bloquea es otra
+  // cosa—. El perfil decide qué informe (personas naturales o jurídicas).
+  const blocking = clarified
+    .filter((check) => check.status !== 'pass' && check.question)
+    .map((check) => ({ id: check.id, question: check.question as string }));
   const questions: SolicitudQuestion[] = accepted
     ? []
-    : withDebtReport(
-        clarified
-          .filter((check) => check.status !== 'pass' && check.question)
-          .map((check) => ({ id: check.id, question: check.question as string })),
-        debtReportKindFor(solicitud.kind)
-      );
+    : needsReport
+      ? withDebtReport(blocking, debtReportKindFor(solicitud.kind))
+      : blocking;
 
   const reasons: string[] = [];
   for (const check of clarified) {
     if (check.status === 'pass') continue;
     reasons.push(`${check.label}: ${check.detail}`);
   }
+  if (needsReport) {
+    reasons.push('Falta el informe de deudas de la CMF: es obligatorio para cerrar la evaluación.');
+  }
   if (accepted) reasons.push(`Puntaje ${score}/100: cumple el mínimo para continuar.`);
   else if (failed.length > 0) reasons.push(`No puede aceptarse: ${failed.length} verificación(es) en rojo.`);
-  else reasons.push(`Puntaje ${score}/100: por debajo de ${SOLICITUD_PASS_SCORE}, se pide información.`);
+  else if (!needsReport)
+    reasons.push(`Puntaje ${score}/100: por debajo de ${SOLICITUD_PASS_SCORE}, se pide información.`);
 
   return {
     score,

@@ -32,6 +32,21 @@ function agente(payload: Record<string, unknown> = {}) {
   };
 }
 
+/** Informe de deudas del titular, limpio: la primera ronda lo exige. */
+const REPORT = {
+  read: true,
+  issuedAt: '2026-11-01',
+  rut: '12.345.678-5',
+  debtor: 'ANA PÉREZ',
+  totalDebtClp: 0,
+  creditors: 0,
+  currentClp: 0,
+  overdueClp: 0,
+  writtenOffClp: 0,
+  summary: 'Informe leído',
+  notes: [],
+};
+
 describe('normalizeSolicitud · declaraciones del profesional', () => {
   it('acepta «no tengo sitio» sin exigir una dirección', () => {
     const result = normalizeSolicitud({
@@ -111,8 +126,10 @@ describe('evaluateSolicitud · declaraciones del profesional', () => {
   });
 
   it('declarar la ausencia puntúa más bajo que no responder', () => {
-    const sinResponder = evaluateSolicitud(agente());
-    const declarado = evaluateSolicitud(agente({ hasWebsite: false, hasCompanyEmail: false }));
+    const sinResponder = evaluateSolicitud(agente(), { debtReport: REPORT });
+    const declarado = evaluateSolicitud(agente({ hasWebsite: false, hasCompanyEmail: false }), {
+      debtReport: REPORT,
+    });
 
     expect(sinResponder.decision).toBe('Aceptada');
     expect(declarado.decision).toBe('Aceptada');

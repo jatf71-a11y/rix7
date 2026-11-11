@@ -37,13 +37,37 @@ function solicitud(
   return { ...BASE, ...overrides, payload: { ...BASE.payload, ...payload } };
 }
 
+/**
+ * El informe de deudas del titular, sin deudas.
+ *
+ * Desde que el documento es obligatorio desde la primera ronda, una evaluación
+ * que se cierra siempre lo trae: sin él la decisión es `Pendiente_Informacion`
+ * pidiéndolo, y eso tiene su propia prueba.
+ */
+function cleanReport(rut: string = BASE.payload.rut as string) {
+  return {
+    read: true,
+    issuedAt: '2026-11-01',
+    rut,
+    debtor: 'CATEDRAL PROPIEDADES SPA',
+    totalDebtClp: 0,
+    creditors: 0,
+    currentClp: 0,
+    overdueClp: 0,
+    writtenOffClp: 0,
+    summary: 'Informe leído',
+    notes: [],
+  };
+}
+
 describe('evaluateSolicitud', () => {
   it('acepta una corredora con correo y sitio del mismo dominio', () => {
     const result = evaluateSolicitud(
       solicitud(
         { email: 'camila@catedralpropiedades.cl' },
         { website: 'https://catedralpropiedades.cl' }
-      )
+      ),
+      { debtReport: cleanReport() }
     );
 
     expect(result.decision).toBe('Aceptada');
@@ -57,8 +81,7 @@ describe('evaluateSolicitud', () => {
 
     expect(result.decision).toBe('Pendiente_Informacion');
     expect(result.score).toBeLessThan(SOLICITUD_PASS_SCORE);
-    // Las aclaraciones del motor y, siempre que queda pendiente, el informe de
-    // deudas de la CMF.
+    // Las aclaraciones del motor y el informe de deudas, que todavía no llegó.
     expect(result.questions.map((question) => question.id).sort()).toEqual([
       'correo',
       'debt_report',
@@ -66,14 +89,31 @@ describe('evaluateSolicitud', () => {
     ]);
   });
 
+  it('la primera ronda no se cierra sin el informe de deudas de la CMF', () => {
+    const result = evaluateSolicitud(
+      solicitud(
+        { email: 'camila@catedralpropiedades.cl' },
+        { website: 'https://catedralpropiedades.cl' }
+      )
+    );
+
+    // Todo lo demás pasa: lo único que falta es el documento.
+    expect(result.checks.every((check) => check.status === 'pass')).toBe(true);
+    expect(result.decision).toBe('Pendiente_Informacion');
+    expect(result.questions.map((question) => question.id)).toEqual(['debt_report']);
+    expect(result.reasons.join(' ')).toContain('Falta el informe de deudas');
+  });
+
   it('un agente independiente no arrastra las exigencias de una empresa', () => {
-    const result = evaluateSolicitud(solicitud({ kind: 'agente' }));
+    const result = evaluateSolicitud(solicitud({ kind: 'agente' }), {
+      debtReport: cleanReport(),
+    });
 
     // Sin sitio y con Gmail: para una persona es lo esperable, así que se acepta
     // —no se le pide un dato que no tiene— pero con menos puntaje que una
     // empresa que acredita las dos cosas.
     expect(result.decision).toBe('Aceptada');
-    expect(result.score).toBe(90);
+    expect(result.score).toBe(92);
     expect(result.questions).toEqual([]);
     expect(result.checks.find((check) => check.id === 'correo')?.status).toBe('warn');
     expect(result.checks.find((check) => check.id === 'sitio')?.status).toBe('warn');
@@ -83,11 +123,12 @@ describe('evaluateSolicitud', () => {
 
   it('un agente con sitio propio y correo personal tampoco tiene que aclararlo', () => {
     const result = evaluateSolicitud(
-      solicitud({ kind: 'agente' }, { website: 'https://anatorres.cl' })
+      solicitud({ kind: 'agente' }, { website: 'https://anatorres.cl' }),
+      { debtReport: cleanReport() }
     );
 
     expect(result.decision).toBe('Aceptada');
-    expect(result.score).toBe(90);
+    expect(result.score).toBe(92);
     expect(result.questions).toEqual([]);
     expect(result.checks.find((check) => check.id === 'sitio')?.status).toBe('warn');
     expect(result.checks.find((check) => check.id === 'sitio')?.question).toBeUndefined();
@@ -139,6 +180,7 @@ describe('evaluateSolicitud', () => {
         sitio: 'https://catedralpropiedades.cl',
         correo: 'camila@catedralpropiedades.cl',
       },
+      debtReport: cleanReport(),
     });
 
     expect(result.decision).toBe('Aceptada');
@@ -148,7 +190,7 @@ describe('evaluateSolicitud', () => {
     );
   });
 
-  it('sin informe los pesos suman 80 y el puntaje se normaliza: se lee como porcentaje', () => {
+  it('sin informe los pesos suman 80 y el puntaje se normaliza, pero no se acepta', () => {
     const result = evaluateSolicitud(
       solicitud(
         { email: 'camila@catedralpropiedades.cl' },
@@ -157,11 +199,13 @@ describe('evaluateSolicitud', () => {
     );
     const total = result.checks.reduce((sum, check) => sum + check.weight, 0);
 
-    // Las dos verificaciones del informe de deudas solo existen cuando la ronda
-    // lo trajo; sin ellas, los pesos presentes suman 80 y el puntaje se
-    // normaliza, así que un registro limpio sigue dando 100.
+    // Las dos verificaciones del informe de deudas solo existen cuando el
+    // análisis está cargado; sin ellas los pesos presentes suman 80 y el puntaje
+    // se lee como porcentaje. El 100 es provisional: la ronda no se cierra hasta
+    // que el documento llegue.
     expect(total).toBe(80);
     expect(result.score).toBe(100);
+    expect(result.decision).toBe('Pendiente_Informacion');
   });
 
   it('con el informe cargado los pesos suman 100 y se evalúa el titular y la deuda', () => {
@@ -200,16 +244,16 @@ describe('evaluateSolicitud', () => {
         { website: 'https://catedralpropiedades.cl' }
       ),
       {
-      debtReport: {
-        read: true,
-        issuedAt: '2026-11-01',
-        rut: '12.345.678-5',
-        debtor: 'OTRA EMPRESA SPA',
-        totalDebtClp: 0,
-        creditors: 0,
-        currentClp: 0,
-        overdueClp: 0,
-        writtenOffClp: 0,
+        debtReport: {
+          read: true,
+          issuedAt: '2026-11-01',
+          rut: '12.345.678-5',
+          debtor: 'OTRA EMPRESA SPA',
+          totalDebtClp: 0,
+          creditors: 0,
+          currentClp: 0,
+          overdueClp: 0,
+          writtenOffClp: 0,
           summary: 'Informe leído',
           notes: [],
         },
@@ -227,11 +271,22 @@ describe('evaluateSolicitud', () => {
       solicitud(
         { email: 'camila@catedralpropiedades.cl', phone: '123' },
         { website: 'https://catedralpropiedades.cl' }
-      )
+      ),
+      { debtReport: cleanReport() }
     );
 
     expect(result.checks.find((check) => check.id === 'contacto')?.status).toBe('warn');
     expect(result.decision).toBe('Aceptada');
     expect(result.questions).toEqual([]);
+  });
+
+  it('un informe ya cargado no se vuelve a pedir cuando bloquea otra cosa', () => {
+    const result = evaluateSolicitud(
+      solicitud({ email: 'camila@catedralpropiedades.cl' }, { website: 'https://catedralpropiedades.cl' }),
+      { existing: [solicitud({ id: 'sol-0' })], debtReport: cleanReport() }
+    );
+
+    expect(result.decision).toBe('Pendiente_Informacion');
+    expect(result.questions.map((question) => question.id)).toEqual(['duplicado']);
   });
 });
