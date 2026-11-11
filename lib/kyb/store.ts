@@ -152,12 +152,17 @@ export async function createApplication(
    * `status: 'Calificado'` crea la fila ya en el tramo comercial —el registro
    * pasó la evaluación propia del formulario— y `solicitudOrigen` deja el
    * vínculo con la fila de «Publicar». Las altas públicas no usan ninguna.
+   *
+   * `score` es el puntaje ya calculado por quien convierte: el alta que nace de
+   * un registro lo hereda, porque la evaluación la hizo el formulario. Sin esto
+   * la ficha del alta mostraba «Sin puntaje» aunque el registro lo tuviera.
    */
-  options: { status?: KybStatus; solicitudOrigen?: string | null } = {}
+  options: { status?: KybStatus; solicitudOrigen?: string | null; score?: number | null } = {}
 ): Promise<KybResult<KybApplication>> {
   const now = new Date().toISOString();
   const status = options.status ?? 'Recibida';
   const solicitudOrigen = options.solicitudOrigen ?? null;
+  const score = options.score ?? null;
 
   if (kybSource() === 'memory') {
     const store = db();
@@ -181,7 +186,7 @@ export async function createApplication(
       hasWebsite: input.hasWebsite,
       hasCompanyEmail: input.hasCompanyEmail,
       companyEmail: input.companyEmail ?? null,
-      score: null,
+      score,
       plan: null,
       panelEnabled: false,
       activatedAt: null,
@@ -226,6 +231,7 @@ export async function createApplication(
         has_company_email: input.hasCompanyEmail,
         company_email: input.companyEmail ?? null,
         solicitud_origen: solicitudOrigen,
+        score,
       })
       .select(KYB_COLUMNS)
       .single();

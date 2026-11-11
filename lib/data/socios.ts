@@ -67,7 +67,7 @@ export interface SocioSolicitud {
   coverage: string | null;
   regions: string[];
   message: string | null;
-  /** Puntaje del motor; `null` en los registros, que no se evalúan. */
+  /** Puntaje del motor; `null` mientras no haya evaluación del registro o del alta. */
   score: number | null;
   panelEnabled: boolean;
   createdAt: string;
@@ -104,6 +104,21 @@ export function isSocioSolicitud(solicitud: Solicitud): boolean {
 export function solicitudAltaId(solicitud: Solicitud): string | null {
   const value = solicitud.payload?.[SOLICITUD_REVIEW_KEYS.alta];
   return typeof value === 'string' && value ? value : null;
+}
+
+/**
+ * Puntaje con el que se evaluó el registro, si ya se evaluó.
+ *
+ * Vive en el `payload` porque la tabla de solicitudes no tiene columna de
+ * puntaje. Se lee sin `as` a ciegas: un registro sin evaluar —o con un valor
+ * raro de una versión anterior— devuelve `null`, que es «todavía no hay», no un
+ * cero. Lo usan la tarjeta del tablero y el puente que crea el alta.
+ */
+export function solicitudScore(solicitud: Solicitud): number | null {
+  const evaluation = solicitud.payload?.[SOLICITUD_REVIEW_KEYS.evaluation];
+  if (!evaluation || typeof evaluation !== 'object' || Array.isArray(evaluation)) return null;
+  const score = (evaluation as { score?: unknown }).score;
+  return typeof score === 'number' && Number.isFinite(score) ? score : null;
 }
 
 /** Registros que el tablero debe mostrar como su alta (ya convertidos). */
@@ -167,7 +182,9 @@ export function socioFromSolicitud(solicitud: Solicitud): SocioSolicitud {
     coverage: typeof solicitud.payload?.coverage === 'string' ? solicitud.payload.coverage : null,
     regions: Array.isArray(solicitud.payload?.regions) ? (solicitud.payload.regions as string[]) : [],
     message: solicitud.message,
-    score: null,
+    // El registro sí se evalúa: sin esto el tablero mostraba «Sin puntaje» en
+    // tarjetas que tenían su evaluación guardada en el payload.
+    score: solicitudScore(solicitud),
     panelEnabled: false,
     createdAt: solicitud.createdAt,
   };

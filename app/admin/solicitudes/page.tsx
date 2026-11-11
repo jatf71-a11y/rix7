@@ -1047,13 +1047,24 @@ export default function AdminSolicitudesPage() {
                               <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-slate-400" />
                             )}
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => openPanel(socio)}
-                            className="mt-1.5 w-full rounded-lg border border-slate-300 px-2 py-1 text-[10px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                          >
-                            Abrir ficha
-                          </button>
+                          <div className="mt-1.5 flex items-center gap-1.5">
+                            {/* El registro también se evalúa: si ya tiene
+                                puntaje, se muestra como en las altas. */}
+                            {socio.score !== null && (
+                              <span
+                                className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold ${scoreTone(socio.score)}`}
+                              >
+                                {socio.score}/100
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => openPanel(socio)}
+                              className="flex-1 rounded-lg border border-slate-300 px-2 py-1 text-[10px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                            >
+                              Abrir ficha
+                            </button>
+                          </div>
                           </>
                         )}
 
@@ -1141,7 +1152,7 @@ export default function AdminSolicitudesPage() {
                   >
                     {SOLICITUD_STATUS_LABELS[panel.status]}
                   </span>
-                  {panel.source === 'alta' && (
+                  {(panel.source === 'alta' || panel.score !== null) && (
                     <span
                       className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${scoreTone(panel.score)}`}
                     >
@@ -1355,7 +1366,7 @@ function SocioRow({
               >
                 {SOLICITUD_STATUS_LABELS[socio.status]}
               </span>
-              {isAlta && (
+              {(isAlta || socio.score !== null) && (
                 <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${scoreTone(socio.score)}`}>
                   {socio.score === null ? 'Sin puntaje' : `${socio.score}/100`}
                 </span>

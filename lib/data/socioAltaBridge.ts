@@ -35,7 +35,7 @@ import {
   getApplication,
 } from '@/lib/kyb/store';
 import type { KybApplication } from '@/lib/kyb/types';
-import { isSocioKind, solicitudAltaId } from './socios';
+import { isSocioKind, solicitudAltaId, solicitudScore } from './socios';
 import { updateSolicitudReview } from './solicitudesStore';
 import type { Solicitud } from './solicitudes';
 
@@ -154,6 +154,10 @@ export async function ensureAltaForSolicitud(solicitud: Solicitud): Promise<Ensu
   const created = await createApplication(high.application, {
     status: 'Calificado',
     solicitudOrigen: solicitud.id,
+    // El alta hereda el puntaje del registro: la evaluación ya se hizo en el
+    // formulario y la tarjeta del tablero muestra la del alta, no la del
+    // registro, que queda oculto por ser la misma empresa.
+    score: solicitudScore(solicitud),
   });
   if (!created.ok || !created.data) {
     return {

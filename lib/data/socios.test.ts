@@ -87,13 +87,25 @@ describe('socios: de una fila a una tarjeta del panel', () => {
     expect(socio.category).toBe('empresa');
   });
 
-  it('el registro de agente es su propia categoría y no tiene puntaje', () => {
+  it('el registro de agente es su propia categoría', () => {
     const socio = socioFromSolicitud(solicitud('agente', { id: 'sol-agente' }));
 
     expect(socio.source).toBe('registro');
     expect(socio.category).toBe('agente');
     expect(socio.score).toBeNull();
     expect(socio.panelEnabled).toBe(false);
+  });
+
+  it('un registro ya evaluado muestra el puntaje que tiene guardado', () => {
+    const socio = socioFromSolicitud(
+      solicitud('agente', {
+        payload: { solicitud_evaluation: { score: 90, decision: 'Pendiente_Informacion' } },
+      })
+    );
+
+    // El puntaje vive en el payload del registro; el tablero lo mostraba solo en
+    // las tarjetas de alta.
+    expect(socio.score).toBe(90);
   });
 
   it('la antigüedad sale de la fecha de apertura y nunca es negativa', () => {

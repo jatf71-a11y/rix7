@@ -1,7 +1,23 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { highFromSolicitud, needsAlta } from './socioAltaBridge';
-import { solicitudAltaId } from './socios';
+/**
+ * El alta se crea con `createApplication`: acá se intercepta esa llamada para
+ * revisar qué opciones recibe, sin base ni Supabase.
+ */
+const createApplication = vi.fn();
+
+vi.mock('@/lib/kyb/store', () => ({
+  createApplication: (...args: unknown[]) => createApplication(...args),
+  findApplicationBySolicitudOrigen: vi.fn(async () => ({ ok: true, data: null })),
+  getApplication: vi.fn(async () => ({ ok: true, data: null })),
+}));
+
+vi.mock('./solicitudesStore', () => ({
+  updateSolicitudReview: vi.fn(async () => ({ ok: true })),
+}));
+
+import { ensureAltaForSolicitud, highFromSolicitud, needsAlta } from './socioAltaBridge';
+import { solicitudAltaId, solicitudScore } from './socios';
 import { SOLICITUD_REVIEW_KEYS } from './solicitudEvaluation';
 import type { Solicitud } from './solicitudes';
 
@@ -96,6 +112,71 @@ describe('highFromSolicitud', () => {
     const result = highFromSolicitud(solicitud({ payload: { rut: '12.345.678-9' } }));
 
     expect(result.ok).toBe(false);
+  });
+});
+
+describe('solicitudScore', () => {
+  const evaluada = (score: unknown) =>
+    solicitud({
+      payload: {
+        rut: '12.345.678-5',
+        coverage: 'nacional',
+        regions: [],
+        [SOLICITUD_REVIEW_KEYS.evaluation]: { score, decision: 'Aceptada' },
+      },
+    });
+
+  it('lee el puntaje guardado en el registro', () => {
+    expect(solicitudScore(evaluada(94))).toBe(94);
+    expect(solicitudScore(evaluada(0))).toBe(0);
+  });
+
+  it('sin evaluación, o con un valor que no es número, no hay puntaje', () => {
+    expect(solicitudScore(solicitud())).toBeNull();
+    expect(solicitudScore(evaluada('94'))).toBeNull();
+    expect(solicitudScore(evaluada(Number.NaN))).toBeNull();
+    expect(
+      solicitudScore(
+        solicitud({ payload: { [SOLICITUD_REVIEW_KEYS.evaluation]: ['no', 'es', 'objeto'] } })
+      )
+    ).toBeNull();
+  });
+});
+
+describe('ensureAltaForSolicitud', () => {
+  beforeEach(() => {
+    createApplication.mockReset();
+  });
+
+  it('el alta nace en Calificado con el puntaje del registro', async () => {
+    createApplication.mockResolvedValue({ ok: true, data: { id: 'alta-1' } });
+
+    await ensureAltaForSolicitud(
+      solicitud({
+        payload: {
+          rut: '12.345.678-5',
+          coverage: 'nacional',
+          regions: [],
+          [SOLICITUD_REVIEW_KEYS.evaluation]: { score: 94, decision: 'Aceptada' },
+        },
+      })
+    );
+
+    expect(createApplication).toHaveBeenCalledTimes(1);
+    const [, options] = createApplication.mock.calls[0] as [unknown, { status?: string; score?: number | null }];
+    expect(options.status).toBe('Calificado');
+    // Sin esto la tarjeta del tablero decía «Sin puntaje» aunque el registro
+    // tuviera el suyo.
+    expect(options.score).toBe(94);
+  });
+
+  it('un registro sin evaluar crea el alta sin puntaje, sin inventar un cero', async () => {
+    createApplication.mockResolvedValue({ ok: true, data: { id: 'alta-2' } });
+
+    await ensureAltaForSolicitud(solicitud());
+
+    const [, options] = createApplication.mock.calls[0] as [unknown, { score?: number | null }];
+    expect(options.score).toBeNull();
   });
 });
 
