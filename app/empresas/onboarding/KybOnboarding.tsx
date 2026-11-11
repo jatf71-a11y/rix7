@@ -21,6 +21,7 @@ import {
   portalStage,
   type KybAccessView,
 } from '@/lib/kyb/portal';
+import StageProgress from '@/components/kyb/StageProgress';
 import QuestionsStep from './QuestionsStep';
 import PlanStep from './PlanStep';
 
@@ -166,6 +167,17 @@ export default function KybOnboarding() {
 
   const view = screen.kind === 'ready' ? screen.view : null;
   const stage = view ? portalStage(view) : null;
+  // Después de responder o activar el token cambia y ya no hay `view`: la barra
+  // sigue mostrando el paso al que se acaba de llegar, no se apaga.
+  const shownStatus: KybStatus | null =
+    view?.status ??
+    (screen.kind === 'answered'
+      ? screen.accepted
+        ? 'Calificado'
+        : 'En_Evaluacion'
+      : screen.kind === 'activated'
+        ? 'Alta'
+        : null);
 
   let content: React.ReactNode;
 
@@ -341,6 +353,13 @@ export default function KybOnboarding() {
 
           {view && <StatusPill status={view.status} />}
         </div>
+
+        {shownStatus && (
+          <StageProgress
+            status={shownStatus}
+            className="mt-5 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm"
+          />
+        )}
 
         <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
           {content}

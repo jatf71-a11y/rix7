@@ -41,7 +41,7 @@ export type KybStatus = (typeof KYB_STATUSES)[number];
 
 export const KYB_STATUS_LABELS: Record<KybStatus, string> = {
   Recibida: 'Recibida',
-  En_Evaluacion: 'En evaluación',
+  En_Evaluacion: 'Evaluando',
   Pendiente_Informacion: 'Pendiente de información',
   Aceptada: 'Aceptada',
   Calificado: 'Calificado',

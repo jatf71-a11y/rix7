@@ -8,6 +8,7 @@ import {
   SOLICITUD_REVIEW_KEYS,
   type SolicitudEvaluation,
 } from '@/lib/data/solicitudEvaluation';
+import StageProgress from '@/components/kyb/StageProgress';
 import ResponderForm from './ResponderForm';
 
 /**
@@ -75,6 +76,10 @@ export default async function ResponderPage({
     return (
       <div className="bg-slate-50 py-16">
         <div className="mx-auto max-w-5xl px-4">
+          <StageProgress
+            status={solicitud.status}
+            className="mx-auto mb-4 max-w-xl rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm"
+          />
           <Notice
             title="Este registro ya no espera respuestas"
             body="La solicitud avanzó y el enlace dejó de servir. Si necesitas corregir algo, responde el último correo de Rix7."
@@ -106,6 +111,7 @@ export default async function ResponderPage({
     <div className="bg-slate-50 py-12">
       <div className="mx-auto max-w-2xl px-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <StageProgress status="Pendiente_Informacion" className="mb-5" />
           <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-blue-700">
             Tu registro en Rix7
           </p>

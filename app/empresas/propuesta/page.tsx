@@ -5,6 +5,7 @@ import { AlertCircle } from 'lucide-react';
 import { kybProposalByToken } from '@/lib/kyb/onboarding';
 import { formatPlanPrice } from '@/lib/kyb/plans';
 import { proposalPlanName } from '@/lib/kyb/proposal';
+import StageProgress from '@/components/kyb/StageProgress';
 import ProposalDecision from './ProposalDecision';
 
 /**
@@ -94,6 +95,11 @@ export default async function ProposalPage({
           <p className="mt-1 text-sm leading-relaxed text-slate-500">
             Tu empresa quedó calificada. Esta es la propuesta con la que operarías en el portal.
           </p>
+
+          <StageProgress
+            status="Propuesta_Comercial"
+            className="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
+          />
 
           <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2">
             <Row label="Plan" value={planName} />

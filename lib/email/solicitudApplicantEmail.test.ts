@@ -98,7 +98,7 @@ describe('correos del registro profesional', () => {
     });
 
     expect(evaluating.subject).toBe('Estamos evaluando tu registro en Rix7');
-    expect(evaluating.text).toMatch(/etapa «En evaluación»/);
+    expect(evaluating.text).toMatch(/etapa «Evaluando»/);
     expect(evaluating.text).toMatch(/datos que nos entregaste/);
     expect(evaluating.text).toMatch(/conseguimos por nuestra cuenta/);
     expect(evaluating.text).toContain('Hola María,');
@@ -113,10 +113,14 @@ describe('correos del registro profesional', () => {
     });
 
     // `Aceptada` es una etapa del flujo: en la bandeja la misma palabra se lee
-    // como si el proceso hubiera terminado, así que el correo dice «recibido».
-    expect(accepted.subject).toBe('Tu registro en Rix7 quedó recibido');
+    // como si el proceso hubiera terminado, así que el asunto habla de recepción.
+    // El marcador sí la nombra —«Etapa 4 de 7 · Aceptada»— porque es el nombre
+    // del paso; lo que se revisa es la prosa, sin esa línea.
+    expect(accepted.subject).toBe('Hemos recibido tu solicitud');
     expect(accepted.html).toContain('¡Registro recibido!');
-    expect(`${accepted.subject}\n${accepted.text}\n${accepted.html}`).not.toMatch(/aceptad/i);
+    expect(accepted.text).toMatch(/Etapa 4 de 7 · Aceptada/);
+    const prose = `${accepted.subject}\n${accepted.text.replace(/^.*Etapa 4 de 7.*$/m, '')}\n${accepted.html.replace(/Etapa 4 de 7[^<]*/, '')}`;
+    expect(prose).not.toMatch(/aceptad/i);
   });
 
   it('el pedido de información sigue llevando sus preguntas y su enlace', () => {
@@ -143,5 +147,49 @@ describe('correos del registro profesional', () => {
     });
     expect(pending.text).toContain('emitido dentro de los últimos 30 días');
     expect(pending.html).toContain('30 días');
+  });
+
+  it('cada correo dice en qué etapa de las siete está el registro', () => {
+    const received = buildSolicitudReceivedEmail({
+      name: 'María Soto',
+      offerLabel: 'tu registro de Corredora',
+      siteUrl: SITE,
+    });
+    const evaluating = buildSolicitudEvaluatingEmail({
+      name: 'María Soto',
+      offerLabel: 'tu registro de Corredora',
+      siteUrl: SITE,
+    });
+    const pending = buildSolicitudPendingEmail({
+      name: 'María Soto',
+      offerLabel: 'tu registro de Corredora',
+      questions: [{ id: 'email', question: '¿Cuál es el correo corporativo?' }],
+      link: 'https://rix7.cl/socios/responder/token-abc',
+      siteUrl: SITE,
+    });
+    const accepted = buildSolicitudAcceptedEmail({
+      name: 'María Soto',
+      offerLabel: 'tu registro de Corredora',
+      siteUrl: SITE,
+    });
+    const rejected = buildSolicitudRejectedEmail({
+      name: 'María Soto',
+      offerLabel: 'tu registro de Corredora',
+      reason: 'El RUT no coincide con el nombre de la empresa.',
+      siteUrl: SITE,
+    });
+
+    expect(received.text).toMatch(/Etapa 1 de 7 · Recibida/);
+    expect(received.html).toContain('Etapa 1 de 7 · Recibida');
+    expect(evaluating.text).toMatch(/Etapa 2 de 7 · Evaluando/);
+    expect(evaluating.html).toContain('Etapa 2 de 7 · Evaluando');
+    expect(pending.text).toMatch(/Etapa 3 de 7 · Pendiente de información/);
+    expect(pending.html).toContain('Etapa 3 de 7 · Pendiente de información');
+    expect(accepted.text).toMatch(/Etapa 4 de 7 · Aceptada/);
+    expect(accepted.html).toContain('Etapa 4 de 7 · Aceptada');
+
+    // El rechazo sale del trámite: no hay paso de los siete que marcar.
+    expect(rejected.text).not.toMatch(/Etapa \d de 7/);
+    expect(rejected.html).not.toMatch(/Etapa \d de 7/);
   });
 });

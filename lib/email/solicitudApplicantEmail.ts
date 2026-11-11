@@ -20,6 +20,7 @@
 
 import { escapeHtml } from './alertEmail';
 import { DEBT_REPORT_MAX_AGE_DAYS } from '@/lib/kyb/debtReport';
+import { applicantStage } from '@/lib/kyb/stages';
 
 export interface BuiltSolicitudApplicantEmail {
   subject: string;
@@ -102,9 +103,12 @@ export function buildSolicitudReceivedEmail({
 }): BuiltSolicitudApplicantEmail {
   const hello = greeting(name);
 
+  const stage = applicantStage('Recibida');
+
   const text = [
     hello,
     '',
+    ...(stage ? [stage.text, ''] : []),
     `Recibimos ${offerLabel} en Rix7 y quedó en la etapa «Recibida».`,
     'A continuación pasa a evaluación automática, que no requiere nada de tu parte.',
     '',
@@ -126,6 +130,7 @@ export function buildSolicitudReceivedEmail({
       title: 'Recibimos tu registro',
       intro: `${escapeHtml(hello)} recibimos ${escapeHtml(offerLabel)} y quedó en la etapa <strong>Recibida</strong>. A continuación pasa a evaluación automática.`,
       body: `
+        ${stage?.html ?? ''}
         <p style="margin:0;color:#475569;font-size:13px;line-height:1.7">
           Te escribimos en cada etapa del proceso, con el resultado de cada una. El correo de la
           evaluación sale en unos minutos y te cuenta qué datos revisamos.
@@ -139,7 +144,7 @@ export function buildSolicitudReceivedEmail({
 }
 
 /**
- * El paso **En evaluación**: qué está mirando el motor.
+ * El paso **Evaluando**: qué está mirando el motor.
  *
  * Sale al entrar en ese estado, también cuando la evaluación se repite después de
  * un pedido de información. Sin el detalle de los datos, «en evaluación» no le
@@ -157,10 +162,13 @@ export function buildSolicitudEvaluatingEmail({
 }): BuiltSolicitudApplicantEmail {
   const hello = greeting(name);
 
+  const stage = applicantStage('En_Evaluacion');
+
   const text = [
     hello,
     '',
-    `Tu registro en Rix7 quedó en la etapa «En evaluación»: ${offerLabel} está siendo evaluado.`,
+    ...(stage ? [stage.text, ''] : []),
+    `Tu registro en Rix7 quedó en la etapa «Evaluando»: ${offerLabel} está siendo evaluado.`,
     'La evaluación es automática y no tienes que hacer nada por ahora: te escribimos con el',
     'resultado.',
     '',
@@ -186,6 +194,7 @@ export function buildSolicitudEvaluatingEmail({
       title: 'Tu registro está en evaluación',
       intro: `${escapeHtml(hello)} ${escapeHtml(offerLabel)} quedó <strong>en evaluación</strong>. Es automática y no tienes que hacer nada por ahora: te escribimos con el resultado.`,
       body: `
+        ${stage?.html ?? ''}
         <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px;color:#1e3a8a;font-size:13px;line-height:1.65">
           <strong style="display:block;margin-bottom:6px">Con los datos que nos entregaste</strong>
           El RUT y el registro comercial, el correo y el sitio web, el alcance y las regiones donde
@@ -231,11 +240,13 @@ export function buildSolicitudPendingEmail({
   reminder?: boolean;
 }): BuiltSolicitudApplicantEmail {
   const hello = greeting(name);
+  const stage = applicantStage('Pendiente_Informacion');
   const listText = questions.map((question, index) => `${index + 1}. ${question.question}`).join('\n');
 
   const text = [
     hello,
     '',
+    ...(stage ? [stage.text, ''] : []),
     reminder
       ? `Te escribimos de nuevo por ${offerLabel} en Rix7: la evaluación quedó esperando estos datos.`
       : `Recibimos ${offerLabel} en Rix7 y lo evaluamos automáticamente.`,
@@ -277,6 +288,7 @@ export function buildSolicitudPendingEmail({
         ? `${escapeHtml(hello)} te escribimos de nuevo porque la evaluación de ${escapeHtml(offerLabel)} quedó esperando estos puntos. El enlace anterior puede haber vencido; este es nuevo.`
         : `${escapeHtml(hello)} recibimos ${escapeHtml(offerLabel)} y lo evaluamos automáticamente. Para continuar necesitamos que aclares estos puntos.`,
       body: `
+        ${stage?.html ?? ''}
         <ul style="margin:0;padding-left:20px">${listHtml}</ul>
         <div style="margin:22px 0 0">
           <a href="${link}" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:700;padding:12px 22px;border-radius:12px;text-decoration:none">
@@ -312,10 +324,13 @@ export function buildSolicitudAcceptedEmail({
 }): BuiltSolicitudApplicantEmail {
   const hello = greeting(name);
 
+  const stage = applicantStage('Aceptada');
+
   const text = [
     hello,
     '',
-    `Tu registro en Rix7 quedó recibido: ${offerLabel} pasó la evaluación automática.`,
+    ...(stage ? [stage.text, ''] : []),
+    `Revisamos ${offerLabel} y pasó la evaluación automática.`,
     'Lo que sigue es la propuesta comercial: te enviamos el plan y los precios a este',
     'correo. Cuando la aceptes, eliges el plan y habilitas tu panel de publicaciones.',
     '',
@@ -326,13 +341,14 @@ export function buildSolicitudAcceptedEmail({
   ].join('\n');
 
   return {
-    subject: 'Tu registro en Rix7 quedó recibido',
+    subject: 'Hemos recibido tu solicitud',
     text,
     html: shell({
       siteUrl,
       title: '¡Registro recibido!',
       intro: `${escapeHtml(hello)} ${escapeHtml(offerLabel)} pasó la evaluación automática y quedó <strong>recibido</strong>.`,
       body: `
+        ${stage?.html ?? ''}
         <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:14px 16px;color:#065f46;font-size:13px;line-height:1.65">
           Lo que sigue es la propuesta comercial: te enviamos el plan y los precios a este
           correo. Cuando la aceptes, eliges el plan y habilitas tu panel de publicaciones.

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { AlertCircle } from 'lucide-react';
 
 import { kybPlanChoicesByToken } from '@/lib/kyb/onboarding';
+import StageProgress from '@/components/kyb/StageProgress';
 import PlanChoice from './PlanChoice';
 
 /**
@@ -63,6 +64,11 @@ export default async function PlanPage({
           Tu empresa quedó calificada. Elige el plan con el que quieres operar y te mostramos la
           propuesta con esos montos.
         </p>
+
+        <StageProgress
+          status="Calificado"
+          className="mt-5 max-w-md rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm"
+        />
 
         <PlanChoice
           token={searchParams.token ?? ''}

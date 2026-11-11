@@ -11,6 +11,7 @@
 
 import { escapeHtml } from './alertEmail';
 import { formatPlanPrice } from '@/lib/kyb/plans';
+import { applicantStage } from '@/lib/kyb/stages';
 import type { AltaPlanSummary, PlanOption } from '@/lib/kyb/proposal';
 import type { LeadBracket } from '@/lib/kyb/planPricing';
 import type { KybQuestion } from '@/lib/kyb/status';
@@ -101,9 +102,12 @@ export function buildKybReceivedEmail({
   const first = contactName.trim().split(/\s+/)[0] || '';
   const greeting = first ? `Hola ${first},` : 'Hola,';
 
+  const stage = applicantStage('Recibida');
+
   const text = [
     greeting,
     '',
+    ...(stage ? [stage.text, ''] : []),
     `Recibimos la solicitud de alta de ${legalName} en Rix7.`,
     'La evaluación es automática y ya está en curso. No tienes que hacer nada por ahora:',
     'te escribimos con el resultado.',
@@ -133,6 +137,7 @@ export function buildKybReceivedEmail({
       title: 'Recibimos tu solicitud',
       intro: `${escapeHtml(greeting)} recibimos la solicitud de <strong>${escapeHtml(legalName)}</strong> y ya está en evaluación. La evaluación es automática y no necesitas hacer nada por ahora.`,
       body: `
+        ${stage?.html ?? ''}
         <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px;color:#1e3a8a;font-size:13px;line-height:1.6">
           <strong style="display:block;margin-bottom:6px">Con los datos que nos entregaste</strong>
           El RUT y el registro comercial, el sitio web, el correo corporativo, el alcance y las
@@ -166,10 +171,12 @@ export function buildKybPendingEmail({
   const first = contactName.trim().split(/\s+/)[0] || '';
   const greeting = first ? `Hola ${first},` : 'Hola,';
 
+  const stage = applicantStage('Pendiente_Informacion');
   const listText = questions.map((question, index) => `${index + 1}. ${question.question}`).join('\n');
   const text = [
     greeting,
     '',
+    ...(stage ? [stage.text, ''] : []),
     `Para continuar con el alta de ${legalName} necesitamos que aclares lo siguiente:`,
     '',
     listText,
@@ -204,6 +211,7 @@ export function buildKybPendingEmail({
       title: 'Necesitamos algunos datos',
       intro: `${escapeHtml(greeting)} para continuar con el alta de <strong>${escapeHtml(legalName)}</strong> necesitamos que aclares estos puntos.`,
       body: `
+        ${stage?.html ?? ''}
         <ul style="margin:0;padding-left:20px">${listHtml}</ul>
         <div style="margin:22px 0 0">
           <a href="${link}" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:700;padding:12px 22px;border-radius:12px;text-decoration:none">
@@ -256,9 +264,12 @@ export function buildKybAcceptedEmail({
   const monthly = formatPlanPrice(plan.monthlyClp);
   const alta = formatPlanPrice(plan.altaClp);
 
+  const stage = applicantStage('Alta');
+
   const text = [
     greeting,
     '',
+    ...(stage ? [stage.text, ''] : []),
     `La solicitud de ${legalName} quedó aceptada.`,
     'Confirma el plan en este enlace (vale 7 días):',
     link,
@@ -283,6 +294,7 @@ export function buildKybAcceptedEmail({
       title: '¡Solicitud aceptada!',
       intro: `${escapeHtml(greeting)} <strong>${escapeHtml(legalName)}</strong> quedó aceptada en la verificación. Confirma el plan de tu propuesta.`,
       body: `
+        ${stage?.html ?? ''}
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
           <tr>
             <td style="padding:10px 0;border-bottom:1px solid #e2e8f0">
@@ -387,14 +399,22 @@ export function buildKybEvaluatingEmail({
   legalName: string;
   siteUrl: string;
 }): BuiltKybEmail {
+  const stage = applicantStage('En_Evaluacion');
+
   return {
     subject: `Estamos revisando la solicitud de ${legalName}`,
-    text: `Recibimos las respuestas de ${legalName}. La evaluación se está revisando automáticamente y te escribimos con el resultado.\n\nRix7 — Alta de empresas\n${siteUrl}`,
+    text: [
+      ...(stage ? [stage.text, ''] : []),
+      `Recibimos las respuestas de ${legalName}. La evaluación se está revisando automáticamente y te escribimos con el resultado.`,
+      '',
+      'Rix7 — Alta de empresas',
+      siteUrl,
+    ].join('\n'),
     html: shell({
       siteUrl,
       title: 'Recibimos tus respuestas',
       intro: `La evaluación de <strong>${escapeHtml(legalName)}</strong> se está revisando con la información que enviaste. Te escribimos con el resultado.`,
-      body: '',
+      body: stage?.html ?? '',
     }),
   };
 }
@@ -446,9 +466,12 @@ export function buildKybQualifiedEmail({
       )} al mes · ${plan.usuariosIncluidos} usuario${plan.usuariosIncluidos === 1 ? '' : 's'}`
   );
 
+  const stage = applicantStage('Calificado');
+
   const text = [
     greeting,
     '',
+    ...(stage ? [stage.text, ''] : []),
     `La solicitud de ${legalName} quedó aceptada y calificada: pasó la verificación de`,
     'identidad, registro comercial y reputación.',
     '',
@@ -504,6 +527,7 @@ export function buildKybQualifiedEmail({
       title: 'Tu empresa quedó calificada',
       intro: `${escapeHtml(greeting)} <strong>${escapeHtml(legalName)}</strong> quedó aceptada y pasó la verificación de identidad y reputación. Perfil de socio: <strong>${escapeHtml(profileLabel)}</strong>.`,
       body: `
+        ${stage?.html ?? ''}
         <p style="margin:0 0 12px;color:#0f172a;font-size:13px;line-height:1.65">
           Elige el plan con el que quieres operar; con esa elección armamos tu propuesta comercial.
         </p>
@@ -565,9 +589,12 @@ export function buildKybCaptacionEmail({
     (bracket) => `- ${arriendosRange(bracket)}: ${formatPlanPrice(bracket.priceClp)} por lead`
   );
 
+  const stage = applicantStage('Propuesta_Comercial');
+
   const text = [
     greeting,
     '',
+    ...(stage ? [stage.text, ''] : []),
     `Activamos el plan de captación de ${legalName}. Tiene tres componentes:`,
     '',
     `1. Suscripción Captación Activa — perfil ${profileLabel}:`,
@@ -606,6 +633,7 @@ export function buildKybCaptacionEmail({
       title: 'Tu plan de captación, en detalle',
       intro: `${escapeHtml(greeting)} activamos la captación de <strong>${escapeHtml(legalName)}</strong>. Tiene tres componentes y así se cobra cada uno.`,
       body: `
+        ${stage?.html ?? ''}
         <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px;color:#1e3a8a;font-size:13px;line-height:1.6">
           <strong style="display:block;margin-bottom:4px">Suscripción Captación Activa · ${escapeHtml(profileLabel)}</strong>
           ${escapeHtml(formatPlanPrice(monthlyClp))} al mes. Te mantiene activo en el reparto de leads.
@@ -683,9 +711,12 @@ export function buildKybProposalEmail({
   const first = contactName.trim().split(/\s+/)[0] || '';
   const greeting = first ? `Hola ${first},` : 'Hola,';
 
+  const stage = applicantStage('Propuesta_Comercial');
+
   const text = [
     greeting,
     '',
+    ...(stage ? [stage.text, ''] : []),
     `Preparamos la propuesta comercial para ${legalName}.`,
     '',
     `Plan: ${planName}`,
@@ -714,6 +745,7 @@ export function buildKybProposalEmail({
       title: 'Tu propuesta comercial',
       intro: `${escapeHtml(greeting)} preparamos la propuesta para <strong>${escapeHtml(legalName)}</strong>.`,
       body: `
+        ${stage?.html ?? ''}
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
           <tr>
             <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;color:#0f172a;font-size:14px;font-weight:700">
@@ -763,7 +795,10 @@ export function buildKybActivatedEmail({
     ? `Entra directo con este enlace de un solo uso:\n${magicLink}`
     : `Entra con el correo de la empresa desde ${panelUrl}`;
 
+  const stage = applicantStage('Alta');
+
   const text = [
+    ...(stage ? [stage.text, ''] : []),
     `El alta de ${legalName} quedó completa con el plan ${planName}.`,
     '',
     'Tu panel de publicaciones ya está habilitado:',
@@ -788,6 +823,7 @@ export function buildKybActivatedEmail({
       title: 'Tu panel está listo',
       intro: `El alta de <strong>${escapeHtml(legalName)}</strong> quedó completa con el plan <strong>${escapeHtml(planName)}</strong>.`,
       body: `
+        ${stage?.html ?? ''}
         <div style="margin:0 0 20px">
           <a href="${escapeHtml(ctaHref)}" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:700;padding:12px 22px;border-radius:12px;text-decoration:none">
             Entrar al panel
@@ -852,6 +888,10 @@ export function buildKybReminderEmail({
     },
   }[step];
 
+  const stage = applicantStage(
+    step === 'answers' ? 'Pendiente_Informacion' : step === 'proposal' ? 'Propuesta_Comercial' : 'Alta'
+  );
+
   const closing =
     typeof closingInDays === 'number' && closingInDays > 0
       ? `Si no tenemos respuesta en ${closingInDays} días, cerramos el trámite y puedes volver a iniciarlo cuando quieras.`
@@ -860,6 +900,7 @@ export function buildKybReminderEmail({
   const text = [
     greeting,
     '',
+    ...(stage ? [stage.text, ''] : []),
     `Te escribimos de nuevo porque ${copy.body}`,
     '',
     'El enlace anterior puede haber vencido: este es nuevo y vale 7 días.',
@@ -880,6 +921,7 @@ export function buildKybReminderEmail({
       title: copy.title,
       intro: `${escapeHtml(greeting)} te escribimos de nuevo porque ${escapeHtml(copy.body)}`,
       body: `
+        ${stage?.html ?? ''}
         <div style="margin:0 0 20px">
           <a href="${link}" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:700;padding:12px 22px;border-radius:12px;text-decoration:none">
             ${copy.cta}

@@ -3,9 +3,12 @@ import {
   buildKybAcceptedEmail,
   buildKybActivatedEmail,
   buildKybCaptacionEmail,
+  buildKybEvaluatingEmail,
   buildKybPendingEmail,
+  buildKybProposalEmail,
   buildKybQualifiedEmail,
   buildKybReceivedEmail,
+  buildKybReminderEmail,
   kybAccessUrl,
 } from './kybEmails';
 import { DEFAULT_LEAD_BRACKETS } from '@/lib/kyb/planPricing';
@@ -262,5 +265,124 @@ describe('correos KYB', () => {
 
     expect(email.text).not.toContain('Captación de leads');
     expect(email.html).not.toContain('Captación de leads');
+  });
+
+  it('cada correo dice en qué etapa de las siete está el alta', () => {
+    const plans: PlanOption[] = [
+      {
+        planId: 'basico',
+        planName: 'Básico',
+        altaClp: 29990,
+        monthlyClp: 19990,
+        usuariosIncluidos: 1,
+        features: [],
+        recommended: false,
+      },
+      {
+        planId: 'profesional',
+        planName: 'Profesional',
+        altaClp: 49990,
+        monthlyClp: 39990,
+        usuariosIncluidos: 5,
+        features: [],
+        recommended: true,
+      },
+    ];
+    const plan = {
+      planId: 'profesional' as const,
+      planName: 'Profesional',
+      altaClp: 49990,
+      monthlyClp: 39990,
+      usuariosIncluidos: 5,
+      source: 'propuesta' as const,
+    };
+
+    const received = buildKybReceivedEmail({
+      legalName: 'Catedral Propiedades SpA',
+      contactName: 'Ana Torres',
+      siteUrl,
+    });
+    const evaluating = buildKybEvaluatingEmail({
+      legalName: 'Catedral Propiedades SpA',
+      siteUrl,
+    });
+    const pending = buildKybPendingEmail({
+      legalName: 'Catedral Propiedades SpA',
+      contactName: 'Ana Torres',
+      questions: [{ id: 'domain_web', question: '¿Cuál es el dominio oficial?' }],
+      token,
+      siteUrl,
+    });
+    const qualified = buildKybQualifiedEmail({
+      legalName: 'Catedral Propiedades SpA',
+      contactName: 'Ana Torres',
+      siteUrl,
+      profileLabel: 'Inmobiliaria',
+      plans,
+      captacionMonthlyClp: 19990,
+      planUrl: `${siteUrl}/empresas/plan?token=${token}`,
+    });
+    const proposal = buildKybProposalEmail({
+      legalName: 'Catedral Propiedades SpA',
+      contactName: 'Ana Torres',
+      planName: 'Profesional',
+      altaClp: 49990,
+      monthlyClp: 39990,
+      note: null,
+      token,
+      siteUrl,
+    });
+    const captacion = buildKybCaptacionEmail({
+      legalName: 'Catedral Propiedades SpA',
+      contactName: 'Ana Torres',
+      siteUrl,
+      profileLabel: 'Inmobiliaria',
+      monthlyClp: 19990,
+      ventas: DEFAULT_LEAD_BRACKETS.ventas,
+      arriendos: DEFAULT_LEAD_BRACKETS.arriendos,
+    });
+    const accepted = buildKybAcceptedEmail({
+      legalName: 'Catedral Propiedades SpA',
+      contactName: 'Ana Torres',
+      token,
+      siteUrl,
+      plan,
+    });
+    const activated = buildKybActivatedEmail({
+      legalName: 'Catedral Propiedades SpA',
+      planName: 'Profesional',
+      panelUrl: `${siteUrl}/socio`,
+      siteUrl,
+    });
+
+    expect(received.text).toMatch(/Etapa 1 de 7 · Recibida/);
+    expect(received.html).toContain('Etapa 1 de 7 · Recibida');
+    expect(evaluating.text).toMatch(/Etapa 2 de 7 · Evaluando/);
+    expect(evaluating.html).toContain('Etapa 2 de 7 · Evaluando');
+    expect(pending.text).toMatch(/Etapa 3 de 7 · Pendiente de información/);
+    expect(pending.html).toContain('Etapa 3 de 7 · Pendiente de información');
+    expect(qualified.text).toMatch(/Etapa 5 de 7 · Calificado/);
+    expect(qualified.html).toContain('Etapa 5 de 7 · Calificado');
+    expect(proposal.text).toMatch(/Etapa 6 de 7 · Propuesta comercial/);
+    expect(proposal.html).toContain('Etapa 6 de 7 · Propuesta comercial');
+    expect(captacion.text).toMatch(/Etapa 6 de 7 · Propuesta comercial/);
+    expect(accepted.text).toMatch(/Etapa 7 de 7 · Alta/);
+    expect(accepted.html).toContain('Etapa 7 de 7 · Alta');
+    expect(activated.text).toMatch(/Etapa 7 de 7 · Alta/);
+    expect(activated.html).toContain('Etapa 7 de 7 · Alta');
+
+    // El recordatorio hereda el paso que está esperando.
+    const reminder = (step: 'answers' | 'proposal' | 'activation') =>
+      buildKybReminderEmail({
+        legalName: 'Catedral Propiedades SpA',
+        contactName: 'Ana Torres',
+        step,
+        link: `${siteUrl}/empresas/onboarding?token=${token}`,
+        siteUrl,
+      });
+    expect(reminder('answers').text).toMatch(/Etapa 3 de 7 · Pendiente de información/);
+    expect(reminder('proposal').text).toMatch(/Etapa 6 de 7 · Propuesta comercial/);
+    expect(reminder('activation').text).toMatch(/Etapa 7 de 7 · Alta/);
+    expect(reminder('proposal').html).toContain('Etapa 6 de 7 · Propuesta comercial');
   });
 });
