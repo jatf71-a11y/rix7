@@ -57,7 +57,7 @@
  * El núcleo recibe `fetch` inyectado, así que se prueba sin red
  * (`scripts/smoke-prod.test.ts`).
  */
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -439,10 +439,10 @@ export function persistenceHint(health) {
 /**
  * Cómo leer la respuesta del registro de prueba del puente.
  *
- * Lo que se exige es el camino completo: 201, el autómata aprobando en la misma
- * petición y ninguna pregunta abierta. Si el autómata pide información, el
- * registro no llegó a la etapa que este smoke comprueba y hay que decir por qué
- * (un duplicado o un rate limit, no un «falló» genérico).
+ * El registro ya no se aprueba solo: el informe de deudas de la CMF es
+ * obligatorio desde la primera ronda, así que lo correcto es que quede en
+ * `Pendiente_Informacion` pidiendo ese documento. La sonda cierra esa ronda con
+ * un informe de prueba y un token propio, y ahí recién nace el alta.
  */
 export function judgeBridgeRegistro(status, body) {
   if (status === 429) {
@@ -459,18 +459,31 @@ export function judgeBridgeRegistro(status, body) {
   }
 
   const autopilot = body?.autopilot;
-  if (autopilot?.status !== 'Aceptada') {
-    const questions = (autopilot?.questions ?? [])
+  if (!autopilot) {
+    return { level: 'fail', detail: 'el autómata no corrió: el registro quedó sin evaluar' };
+  }
+
+  const ids = (autopilot.questions ?? []).map((question) => question?.id).filter(Boolean);
+
+  if (autopilot.status === 'Aceptada') {
+    return {
+      level: 'fail',
+      detail: 'el registro se aprobó sin el informe de deudas de la CMF: la primera ronda no lo pidió',
+    };
+  }
+
+  if (autopilot.status !== 'Pendiente_Informacion' || !ids.includes('debt_report')) {
+    const questions = (autopilot.questions ?? [])
       .map((question) => question?.question)
       .filter(Boolean)
       .join(' ');
     return {
       level: 'fail',
-      detail: `el autómata no aprobó el registro (${autopilot?.status ?? 'sin estado'})${questions ? `: ${questions}` : ''}`,
+      detail: `el registro quedó en «${autopilot.status}» sin pedir el informe de deudas${questions ? `: ${questions}` : ''}`,
     };
   }
 
-  return { level: 'ok', detail: 'la evaluación lo aprobó y disparó la conversión al alta' };
+  return { level: 'ok', detail: 'el registro quedó pidiendo el informe de deudas de la CMF' };
 }
 
 /**
@@ -1161,6 +1174,69 @@ export function createSmokeStore({ url, key, fetchImpl = fetch }) {
     },
 
     /**
+     * Abre la ronda del informe de deudas con un token propio y un informe de
+     * prueba, para poder cerrarla desde el smoke.
+     *
+     * El registro queda pendiente del informe y el token en claro solo existe en
+     * el correo: acá se escribe el hash de uno que el smoke conoce, igual que con
+     * el alta. El informe se inserta ya analizado porque el PDF de prueba no es
+     * un documento real de la CMF; lo que corre después —la validación del token,
+     * la re-evaluación y la conversión al alta— es el camino de producción.
+     */
+    async openDebtReportRound(solicitudId, rut) {
+      const id = encodeURIComponent(solicitudId);
+      const current = await rest(`solicitudes?id=eq.${id}&select=payload`);
+      const row = current.body?.[0];
+      if (!current.ok || !row) {
+        return { ok: false, error: `no se pudo leer la solicitud: HTTP ${current.status}` };
+      }
+
+      const token = randomBytes(32).toString('base64url');
+      const documentId = randomUUID();
+
+      const patched = await write(`solicitudes?id=eq.${id}`, 'PATCH', {
+        payload: {
+          ...(row.payload ?? {}),
+          answer_token_hash: createHash('sha256').update(token, 'utf8').digest('hex'),
+          answer_token_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        },
+      });
+      if (!patched.ok) {
+        return { ok: false, error: `no se pudo escribir el token: HTTP ${patched.status}` };
+      }
+
+      const seeded = await write('kyb_documents', 'POST', {
+        id: documentId,
+        owner_kind: 'solicitud',
+        owner_id: solicitudId,
+        kind: 'natural',
+        storage_path: `solicitud/${solicitudId}/${documentId}.pdf`,
+        file_name: 'informe-de-prueba.pdf',
+        content_type: 'application/pdf',
+        size_bytes: 1024,
+        status: 'analyzed',
+        analysis: {
+          read: true,
+          issuedAt: new Date().toISOString().slice(0, 10),
+          rut,
+          debtor: 'PRUEBA DE HUMO',
+          totalDebtClp: 0,
+          creditors: 0,
+          currentClp: 0,
+          overdueClp: 0,
+          writtenOffClp: 0,
+          summary: 'Informe de prueba del smoke: sin deuda.',
+          notes: [],
+        },
+      });
+      if (!seeded.ok) {
+        return { ok: false, error: `no se pudo sembrar el informe: HTTP ${seeded.status}` };
+      }
+
+      return { ok: true, token, documentId };
+    },
+
+    /**
      * Una sesión de admin para llamar a los endpoints del panel.
      *
      * La propuesta comercial y la cobranza están detrás de `requireAdmin`, y el
@@ -1289,13 +1365,18 @@ export function createSmokeStore({ url, key, fetchImpl = fetch }) {
         method: 'DELETE',
         headers: prefer,
       });
+      const documentos = await rest(
+        `kyb_documents?owner_kind=eq.solicitud&owner_id=eq.${id}`,
+        { method: 'DELETE', headers: prefer }
+      );
       const solicitudes = await rest(`solicitudes?id=eq.${id}`, {
         method: 'DELETE',
         headers: prefer,
       });
       return {
-        ok: altas.ok && solicitudes.ok,
+        ok: altas.ok && documentos.ok && solicitudes.ok,
         altas: Array.isArray(altas.body) ? altas.body.length : 0,
+        documentos: Array.isArray(documentos.body) ? documentos.body.length : 0,
         solicitudes: Array.isArray(solicitudes.body) ? solicitudes.body.length : 0,
       };
     },
@@ -1399,6 +1480,41 @@ export async function cleanupSignup({ store, email, since, sleep = wait }) {
 }
 
 /**
+ * Cierra la ronda del informe de deudas con un informe de prueba.
+ *
+ * El informe es obligatorio desde la primera ronda, así que el registro de
+ * prueba queda pendiente pidiéndolo. Acá se abre la ronda con un token que el
+ * smoke conoce y un informe ya analizado, y se responde por el endpoint público:
+ * lo que corre después es la validación, la re-evaluación y la conversión.
+ */
+async function completeDebtReportRound({ store, base, solicitudId, rut, fetchImpl }) {
+  const opened = await store
+    .openDebtReportRound(solicitudId, rut)
+    .catch((error) => ({ ok: false, error: errorDetail(error) }));
+  if (!opened.ok) return opened;
+
+  const answered = await probe(fetchImpl, `${base}/api/solicitudes/answers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      token: opened.token,
+      answers: [{ id: 'debt_report', answer: opened.documentId }],
+    }),
+  });
+  if (!answered.ok) return { ok: false, error: `no respondió: ${answered.error}` };
+
+  const body = await answered.response.json().catch(() => null);
+  if (answered.response.status !== 200 || body?.success !== true) {
+    return {
+      ok: false,
+      error: `HTTP ${answered.response.status}: ${body?.error ?? JSON.stringify(body ?? {}).slice(0, 160)}`,
+    };
+  }
+
+  return { ok: true };
+}
+
+/**
  * El camino completo del puente: registro público → alta en `Calificado`.
  *
  * Escribe de verdad (el autómata manda el correo al solicitante) y **borra lo
@@ -1486,13 +1602,28 @@ export async function runBridgeCheck({
     return steps;
   }
 
-  const saved = await store.read(solicitudId).catch((error) => ({ error: errorDetail(error) }));
-  steps.push({
-    label: altaLabel,
-    ...(saved.error
-      ? { level: 'fail', detail: `no se pudo leer lo guardado: ${saved.error}` }
-      : judgeBridgeAlta(saved, solicitudId)),
+  // El informe de deudas es obligatorio desde la primera ronda: la sonda cierra
+  // esa ronda con un informe de prueba y un token propio, y recién ahí nace el
+  // alta.
+  const round = await completeDebtReportRound({
+    store,
+    base,
+    solicitudId,
+    rut: payload.rut,
+    fetchImpl,
   });
+
+  if (!round.ok) {
+    steps.push({ level: 'fail', label: altaLabel, detail: round.error });
+  } else {
+    const saved = await store.read(solicitudId).catch((error) => ({ error: errorDetail(error) }));
+    steps.push({
+      label: altaLabel,
+      ...(saved.error
+        ? { level: 'fail', detail: `no se pudo leer lo guardado: ${saved.error}` }
+        : judgeBridgeAlta(saved, solicitudId)),
+    });
+  }
 
   const cleanup = await store
     .cleanup(solicitudId)
@@ -1622,8 +1753,9 @@ export async function runAltaCheck({
 
   try {
     // 1. El registro público, el mismo del formulario.
+    const rut = smokeTestRut();
     const registro = await postJson('/api/solicitudes', {
-      ...smokeRegistroPayload({ email: destino, rut: smokeTestRut(), now, name: SMOKE_ALTA_NAME }),
+      ...smokeRegistroPayload({ email: destino, rut, now, name: SMOKE_ALTA_NAME }),
     });
 
     if (!registro.ok) {
@@ -1644,6 +1776,20 @@ export async function runAltaCheck({
 
     if (registration.level !== 'ok' || !created.solicitudId) {
       notTried(ALTA_ORDER.slice(1));
+      return steps;
+    }
+
+    // 1b. El informe de deudas de la CMF: obligatorio desde la primera ronda.
+    const round = await completeDebtReportRound({
+      store,
+      base,
+      solicitudId: created.solicitudId,
+      rut,
+      fetchImpl,
+    });
+    if (!round.ok) {
+      done(L.calificado, { level: 'fail', detail: round.error });
+      notTried(ALTA_ORDER.slice(2));
       return steps;
     }
 

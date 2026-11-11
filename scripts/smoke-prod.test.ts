@@ -109,7 +109,18 @@ const happyRoutes = (overrides: Record<string, (body?: any) => Response> = {}) =
       success: true,
       id: 'sol-1',
       persisted: true,
-      autopilot: { status: 'Aceptada', decision: 'Aceptada', questions: [] },
+      autopilot: {
+        status: 'Pendiente_Informacion',
+        decision: 'Pendiente_Informacion',
+        questions: [
+          { id: 'debt_report', kind: 'document', question: 'Adjunta el informe de deudas.' },
+        ],
+      },
+    }),
+  '/api/solicitudes/answers POST': () =>
+    jsonResponse(200, {
+      success: true,
+      data: { status: 'Aceptada', decision: 'Aceptada', score: 100, questions: [] },
     }),
   ...overrides,
 });
@@ -148,8 +159,11 @@ function signupStore(
 }
 
 /** Store simulado: registra lo que se lee y lo que se borra. */
-function bridgeStore(saved: unknown = SAVED_BRIDGE, cleanupResult = { ok: true, altas: 1, solicitudes: 1 }) {
-  const calls = { read: [] as string[], cleanup: [] as string[] };
+function bridgeStore(
+  saved: unknown = SAVED_BRIDGE,
+  cleanupResult = { ok: true, altas: 1, documentos: 1, solicitudes: 1 }
+) {
+  const calls = { read: [] as string[], round: [] as string[], cleanup: [] as string[] };
 
   return {
     calls,
@@ -157,6 +171,10 @@ function bridgeStore(saved: unknown = SAVED_BRIDGE, cleanupResult = { ok: true, 
       read: async (id: string) => {
         calls.read.push(id);
         return saved;
+      },
+      openDebtReportRound: async (id: string) => {
+        calls.round.push(id);
+        return { ok: true, token: 't'.repeat(43), documentId: 'doc-1' };
       },
       cleanup: async (id: string) => {
         calls.cleanup.push(id);
@@ -738,17 +756,32 @@ describe('smokeRegistroPayload', () => {
 });
 
 describe('judgeBridgeRegistro', () => {
-  it('acepta el registro aprobado por el autómata en la misma petición', () => {
+  it('acepta el registro que quedó pidiendo el informe de deudas', () => {
+    const verdict = judgeBridgeRegistro(201, {
+      success: true,
+      id: 'sol-1',
+      autopilot: {
+        status: 'Pendiente_Informacion',
+        questions: [{ id: 'debt_report', question: 'Adjunta el informe de deudas.' }],
+      },
+    });
+
+    expect(verdict.level).toBe('ok');
+    expect(verdict.detail).toContain('informe de deudas');
+  });
+
+  it('un registro aprobado sin el informe es rojo: la primera ronda no lo pidió', () => {
     const verdict = judgeBridgeRegistro(201, {
       success: true,
       id: 'sol-1',
       autopilot: { status: 'Aceptada', questions: [] },
     });
 
-    expect(verdict.level).toBe('ok');
+    expect(verdict.level).toBe('fail');
+    expect(verdict.detail).toContain('sin el informe de deudas');
   });
 
-  it('si el autómata pide información, dice qué preguntó', () => {
+  it('si el autómata pide otra cosa, dice qué preguntó', () => {
     const verdict = judgeBridgeRegistro(201, {
       success: true,
       id: 'sol-1',
@@ -852,8 +885,11 @@ describe('runBridgeCheck', () => {
     const post = calls.find((call) => call.method === 'POST');
     expect((post?.body as { email: string }).email).toBe('alguien+puente1234@gmail.com');
 
+    expect(fake.calls.round).toEqual(['sol-1']);
     expect(fake.calls.read).toEqual(['sol-1']);
     expect(fake.calls.cleanup).toEqual(['sol-1']);
+    // El informe de prueba se responde por el endpoint público.
+    expect(calls.some((call) => call.url.endsWith('/api/solicitudes/answers'))).toBe(true);
     expect(formatReport({ baseUrl: 'https://x.test', ok: true, steps, persisted: null, bridge: true })).toContain(
       'no queda nada en el pipeline'
     );
@@ -878,7 +914,7 @@ describe('runBridgeCheck', () => {
 
   it('si la limpieza deja algo, el smoke falla en vez de acumular basura', async () => {
     const { fetchImpl } = server(happyRoutes());
-    const fake = bridgeStore(SAVED_BRIDGE, { ok: true, altas: 0, solicitudes: 0 });
+    const fake = bridgeStore(SAVED_BRIDGE, { ok: true, altas: 0, documentos: 0, solicitudes: 0 });
 
     const steps = await runBridgeCheck({
       baseUrl: 'https://x.test',
@@ -938,6 +974,7 @@ function altaStore(overrides: Record<string, unknown> = {}) {
     read: [] as string[],
     readAlta: [] as string[],
     setToken: [] as { id: string; purpose: string }[],
+    round: [] as string[],
     magic: [] as string[],
     cleanup: [] as unknown[],
     deleteAccount: [] as string[],
@@ -950,6 +987,10 @@ function altaStore(overrides: Record<string, unknown> = {}) {
         solicitud: { id, status: 'Aceptada', payload: { kyb_application_id: 'alta-1' } },
         alta: { id: 'alta-1', status: 'Calificado', solicitud_origen: id },
       };
+    },
+    openDebtReportRound: async (solicitudId: string) => {
+      calls.round.push(solicitudId);
+      return { ok: true, token: 't'.repeat(43), documentId: 'doc-1' };
     },
     readAlta: async (id: string) => {
       calls.readAlta.push(id);
