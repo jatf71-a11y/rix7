@@ -49,3 +49,11 @@ _audit/to-delete/
 
 .vercel
 .env*
+
+# Artefactos de revisión: capturas y vistas previas de los correos. Se generan
+# con scripts/preview-emails.ts y se revisan fuera del repo, así que no se
+# versionan.
+preview-correo-etapa-*.html
+preview-correos-*.html
+preview-*.png
+semaforo-*.png
