@@ -44,6 +44,8 @@ import type { KybEvaluation, KybManualDecision } from '@/lib/kyb/status';
 import type { KybApplication, KybDecision } from '@/lib/kyb/types';
 import KybEvaluationDetail from '@/components/admin/kyb/KybEvaluationDetail';
 import DebtReportPanel from '@/components/admin/kyb/DebtReportPanel';
+import DebtSummary from '@/components/admin/kyb/DebtSummary';
+import { useDebtReports, type DebtReportsState } from '@/components/admin/kyb/useDebtReports';
 
 /**
  * Panel de socios: los registros de profesionales independientes y las altas
@@ -1595,13 +1597,16 @@ function RegistroFicha({
   const details = solicitud ? solicitudDetails(solicitud) : [];
   const evaluation =
     (solicitud?.payload[SOLICITUD_REVIEW_KEYS.evaluation] as SolicitudEvaluation | undefined) ?? null;
+  // Un solo pedido por ficha: el resumen junto al puntaje y el detalle de abajo
+  // leen los mismos informes.
+  const reports = useDebtReports('solicitud', socio.id);
 
   return (
     <>
-      {evaluation && <SolicitudEvaluationSummary evaluation={evaluation} />}
+      {evaluation && <SolicitudEvaluationSummary evaluation={evaluation} reports={reports} />}
       {/* El informe de deudas se pide en «Pendiente de información» y se lee al
           subirlo: acá el equipo ve el total adeudado sin abrir el PDF. */}
-      <DebtReportPanel ownerKind="solicitud" ownerId={socio.id} />
+      <DebtReportPanel reports={reports} />
       <div className="grid gap-4 px-5 py-4 sm:grid-cols-2">
         {details.map((item) => (
           <div key={item.label}>
@@ -1632,7 +1637,13 @@ function RegistroFicha({
  * preguntó a la persona. Sin ese sustento, «62/100 · Pendiente de información»
  * no dice nada y la única salida sería confiar en el motor a ciegas.
  */
-function SolicitudEvaluationSummary({ evaluation }: { evaluation: SolicitudEvaluation }) {
+function SolicitudEvaluationSummary({
+  evaluation,
+  reports,
+}: {
+  evaluation: SolicitudEvaluation;
+  reports: DebtReportsState;
+}) {
   const tone =
     evaluation.decision === 'Aceptada'
       ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
@@ -1644,6 +1655,7 @@ function SolicitudEvaluationSummary({ evaluation }: { evaluation: SolicitudEvalu
         <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${scoreTone(evaluation.score)}`}>
           {evaluation.score}/100
         </span>
+        <DebtSummary documents={reports.documents} />
         <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${tone}`}>
           {evaluation.decision === 'Aceptada' ? 'Aceptada por el motor' : 'Pidió información'}
         </span>

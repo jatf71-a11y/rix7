@@ -16,8 +16,10 @@ import {
 import type { KybEvaluation, KybManualDecision } from '@/lib/kyb/status';
 import type { KybApplication, KybDecision } from '@/lib/kyb/types';
 import DebtReportPanel from './DebtReportPanel';
+import DebtSummary from './DebtSummary';
 import DecisionPanel from './DecisionPanel';
 import ProposalPanel from './ProposalPanel';
+import { useDebtReports } from './useDebtReports';
 
 /**
  * Ficha de evaluación de una solicitud.
@@ -92,6 +94,9 @@ export default function KybEvaluationDetail({
   const summary = evaluation ? checkSummary(evaluation.checks) : null;
   const outstanding = evaluation ? nonPassingChecks(evaluation.checks) : null;
   const blocked = !canReevaluate(application.status);
+  // Un solo pedido por ficha: el resumen de arriba y el detalle de abajo leen
+  // los mismos informes.
+  const reports = useDebtReports('alta', application.id);
   // Solo hay enlace que reenviar mientras el trámite espera algo del candidato.
   const canResend =
     !application.panelEnabled &&
@@ -123,6 +128,7 @@ export default function KybEvaluationDetail({
               <span className="text-[10px] font-semibold">/100</span>
             </span>
           )}
+          <DebtSummary documents={reports.documents} />
           {onResend && canResend && (
             <button
               type="button"
@@ -334,7 +340,7 @@ export default function KybEvaluationDetail({
         lee al subirlo. Va antes de la decisión porque es parte de lo que se
         decide: total adeudado, impagas y acreedores, sin abrir el PDF.
       */}
-      <DebtReportPanel ownerKind="alta" ownerId={application.id} />
+      <DebtReportPanel reports={reports} />
 
       <DecisionPanel
         application={application}

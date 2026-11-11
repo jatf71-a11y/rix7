@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { AlertCircle, FileText, Loader2 } from 'lucide-react';
 
-import type { DebtReportView } from '@/lib/kyb/documents';
 import { debtReportAgeDays, isDebtReportOutdated } from '@/lib/kyb/debtReport';
+import type { DebtReportsState } from './useDebtReports';
 
 /**
  * Los informes de deudas de una ficha, ya leídos.
@@ -15,8 +15,9 @@ import { debtReportAgeDays, isDebtReportOutdated } from '@/lib/kyb/debtReport';
  * (`unreadable`) en vez de mostrar ceros: un informe que no se pudo leer no es
  * un informe sin deuda.
  *
- * Se carga aparte de la ficha para que un Storage lento no retrase el resto del
- * panel, y se calla si no hay informes: la ficha ya dice en qué etapa está.
+ * Los informes los carga `useDebtReports` una sola vez por ficha: el resumen de
+ * arriba, junto al puntaje, lee los mismos datos. Se calla si no hay informes:
+ * la ficha ya dice en qué etapa está.
  */
 function clp(value: number | null): string {
   if (value === null) return '—';
@@ -27,35 +28,8 @@ function clp(value: number | null): string {
   }).format(value);
 }
 
-export default function DebtReportPanel({
-  ownerKind,
-  ownerId,
-}: {
-  ownerKind: 'alta' | 'solicitud';
-  ownerId: string;
-}) {
-  const [documents, setDocuments] = useState<DebtReportView[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    try {
-      const query = new URLSearchParams({ owner_kind: ownerKind, owner_id: ownerId });
-      const response = await fetch(`/api/admin/kyb/documents?${query.toString()}`);
-      const body = await response.json().catch(() => null);
-
-      if (!response.ok || !body?.success) {
-        setError(body?.error ?? 'No se pudo leer el informe de deudas.');
-        return;
-      }
-      setDocuments(Array.isArray(body.data?.documents) ? body.data.documents : []);
-    } catch {
-      setError('Sin conexión con el servidor.');
-    }
-  }, [ownerKind, ownerId]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+export default function DebtReportPanel({ reports }: { reports: DebtReportsState }) {
+  const { documents, error } = reports;
 
   if (error) {
     return (

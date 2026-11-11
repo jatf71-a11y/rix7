@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import KybEvaluationDetail from './KybEvaluationDetail';
+import DebtSummary from './DebtSummary';
+import type { DebtReportView } from '@/lib/kyb/documents';
 import type { KybEvaluation } from '@/lib/kyb/status';
 import type { KybApplication } from '@/lib/kyb/types';
 
@@ -240,5 +242,44 @@ describe('ficha de evaluación', () => {
     );
     expect(sinEvaluacion).toContain('Re-evalúa para correr el motor');
     expect(sinEvaluacion).not.toContain('Peso 20 pts');
+  });
+
+  it('el resumen de la deuda CMF muestra montos y fecha junto al puntaje', () => {
+    const document: DebtReportView = {
+      id: 'doc-1',
+      ownerKind: 'alta',
+      ownerId: 'kyb-1',
+      kind: 'juridica',
+      fileName: 'informe.pdf',
+      sizeBytes: 1024,
+      status: 'analyzed',
+      createdAt: '2026-11-08T10:00:00.000Z',
+      url: null,
+      analysis: {
+        read: true,
+        issuedAt: '2026-11-07',
+        rut: '76.543.210-3',
+        debtor: 'Catedral Propiedades SpA',
+        totalDebtClp: 1_234_567,
+        creditors: 3,
+        currentClp: 1_234_567,
+        overdueClp: 0,
+        writtenOffClp: 0,
+        summary: 'Sin deuda impaga.',
+        notes: [],
+      },
+    };
+
+    const html = renderToStaticMarkup(
+      React.createElement(DebtSummary, { documents: [document] })
+    );
+
+    expect(html).toContain('Deuda CMF');
+    expect(html).toContain('$1.234.567 total');
+    expect(html).toContain('$0 impaga');
+    expect(html).toContain('emitido 07-11-2026');
+
+    // Sin informes no ocupa lugar: el detalle de abajo ya lo explica.
+    expect(renderToStaticMarkup(React.createElement(DebtSummary, { documents: [] }))).toBe('');
   });
 });
