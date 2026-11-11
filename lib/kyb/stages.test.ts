@@ -31,10 +31,10 @@ describe('applicantStage', () => {
 
     expect(mark?.text).toContain('Etapa 3 de 7 · Pendiente de información');
     expect(mark?.text).toContain('■■■□□□□');
-    // El HTML separa la parte hecha de la pendiente con dos <span>, así que la
-    // barra no aparece contigua: se revisan las dos mitades y el texto.
-    expect(mark?.html).toContain('■■■</span>');
-    expect(mark?.html).toContain('□□□□</span>');
+    // El HTML separa la parte recorrida de la pendiente con dos <span>: la barra
+    // no aparece contigua y se revisan las dos mitades.
+    expect(mark?.html).toContain('color:#dc2626">■■■</span>');
+    expect(mark?.html).toContain('color:#cbd5e1">□□□□</span>');
     expect(mark?.html).toContain('Etapa 3 de 7 · Pendiente de información');
   });
 
@@ -43,24 +43,33 @@ describe('applicantStage', () => {
     expect(applicantStage('Alta')?.text).toContain('■■■■■■■');
   });
 
-  it('cada etapa trae su luz de semáforo', () => {
-    expect(applicantStage('Aceptada')?.tone).toBe('ok');
-    expect(applicantStage('Calificado')?.tone).toBe('ok');
-    expect(applicantStage('Alta')?.tone).toBe('ok');
+  it('solo el pedido de información sale del azul de marca', () => {
+    const blue: KybStatus[] = [
+      'Recibida',
+      'En_Evaluacion',
+      'Aceptada',
+      'Calificado',
+      'Propuesta_Comercial',
+      'Alta',
+    ];
 
-    expect(applicantStage('Propuesta_Comercial')?.tone).toBe('ok');
-    expect(applicantStage('Recibida')?.tone).toBe('waiting');
-    expect(applicantStage('En_Evaluacion')?.tone).toBe('waiting');
-
-    expect(applicantStage('Pendiente_Informacion')?.tone).toBe('blocked');
+    for (const status of blue) expect(applicantStage(status)?.tone).toBe('brand');
+    expect(applicantStage('Pendiente_Informacion')?.tone).toBe('attention');
   });
 
-  it('el marcador pinta la parte recorrida con la luz de la etapa', () => {
-    expect(applicantStage('Alta')?.complete).toBe(true);
-    expect(applicantStage('Alta')?.html).toContain('color:#15803d');
-    expect(applicantStage('En_Evaluacion')?.html).toContain('color:#b45309');
-    expect(applicantStage('Pendiente_Informacion')?.html).toContain('color:#b91c1c');
-    expect(applicantStage('Recibida')?.html).not.toContain('#2563eb');
+  it('la parte recorrida va en azul y solo el pedido de aclaración en rojo', () => {
+    const evaluating = applicantStage('En_Evaluacion')?.html ?? '';
+    expect(evaluating).toContain('color:#2563eb">■■</span>');
+    expect(evaluating).not.toContain('#dc2626');
+
+    const alta = applicantStage('Alta')?.html ?? '';
+    expect(alta).toContain('color:#2563eb');
+    expect(alta).not.toContain('□');
+    expect(alta).not.toContain('#dc2626');
+
+    const pending = applicantStage('Pendiente_Informacion')?.html ?? '';
+    expect(pending).toContain('color:#dc2626">■■■</span>');
+    expect(pending).not.toContain('#2563eb');
   });
 
   it('Operando y Rechazada no son etapas del trámite: no hay marcador', () => {

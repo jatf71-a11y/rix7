@@ -3,17 +3,20 @@ import React from 'react';
 import { APPLICANT_STAGES, applicantStage, type StageTone } from '@/lib/kyb/stages';
 import type { KybStatus } from '@/lib/kyb/status';
 
-/** Semáforo de la barra: el mismo criterio que el marcador de los correos. */
+/** Azul de marca mientras avanza; rojo solo si hay algo que aclarar. */
 const TONE_BAR: Record<StageTone, string> = {
-  ok: 'bg-green-600',
-  waiting: 'bg-amber-500',
-  blocked: 'bg-red-600',
+  brand: 'bg-blue-600',
+  attention: 'bg-red-600',
+};
+
+const TONE_PAST: Record<StageTone, string> = {
+  brand: 'bg-blue-300',
+  attention: 'bg-red-300',
 };
 
 const TONE_TEXT: Record<StageTone, string> = {
-  ok: 'text-green-700',
-  waiting: 'text-amber-700',
-  blocked: 'text-red-700',
+  brand: 'text-blue-700',
+  attention: 'text-red-700',
 };
 
 /**
@@ -22,10 +25,9 @@ const TONE_TEXT: Record<StageTone, string> = {
  * El solicitante ve el proceso por dos canales: el correo y la pantalla del
  * enlace. Si el correo dice «Etapa 3 de 7 · Pendiente de información» y la
  * pantalla no dice nada, el trámite parece empezar de cero cada vez. Acá se
- * dibuja la misma escalera con el semáforo del correo: verde cuando la etapa
- * está resuelta, ámbar mientras se espera algo y rojo cuando falta un dato. Las
- * etapas ya pasadas llevan la misma luz, atenuada, y las que faltan quedan en
- * gris.
+ * dibuja la misma escalera con el criterio del correo: azul de marca, con la
+ * etapa actual más marcada que las pasadas y lo pendiente en gris, y en rojo
+ * cuando la etapa pide una aclaración.
  *
  * No es interactiva ni conoce el flujo: recibe el estado y lo traduce con
  * `applicantStage`, igual que las plantillas. `Operando` y `Rechazada` no se
@@ -63,7 +65,9 @@ export default function StageProgress({
           const tone =
             step > mark.step
               ? 'bg-slate-200'
-              : `${TONE_BAR[mark.tone]}${step === mark.step ? '' : ' opacity-40'}`;
+              : step === mark.step
+                ? TONE_BAR[mark.tone]
+                : TONE_PAST[mark.tone];
 
           return (
             <span

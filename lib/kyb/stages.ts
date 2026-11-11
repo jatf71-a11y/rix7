@@ -25,13 +25,13 @@ export const APPLICANT_STAGE_TOTAL = 7;
 
 /** Las siete etapas, en el orden en que las recorre el trámite. */
 export const APPLICANT_STAGES: readonly { status: KybStatus; label: string; tone: StageTone }[] = [
-  { status: 'Recibida', label: 'Recibida', tone: 'waiting' },
-  { status: 'En_Evaluacion', label: 'Evaluando', tone: 'waiting' },
-  { status: 'Pendiente_Informacion', label: 'Pendiente de información', tone: 'blocked' },
-  { status: 'Aceptada', label: 'Aceptada', tone: 'ok' },
-  { status: 'Calificado', label: 'Calificado', tone: 'ok' },
-  { status: 'Propuesta_Comercial', label: 'Propuesta comercial', tone: 'ok' },
-  { status: 'Alta', label: 'Alta', tone: 'ok' },
+  { status: 'Recibida', label: 'Recibida', tone: 'brand' },
+  { status: 'En_Evaluacion', label: 'Evaluando', tone: 'brand' },
+  { status: 'Pendiente_Informacion', label: 'Pendiente de información', tone: 'attention' },
+  { status: 'Aceptada', label: 'Aceptada', tone: 'brand' },
+  { status: 'Calificado', label: 'Calificado', tone: 'brand' },
+  { status: 'Propuesta_Comercial', label: 'Propuesta comercial', tone: 'brand' },
+  { status: 'Alta', label: 'Alta', tone: 'brand' },
 ];
 
 export interface ApplicantStageMark {
@@ -39,7 +39,7 @@ export interface ApplicantStageMark {
   step: number;
   total: number;
   label: string;
-  /** Luz del semáforo para esa etapa. */
+  /** Azul de marca, o rojo cuando la etapa pide una aclaración. */
   tone: StageTone;
   /** `true` en la última etapa: el trámite llegó al final. */
   complete: boolean;
@@ -53,20 +53,19 @@ const DONE = '■';
 const PENDING = '□';
 
 /**
- * Semáforo del trámite, como el de una calle: verde cuando la etapa está
- * resuelta, ámbar mientras se espera algo (la evaluación o la respuesta del
- * solicitante) y rojo cuando falta un dato para aprobar.
- *
- * Es el color de la parte recorrida del marcador: quien mira la bandeja sabe si
- * tiene que hacer algo sin leer la etiqueta.
+ * El marcador va en el azul de marca mientras el trámite avanza, y en rojo solo
+ * cuando hay algo que aclarar: es la única etapa en la que el solicitante tiene
+ * que hacer algo.
  */
-export type StageTone = 'ok' | 'waiting' | 'blocked';
+export type StageTone = 'brand' | 'attention';
 
 export const STAGE_TONE_COLORS: Record<StageTone, string> = {
-  ok: '#15803d',
-  waiting: '#b45309',
-  blocked: '#b91c1c',
+  brand: '#2563eb',
+  attention: '#dc2626',
 };
+
+/** Las etapas que todavía no se alcanzaron: casilla vacía, sin color. */
+const PENDING_COLOR = '#cbd5e1';
 
 /**
  * Marcador de una etapa, o `null` si el estado no es una de las siete.
@@ -84,6 +83,10 @@ export function applicantStage(status: KybStatus): ApplicantStageMark | null {
   const bar = DONE.repeat(step) + PENDING.repeat(total - step);
   const complete = step === total;
   const doneColor = STAGE_TONE_COLORS[tone];
+  const pendingHtml =
+    step < total
+      ? `<span style="color:${PENDING_COLOR}">${PENDING.repeat(total - step)}</span>`
+      : '';
 
   return {
     step,
@@ -93,7 +96,7 @@ export function applicantStage(status: KybStatus): ApplicantStageMark | null {
     complete,
     text: `Etapa ${step} de ${total} · ${label}  ${bar}`,
     html: `<div style="margin:0 0 18px;font-size:11px;font-weight:700;letter-spacing:.08em;color:#64748b">
-          <span style="color:${doneColor}">${DONE.repeat(step)}</span><span style="color:#cbd5e1">${PENDING.repeat(total - step)}</span>
+          <span style="color:${doneColor}">${DONE.repeat(step)}</span>${pendingHtml}
           &nbsp; Etapa ${step} de ${total} · ${label}
         </div>`,
   };
