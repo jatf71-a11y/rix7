@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Building2, CirclePlus, ArrowLeft, ChevronRight, CreditCard } from 'lucide-react';
+import MfaGate from './MfaGate';
 
 const sidebarItems = [
   {
@@ -115,7 +116,11 @@ export default function SocioShell({
 
         {banner}
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
+          {/* Si la cuenta tiene 2FA, el panel no se muestra hasta verificar el
+              código de la app: las APIs también lo exigen. */}
+          <MfaGate>{children}</MfaGate>
+        </main>
       </div>
     </div>
   );

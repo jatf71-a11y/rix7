@@ -6,6 +6,7 @@ import { BadgeCheck, CalendarClock, CreditCard, Loader2 } from 'lucide-react';
 
 import { formatPlanPrice } from '@/lib/kyb/plans';
 import type { PartnerAccount } from '@/lib/data/partnerAccount';
+import MfaPanel from './MfaPanel';
 import PartnerUsersPanel from './PartnerUsersPanel';
 
 /**
@@ -68,15 +69,20 @@ export default function CuentaPage() {
 
   if (error || !account) {
     return (
-      <div className="max-w-2xl rounded-xl border border-slate-200 bg-white p-6">
-        <h1 className="text-lg font-black text-slate-900">Mi cuenta</h1>
-        <p className="mt-2 text-sm text-slate-600">{error ?? 'No encontramos tu suscripción.'}</p>
-        <Link
-          href="/socio"
-          className="mt-4 inline-flex rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
-        >
-          Volver a mis publicaciones
-        </Link>
+      <div className="max-w-4xl">
+        <div className="max-w-2xl rounded-xl border border-slate-200 bg-white p-6">
+          <h1 className="text-lg font-black text-slate-900">Mi cuenta</h1>
+          <p className="mt-2 text-sm text-slate-600">{error ?? 'No encontramos tu suscripción.'}</p>
+          <Link
+            href="/socio"
+            className="mt-4 inline-flex rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+          >
+            Volver a mis publicaciones
+          </Link>
+        </div>
+        {/* La seguridad no depende de tener una suscripción legible: si la
+            lectura falla, el 2FA se sigue pudiendo activar desde acá. */}
+        <MfaPanel />
       </div>
     );
   }
@@ -183,6 +189,8 @@ export default function CuentaPage() {
           </dl>
         </section>
       </div>
+
+      <MfaPanel />
 
       <PartnerUsersPanel />
     </div>

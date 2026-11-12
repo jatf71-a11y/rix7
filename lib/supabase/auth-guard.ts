@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from './server';
+import { readAssuranceLevel } from './mfa';
 import {
   decideAdminAccess,
   decideMemberAccess,
@@ -122,7 +123,9 @@ export async function requireAdmin(): Promise<GuardResult> {
  * una corredora de desarrollo (`DEV_PARTNER_ID`, por defecto `dev-socio`) y
  * las escrituras quedan en memoria, marcadas como no persistentes.
  */
-export async function requireMember(): Promise<MemberGuardResult> {
+export async function requireMember(
+  options: { allowPendingMfa?: boolean } = {}
+): Promise<MemberGuardResult> {
   const configured = isSupabaseConfigured();
   const devBypass =
     process.env.NEXT_PUBLIC_SHOW_ADMIN_ENV === '1' || process.env.NODE_ENV !== 'production';
@@ -131,10 +134,12 @@ export async function requireMember(): Promise<MemberGuardResult> {
   let role: AccountRole = 'visitor';
   let partnerId: string | null = null;
   let userId: string | null = null;
+  /** Se conserva para leer el nivel de garantía (2FA) de la misma sesión. */
+  let supabase: ReturnType<typeof createClient> | null = null;
 
   if (configured) {
     try {
-      const supabase = createClient();
+      supabase = createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -193,6 +198,28 @@ export async function requireMember(): Promise<MemberGuardResult> {
         { status: 403 }
       ),
     };
+  }
+
+  // Segundo factor: si la cuenta lo tiene activo y esta sesión entró solo con el
+  // enlace del correo, el panel no se abre hasta que la persona escriba el
+  // código de su app. El enlace sirve para entrar, no para saltarse el 2FA.
+  // `allowPendingMfa` es para las rutas que justamente muestran ese estado.
+  if (supabase && !options.allowPendingMfa) {
+    const assurance = await readAssuranceLevel(supabase);
+    if (assurance.requiresChallenge) {
+      return {
+        ok: false,
+        response: NextResponse.json(
+          {
+            success: false,
+            code: 'mfa_required',
+            error:
+              'Tu cuenta tiene verificación en dos pasos: ingresa el código de tu aplicación para entrar al panel.',
+          },
+          { status: 403 }
+        ),
+      };
+    }
   }
 
   return { ok: true, role, partnerId, userId, devBypass: false };
