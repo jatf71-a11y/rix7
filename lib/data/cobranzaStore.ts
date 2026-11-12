@@ -216,9 +216,9 @@ export interface CobranzaActionResult {
  * Dos efectos en la misma corrida:
  * 1. Si el socio queda sin períodos vencidos, se le levanta la morosidad y sus
  *    publicaciones vuelven al portal.
- * 2. Si el alta de ese socio estaba en `Alta` —plan elegido, panel habilitado,
- *    sin pagar—, pasa a `Operando`: es el cierre del pipeline que definió el
- *    equipo.
+ * 2. Si el alta de ese socio estaba en `Alta` —un alta anterior, que sí esperaba
+ *    el pago para operar—, pasa a `Operando`. Las altas nuevas ya nacen
+ *    operando al habilitar el panel, así que para ellas este paso no hace nada.
  */
 export async function registrarPago(input: {
   partnerId: unknown;

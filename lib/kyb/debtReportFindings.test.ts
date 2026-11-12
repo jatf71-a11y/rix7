@@ -83,11 +83,14 @@ describe('debtReportDebtFinding', () => {
     expect(finding.question).toMatch(/regularización/i);
   });
 
-  it('advierte por deuda castigada', () => {
+  it('frena por deuda castigada: no se acepta solo', () => {
     const finding = debtReportDebtFinding(analysis({ writtenOffClp: 900_000 }), NOW);
 
-    expect(finding.status).toBe('warn');
+    // La castigada no se regulariza con el tiempo: el registro queda para
+    // revisión del equipo y no se le pide a la persona explicar nada.
+    expect(finding.status).toBe('fail');
     expect(finding.detail).toMatch(/castigada/i);
+    expect(finding.question).toBeUndefined();
   });
 
   it('advierte cuando el informe ya es viejo, sin invalidarlo', () => {

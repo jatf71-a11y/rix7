@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { AlertCircle, Check, Loader2 } from 'lucide-react';
 import { formatPlanPrice } from '@/lib/kyb/plans';
+import type { CcaExample } from '@/lib/kyb/cca';
 import type { AltaPlanSummary } from '@/lib/kyb/proposal';
 import { friendlyActivationError } from '@/lib/kyb/portal';
 
@@ -32,10 +33,17 @@ interface PlanStepProps {
   token: string;
   /** El plan y los montos que el servidor calculó para esta solicitud. */
   planSummary: AltaPlanSummary;
+  /** Ejemplo en pesos con la UF y el %CCA vigentes; `null` si falta alguno. */
+  ccaExample?: CcaExample | null;
   onActivated: (result: { plan: string | null; emailed: boolean }) => void;
 }
 
-export default function PlanStep({ token, planSummary, onActivated }: PlanStepProps) {
+/** Porcentaje con hasta dos decimales, como se configura en Planes. */
+function formatPct(value: number): string {
+  return `${new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(value)} %`;
+}
+
+export default function PlanStep({ token, planSummary, ccaExample, onActivated }: PlanStepProps) {
   const [confirmed, setConfirmed] = useState(false);
   const [ccaAccepted, setCcaAccepted] = useState(false);
   const [sending, setSending] = useState(false);
@@ -122,19 +130,37 @@ export default function PlanStep({ token, planSummary, onActivated }: PlanStepPr
       </label>
 
       <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <p className="text-sm font-bold text-slate-900">Cobro del CCA</p>
+        <p className="text-sm font-bold text-slate-900">
+          CCA: un cobro mensual, aparte de la mensualidad
+        </p>
         <p className="mt-1 text-xs leading-relaxed text-slate-600">
-          Junto a la mensualidad se factura el <strong>CCA</strong>: la suma de tus publicaciones
-          expresada en UF, multiplicada por el valor del día y por el <strong>%CCA</strong> vigente
-          de Rix7. Se calcula después del alta, con tu cartera real, y cambia cada vez que publicas
-          o das de baja una propiedad. No se cobra por publicación.
+          El <strong>CCA</strong> se factura <strong>todos los meses</strong> junto a la mensualidad
+          del plan. No es un pago único, no es un cobro por publicación y no depende de cuántas
+          fichas publiques: se calcula sobre el valor de tu cartera —la suma de tus publicaciones,
+          expresada en UF— con el <strong>%CCA</strong> que Rix7 publica en Planes.
         </p>
         <p className="mt-2 rounded-lg bg-white px-3 py-2 font-mono text-[11px] text-slate-500">
           $CCA = CCA (UF) × valor UF ÷ 1.000.000 × %CCA
         </p>
+        {ccaExample && (
+          <p className="mt-2 text-[11px] leading-relaxed text-slate-600">
+            Con la UF vigente ({formatPlanPrice(ccaExample.ufClp)}) y el %CCA vigente (
+            {formatPct(ccaExample.ccaPct)}): una cartera de{' '}
+            {formatPlanPrice(ccaExample.stockClp)} —{formatPct(ccaExample.ccaUf).replace(' %', '')}{' '}
+            UF— paga <strong>{formatPlanPrice(ccaExample.monthlyClp)} al mes</strong>. Si tu cartera
+            es más chica o más grande, el monto baja o sube en la misma proporción.
+          </p>
+        )}
+        <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-slate-600">
+          <li>
+            · Sin publicaciones el CCA es <strong>$0</strong>: no hay un mínimo que pagar.
+          </li>
+          <li>· Es proporcional a tu cartera: si la duplicas, el CCA se duplica.</li>
+          <li>· Cambia cuando cambia tu cartera o el %CCA, y cada cambio te llega por correo.</li>
+        </ul>
         <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
-          Cada vez que el monto cambie te llega un correo con la cuenta completa —cartera, CCA en
-          UF, %CCA y monto— y queda en el historial de tu panel.
+          El primer monto se determina después del alta, con tus propiedades ya cargadas. En tu panel
+          ves la cuenta completa —cartera, CCA en UF, %CCA y monto— y el historial de cada mes.
         </p>
 
         <label className="mt-3 flex items-start gap-2.5 text-sm text-slate-700">
@@ -144,7 +170,10 @@ export default function PlanStep({ token, planSummary, onActivated }: PlanStepPr
             onChange={(event) => setCcaAccepted(event.target.checked)}
             className="mt-0.5 h-4 w-4 rounded border-slate-300"
           />
-          <span>Autorizo el cobro mensual del CCA sobre mis publicaciones.</span>
+          <span>
+            Entiendo que el CCA es un cobro mensual y autorizo su facturación junto a la
+            mensualidad.
+          </span>
         </label>
       </div>
 
@@ -160,8 +189,9 @@ export default function PlanStep({ token, planSummary, onActivated }: PlanStepPr
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[11px] leading-relaxed text-slate-400">
-          Este paso no cobra nada: queda registrado el plan que confirmes, tu autorización del CCA
-          y el alta se cierra cuando el pago quede registrado.
+          Hoy no se cobra nada: al confirmar queda registrado el plan y tu autorización del CCA, y
+          el acceso al panel se habilita en este mismo paso. La facturación del período la emite
+          Rix7 por separado.
         </p>
         <button
           type="button"

@@ -284,8 +284,9 @@ Como el CCA es un **cargo mensual que depende de las publicaciones**, hay dos
 cosas que el sistema tiene que poder probar:
 
 1. **Que el solicitante lo autorizó.** En la etapa de **Alta**, el paso de plan
-   muestra la fórmula y una casilla propia —«Autorizo el cobro mensual del CCA
-   sobre mis publicaciones»—; el botón no se habilita sin ella. `/api/kyb/activate`
+   muestra la fórmula, un ejemplo en pesos con la UF y el %CCA vigentes y una
+   casilla propia —«Entiendo que el CCA es un cobro mensual y autorizo su
+   facturación junto a la mensualidad»—; el botón no se habilita sin ella. `/api/kyb/activate`
    exige `ccaAccepted: true` y `activateKybPlan` no cierra el alta sin eso: sin
    autorización no se crea el socio ni el panel. La fecha queda en
    `kyb_applications.cca_authorized_at` y la ficha de la solicitud en el panel la

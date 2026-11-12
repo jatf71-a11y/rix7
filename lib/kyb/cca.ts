@@ -49,3 +49,50 @@ export function ccaMonthlyClp(
 ): number {
   return ccaAmountClp(stockUf, ufValueClp, ccaPct);
 }
+
+/**
+ * Cartera de ejemplo para explicar el CCA en pesos en el alta.
+ *
+ * Cien millones es una propiedad típica del mercado chileno: alcanza para que
+ * el ejemplo se lea como algo concreto y no como una cifra de folleto.
+ */
+export const CCA_EXAMPLE_STOCK_CLP = 100_000_000;
+
+export interface CcaExample {
+  stockClp: number;
+  ufClp: number;
+  /** La cartera del ejemplo, en UF. */
+  ccaUf: number;
+  ccaPct: number;
+  monthlyClp: number;
+}
+
+/**
+ * Ejemplo numérico del CCA con los valores vigentes.
+ *
+ * Se calcula con la **misma** fórmula que la factura (`ccaMonthlyClp`), así que
+ * no puede despegarse de lo que se cobra: si cambia la UF o el %CCA, el ejemplo
+ * cambia solo. Devuelve `null` cuando falta la UF o el porcentaje, y la pantalla
+ * se queda con la fórmula: un monto inventado sería peor que ninguno.
+ */
+export function ccaExample({
+  stockClp = CCA_EXAMPLE_STOCK_CLP,
+  ufClp,
+  ccaPct = DEFAULT_CCA_PCT,
+}: {
+  stockClp?: number;
+  ufClp: number | null | undefined;
+  ccaPct?: number;
+}): CcaExample | null {
+  if (!Number.isFinite(stockClp) || stockClp <= 0) return null;
+  if (ufClp === null || ufClp === undefined || !Number.isFinite(ufClp) || ufClp <= 0) return null;
+  if (!Number.isFinite(ccaPct) || ccaPct <= 0) return null;
+
+  const ccaUf = ccaStockUf([stockClp], ufClp);
+  const monthlyClp = Math.round(ccaMonthlyClp(ccaUf, ufClp, ccaPct));
+  // Un monto de $0 con cartera sería una mentira: solo pasa si el %CCA quedó
+  // fuera del rango que acepta la fórmula, y entonces no hay ejemplo que mostrar.
+  if (monthlyClp <= 0) return null;
+
+  return { stockClp, ufClp, ccaUf, ccaPct, monthlyClp };
+}

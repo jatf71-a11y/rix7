@@ -14,6 +14,7 @@
 import { getKybPlan, isKybPlanId } from './plans';
 import type { AltaPlanSummary } from './proposal';
 import type { KybQuestion, KybStatus } from './status';
+import type { CcaExample } from './cca';
 
 /** Lo que devuelve `POST /api/kyb/access`. */
 export interface KybAccessView {
@@ -30,6 +31,12 @@ export interface KybAccessView {
    * propuesta, de los precios configurados para el perfil del registro.
    */
   planSummary?: AltaPlanSummary | null;
+  /**
+   * Ejemplo del CCA en pesos, calculado con la UF y el %CCA vigentes. No es un
+   * monto contratado: es una ilustración que sale de la misma fórmula que la
+   * factura, para que el socio vea un número y no solo un símbolo.
+   */
+  ccaExample?: CcaExample | null;
 }
 
 export type KybPortalStage = 'questions' | 'proposal' | 'plans' | 'active' | 'evaluating';
@@ -105,7 +112,7 @@ export function evaluatingCopy(status: KybStatus): StageCopy {
     case 'Alta':
       return {
         title: 'Propuesta aceptada: sigue el alta',
-        body: 'Te enviamos al correo de la empresa el enlace para elegir el plan y habilitar el panel. Cuando el pago quede registrado, tu cuenta pasa a operando.',
+        body: 'Te enviamos al correo de la empresa el enlace para elegir el plan, autorizar el CCA y habilitar el panel. Al terminar, tu cuenta queda operando.',
       };
     case 'Operando':
       return {

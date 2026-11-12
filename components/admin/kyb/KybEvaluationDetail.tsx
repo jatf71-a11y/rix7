@@ -95,8 +95,13 @@ export default function KybEvaluationDetail({
   const outstanding = evaluation ? nonPassingChecks(evaluation.checks) : null;
   const blocked = !canReevaluate(application.status);
   // Un solo pedido por ficha: el resumen de arriba y el detalle de abajo leen
-  // los mismos informes.
-  const reports = useDebtReports('alta', application.id);
+  // los mismos informes. Si el alta nació de un registro, el informe se subió
+  // contra la fila de «Publicar», así que se pide ahí: si no, la deuda aparecía
+  // en el registro y desaparecía justo en la ficha donde se decide.
+  const reports = useDebtReports(
+    application.solicitudOrigen ? 'solicitud' : 'alta',
+    application.solicitudOrigen ?? application.id
+  );
   // Solo hay enlace que reenviar mientras el trámite espera algo del candidato.
   const canResend =
     !application.panelEnabled &&

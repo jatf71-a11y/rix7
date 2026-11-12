@@ -583,7 +583,7 @@ function AdminEmpresasPage() {
                     <p className="mt-2 text-[10px] leading-relaxed text-slate-400">
                       {stockClp === 0
                         ? 'Sin propiedades cargadas: el CCA es 0 hasta la primera.'
-                        : 'Se determina después del alta y se recalcula con cada propiedad. No se cobra por publicación.'}
+                        : 'Se determina después del alta y se recalcula con cada propiedad. Se factura todos los meses junto a la mensualidad; no se cobra por publicación.'}
                       {uf === null ? ' Falta la UF del día, así que no se muestra el CCA ni el monto.' : ''}
                     </p>
                   </div>

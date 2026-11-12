@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { ccaMonthlyClp, ccaStockUf } from './cca';
+import { CCA_EXAMPLE_STOCK_CLP, ccaExample, ccaMonthlyClp, ccaStockUf } from './cca';
 
 /**
  * Determinación del CCA: la cuenta que el socio ve en su panel después del alta.
@@ -62,5 +62,41 @@ describe('monto en pesos', () => {
 
   it('sin stock no hay cobro', () => {
     expect(ccaMonthlyClp(0, UF, 100)).toBe(0);
+  });
+});
+
+describe('ejemplo del alta', () => {
+  it('se calcula con la fórmula y los valores vigentes, no con un número fijo', () => {
+    // $100.000.000 ÷ $40.000 = UF 2.500; × $40.000 ÷ 1.000.000 = $100 al mes.
+    const example = ccaExample({ ufClp: UF, ccaPct: 100 });
+
+    expect(example).not.toBeNull();
+    expect(example?.stockClp).toBe(CCA_EXAMPLE_STOCK_CLP);
+    expect(example?.ccaUf).toBe(2_500);
+    expect(example?.monthlyClp).toBe(100);
+  });
+
+  it('el %CCA mueve el ejemplo igual que la factura', () => {
+    expect(ccaExample({ ufClp: UF, ccaPct: 50 })?.monthlyClp).toBe(50);
+    expect(ccaExample({ ufClp: UF, ccaPct: 200 })?.monthlyClp).toBe(200);
+  });
+
+  it('con la UF de otro día el ejemplo cambia solo', () => {
+    // Con la UF a $50.000, la misma cartera son UF 2.000 y el monto no cambia:
+    // la UF se cancela en la fórmula. Lo que cambia es la cifra en UF.
+    const example = ccaExample({ ufClp: 50_000, ccaPct: 100 });
+
+    expect(example?.ccaUf).toBe(2_000);
+    expect(example?.monthlyClp).toBe(100);
+  });
+
+  it('sin UF o sin %CCA no hay ejemplo: mejor la fórmula sola que un monto inventado', () => {
+    expect(ccaExample({ ufClp: null })).toBeNull();
+    expect(ccaExample({ ufClp: 0 })).toBeNull();
+    expect(ccaExample({ ufClp: Number.NaN })).toBeNull();
+    expect(ccaExample({ ufClp: UF, ccaPct: 0 })).toBeNull();
+    expect(ccaExample({ ufClp: UF, stockClp: 0 })).toBeNull();
+    // Un %CCA fuera de rango da $0 en la fórmula: eso no es un ejemplo válido.
+    expect(ccaExample({ ufClp: UF, ccaPct: 200_000 })).toBeNull();
   });
 });

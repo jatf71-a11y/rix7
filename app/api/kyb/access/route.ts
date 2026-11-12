@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { kybAccessPostSchema } from '@/lib/api/schemas';
 import { validateInput } from '@/lib/api/validate';
+import { readUfClp } from '@/lib/data/ccaLedger';
+import { readPlanPricing } from '@/lib/data/planPricingStore';
+import { ccaExample as buildCcaExample, type CcaExample } from '@/lib/kyb/cca';
 import { kybStatusByToken } from '@/lib/kyb/onboarding';
 import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
 
@@ -41,6 +44,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // El ejemplo del CCA se arma solo cuando el paso de plan se va a mostrar. La
+  // UF se pide a un servicio externo (cacheado una hora), así que no se consulta
+  // para un enlace que solo va a decir «en evaluación». Sin UF no se inventa un
+  // monto: el paso muestra la fórmula, que es igual de cierta.
+  let ccaExample: CcaExample | null = null;
+  if (result.planSummary) {
+    const [ufClp, pricing] = await Promise.all([readUfClp(), readPlanPricing()]);
+    ccaExample = buildCcaExample({ ufClp, ccaPct: pricing.config.ccaPct });
+  }
+
   return NextResponse.json({
     success: true,
     data: {
@@ -54,6 +67,7 @@ export async function POST(request: NextRequest) {
       // Los montos del paso de plan: los de la propuesta aceptada, que nacen de
       // los precios que el equipo definió en Planes.
       planSummary: result.planSummary ?? null,
+      ccaExample,
     },
   });
 }

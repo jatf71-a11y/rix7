@@ -1052,7 +1052,8 @@ const altaRoutes = (overrides: Record<string, (body?: any) => Response> = {}) =>
         ? jsonResponse(200, {
             success: true,
             data: {
-              status: 'Alta',
+              // El alta se cierra acá: plan, CCA autorizado y panel habilitado.
+              status: 'Operando',
               plan: 'profesional',
               already: false,
               panel: { enabled: true, partnerId: 'ficha-1', account: 'created' },
@@ -1168,7 +1169,7 @@ describe('runAltaCheck', () => {
             ? jsonResponse(200, {
                 success: true,
                 data: {
-                  status: 'Alta',
+                  status: 'Operando',
                   plan: 'profesional',
                   panel: { enabled: true, partnerId: 'ficha-1', account: 'linked' },
                 },
@@ -1354,15 +1355,24 @@ describe('veredictos del alta', () => {
     expect(
       judgeActivation(200, {
         success: true,
-        data: { status: 'Alta', plan: 'profesional', panel: { enabled: false } },
+        data: { status: 'Operando', plan: 'profesional', panel: { enabled: false } },
       }).level
     ).toBe('fail');
     expect(
       judgeActivation(200, {
         success: true,
-        data: { status: 'Alta', plan: 'profesional', panel: { enabled: true, partnerId: 'f' } },
+        data: { status: 'Operando', plan: 'profesional', panel: { enabled: true, partnerId: 'f' } },
       }).level
     ).toBe('ok');
+    // Elegir plan con el CCA autorizado cierra el alta: quedar en `Alta` con el
+    // panel abierto sería una cuenta que espera un pago que ya no condiciona el
+    // acceso que acaba de recibir.
+    expect(
+      judgeActivation(200, {
+        success: true,
+        data: { status: 'Alta', plan: 'profesional', panel: { enabled: true, partnerId: 'f' } },
+      }).level
+    ).toBe('fail');
   });
 
   it('Operando exige panel y ficha, no solo el estado', () => {

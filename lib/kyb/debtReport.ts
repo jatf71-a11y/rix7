@@ -399,6 +399,60 @@ export function debtReportRutFinding(
 }
 
 /**
+ * Política de riesgo del informe de deudas.
+ *
+ * Tener deuda vigente es normal —un crédito hipotecario, una línea de capital de
+ * trabajo—; lo que dice que no se está cumpliendo es la mora. Y no cualquier
+ * mora: una empresa que opera arrastra montos chicos. Lo que frena el registro
+ * es la deuda impaga por encima de este monto, o cualquier deuda castigada, que
+ * es la que anticipa insolvencia y no se regulariza sola.
+ *
+ * Sobre el umbral el registro no se acepta solo: queda para revisión del equipo
+ * con el informe a la vista, y la persona recibe un correo que se lo dice. No
+ * hay nada que ella pueda responder, así que no se le pide nada.
+ */
+export const DEBT_OVERDUE_RISK_CLP = 5_000_000;
+
+export type DebtRisk = 'none' | 'watch' | 'block';
+
+export interface DebtRiskAssessment {
+  risk: DebtRisk;
+  /** El motivo en una línea, o `null` si no hay nada que decir. */
+  detail: string | null;
+}
+
+/** Clasifica la deuda del informe contra la política de riesgo. */
+export function debtRisk(analysis: DebtReportAnalysis): DebtRiskAssessment {
+  // De un PDF sin texto no se afirma nada: ni riesgo ni ausencia de riesgo.
+  if (!analysis.read) return { risk: 'none', detail: null };
+
+  const overdue = analysis.overdueClp;
+  const writtenOff = analysis.writtenOffClp;
+
+  if (writtenOff !== null && writtenOff > 0) {
+    return {
+      risk: 'block',
+      detail: `tiene deuda castigada por ${clp(writtenOff)}, que no se regulariza con el tiempo`,
+    };
+  }
+
+  if (overdue !== null && overdue > DEBT_OVERDUE_RISK_CLP) {
+    return {
+      risk: 'block',
+      detail: `la deuda impaga (${clp(overdue)}) supera el máximo de ${clp(
+        DEBT_OVERDUE_RISK_CLP
+      )}`,
+    };
+  }
+
+  if (overdue !== null && overdue > 0) {
+    return { risk: 'watch', detail: `deuda impaga por ${clp(overdue)}` };
+  }
+
+  return { risk: 'none', detail: null };
+}
+
+/**
  * Qué dice el informe sobre la deuda del solicitante.
  *
  * No se inventa un umbral de rechazo: tener deuda vigente es normal (un crédito
@@ -426,6 +480,17 @@ export function debtReportDebtFinding(
     return {
       status: 'warn',
       detail: 'El informe no se pudo leer, así que no hay montos que evaluar.',
+      facts,
+    };
+  }
+
+  // La política de riesgo manda sobre la advertencia: si la deuda supera el
+  // umbral, el registro no se acepta solo, aunque el resto esté impecable.
+  const risk = debtRisk(analysis);
+  if (risk.risk === 'block') {
+    return {
+      status: 'fail',
+      detail: `Riesgo de crédito: ${risk.detail}. El registro queda para revisión del equipo.`,
       facts,
     };
   }

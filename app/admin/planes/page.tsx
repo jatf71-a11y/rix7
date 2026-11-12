@@ -535,8 +535,9 @@ export default function AdminPlanesPage() {
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
               <p className="mt-1 text-[10px] text-slate-400">
-                Suma de la cartera del socio, en UF. No se cobra por publicación. Ejemplo: un CCA de
-                100.000 con una UF de $40.000 da $4.000.
+                Suma de la cartera del socio, en UF, y se cobra todos los meses junto a la
+                mensualidad del plan: no se cobra por publicación. Ejemplo: un CCA de 100.000 con una
+                UF de $40.000 da $4.000 al mes.
               </p>
             </div>
 
@@ -611,7 +612,7 @@ export default function AdminPlanesPage() {
 
             <div className="mt-4 border-t border-slate-200 pt-3">
               <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                $CCA a cobrar
+                $CCA a cobrar al mes
               </p>
               <p className="mt-1 text-2xl font-black tracking-tight text-slate-900">
                 {ccaValue === null ? '—' : formatCcaAmount(ccaValue.amount)}

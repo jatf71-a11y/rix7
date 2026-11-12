@@ -122,9 +122,11 @@ export default function PlanChoice({
       </div>
 
       <p className="mt-5 rounded-xl bg-white px-4 py-3 text-xs leading-relaxed text-slate-500">
-        Todos los planes publican sin cupo. El <strong className="text-slate-700">CCA</strong> —la
-        suma de tus publicaciones en UF— se determina después del alta, con tus propiedades ya
-        cargadas, y se factura aparte de la mensualidad. La captación de leads, si la quieres,
+        Todos los planes publican sin cupo. Aparte de la mensualidad, el{' '}
+        <strong className="text-slate-700">CCA</strong> es un{' '}
+        <strong>cobro mensual</strong> sobre el valor de tu cartera —la suma de tus publicaciones en
+        UF—, con el %CCA vigente: se determina después del alta, con tus propiedades ya cargadas, y
+        cambia si cambias tu cartera. Sin publicaciones es $0. La captación de leads, si la quieres,
         cuesta {formatPlanPrice(captacionMonthlyClp)} al mes para tu perfil.
       </p>
 

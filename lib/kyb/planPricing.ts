@@ -327,7 +327,7 @@ export const CCA_FORMULA = '$CCA = CCA × valor de la UF ÷ 1.000.000 × %CCA';
 
 /** Qué es el CCA, en una línea. */
 export const CCA_DEFINITION =
-  'CCA: suma de la cartera del socio (sus propiedades), en UF. Se cobra el CCA, no cada publicación.';
+  'CCA: suma de la cartera del socio (sus propiedades), en UF. Es un cobro mensual que se factura junto a la mensualidad del plan; no se cobra por publicación.';
 
 function validCca(ccaUf: number, ufValueClp: number): boolean {
   return (

@@ -27,6 +27,7 @@ import {
   buildSolicitudRejectedEmail,
 } from '../lib/email/solicitudApplicantEmail';
 import {
+  buildKybAcceptedEmail,
   buildKybActivatedEmail,
   buildKybProposalEmail,
   buildKybQualifiedEmail,
@@ -112,6 +113,25 @@ const activated = buildKybActivatedEmail({
   siteUrl,
 });
 
+// El correo del paso `Alta`: el que lleva el enlace para confirmar el plan y
+// autorizar el CCA. Se revisa junto al del panel habilitado porque son las dos
+// caras de la misma etapa, y es el que decía que el alta se cerraba con el pago.
+const acceptedAlta = buildKybAcceptedEmail({
+  legalName,
+  contactName,
+  token: 'a'.repeat(43),
+  siteUrl,
+  plan: {
+    planId: 'profesional',
+    planName: 'Profesional',
+    altaClp: 49990,
+    monthlyClp: 39990,
+    usuariosIncluidos: 5,
+    source: 'propuesta',
+  },
+  captacionMonthlyClp: 19990,
+});
+
 const solicitudReminder = buildSolicitudPendingEmail({
   name,
   offerLabel,
@@ -179,7 +199,16 @@ const stageEmails: PreviewEmail[] = [
     note: 'Marcador: Etapa 6 de 7 · Propuesta comercial',
     email: proposal,
   },
-  { title: 'Etapa 7 de 7 · Alta', note: 'Marcador: Etapa 7 de 7 · Alta', email: activated },
+  {
+    title: 'Etapa 7 de 7 · Alta (confirmar el plan)',
+    note: 'Marcador: Etapa 7 de 7 · Alta',
+    email: acceptedAlta,
+  },
+  {
+    title: 'Etapa 7 de 7 · Alta (panel habilitado)',
+    note: 'Marcador: Etapa 7 de 7 · Alta',
+    email: activated,
+  },
 ];
 
 const reminderEmails: PreviewEmail[] = [

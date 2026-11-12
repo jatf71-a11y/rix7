@@ -549,15 +549,15 @@ describe('flujo KYB', () => {
     const activated = await activateKybPlan({ token, plan: 'profesional', ccaAccepted: true });
     expect(activated.ok).toBe(true);
     expect(activated.already).toBe(false);
-    // Elegir plan no cierra el alta: falta el pago. La solicitud queda en «Alta»
-    // y la cobranza la mueve a «Operando» cuando entra el período.
-    expect(activated.status).toBe('Alta');
+    // Elegir plan con el CCA autorizado cierra el alta: la cuenta queda operando
+    // en el mismo paso, porque ya tiene panel y puede publicar.
+    expect(activated.status).toBe('Operando');
     expect(activated.panel?.enabled).toBe(true);
     expect(activated.panel?.account).toBe('created');
     expect(provisionCompanyPanel).toHaveBeenCalledTimes(1);
 
     const stored = await getApplication(id);
-    expect(stored.data?.status).toBe('Alta');
+    expect(stored.data?.status).toBe('Operando');
     expect(stored.data?.panelEnabled).toBe(true);
     expect(stored.data?.plan).toBe('profesional');
     expect(stored.data?.partnerId).toBe('catedral-propiedades-spa-2103');

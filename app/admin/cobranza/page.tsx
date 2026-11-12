@@ -18,8 +18,9 @@ import type { SocioCobranza } from '@/lib/data/cobranzaStore';
  * La lista ordena lo que reclama atención primero (morosos, vencidos) y cada
  * socio se abre para registrar el pago de un período o para confirmar/levantar
  * la morosidad. Registrar un pago hace dos cosas de una: marca el período como
- * pagado y, si el socio estaba `Alta` —plan elegido, sin pagar—, lo mueve a
- * `Operando`.
+ * pagado y, si el alta de ese socio quedó en `Alta` —un alta anterior, que sí
+ * esperaba el pago para operar—, la mueve a `Operando`. Las altas nuevas ya
+ * nacen operando al confirmar el plan, así que para ellas solo marca el período.
  *
  * La morosidad es la única acción con efecto público: mientras esté confirmada,
  * las propiedades del socio no se muestran en el portal. Por eso el botón pide
@@ -150,9 +151,10 @@ export default function AdminCobranzaPage() {
         <div>
           <h1 className="text-2xl font-black text-slate-900">Cobranza</h1>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-500">
-            Suscripción de cada socio, período por período. Registrar el pago cierra el alta —el
-            socio pasa a <strong>operando</strong>— y confirmar la morosidad deja sus publicaciones
-            fuera del portal hasta que regularice.
+            Suscripción de cada socio, período por período. Registrar el pago deja el período al
+            día —y cierra las altas anteriores que seguían esperando ese pago—; el alta nueva se
+            cierra al confirmar el plan y autorizar el CCA. Confirmar la morosidad deja sus
+            publicaciones fuera del portal hasta que regularice.
           </p>
         </div>
         <button

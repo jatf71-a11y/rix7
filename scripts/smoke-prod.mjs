@@ -40,8 +40,9 @@
  * `--write` va más allá y recorre el **alta completa**, que es el camino que de
  * verdad recorre un socio nuevo: registro → Calificado → propuesta comercial
  * (enviada desde el endpoint real de admin) → el candidato la acepta → elige
- * plan y se le habilita el panel → se registra el pago y el alta queda en
- * `Operando` → el enlace del correo abre `/socio` **con sesión** → se borra todo
+ * plan, autoriza el CCA y el alta queda en `Operando` con el panel habilitado →
+ * se registra el pago del período → el enlace del correo abre `/socio` **con
+ * sesión** → se borra todo
  * lo que se creó. Cada paso usa el endpoint de producción, no una copia: lo que
  * se comprueba es el camino que va a recorrer un cliente.
  *
@@ -128,7 +129,7 @@ export const ALTA_STEP_LABELS = {
   propuesta: 'Alta · POST /api/kyb/:id/proposal (propuesta comercial)',
   aceptacion: 'Alta · POST /api/kyb/proposal (el candidato acepta)',
   plan: 'Alta · POST /api/kyb/activate (plan y panel)',
-  pago: 'Alta · POST /api/admin/cobranza (pago → Operando)',
+  pago: 'Alta · POST /api/admin/cobranza (pago del período)',
   acceso: 'Alta · enlace del correo abre /socio con sesión',
   cca: 'Alta · CCA autorizado y cuenta corriente abierta',
   publicacion: 'Alta · publicar mueve el CCA y avisa por correo',
@@ -620,8 +621,10 @@ export function judgeProposalAccepted(status, body) {
  * Cómo leer la elección de plan.
  *
  * Se exige `panel.enabled`, no solo el 200: es lo que separa «quedó guardado el
- * plan» de «la cuenta y la ficha existen y `/socio` va a abrir». El alta queda
- * en `Alta`, todavía sin pagar; `Operando` lo mueve el pago.
+ * plan» de «la cuenta y la ficha existen y `/socio` va a abrir». Elegir plan con
+ * el CCA autorizado **cierra el alta**: la solicitud queda en `Operando` porque
+ * el socio ya tiene panel y puede publicar, y el cobro del período no condiciona
+ * ese acceso.
  */
 export function judgeActivation(status, body) {
   if (status === 502) {
@@ -633,10 +636,10 @@ export function judgeActivation(status, body) {
   if (body?.data?.panel?.enabled !== true) {
     return { level: 'fail', detail: 'respondió 200 pero el panel no quedó habilitado' };
   }
-  if (body?.data?.status !== 'Alta') {
+  if (body?.data?.status !== 'Operando') {
     return {
       level: 'fail',
-      detail: `la solicitud quedó en «${body?.data?.status ?? 'sin estado'}» y no en Alta`,
+      detail: `la solicitud quedó en «${body?.data?.status ?? 'sin estado'}» y no en Operando`,
     };
   }
 
@@ -1929,7 +1932,9 @@ export async function runAltaCheck({
       return steps;
     }
 
-    // 6. El pago del período: cierra el alta en `Operando`.
+    // 6. El pago del período. El alta ya quedó en `Operando` al habilitar el
+    //    panel, así que acá no hay transición que esperar: se comprueba que el
+    //    pago se registre y que el alta siga operando, con panel y ficha.
     const alta = await store.readAlta(created.altaId).catch(() => null);
     const monthly = lastProposalMonthly(alta?.proposal) ?? 14990;
 

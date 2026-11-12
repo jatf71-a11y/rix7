@@ -361,6 +361,63 @@ export function buildSolicitudAcceptedEmail({
 }
 
 /**
+ * Revisión manual.
+ *
+ * Se manda cuando el motor no cierra el registro pero tampoco hay nada que
+ * preguntarle: el informe de deudas de la CMF muestra un riesgo de crédito
+ * —deuda castigada, o impaga sobre el máximo—. No lleva enlace porque no hay
+ * formulario que responder: lo que sigue es que el equipo mire el informe y
+ * decida, y la persona tiene que saberlo para no quedarse esperando.
+ */
+export function buildSolicitudReviewEmail({
+  name,
+  offerLabel,
+  reason,
+  siteUrl,
+}: {
+  name: string;
+  offerLabel: string;
+  reason: string;
+  siteUrl: string;
+}): BuiltSolicitudApplicantEmail {
+  const hello = greeting(name);
+  const stage = applicantStage('Pendiente_Informacion');
+
+  const text = [
+    hello,
+    '',
+    ...(stage ? [stage.text, ''] : []),
+    `Revisamos ${offerLabel} y quedó en revisión del equipo: ${reason}.`,
+    'No tienes que hacer nada por ahora. Revisamos el informe y te escribimos con la',
+    'decisión a este correo. Si quieres adelantar algo, responde este correo',
+    'contándonos la situación.',
+    '',
+    'Rix7 — Registro profesional',
+    siteUrl,
+  ].join('\n');
+
+  return {
+    subject: 'Tu registro quedó en revisión',
+    text,
+    html: shell({
+      siteUrl,
+      title: 'Estamos revisando tu registro',
+      intro: `${escapeHtml(hello)} ${escapeHtml(offerLabel)} quedó en revisión del equipo.`,
+      body: `
+        ${stage?.html ?? ''}
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px 16px;color:#92400e;font-size:13px;line-height:1.65">
+          El informe de deudas de la CMF muestra un punto que necesita una revisión
+          nuestra: ${escapeHtml(reason)}.
+        </div>
+        <p style="margin:18px 0 0;color:#64748b;font-size:12px;line-height:1.6">
+          No tienes que hacer nada por ahora: revisamos el informe y te escribimos con la
+          decisión. Si quieres adelantar algo, responde este correo contándonos la situación.
+        </p>`,
+    }),
+  };
+}
+
+/**
  * Rechazo.
  *
  * Lo decide una persona, así que el motivo va escrito tal cual: sin él, quien lo

@@ -57,8 +57,12 @@ const { cleanReport } = vi.hoisted(() => ({
   },
 }));
 
+// El informe se puede cambiar por caso: el limpio es el default y `debtDocs.report`
+// permite probar un informe con riesgo de crédito en el mismo archivo.
+const { debtDocs } = vi.hoisted(() => ({ debtDocs: { report: null as unknown } }));
+
 vi.mock('@/lib/kyb/documents', () => ({
-  findDebtReportAnalysis: async () => cleanReport,
+  findDebtReportAnalysis: async () => debtDocs.report ?? cleanReport,
   isDebtReportFromOwner: async () => true,
 }));
 

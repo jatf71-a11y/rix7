@@ -38,7 +38,9 @@ export function kybPlanUrl(siteUrl: string, token: string): string {
   return `${siteUrl.replace(/\/+$/, '')}/empresas/plan?token=${encodeURIComponent(token)}`;
 }
 
-function shell({
+// Exportado para los correos de la cuenta del socio (invitaciones): el marco es
+// el mismo y dos copias se despegan al primer cambio de estilo.
+export function shell({
   siteUrl,
   title,
   intro,
@@ -252,9 +254,9 @@ export function buildKybAcceptedEmail({
    * La captación que el candidato aceptó, si la tomó.
    *
    * Es el correo del paso **Alta**: lo que se confirma tiene que ser todo lo que
-   * se definió en la propuesta, no solo la mensualidad. El CCA no figura porque
-   * no se firma acá: se determina después del alta, con las publicaciones del
-   * socio.
+   * se definió en la propuesta, no solo la mensualidad. El CCA no se firma en el
+   * correo: se autoriza en el paso del enlace, junto con el plan, y el primer
+   * monto se determina después del alta, con las publicaciones del socio.
    */
   captacionMonthlyClp?: number | null;
 }): BuiltKybEmail {
@@ -279,8 +281,9 @@ export function buildKybAcceptedEmail({
     `${plan.usuariosIncluidos} usuario(s) con acceso al panel.`,
     ...captacionTextLines(captacionMonthlyClp),
     '',
-    'Al confirmar el plan creamos el acceso al panel de publicaciones y te enviamos el enlace',
-    'para entrar. El alta queda cerrada cuando se registra el pago del período.',
+    'Al confirmar el plan habilitamos el acceso al panel de publicaciones y te enviamos el',
+    'enlace para entrar. El alta queda cerrada en ese mismo paso; el pago del período se',
+    'registra por separado y no condiciona el acceso.',
     '',
     'Rix7 — Alta de empresas',
     siteUrl,
@@ -314,7 +317,8 @@ export function buildKybAcceptedEmail({
         </div>
         <p style="margin:14px 0 0;color:#64748b;font-size:12px;line-height:1.6">
           El enlace vale 7 días. Al confirmar el plan habilitamos el acceso al panel de
-          publicaciones de tu empresa; el alta queda cerrada cuando se registra el pago.
+          publicaciones de tu empresa y el alta queda cerrada en ese mismo paso; el pago del
+          período se registra por separado y no condiciona el acceso.
         </p>`,
     }),
   };
@@ -480,7 +484,7 @@ export function buildKybQualifiedEmail({
     'Elige el plan con el que quieres operar:',
     ...planLines,
     '',
-    'Todos los planes publican sin cupo: el CCA se factura sobre tu cartera.',
+    'Todos los planes publican sin cupo: el CCA es un cobro mensual sobre tu cartera.',
     `Sugerido para tu perfil: ${recommended.planName}.`,
     '',
     'Con el plan que elijas armamos la propuesta comercial con esos montos, y la aceptas',
@@ -488,7 +492,8 @@ export function buildKybQualifiedEmail({
     `${captacion} al mes.`,
     '',
     'El CCA —la suma de tus publicaciones en UF— no se firma ahora: se determina después',
-    'del alta, con las propiedades que cargues, y se factura aparte de la mensualidad.',
+    'del alta, con las propiedades que cargues, y se factura todos los meses junto a la',
+    'mensualidad.',
     '',
     'Elige tu plan acá (el enlace vale 7 días):',
     planUrl,
@@ -533,8 +538,8 @@ export function buildKybQualifiedEmail({
         </p>
         ${planBlocks}
         <p style="margin:12px 0 0;color:#475569;font-size:12px;line-height:1.65">
-          Todos los planes publican sin cupo: el <strong>CCA</strong> se factura sobre tu cartera y se
-          determina después del alta, con las propiedades que cargues.
+          Todos los planes publican sin cupo: el <strong>CCA</strong> es un cobro mensual que se factura
+          sobre tu cartera y se determina después del alta, con las propiedades que cargues.
         </p>
         <p style="margin:12px 0 0;color:#475569;font-size:12px;line-height:1.65">
           Puedes sumar la <strong>captación de leads</strong> por ${escapeHtml(captacion)} al mes.
@@ -728,8 +733,8 @@ export function buildKybProposalEmail({
     link,
     '',
     'En el enlace también eliges si contratas el plan de captación de leads, que te',
-    'explicamos aparte si lo tomas. El CCA no se cobra todavía: se determina después del',
-    'alta, con las publicaciones que cargues.',
+    'explicamos aparte si lo tomas. El CCA es un cobro mensual sobre tu cartera y todavía',
+    'no se cobra: se determina después del alta, con las publicaciones que cargues.',
     '',
     'Si los números no te sirven, desde el mismo enlace nos lo dices.',
     '',

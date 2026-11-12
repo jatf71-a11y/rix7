@@ -114,8 +114,9 @@ export default function ProposalDecision({
           {saved?.captacion
             ? ' También te mandamos el detalle de cómo funciona el plan de captación.'
             : ''}{' '}
-          Cuando el pago quede registrado, tu cuenta pasa a operando. El CCA se determina después,
-          en tu panel, con tus publicaciones ya cargadas.
+          Al elegir el plan y autorizar el CCA te habilitamos el panel y tu cuenta queda operando;
+          el pago del período se registra por separado. El CCA es un cobro mensual que se determina
+          después, en tu panel, con tus publicaciones ya cargadas.
         </p>
       </div>
     );
@@ -212,9 +213,9 @@ export default function ProposalDecision({
         )}
 
         <p className="mt-4 rounded-lg bg-slate-50 px-3 py-2.5 text-xs leading-relaxed text-slate-500">
-          El <strong className="text-slate-700">CCA</strong> no se cobra en esta propuesta: se
-          determina después del alta, según las publicaciones que cargues, y se cobra junto a la
-          mensualidad.
+          El <strong className="text-slate-700">CCA</strong> no se cobra en esta propuesta: es un
+          cobro mensual que se determina después del alta, según las publicaciones que cargues, y se
+          factura junto a la mensualidad. Sin publicaciones, es $0.
         </p>
       </div>
 

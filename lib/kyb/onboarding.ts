@@ -981,12 +981,14 @@ export async function activateKybPlan({
     // el cobro se aprobó antes de la primera factura. Si ya estaba (reintento),
     // se conserva la fecha original.
     ccaAuthorizedAt: application.ccaAuthorizedAt ?? new Date().toISOString(),
-    // `Alta`, no `Operando`: el plan elegido todavía no está pagado. La solicitud
-    // pasa a operando cuando la cobranza registra el pago del período; si se
-    // marcara acá, un cliente sin pagar aparecería como activo en el pipeline.
-    status: 'Alta',
+    // El alta termina acá: plan elegido, CCA autorizado y panel habilitado. La
+    // empresa ya puede entrar y publicar, así que la cuenta queda operando; el
+    // cobro del período corre por su cuenta y no condiciona el acceso que acaba
+    // de recibir.
+    status: 'Operando',
     // El socio que acaba de nacer: sin este vínculo la cobranza no sabría qué
-    // alta corresponde a cada socio, y el pago no podría moverlo a `Operando`.
+    // alta corresponde a cada socio, y su panel no podría leer el plan, el CCA
+    // ni los usuarios de la cuenta.
     partnerId: provision.partnerId ?? null,
     // El token se conserva hasta su vencimiento para tolerar reintentos de red:
     // una segunda activación no vuelve a crear nada y responde `already`. No
@@ -1021,7 +1023,8 @@ export async function activateKybPlan({
   return {
     ok: true,
     already: false,
-    status: 'Alta',
+    // El estado que quedó guardado: el alta se cerró con el panel habilitado.
+    status: 'Operando',
     plan,
     panel: {
       enabled: true,
@@ -1196,7 +1199,9 @@ export interface ProposalDecisionResult {
  * El candidato acepta o rechaza la propuesta.
  *
  * Aceptar no habilita nada por sí solo: mueve a `Alta` y emite el token de
- * activación para que elija plan. Operando sigue estando detrás del pago.
+ * activación para que elija plan. `Operando` se alcanza al confirmar ese plan con
+ * el CCA autorizado, que es cuando se habilita el panel; el pago del período se
+ * registra después y no condiciona el acceso.
  */
 export async function decideKybProposal({
   token,

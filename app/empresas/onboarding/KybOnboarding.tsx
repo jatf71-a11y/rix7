@@ -288,6 +288,7 @@ export default function KybOnboarding() {
       <PlanStep
         token={token}
         planSummary={view.planSummary}
+        ccaExample={view.ccaExample ?? null}
         onActivated={({ plan, emailed }) => setScreen({ kind: 'activated', plan, emailed })}
       />
     ) : (

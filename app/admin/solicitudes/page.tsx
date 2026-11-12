@@ -100,8 +100,9 @@ const CATEGORY_STYLE: Record<
  * El color no reemplaza la etiqueta —cada columna dice su nombre—: es lo que
  * permite reconocer la etapa de un vistazo cuando el tablero está lleno. Los
  * terminales (`Operando` y `Rechazada`) se distinguen del resto porque ahí ya no
- * hay nada que hacer; `Alta` va justo antes de `Operando`, que es el paso que
- * cierra el alta cuando la empresa elige y paga su plan.
+ * hay nada que hacer; `Alta` va justo antes de `Operando`, que se alcanza cuando
+ * la empresa elige el plan y autoriza el CCA. El pago del período no cambia la
+ * etapa: se registra en Cobranza cuando corresponde.
  */
 const STATUS_STYLE: Record<SolicitudStatus, { column: string; dot: string }> = {
   Recibida: { column: 'border-slate-200', dot: 'bg-slate-400' },
@@ -1667,6 +1668,20 @@ function SolicitudEvaluationSummary({
           {evaluation.score}/100
         </span>
         <DebtSummary documents={reports.documents} />
+        {/* Las verificaciones que no pasaron van a la vista: es lo que el equipo
+            necesita para decidir si el registro es un riesgo. */}
+        {evaluation.checks
+          .filter((check) => check.status !== 'pass')
+          .map((check) => (
+            <span
+              key={check.id}
+              className={`w-full text-[10px] leading-snug ${
+                check.status === 'fail' ? 'font-semibold text-red-700' : 'text-amber-800'
+              }`}
+            >
+              {check.label}: {check.detail}
+            </span>
+          ))}
         <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${tone}`}>
           {evaluation.decision === 'Aceptada' ? 'Aceptada por el motor' : 'Pidió información'}
         </span>

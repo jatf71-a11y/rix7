@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Building2, CirclePlus, ArrowLeft, ChevronRight } from 'lucide-react';
+import { Building2, CirclePlus, ArrowLeft, ChevronRight, CreditCard } from 'lucide-react';
 
 const sidebarItems = [
   {
@@ -15,6 +15,11 @@ const sidebarItems = [
     label: 'Publicar propiedad',
     href: '/socio/publicar',
     icon: CirclePlus,
+  },
+  {
+    label: 'Mi cuenta',
+    href: '/socio/cuenta',
+    icon: CreditCard,
   },
 ];
 

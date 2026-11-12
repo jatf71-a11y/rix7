@@ -27,6 +27,7 @@ import {
   buildSolicitudEvaluatingEmail,
   buildSolicitudPendingEmail,
   buildSolicitudRejectedEmail,
+  buildSolicitudReviewEmail,
   solicitudAnswerUrl,
 } from '@/lib/email/solicitudApplicantEmail';
 import { SITE_URL } from '@/lib/site';
@@ -99,6 +100,21 @@ async function notify(
 }
 
 /**
+ * El motivo del freno por riesgo, tomado del chequeo de deuda.
+ *
+ * Se escribe en el correo tal como quedó en la evaluación —con el monto y el
+ * umbral— porque es lo único que explica por qué el registro no se cerró solo.
+ */
+function creditRiskReason(evaluation: {
+  checks: readonly { id: string; status: string; detail: string }[];
+}): string | null {
+  const check = evaluation.checks.find(
+    (candidate) => candidate.id === 'deuda' && candidate.status === 'fail'
+  );
+  return check?.detail ?? null;
+}
+
+/**
  * Aplica una evaluación: mueve el estado, emite o invalida el token y avisa.
  *
  * El paso por `En_Evaluacion` no es decorativo: es el estado intermedio de la
@@ -148,9 +164,12 @@ async function applyEvaluation(
     return { ok: false, code: 'conflict', status, evaluation, error: final.error };
   }
 
-  // El token se emite solo si hay preguntas. Al aceptar se invalida el de la
-  // ronda anterior: un enlace viejo no puede seguir abriendo el formulario.
-  const token = accepted ? null : generateKybToken();
+  // El token se emite solo si hay algo que responder. Al aceptar se invalida el
+  // de la ronda anterior —un enlace viejo no puede seguir abriendo el
+  // formulario— y un registro frenado por riesgo de crédito tampoco lo lleva: no
+  // hay pregunta que contestar, lo revisa el equipo.
+  const manualReview = !accepted && evaluation.questions.length === 0;
+  const token = accepted || manualReview ? null : generateKybToken();
   const stored = await updateSolicitudReview(solicitud.id, {
     status: target,
     evaluation,
@@ -208,6 +227,17 @@ async function applyEvaluation(
       email = await notify(
         solicitud.email,
         buildSolicitudAcceptedEmail({ name: solicitud.name, offerLabel, siteUrl: SITE_URL })
+      );
+    } else if (manualReview) {
+      // Frenado por riesgo de crédito: se le dice por qué y que lo revisamos.
+      email = await notify(
+        solicitud.email,
+        buildSolicitudReviewEmail({
+          name: solicitud.name,
+          offerLabel,
+          reason: creditRiskReason(evaluation) ?? 'el informe de deudas de la CMF',
+          siteUrl: SITE_URL,
+        })
       );
     } else if (token) {
       email = await notify(

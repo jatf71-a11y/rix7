@@ -80,6 +80,69 @@ async function serviceAdmin() {
   return createServiceRoleClient();
 }
 
+/**
+ * Deja una **cuenta existente o nueva** vinculada a una corredora, con enlace de
+ * un solo uso.
+ *
+ * Es el paso 2 del alta, extraído para que la invitación de un usuario del socio
+ * (`lib/data/partnerUsers.ts`) haga exactamente lo mismo: si se creara la cuenta
+ * de otra forma, una persona invitada entraría sin `role` ni `partner_id` y el
+ * panel le respondería 403 sin que nadie entienda por qué.
+ */
+export async function linkPartnerAccount(
+  email: string,
+  partnerId: string
+): Promise<{ ok: boolean; account?: 'linked' | 'created'; magicLink?: string; error?: string }> {
+  if (!isServiceRoleConfigured()) {
+    return {
+      ok: false,
+      error: 'Falta SUPABASE_SERVICE_ROLE_KEY: no se puede vincular la cuenta al panel.',
+    };
+  }
+
+  try {
+    const admin = await serviceAdmin();
+    const existing = await findUserByEmail(admin, email);
+    let account: 'linked' | 'created';
+
+    if (existing) {
+      const { error } = await admin.auth.admin.updateUserById(existing.id, {
+        app_metadata: linkMetadata(existing.app_metadata, partnerId),
+      });
+      if (error) return { ok: false, error: `No se pudo vincular la cuenta: ${error.message}` };
+      account = 'linked';
+    } else {
+      const { error } = await admin.auth.admin.createUser({
+        email,
+        email_confirm: true,
+        app_metadata: linkMetadata(undefined, partnerId),
+      });
+      if (error) return { ok: false, error: `No se pudo crear la cuenta: ${error.message}` };
+      account = 'created';
+    }
+
+    // Enlace de un solo uso. Si falla, la cuenta ya está vinculada y el correo
+    // lleva igual el enlace al panel.
+    let magicLink: string | undefined;
+    try {
+      const { data, error } = await admin.auth.admin.generateLink({ type: 'magiclink', email });
+      if (!error) {
+        const hashed = data?.properties?.hashed_token;
+        magicLink = hashed ? confirmationUrl(hashed) : data?.properties?.action_link;
+      }
+    } catch {
+      // Best-effort: el acceso por correo sigue disponible.
+    }
+
+    return { ok: true, account, magicLink };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'Error inesperado al vincular la cuenta.',
+    };
+  }
+}
+
 export async function provisionCompanyPanel(
   application: KybApplication
 ): Promise<ProvisionResult> {
@@ -129,53 +192,15 @@ export async function provisionCompanyPanel(
       return { ok: false, partnerId, error: `No se pudo crear la ficha: ${partnerError.message}` };
     }
 
-    // 2. Cuenta: vincular la existente o crearla confirmada.
-    const existing = await findUserByEmail(admin, application.email);
-    let account: ProvisionResult['account'] = 'none';
-    let magicLink: string | undefined;
-
-    if (existing) {
-      const { error } = await admin.auth.admin.updateUserById(existing.id, {
-        app_metadata: linkMetadata(existing.app_metadata, partnerId),
-      });
-      if (error) {
-        return { ok: false, partnerId, error: `No se pudo vincular la cuenta: ${error.message}` };
-      }
-      account = 'linked';
-    } else {
-      const { error } = await admin.auth.admin.createUser({
-        email: application.email,
-        email_confirm: true,
-        app_metadata: linkMetadata(undefined, partnerId),
-      });
-      if (error) {
-        return { ok: false, partnerId, error: `No se pudo crear la cuenta: ${error.message}` };
-      }
-      account = 'created';
+    // 2 y 3. Cuenta vinculada y enlace de un solo uso. Es el mismo paso que usa
+    //        la invitación de un usuario del socio (`linkPartnerAccount`), para
+    //        que las dos creen la cuenta igual: rol `member` y `partner_id`.
+    const linked = await linkPartnerAccount(application.email, partnerId);
+    if (!linked.ok) {
+      return { ok: false, partnerId, error: linked.error ?? 'No se pudo vincular la cuenta.' };
     }
 
-    // 3. Enlace de un solo uso para entrar sin contraseña. Si falla, la cuenta
-    //    ya existe y el correo trae el enlace al panel: el alta no se cae por
-    //    esto.
-    //
-    //    Se canjea el `hashed_token` en `/auth/confirm` en vez de usar el
-    //    `action_link` de Supabase, que entrega la sesión en el fragmento y no
-    //    la deja en cookies. Si no viniera el hash, queda el enlace al panel y
-    //    la persona puede pedir su acceso desde el modal.
-    try {
-      const { data, error } = await admin.auth.admin.generateLink({
-        type: 'magiclink',
-        email: application.email,
-      });
-      if (!error) {
-        const hashed = data?.properties?.hashed_token;
-        magicLink = hashed ? confirmationUrl(hashed) : data?.properties?.action_link;
-      }
-    } catch {
-      // Best-effort: el panel sigue siendo alcanzable con el correo.
-    }
-
-    return { ok: true, partnerId, account, magicLink };
+    return { ok: true, partnerId, account: linked.account, magicLink: linked.magicLink };
   } catch (error) {
     return {
       ok: false,
