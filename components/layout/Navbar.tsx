@@ -193,16 +193,17 @@ function NavbarContent() {
             </div>
           )}
 
-          {/* Acceso de socios: la puerta al panel, visible siempre. Con sesión
-              de socio lleva directo a sus publicaciones; sin ella, `/socio`
-              muestra el aviso de acceso y el camino para entrar. */}
+          {/* Acceso de socios: la puerta al panel, visible siempre, rotulada
+              «Socios» (es el nombre del panel y lo que busca la persona). Con
+              sesión de socio lleva directo a sus publicaciones; sin ella,
+              `/socio` muestra el aviso de acceso y el camino para entrar. */}
           <Link
             href="/socio"
             className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm shadow-blue-500/20 transition-all shrink-0"
             title="Acceso de corredoras, inmobiliarias y profesionales independientes"
           >
             <Building2 className="w-4 h-4" />
-            <span>Acceso profesional</span>
+            <span>Socios</span>
           </Link>
 
           {/* El admin no tiene enlace en el sitio público: se entra por
@@ -272,7 +273,7 @@ function NavbarContent() {
               className="px-3 py-2 rounded-lg bg-blue-600 text-white font-semibold flex items-center gap-2"
             >
               <Building2 className="w-4 h-4" />
-              <span>Acceso profesional</span>
+              <span>Socios</span>
             </Link>
             {/* El admin no aparece en el menú móvil: vive en rix7.cl/admin. */}
           </nav>
