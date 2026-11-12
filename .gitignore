@@ -52,7 +52,9 @@ _audit/to-delete/
 
 # Artefactos de revisión: capturas y vistas previas de los correos. Se generan
 # con scripts/preview-emails.ts y se revisan fuera del repo, así que no se
-# versionan.
+# versionan. Igual los logs de deploy y las capturas de las revisiones, que se
+# escriben en .tmp/ y no deben marcar el árbol como sucio.
+.tmp/
 preview-correo-etapa-*.html
 preview-correos-*.html
 preview-*.png
