@@ -15,7 +15,7 @@ import SocioShell from './SocioShell';
  * publicar, no solo en el listado.
  */
 export const metadata: Metadata = {
-  title: 'Panel profesional | Rix7',
+  title: 'Panel Socios | Rix7',
   robots: { index: false, follow: false },
 };
 

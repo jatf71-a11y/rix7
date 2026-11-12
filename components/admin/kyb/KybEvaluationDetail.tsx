@@ -19,6 +19,7 @@ import DebtReportPanel from './DebtReportPanel';
 import DebtSummary from './DebtSummary';
 import DecisionPanel from './DecisionPanel';
 import ProposalPanel from './ProposalPanel';
+import TeamActivationPanel from './TeamActivationPanel';
 import { useDebtReports } from './useDebtReports';
 
 /**
@@ -73,6 +74,8 @@ interface KybEvaluationDetailProps {
   }) => void;
   /** Recién después de enviar la propuesta: la ficha y el tablero se recargan. */
   onProposalSent?: () => void;
+  /** Se cerró el alta desde acá: cambia el estado, el plan y los usuarios. */
+  onActivated?: () => void;
   /** Reenvío del enlace del paso pendiente (preguntas, propuesta o plan). */
   onResend?: () => void;
   resending?: boolean;
@@ -88,6 +91,7 @@ export default function KybEvaluationDetail({
   onReevaluate,
   onDecide,
   onProposalSent,
+  onActivated,
   onResend,
   resending = false,
 }: KybEvaluationDetailProps) {
@@ -313,6 +317,16 @@ export default function KybEvaluationDetail({
       <ProposalPanel application={application} onSent={onProposalSent} />
 
       {/*
+        Salida del equipo cuando el alta se quedó sin cerrar: pasa a `Operando`
+        con el plan elegido, crea el socio y su cuenta, y deja el enlace de acceso
+        a la vista. Solo aparece en `Alta` sin panel: cuando ya está operando no
+        hay nada que cerrar.
+      */}
+      {application.status === 'Alta' && !application.panelEnabled && (
+        <TeamActivationPanel application={application} onActivated={onActivated ?? (() => {})} />
+      )}
+
+      {/*
         El CCA es un cargo mensual que depende de las publicaciones del socio, así
         que se autoriza en la etapa de Alta, junto con el plan. El equipo tiene que
         poder ver si esa autorización existe: es lo que respalda la primera factura.
@@ -331,8 +345,8 @@ export default function KybEvaluationDetail({
           ) : application.status === 'Alta' || application.status === 'Operando' ? (
             <>
               <span className="font-semibold text-amber-700">Sin autorización registrada.</span>{' '}
-              Es un alta anterior a este paso: conviene confirmarla con el socio antes de facturarle
-              el CCA.
+              El alta se cerró sin el CCA aprobado: conviene confirmarlo con el socio antes de
+              facturarle el cobro mensual.
             </>
           ) : (
             'Se autoriza en la etapa de Alta, junto con la confirmación del plan.'

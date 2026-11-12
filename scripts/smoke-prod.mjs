@@ -179,7 +179,7 @@ export const ADMIN_MARKER = 'Registros';
  * mandaba a buscar el problema en el deploy. Ver `judgeAdminPage`.
  */
 export const ADMIN_GATE_MARKERS = ['Verificando el acceso', 'Acceso al panel'];
-export const SOCIO_MARKER = 'Panel profesional';
+export const SOCIO_MARKER = 'Panel Socios';
 
 /** Señales de que lo que llegó es una pantalla de error, no la página. */
 const ERROR_PAGE = /Application error|Internal Server Error|a server-side exception|__next_error__/i;

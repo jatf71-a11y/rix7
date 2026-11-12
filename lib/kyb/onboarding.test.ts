@@ -67,6 +67,7 @@ saveDebtReport.mockImplementation(async () => {
 isDebtReportFromOwner.mockResolvedValue(true);
 
 import {
+  activateKybByTeam,
   activateKybPlan,
   answerKybQuestions,
   chooseKybPlan,
@@ -757,5 +758,74 @@ describe('decisiones del equipo', () => {
 
     expect(result.ok).toBe(false);
     expect(result.code).toBe('conflict');
+  });
+});
+
+describe('cierre del alta por el equipo', () => {
+  it('pasa a Operando con el plan elegido y deja el enlace de acceso', async () => {
+    const submitted = await submitKybApplication(empresa, { deps });
+    const id = submitted.applicationId as string;
+    await propuestaAceptada(id);
+    const emailsBefore = sendEmail.mock.calls.length;
+
+    const result = await activateKybByTeam({ id });
+
+    expect(result.ok).toBe(true);
+    expect(result.status).toBe('Operando');
+    expect(result.plan).toBe('profesional');
+    expect(result.partnerId).toBe('catedral-propiedades-spa-2103');
+    expect(result.accessLink).toMatch(/^https:\/\//);
+
+    const stored = await getApplication(id);
+    expect(stored.data?.status).toBe('Operando');
+    expect(stored.data?.panelEnabled).toBe(true);
+    expect(stored.data?.plan).toBe('profesional');
+    expect(stored.data?.activatedAt).toBeTruthy();
+    // Cerrar el alta no es autorizar un cobro mensual: sin confirmación del
+    // equipo, el CCA queda sin fecha y la ficha lo muestra así.
+    expect(stored.data?.ccaAuthorizedAt).toBeNull();
+    // El cierre por equipo no manda correo: el enlace lo entrega el equipo.
+    expect(sendEmail.mock.calls.length).toBe(emailsBefore);
+  });
+
+  it('fecha el CCA solo cuando el equipo confirma que el socio lo autorizó', async () => {
+    const submitted = await submitKybApplication(empresa, { deps });
+    const id = submitted.applicationId as string;
+    await propuestaAceptada(id);
+
+    const result = await activateKybByTeam({ id, ccaAuthorized: true });
+    expect(result.ok).toBe(true);
+    expect(result.ccaAuthorized).toBe(true);
+
+    const stored = await getApplication(id);
+    expect(stored.data?.ccaAuthorizedAt).toBeTruthy();
+  });
+
+  it('exige un plan válido y no crea nada si no lo hay', async () => {
+    const submitted = await submitKybApplication(empresa, { deps });
+    const id = submitted.applicationId as string;
+    await propuestaAceptada(id);
+    provisionCompanyPanel.mockClear();
+
+    const result = await activateKybByTeam({ id, plan: 'platino' });
+
+    expect(result.ok).toBe(false);
+    expect(result.code).toBe('invalid');
+    expect(provisionCompanyPanel).not.toHaveBeenCalled();
+
+    const stored = await getApplication(id);
+    expect(stored.data?.status).toBe('Alta');
+    expect(stored.data?.panelEnabled).toBe(false);
+  });
+
+  it('no cierra un alta que todavía no llegó a Alta', async () => {
+    const submitted = await submitKybApplication(empresa, { deps });
+    provisionCompanyPanel.mockClear();
+
+    const result = await activateKybByTeam({ id: submitted.applicationId as string });
+
+    expect(result.ok).toBe(false);
+    expect(result.code).toBe('conflict');
+    expect(provisionCompanyPanel).not.toHaveBeenCalled();
   });
 });

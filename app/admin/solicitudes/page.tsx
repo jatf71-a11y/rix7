@@ -565,6 +565,19 @@ export default function AdminSolicitudesPage() {
   );
 
   /**
+   * Se cerró un alta desde la ficha: queda en `Operando` con su plan, su socio y
+   * su cuenta de acceso. Se recargan lista y ficha porque cambia el estado y
+   * aparecen el plan, el socio y el cupo de usuarios.
+   */
+  const activationDone = useCallback(
+    async (id: string) => {
+      await Promise.all([load(), loadDetail(id)]);
+      window.dispatchEvent(new Event('rix7:solicitudes-actualizadas'));
+    },
+    [load, loadDetail]
+  );
+
+  /**
    * Un registro convertido no se lista aparte.
    *
    * Cuando el registro queda aprobado nace su alta (propuesta → plan → panel),
@@ -1109,6 +1122,7 @@ export default function AdminSolicitudesPage() {
               onReevaluate={() => void reevaluate(socio.id)}
               onDecide={(input) => void decide(socio.id, input)}
               onProposalSent={() => void proposalSent(socio.id)}
+              onActivated={() => void activationDone(socio.id)}
               reevaluatingRegistro={reEvaluatingId === socio.id}
               onReevaluateRegistro={() => void reevaluateRegistro(socio.id)}
               resending={resendingId === socio.id}
@@ -1203,6 +1217,7 @@ export default function AdminSolicitudesPage() {
                 onReevaluate={() => void reevaluate(panel.id)}
                 onDecide={(input) => void decide(panel.id, input)}
                 onProposalSent={() => void proposalSent(panel.id)}
+                onActivated={() => void activationDone(panel.id)}
                 onResend={() => void resendLink(panel.id, panel.source)}
                 resending={resendingId === panel.id}
               />
@@ -1305,6 +1320,8 @@ interface SocioRowProps {
   onDecide: (input: { decision: KybManualDecision; note?: string; questions?: string[] }) => void;
   /** Se envió la propuesta comercial: hay que recargar ficha y tablero. */
   onProposalSent: () => void;
+  /** Se cerró el alta en `Operando`: cambian estado, plan, socio y usuarios. */
+  onActivated: () => void;
   /** Registro: volver a pasar el motor con los datos que haya hoy. */
   reevaluatingRegistro: boolean;
   onReevaluateRegistro: () => void;
@@ -1338,6 +1355,7 @@ function SocioRow({
   onReevaluate,
   onDecide,
   onProposalSent,
+  onActivated,
   reevaluatingRegistro,
   onReevaluateRegistro,
   resending,
@@ -1498,6 +1516,7 @@ function SocioRow({
               onReevaluate={onReevaluate}
               onDecide={onDecide}
               onProposalSent={onProposalSent}
+              onActivated={onActivated}
               onResend={onResend}
               resending={resending}
             />
@@ -1524,6 +1543,7 @@ interface AltaFichaProps {
   onReevaluate: () => void;
   onDecide: (input: { decision: KybManualDecision; note?: string; questions?: string[] }) => void;
   onProposalSent: () => void;
+  onActivated: () => void;
   onResend: () => void;
   resending: boolean;
 }
@@ -1545,6 +1565,7 @@ function AltaFicha({
   onReevaluate,
   onDecide,
   onProposalSent,
+  onActivated,
   onResend,
   resending,
 }: AltaFichaProps) {
@@ -1569,6 +1590,7 @@ function AltaFicha({
         onReevaluate={onReevaluate}
         onDecide={onDecide}
         onProposalSent={onProposalSent}
+        onActivated={onActivated}
         onResend={onResend}
         resending={resending}
       />

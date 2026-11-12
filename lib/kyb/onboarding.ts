@@ -1035,6 +1035,135 @@ export async function activateKybPlan({
   };
 }
 
+export interface TeamActivateResult {
+  ok: boolean;
+  already?: boolean;
+  status?: KybStatus;
+  plan?: KybPlanId;
+  partnerId?: string;
+  /** Cómo quedó la cuenta: vinculada, creada ahora o sin tocar. */
+  account?: 'linked' | 'created' | 'none';
+  /**
+   * Enlace de un solo uso para que el socio entre a su panel. No se manda por
+   * correo: lo entrega el equipo, que es quien decidió cerrar el alta acá.
+   */
+  accessLink?: string;
+  /** `true` si quedó registrada la autorización del CCA en esta acción. */
+  ccaAuthorized?: boolean;
+  error?: string;
+  code?: 'not_found' | 'conflict' | 'invalid' | 'store';
+}
+
+/**
+ * Cierra un alta desde el panel del equipo.
+ *
+ * Es el mismo final que la activación por enlace —ficha del socio, cuenta
+ * vinculada, panel habilitado y estado `Operando`— pero lo decide el equipo en
+ * la ficha, sin esperar a que la empresa abra su enlace. Sirve para el alta que
+ * se quedó a mitad de camino: la propuesta está aceptada, el plan elegido y
+ * nadie terminó de confirmar.
+ *
+ * Dos cosas no se inventan:
+ *
+ * - **El plan**: se usa el que la empresa ya eligió y, si falta, lo pasa el
+ *   equipo; sin plan válido no se cierra nada, porque es lo que define la
+ *   mensualidad y el cupo de usuarios.
+ * - **La autorización del CCA**: solo se fecha si el equipo confirma que el
+ *   socio la dio (`ccaAuthorized`). Cerrar el alta sin ella deja el cobro
+ *   mensual sin respaldo y la ficha lo muestra así, en vez de dar por hecho un
+ *   consentimiento que no existe.
+ */
+export async function activateKybByTeam({
+  id,
+  plan,
+  ccaAuthorized,
+}: {
+  id: string;
+  /** Plan a dejar en el alta; si falta, se conserva el que ya tenía. */
+  plan?: unknown;
+  /** El equipo confirma que el socio autorizó el cobro mensual del CCA. */
+  ccaAuthorized?: unknown;
+}): Promise<TeamActivateResult> {
+  const found = await getApplication(id);
+  if (!found.ok || !found.data) {
+    return { ok: false, code: 'not_found', error: 'Solicitud no encontrada.' };
+  }
+  const application = found.data;
+
+  if (application.panelEnabled) {
+    return {
+      ok: true,
+      already: true,
+      status: application.status,
+      plan: application.plan ?? undefined,
+      partnerId: application.partnerId ?? undefined,
+      ccaAuthorized: !!application.ccaAuthorizedAt,
+    };
+  }
+
+  if (application.status !== 'Alta') {
+    return {
+      ok: false,
+      code: 'conflict',
+      status: application.status,
+      error: `Solo se cierra un alta que está en «Alta». Esta está en «${
+        KYB_STATUS_LABELS[application.status]
+      }».`,
+    };
+  }
+
+  const chosen = plan === undefined || plan === null ? application.plan : plan;
+  if (!isKybPlanId(chosen)) {
+    return {
+      ok: false,
+      code: 'invalid',
+      error: 'Elegí el plan del alta antes de pasarla a Operando: define la mensualidad y los usuarios.',
+    };
+  }
+
+  const provision = await provisionCompanyPanel(application);
+  if (!provision.ok) {
+    return { ok: false, code: 'store', error: provision.error ?? 'No se pudo habilitar el panel.' };
+  }
+
+  const authorized = ccaAuthorized === true || !!application.ccaAuthorizedAt;
+
+  const updated = await updateApplication(application.id, {
+    plan: chosen,
+    panelEnabled: true,
+    activatedAt: new Date().toISOString(),
+    // Si ya estaba autorizado (alta vieja), se conserva la fecha original.
+    ccaAuthorizedAt: authorized
+      ? (application.ccaAuthorizedAt ?? new Date().toISOString())
+      : null,
+    status: 'Operando',
+    partnerId: provision.partnerId ?? null,
+  });
+
+  if (!updated.ok || !updated.data) {
+    return { ok: false, code: 'store', error: updated.error ?? 'No se pudo guardar el cierre del alta.' };
+  }
+
+  // Línea base de la cuenta corriente del CCA, igual que en la activación por
+  // enlace: un socio recién creado no tiene cartera y el primer movimiento es
+  // de $0. No puede tumbar el cierre, que ya está guardado.
+  if (provision.partnerId) {
+    const cca = await syncPartnerCca(provision.partnerId, { reason: 'alta' });
+    if (!cca.ok) console.error('[kyb] no se pudo abrir la cuenta corriente del CCA:', cca.error);
+  }
+
+  return {
+    ok: true,
+    already: false,
+    status: 'Operando',
+    plan: chosen,
+    partnerId: provision.partnerId,
+    account: provision.account,
+    accessLink: provision.magicLink,
+    ccaAuthorized: authorized,
+  };
+}
+
 export interface ProposalSendResult {
   ok: boolean;
   status?: KybStatus;
