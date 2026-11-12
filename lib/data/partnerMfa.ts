@@ -6,18 +6,31 @@
  * código y nadie puede generarlo. El equipo lo resuelve desde la ficha del
  * socio, y la próxima vez que entre podrá volver a activarlo.
  *
- * Dos candados, porque esto debilita la seguridad de una cuenta:
+ * Tres candados, porque esto debilita la seguridad de una cuenta:
  *
  * 1. Solo se toca una cuenta **vinculada a ese socio** (`app_metadata.partner_id`).
  *    Un correo mal escrito no puede apagar el 2FA de otra empresa.
  * 2. Se borran los factores, no la cuenta ni su sesión: al entrar de nuevo, el
  *    panel le vuelve a ofrecer activar la verificación.
+ * 3. Queda **registro** de quién lo hizo (`admin_events`) y se le **avisa por
+ *    correo** a la persona cuya cuenta quedó sin segundo factor.
  *
  * Necesita la clave de servicio: la API de administración de Auth solo la acepta
  * a ella. Sin esa clave se dice, en vez de devolver un «listo» falso.
  */
 
+import { recordAdminEvent } from '@/lib/data/adminEvents';
+import { getPartnerById } from '@/lib/data/partners-store';
+import { buildMfaResetEmail } from '@/lib/email/mfaResetEmail';
+import { sendEmail } from '@/lib/email/sendEmail';
+import { SITE_URL } from '@/lib/site';
 import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase/admin';
+
+/** Quién ejecuta la acción. Sale de la sesión del admin, no del cuerpo del pedido. */
+export interface PartnerMfaResetActor {
+  id?: string | null;
+  email?: string | null;
+}
 
 export interface PartnerMfaResetResult {
   ok: boolean;
@@ -26,9 +39,14 @@ export interface PartnerMfaResetResult {
   email?: string;
   error?: string;
   code?: 'not_configured' | 'invalid' | 'not_found' | 'forbidden' | 'provider';
+  /** Cómo terminó el aviso al socio. Solo aparece si se borró algo. */
+  notified?: { sent: boolean; skipped: boolean; error?: string };
+  /** Cómo terminó el registro de la acción. Solo aparece si se borró algo. */
+  audit?: { ok: boolean; error?: string };
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const PARTNER_MFA_RESET_ACTION = 'partner_mfa.reset';
 
 /** Busca una cuenta por correo en la API de administración, página por página. */
 async function findUserByEmail(
@@ -51,9 +69,11 @@ async function findUserByEmail(
 export async function resetPartnerMfa({
   partnerId,
   email,
+  actor,
 }: {
   partnerId: string;
   email: string;
+  actor?: PartnerMfaResetActor;
 }): Promise<PartnerMfaResetResult> {
   if (!isServiceRoleConfigured()) {
     return {
@@ -119,7 +139,34 @@ export async function resetPartnerMfa({
       }
     }
 
-    return { ok: true, removed: factors.length, email: clean };
+    // El registro va antes del correo: si el envío falla, la acción ya quedó
+    // anotada con quién la hizo.
+    const audit = await recordAdminEvent({
+      action: PARTNER_MFA_RESET_ACTION,
+      actorId: actor?.id ?? null,
+      actorEmail: actor?.email ?? null,
+      partnerId,
+      targetEmail: clean,
+      detail: { factors: factors.length },
+    });
+
+    const partner = await getPartnerById(partnerId).catch(() => undefined);
+    const sent = await sendEmail({
+      to: clean,
+      ...buildMfaResetEmail({
+        companyName: partner?.name ?? partnerId,
+        panelUrl: `${SITE_URL}/socio/cuenta`,
+        siteUrl: SITE_URL,
+      }),
+    });
+
+    return {
+      ok: true,
+      removed: factors.length,
+      email: clean,
+      notified: { sent: sent.sent, skipped: sent.skipped, ...(sent.error ? { error: sent.error } : {}) },
+      audit: { ok: audit.ok, ...(audit.error ? { error: audit.error } : {}) },
+    };
   } catch (error) {
     return {
       ok: false,

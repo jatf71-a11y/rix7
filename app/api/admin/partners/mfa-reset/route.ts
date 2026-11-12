@@ -29,7 +29,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = await resetPartnerMfa({ partnerId, email });
+  // El actor sale de la sesión, nunca del cuerpo: es lo que queda en el registro.
+  const result = await resetPartnerMfa({
+    partnerId,
+    email,
+    actor: { id: guard.userId, email: guard.email },
+  });
 
   if (!result.ok) {
     const status =
@@ -47,7 +52,13 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json(
-    { success: true, removed: result.removed ?? 0, email: result.email },
+    {
+      success: true,
+      removed: result.removed ?? 0,
+      email: result.email,
+      notified: result.notified ?? null,
+      audit: result.audit ?? null,
+    },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }

@@ -41,11 +41,20 @@ export default function PartnerMfaReset({ partnerId }: { partnerId: string }) {
         return;
       }
 
+      // El resultado dice las tres cosas por separado —qué se borró, si salió el
+      // correo y si quedó el registro— porque cada una puede fallar sola.
+      const notified = body.notified as { sent?: boolean; skipped?: boolean } | null;
+      const audit = body.audit as { ok?: boolean } | null;
+      const mailLine = notified?.sent
+        ? ' Se le avisó por correo.'
+        : ' El aviso por correo no salió: confirmáselo por otro medio.';
+      const auditLine = audit && audit.ok === false ? ' Ojo: la acción no quedó en el registro.' : '';
+
       setResult({
         tone: 'ok',
         text:
           body.removed > 0
-            ? `Listo: se quitaron ${body.removed} ${body.removed === 1 ? 'factor' : 'factores'}. Avisale que puede volver a activarlo desde «Mi cuenta».`
+            ? `Listo: se quitaron ${body.removed} ${body.removed === 1 ? 'factor' : 'factores'} de ${body.email}. Puede volver a activarlo desde «Mi cuenta».${mailLine}${auditLine}`
             : 'Esa cuenta no tenía la verificación activada.',
       });
       setEmail('');
