@@ -21,6 +21,7 @@ import { shareChannelLabel } from '@/lib/data/shareEvents';
 import { formatPrice, getStatusLabel } from '@/lib/utils/formatters';
 import ShareDialog from '@/components/socio/ShareDialog';
 import CcaCard from './CcaCard';
+import { useSocioBase } from './SocioShell';
 import SocioAccessNotice from './SocioAccessNotice';
 
 /**
@@ -72,6 +73,10 @@ function formatMoment(value: string): string {
 }
 
 export default function SocioPanelPage() {
+  // Si la persona entró por /socio/<slug>, los enlaces siguen por esa URL; en el
+  // panel genérico el prefijo es `/socio` (con `base` vacío, `${base}/publicar`
+  // apuntaría a la página pública de publicación).
+  const base = useSocioBase() || '/socio';
   const [properties, setProperties] = useState<PanelProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const [access, setAccess] = useState<{ status: number; message: string } | null>(null);
@@ -205,7 +210,7 @@ export default function SocioPanelPage() {
           </p>
         </div>
         <Link
-          href="/socio/publicar"
+          href={`${base}/publicar`}
           className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
         >
           <CirclePlus className="w-4 h-4" />
@@ -276,7 +281,7 @@ export default function SocioPanelPage() {
                 de tu corredora y en su feed.
               </p>
               <Link
-                href="/socio/publicar"
+                href={`${base}/publicar`}
                 className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
               >
                 <CirclePlus className="w-4 h-4" />
@@ -349,7 +354,7 @@ export default function SocioPanelPage() {
                         Ver
                       </Link>
                       <Link
-                        href={`/socio/publicaciones/${property.id}`}
+                        href={`${base}/publicaciones/${property.id}`}
                         className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
                       >
                         <Pencil className="w-3.5 h-3.5" />

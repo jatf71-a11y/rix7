@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import PublicationForm, { type PublicationPayload } from '@/components/socio/PublicationForm';
+import { useSocioBase } from '../SocioShell';
 
 /**
  * El aviso de acceso se carga **solo cuando hace falta**.
@@ -37,6 +38,8 @@ const TOAST_KEY = 'rix7-socio-toast';
  */
 export default function SocioPublicarPage() {
   const router = useRouter();
+  // Al guardar se vuelve al panel; si se entró por /socio/<slug>, a esa URL.
+  const base = useSocioBase();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [access, setAccess] = useState<{ status: number; message: string } | null>(null);
@@ -88,7 +91,7 @@ export default function SocioPublicarPage() {
       } catch {
         // Sin sessionStorage el aviso se pierde, pero la publicación existe.
       }
-      router.push('/socio');
+      router.push(base || '/socio');
     } catch {
       setError('Sin conexión con el servidor.');
     } finally {

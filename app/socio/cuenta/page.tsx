@@ -8,6 +8,7 @@ import { formatPlanPrice } from '@/lib/kyb/plans';
 import type { PartnerAccount } from '@/lib/data/partnerAccount';
 import MfaPanel from './MfaPanel';
 import PartnerUsersPanel from './PartnerUsersPanel';
+import { useSocioBase } from '../SocioShell';
 
 /**
  * Mi cuenta: la suscripción que el socio está pagando.
@@ -30,6 +31,8 @@ function formatDate(value: string | null): string {
 }
 
 export default function CuentaPage() {
+  // Volver al panel respeta la URL del socio cuando se entró por ella.
+  const base = useSocioBase();
   const [account, setAccount] = useState<PartnerAccount | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +77,7 @@ export default function CuentaPage() {
           <h1 className="text-lg font-black text-slate-900">Mi cuenta</h1>
           <p className="mt-2 text-sm text-slate-600">{error ?? 'No encontramos tu suscripción.'}</p>
           <Link
-            href="/socio"
+            href={base || '/socio'}
             className="mt-4 inline-flex rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
           >
             Volver a mis publicaciones

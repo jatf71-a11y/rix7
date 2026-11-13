@@ -14,6 +14,30 @@ export interface SocioIdentity {
   color: string | null;
 }
 
+/**
+ * Base de las rutas del panel: `''` para el panel genérico o `/socio/<slug>`
+ * cuando la persona entró por la URL de su corredora. Los enlaces internos la
+ * usan para que navegar no le borre su dirección.
+ */
+const SocioBaseContext = React.createContext('');
+
+/** Prefijo de rutas del panel según la URL en la que está la persona. */
+export function useSocioBase(): string {
+  return React.useContext(SocioBaseContext);
+}
+
+/**
+ * Segmentos que ya son pantallas del panel: si el segundo tramo es uno de
+ * estos, la URL no lleva slug de socio.
+ */
+const PANEL_SEGMENTS = new Set(['publicar', 'cuenta', 'publicaciones']);
+
+function socioBaseFromPathname(pathname: string): string {
+  const segments = pathname.split('/').filter(Boolean);
+  if (segments[0] !== 'socio' || !segments[1]) return '';
+  return PANEL_SEGMENTS.has(segments[1]) ? '' : `/socio/${segments[1]}`;
+}
+
 const sidebarItems = [
   {
     label: 'Mis publicaciones',
@@ -55,11 +79,18 @@ export default function SocioShell({
   identity?: SocioIdentity | null;
 }) {
   const pathname = usePathname();
+  const base = socioBaseFromPathname(pathname);
 
-  const isActive = (href: string) =>
-    href === '/socio' ? pathname === '/socio' : pathname.startsWith(href);
+  /** `/socio/cuenta` → `/socio/<slug>/cuenta` cuando hay slug en la URL. */
+  const withBase = (href: string) => (base ? `${base}${href.replace(/^\/socio/, '')}` : href);
+
+  const isActive = (href: string) => {
+    const full = withBase(href);
+    return href === '/socio' ? pathname === full || pathname === `${full}/` : pathname.startsWith(full);
+  };
 
   return (
+    <SocioBaseContext.Provider value={base}>
     <div className="flex min-h-[calc(100vh-64px)] bg-slate-50">
       {/* Sidebar (desktop) */}
       <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-slate-200 p-4 sticky top-16 h-[calc(100vh-64px)]">
@@ -93,7 +124,7 @@ export default function SocioShell({
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={withBase(item.href)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   active
                     ? 'bg-blue-50 text-blue-700 border border-blue-100'
@@ -147,7 +178,7 @@ export default function SocioShell({
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={withBase(item.href)}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
                   active
                     ? 'bg-blue-600 text-white'
@@ -170,5 +201,6 @@ export default function SocioShell({
         </main>
       </div>
     </div>
+    </SocioBaseContext.Provider>
   );
 }
