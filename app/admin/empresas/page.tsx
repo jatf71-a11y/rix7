@@ -23,6 +23,7 @@ import { ccaMonthlyClp, ccaStockUf } from '@/lib/kyb/cca';
 import { formatPlanPrice } from '@/lib/kyb/plans';
 import { slugify } from '@/lib/utils/text';
 import PartnerMfaReset from './PartnerMfaReset';
+import PartnerPanelLink from './PartnerPanelLink';
 import SocioAccounts from './SocioAccounts';
 
 /** Pestañas de la sección: las tres categorías de socio, más «Todos». */
@@ -594,6 +595,12 @@ function AdminEmpresasPage() {
               {/* Salida operativa: el socio que perdió su app de códigos no
                   puede entrar y el enlace del correo no alcanza, porque el
                   panel exige el segundo factor. */}
+              <PartnerPanelLink
+                slug={partner.slug}
+                name={partner.name}
+                contactEmail={partner.contact.email}
+              />
+
               <PartnerMfaReset partnerId={partner.id} />
 
               {/* Feed XML para agregadores (hallazgo #14) */}
