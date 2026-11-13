@@ -4,7 +4,15 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Building2, CirclePlus, ArrowLeft, ChevronRight, CreditCard } from 'lucide-react';
+import { PartnerLogo } from '@/components/properties/PartnerLogo';
 import MfaGate from './MfaGate';
+
+/** Identidad del socio: su nombre y su logo, leídos en el servidor. */
+export interface SocioIdentity {
+  name: string;
+  logo: string | null;
+  color: string | null;
+}
 
 const sidebarItems = [
   {
@@ -34,10 +42,17 @@ const sidebarItems = [
 export default function SocioShell({
   children,
   banner,
+  identity,
 }: {
   children: React.ReactNode;
   /** Aviso del servidor, arriba del contenido (por ejemplo, la morosidad). */
   banner?: React.ReactNode;
+  /**
+   * Corredora de la cuenta. Es lo que hace que el panel se sienta *suyo*: el
+   * logo y el nombre de la empresa, no los de Rix7. Sin vínculo llega `null` y
+   * el panel muestra la marca del portal.
+   */
+  identity?: SocioIdentity | null;
 }) {
   const pathname = usePathname();
 
@@ -49,12 +64,26 @@ export default function SocioShell({
       {/* Sidebar (desktop) */}
       <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-slate-200 p-4 sticky top-16 h-[calc(100vh-64px)]">
         <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-          <div className="w-10 h-10 rounded-xl overflow-hidden bg-white border border-slate-200/90 p-1 flex items-center justify-center shadow-md">
-            <img src="/brand-logo.png" alt="Logo Rix7" className="w-full h-full object-contain" />
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-white border border-slate-200/90 flex items-center justify-center shadow-md shrink-0">
+            {identity ? (
+              <PartnerLogo
+                logo={identity.logo ?? undefined}
+                name={identity.name}
+                color={identity.color ?? '#1d4ed8'}
+                className="h-8 w-8 text-base"
+                decorative
+              />
+            ) : (
+              <img src="/brand-logo.png" alt="Logo Rix7" className="w-full h-full object-contain p-1" />
+            )}
           </div>
-          <div>
-            <h2 className="text-sm font-bold text-slate-900">Panel Socios</h2>
-            <p className="text-[10px] text-slate-500">Tu cuenta, tu plan y tus publicaciones</p>
+          <div className="min-w-0">
+            <h2 className="text-sm font-bold text-slate-900 truncate" title={identity?.name}>
+              {identity ? identity.name : 'Panel Socios'}
+            </h2>
+            <p className="text-[10px] text-slate-500 truncate">
+              {identity ? 'Panel Socios · tu cuenta y publicaciones' : 'Tu cuenta, tu plan y tus publicaciones'}
+            </p>
           </div>
         </div>
 
@@ -94,6 +123,24 @@ export default function SocioShell({
 
       {/* Pestañas (móvil) */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* En el móvil no hay sidebar: la empresa va en una fila propia, arriba
+            de las pestañas, para que el socio se reconozca al entrar. */}
+        {identity && (
+          <div className="lg:hidden flex items-center gap-2 px-4 pt-3 bg-white">
+            <div className="w-7 h-7 rounded-lg overflow-hidden bg-white border border-slate-200 flex items-center justify-center shrink-0">
+              <PartnerLogo
+                logo={identity.logo ?? undefined}
+                name={identity.name}
+                color={identity.color ?? '#1d4ed8'}
+                className="h-6 w-6 text-xs"
+                decorative
+              />
+            </div>
+            <span className="text-sm font-bold text-slate-900 truncate">{identity.name}</span>
+            <span className="text-[10px] text-slate-400 shrink-0">Panel Socios</span>
+          </div>
+        )}
+
         <nav className="lg:hidden flex items-center gap-2 px-4 py-3 bg-white border-b border-slate-200 overflow-x-auto">
           {sidebarItems.map((item) => {
             const active = isActive(item.href);
