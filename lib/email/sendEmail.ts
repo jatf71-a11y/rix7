@@ -16,6 +16,8 @@
  * convierte un envío que no ocurrió en uno que sí.
  */
 
+import { recordEmailLog } from '@/lib/data/emailLog';
+
 import { captureOutbox } from './outbox';
 
 export interface EmailInput {
@@ -23,6 +25,12 @@ export interface EmailInput {
   subject: string;
   html: string;
   text: string;
+  /**
+   * Nombre estable de la plantilla (`panel_link`, `mfa_reset`…). Va a
+   * `email_log` para poder responder «¿qué correos de reset salieron?» sin
+   * leer asuntos a ojo. Opcional: los correos armados a mano no tienen.
+   */
+  template?: string;
 }
 
 export interface EmailResult {
@@ -67,6 +75,17 @@ export function isEmailConfigured(): boolean {
 }
 
 export async function sendEmail(input: EmailInput): Promise<EmailResult> {
+  const result = await deliver(input);
+
+  // La bitácora va **después** del envío y no puede cambiarlo: se anota lo que
+  // pasó —incluido el `skipped`— y el resultado vuelve intacto.
+  await recordEmailLog(input, result);
+
+  return result;
+}
+
+/** El envío en sí, sin bitácora: lo que se prueba y lo que se reintenta. */
+async function deliver(input: EmailInput): Promise<EmailResult> {
   const { to, subject, html, text } = input;
   const apiKey = process.env.RESEND_API_KEY;
 

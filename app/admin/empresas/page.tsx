@@ -596,6 +596,7 @@ function AdminEmpresasPage() {
                   puede entrar y el enlace del correo no alcanza, porque el
                   panel exige el segundo factor. */}
               <PartnerPanelLink
+                partnerId={partner.id}
                 slug={partner.slug}
                 name={partner.name}
                 contactEmail={partner.contact.email}
