@@ -18,6 +18,7 @@ import { KYB_STATUS_LABELS, type KybQuestion, type KybStatus } from '@/lib/kyb/s
 import { toKybPayload, usesKybFlow } from '@/lib/kyb/registration';
 import { formatRutInput, normalizeRut } from '@/lib/utils/rut';
 import { formatChilePhone, formatPhoneInput, normalizeChilePhone } from '@/lib/utils/phone';
+import { TurnstileWidget } from '@/components/security/TurnstileWidget';
 
 /**
  * Registro inicial de quien va a publicar: corredora, inmobiliaria o
@@ -212,6 +213,7 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<Success | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState('');
 
   // El RUT se valida también acá y no solo en el servidor: un dígito verificador
   // mal escrito se descubre al enviar, con el formulario entero lleno. Mientras
@@ -291,16 +293,19 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(
           kyb
-            ? toKybPayload(
-                {
-                  ...form,
-                  rut,
-                  phone,
-                  hasWebsite: form.hasWebsite === 'si',
-                  hasCompanyEmail: form.hasCompanyEmail === 'si',
-                },
-                kind
-              )
+            ? {
+                ...toKybPayload(
+                  {
+                    ...form,
+                    rut,
+                    phone,
+                    hasWebsite: form.hasWebsite === 'si',
+                    hasCompanyEmail: form.hasCompanyEmail === 'si',
+                  },
+                  kind
+                ),
+                turnstileToken,
+              }
             : {
                 kind,
                 ...form,
@@ -311,6 +316,7 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
                 hasWebsite: form.hasWebsite === '' ? null : form.hasWebsite === 'si',
                 hasCompanyEmail:
                   form.hasCompanyEmail === '' ? null : form.hasCompanyEmail === 'si',
+                turnstileToken,
               }
         ),
       });
@@ -849,6 +855,8 @@ export default function RegistrationForm({ kind }: { kind: RegistrationKind }) {
           <span>{error}</span>
         </div>
       )}
+
+      <TurnstileWidget onToken={setTurnstileToken} />
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Link

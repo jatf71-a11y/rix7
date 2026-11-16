@@ -24,6 +24,7 @@ import { solicitudOfferLabel } from '@/lib/data/solicitudEvaluation';
 import { buildSolicitudReceivedEmail } from '@/lib/email/solicitudApplicantEmail';
 import { requireAdmin } from '@/lib/supabase/auth-guard';
 import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
+import { verifyTurnstile } from '@/lib/utils/turnstile';
 import { buildSolicitudEmail, notifyOnSolicitud, type NotifiableSolicitud } from '@/lib/email/solicitudEmail';
 import { sendEmail } from '@/lib/email/sendEmail';
 import { SITE_URL } from '@/lib/site';
@@ -202,6 +203,14 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return NextResponse.json({ success: false, error: 'Cuerpo inválido' }, { status: 400 });
+  }
+
+  const human = await verifyTurnstile({
+    token: (body as { turnstileToken?: unknown }).turnstileToken,
+    ip: clientIpFrom(request.headers),
+  });
+  if (!human.ok) {
+    return NextResponse.json({ success: false, error: human.error }, { status: 400 });
   }
 
   // Primero la forma: objeto con los campos que el formulario puede mandar.

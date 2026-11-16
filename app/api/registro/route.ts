@@ -7,6 +7,7 @@ import { signupPostSchema } from '@/lib/api/schemas';
 import { validateInput } from '@/lib/api/validate';
 import { requireAdmin } from '@/lib/supabase/auth-guard';
 import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
+import { verifyTurnstile } from '@/lib/utils/turnstile';
 import { SITE_URL } from '@/lib/site';
 
 /**
@@ -59,6 +60,14 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return NextResponse.json({ success: false, error: 'Cuerpo inválido' }, { status: 400 });
+  }
+
+  const human = await verifyTurnstile({
+    token: (body as { turnstileToken?: unknown }).turnstileToken,
+    ip: clientIpFrom(request.headers),
+  });
+  if (!human.ok) {
+    return NextResponse.json({ success: false, error: human.error }, { status: 400 });
   }
 
   // Primero la forma (Zod): debe ser un objeto con los campos esperados.

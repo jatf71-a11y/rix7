@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { TurnstileWidget } from '@/components/security/TurnstileWidget';
 import Link from 'next/link';
 import {
   BROWSER_PERMISSIONS,
@@ -86,6 +87,7 @@ export function RegistrationModal() {
   const [checks, setChecks] = useState<CheckState>({ ...EMPTY_CONSENTS });
   const [step, setStep] = useState<Step>('form');
   const [sending, setSending] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
   // Con el buzón local (DEV_EMAIL_OUTBOX=1) el servidor devuelve el id del
@@ -261,6 +263,7 @@ export function RegistrationModal() {
           email: email.trim(),
           phone,
           consents,
+          turnstileToken,
         }),
       });
       const result = await response.json().catch(() => null);
@@ -604,6 +607,8 @@ export function RegistrationModal() {
               )}
 
               <div className="space-y-3 pt-1">
+                <TurnstileWidget onToken={setTurnstileToken} />
+
                 <button
                   type="submit"
                   disabled={sending}

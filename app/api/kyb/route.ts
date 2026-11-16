@@ -5,6 +5,7 @@ import { submitKybApplication } from '@/lib/kyb/onboarding';
 import { kybSource, listApplications } from '@/lib/kyb/store';
 import { requireAdmin } from '@/lib/supabase/auth-guard';
 import { clientIpFrom, createRateLimiter } from '@/lib/utils/rateLimit';
+import { verifyTurnstile } from '@/lib/utils/turnstile';
 
 /**
  * `/api/kyb` — alta de empresas y listado para el equipo.
@@ -51,6 +52,14 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return NextResponse.json({ success: false, error: 'Cuerpo inválido' }, { status: 400 });
+  }
+
+  const human = await verifyTurnstile({
+    token: (body as { turnstileToken?: unknown }).turnstileToken,
+    ip: clientIpFrom(request.headers),
+  });
+  if (!human.ok) {
+    return NextResponse.json({ success: false, error: human.error }, { status: 400 });
   }
 
   const shape = validateInput(kybApplicationPostSchema, body);

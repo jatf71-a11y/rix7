@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import { TurnstileWidget } from '@/components/security/TurnstileWidget';
 import Link from 'next/link';
 import {
   AlertCircle,
@@ -74,6 +75,7 @@ interface Success {
 export default function PropietarioForm() {
   const [form, setForm] = useState<FormState>(INITIAL);
   const [sending, setSending] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<Success | null>(null);
 
@@ -119,6 +121,7 @@ export default function PropietarioForm() {
           // El input da cadena; vacío significa «a convenir», no cero.
           expected_price: form.expected_price.trim() ? Number(form.expected_price) : undefined,
           rol: form.rol.trim(),
+          turnstileToken,
         }),
       });
       const body = await response.json().catch(() => null);
@@ -510,6 +513,8 @@ export default function PropietarioForm() {
           <ArrowLeft className="h-3.5 w-3.5" />
           Volver a las opciones
         </Link>
+
+        <TurnstileWidget onToken={setTurnstileToken} />
 
         <button
           type="submit"
