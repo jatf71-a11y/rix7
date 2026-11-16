@@ -139,6 +139,7 @@ export interface RedeemResult {
   removed?: number;
   error?: string;
   audit?: { ok: boolean; error?: string };
+  notified?: { sent: boolean; skipped: boolean; error?: string } | null;
 }
 
 /**
@@ -209,7 +210,12 @@ export async function redeemRecoveryCode({
     if (!removed.ok) {
       return { ok: false, code: 'failed', error: removed.error, removed: removed.count, audit };
     }
-    return { ok: true, removed: removed.count, audit };
+    // Si el canje tuvo éxito, el titular debe enterarse aunque no lo haya pedido él.
+    // Un fallo de correo no revierte el canje: el segundo factor ya se quitó.
+    const notified = email
+      ? await notifyMfaReset(email, { companyName: 'Rix7', panelPath: '/admin/cuenta' })
+      : null;
+    return { ok: true, removed: removed.count, audit, notified };
   } catch (error) {
     return { ok: false, code: 'failed', error: errorMessage(error, 'Error inesperado al canjear el código.') };
   }
