@@ -51,7 +51,9 @@ export function isSupabaseConfigured(): boolean {
  * inaccesible para probarlo. En producción (`NODE_ENV === 'production'`, lo que
  * hace Vercel) siempre se exige la sesión y el rol.
  */
-export async function requireAdmin(): Promise<GuardResult> {
+export async function requireAdmin(
+  options: { allowPendingMfa?: boolean } = {}
+): Promise<GuardResult> {
   const configured = isSupabaseConfigured();
   const devBypass =
     process.env.NEXT_PUBLIC_SHOW_ADMIN_ENV === '1' || process.env.NODE_ENV !== 'production';
@@ -60,10 +62,12 @@ export async function requireAdmin(): Promise<GuardResult> {
   let role: AccountRole = 'visitor';
   let userId: string | null = null;
   let email: string | null = null;
+  /** Se conserva para leer el nivel de garantía (2FA) de la misma sesión. */
+  let supabase: ReturnType<typeof createClient> | null = null;
 
   if (configured) {
     try {
-      const supabase = createClient();
+      supabase = createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -93,6 +97,30 @@ export async function requireAdmin(): Promise<GuardResult> {
         { status: decision.status ?? 403 }
       ),
     };
+  }
+
+  // Segundo factor del equipo: es la cuenta que administra socios, planes y
+  // accesos, así que no alcanza con el enlace del correo. Si la cuenta tiene un
+  // factor verificado y esta sesión entró solo con `aal1`, ninguna ruta de
+  // administración responde hasta que se escriba el código de la app.
+  // `allowPendingMfa` es para las rutas que muestran ese estado (el propio
+  // desafío y el canje de un código de recuperación).
+  if (configured && supabase && !options.allowPendingMfa) {
+    const assurance = await readAssuranceLevel(supabase);
+    if (assurance.requiresChallenge) {
+      return {
+        ok: false,
+        response: NextResponse.json(
+          {
+            success: false,
+            code: 'mfa_required',
+            error:
+              'Tu cuenta del equipo tiene verificación en dos pasos: ingresa el código de tu aplicación para continuar.',
+          },
+          { status: 403 }
+        ),
+      };
+    }
   }
 
   // Sin proyecto configurado el acceso vino del bypass, que equivale a admin.

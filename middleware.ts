@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from './lib/supabase/middleware';
 import { adminHostRedirect, adminRedirectUrl } from './lib/utils/adminHost';
+import { decideSlugAccess, socioForbiddenHtml, socioSlugFromPath } from './lib/utils/socioSlug';
 
 export async function middleware(request: NextRequest) {
   // El panel se sirve en el mismo dominio (`rix7.cl/admin`) y se protege en el
@@ -23,7 +24,31 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(adminRedirectUrl(request.url, adminHost), 307);
   }
 
-  return await updateSession(request);
+  const { response, user } = await updateSession(request);
+
+  // El panel de otra corredora responde **403 de verdad**, y solo se puede hacer
+  // acá: el layout del panel se transmite en streaming, así que cuando la
+  // página alcanza a rechazar la cuenta los encabezados ya salieron con 200 y el
+  // navegador nunca ve un rechazo. Sin sesión no se decide nada: la página
+  // ofrece entrar y el socio sigue su enlace desde el correo.
+  const slug = socioSlugFromPath(request.nextUrl.pathname);
+  if (slug && user) {
+    const access = decideSlugAccess({ slug, role: user.role, partnerId: user.partnerId });
+    if (access === 'foreign') {
+      const forbidden = new NextResponse(socioForbiddenHtml(slug), {
+        status: 403,
+        headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' },
+      });
+      // La respuesta de sesión puede traer cookies renovadas: se conservan para
+      // que el rechazo no obligue a volver a iniciar sesión.
+      for (const cookie of response.cookies.getAll()) {
+        forbidden.cookies.set(cookie);
+      }
+      return forbidden;
+    }
+  }
+
+  return response;
 }
 
 export const config = {
