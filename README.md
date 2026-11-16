@@ -8,7 +8,7 @@
 
 **Rix7** es un portal inmobiliario para Chile, construido **100 % con herramientas de código abierto y capas gratuitas** (sin APIs de pago de Google Maps ni Mapbox). Busca sobre un mapa GIS, guarda favoritos en tu cuenta y recibe un correo cuando aparezca una propiedad que encaje con tu búsqueda.
 
-🌐 **En producción:** [rix7.vercel.app](https://rix7.vercel.app) · 📦 Última versión: [v10.0.0](https://github.com/jatf71-a11y/rix7/releases/tag/v10.0.0)
+🌐 **En producción:** [rix7.cl](https://rix7.cl) · 📦 Versión desplegada: la informa [`/api/health`](https://rix7.cl/api/health), que es lo que verifica el release (este archivo no lleva el número, para no quedar desactualizado).
 
 ### ✨ Qué lo distingue
 

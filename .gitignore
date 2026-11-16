@@ -40,6 +40,9 @@ dev-server.log
 # de un uso: nunca se versionan.
 .accesos/
 
+# Respaldos de datos (contienen datos personales): nunca al repositorio.
+.backups/
+
 # Copias de verificación al lado del código
 .build-check/
 .git.backup-*

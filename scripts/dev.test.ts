@@ -35,6 +35,40 @@ describe('parseDevArgs', () => {
     expect(parseDevArgs([], { PORT: '4321' }).port).toBe('4321');
   });
 
+  // Este entorno exporta PORT=0. En Node, 0 no es «el 3000»: es «dame un puerto
+  // efímero», así que el servidor quedaba en una dirección que nadie podía abrir
+  // y el arranque anunciaba `localhost:0`.
+  it('PORT=0 no es un puerto usable: cae al documentado y lo dice', () => {
+    const args = parseDevArgs([], { PORT: '0' });
+    expect(args.port).toBe(String(DEFAULT_DEV_PORT));
+    expect(args.ignoredEnvPort).toBe('0');
+  });
+
+  it('un PORT fuera de rango o con basura tampoco se usa', () => {
+    for (const value of ['70000', '-1', 'abc', '3000x', '12.5']) {
+      const args = parseDevArgs([], { PORT: value });
+      expect(args.port).toBe(String(DEFAULT_DEV_PORT));
+      expect(args.ignoredEnvPort).toBe(value);
+    }
+  });
+
+  it('PORT vacío es «no dijo nada»: sin aviso', () => {
+    const args = parseDevArgs([], { PORT: '  ' });
+    expect(args.port).toBe(String(DEFAULT_DEV_PORT));
+    expect(args.ignoredEnvPort).toBeNull();
+  });
+
+  it('un --port explícito gana sobre PORT, incluso si PORT era basura', () => {
+    const args = parseDevArgs(['--port', '3939'], { PORT: '0' });
+    expect(args.port).toBe('3939');
+    expect(args.ignoredEnvPort).toBeNull();
+  });
+
+  it('un --port inválido no rompe: conserva el puerto que ya había', () => {
+    expect(parseDevArgs(['--port', '0'], {}).port).toBe(String(DEFAULT_DEV_PORT));
+    expect(parseDevArgs(['--port=abc'], { PORT: '4321' }).port).toBe('4321');
+  });
+
   it('recoge --dist en sus dos formas', () => {
     expect(parseDevArgs(['--dist', '.next'], {}).dist).toBe('.next');
     expect(parseDevArgs(['--dist=.next'], {}).dist).toBe('.next');
@@ -62,6 +96,15 @@ describe('planDevRun', () => {
     expect(plan.port).toBe(String(DEFAULT_DEV_PORT));
     expect(plan.distDir).toBe(slotDistDir(DEFAULT_DEV_PORT));
     expect(plan.error).toBeNull();
+    expect(plan.portNote).toBeNull();
+  });
+
+  it('con PORT=0 explica por qué arranca en el puerto documentado', () => {
+    const plan = planDevRun({ argv: [], env: { PORT: '0' }, root: ROOT });
+    expect(plan.port).toBe(String(DEFAULT_DEV_PORT));
+    expect(plan.distDir).toBe(slotDistDir(DEFAULT_DEV_PORT));
+    expect(plan.portNote).toContain('PORT=0');
+    expect(plan.portNote).toContain('efímero');
   });
 
   it('dos hilos con puertos distintos no comparten distDir', () => {

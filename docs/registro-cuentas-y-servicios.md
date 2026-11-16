@@ -212,3 +212,28 @@ sirve: Supabase vincula por **identificador** de GitHub, no por nombre ni correo
   `503`. Desde el commit `c8d38f8` el sync verifica por presencia con `vercel env ls --json`
   antes de informar, y el corte informa por presencia también. Un informe que no comprobó el
   efecto es un defecto que se arregla, no una nota al pie.
+
+## Cuenta de pruebas del panel de socios
+
+El equipo definió (2026-11-16) que el desarrollo y las pruebas de la sección Socios se hacen
+con **Catedral Propiedades**, no con datos inventados: es el único socio con cartera real y
+publicaciones cargadas, así que el panel muestra el caso de uso completo (lista, compartidos,
+contactos, CCA, 2FA).
+
+| Qué | Valor |
+|---|---|
+| Socio | `catedral` — Catedral Propiedades (15 publicaciones al 2026-11-16) |
+| Cuenta | `jtorres@catedralpropiedades.com`, con `app_metadata`: `role: member`, `partner_id: catedral` |
+| Vínculo | Se hizo con `linkPartnerAccount` (`lib/kyb/provisioning.ts`), la misma función del panel del equipo |
+| Entrada | `https://rix7.cl/socio` o la URL propia `https://rix7.cl/socio/catedral` |
+
+Cuidados al usarla:
+
+- **Los permisos viven en el token.** Después de vincular o desvincular una cuenta, la sesión
+  abierta sigue con el token anterior: hay que cerrar sesión y volver a entrar. Si no, el panel
+  responde «Se requiere rol de socio» aunque la cuenta ya esté lista.
+- **Los datos parecen reales** (publicaciones, contactos y compartidos). Para probar algo
+destructivo —borrar publicaciones, cambiar de plan, quitar 2FA— conviene una cuenta temporal
+vinculada al mismo socio y borrarla después.
+- El alta **«Javier Torres»** (`39d61d44-…`) sigue en `Alta` y **sin** `partner_id`. Si se cierra
+desde la ficha del equipo crea un socio **nuevo** (`javier-torres-…`), separado de Catedral.

@@ -58,29 +58,69 @@ export { slotTsconfigSource };
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 /**
+ * Un puerto que Next pueda escuchar: entero entre 1 y 65535.
+ *
+ * Existe porque `PORT` no siempre viene de un humano. Este entorno de trabajo
+ * exporta `PORT=0`, y `0` **no significa «el 3000»**: en Node significa «dame un
+ * puerto libre» (efímero). El wrapper lo reenviaba tal cual, Next escuchaba en
+ * un puerto al azar y el arranque anunciaba `http://localhost:0`, una dirección
+ * que no existe; quien abriera la documentada —`:3000`— o el `:3939` que había
+ * usado antes no encontraba nada, o encontraba un proceso viejo respondiendo
+ * 404. Elegir un puerto es una decisión del wrapper, así que acá se valida en
+ * vez de delegar en Next.
+ *
+ * @param {unknown} value
+ * @param {string | number} [fallback] qué devolver si no es usable (`''` para distinguir)
+ */
+export function normalizePort(value, fallback = DEFAULT_DEV_PORT) {
+  const raw = String(value ?? '').trim();
+  if (raw === '' || !/^\d+$/.test(raw)) return String(fallback);
+  const port = Number(raw);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) return String(fallback);
+  return String(port);
+}
+
+/**
  * Interpreta los argumentos del wrapper.
  *
  * `--port`/`-p` y `--dist` los consume el wrapper; todo lo demás se reenvía
  * intacto a `next dev` para no perder ninguna opción de la herramienta.
  *
+ * `PORT` del entorno solo se usa si es un puerto usable, y un `--port` explícito
+ * siempre gana: si alguien escribió el puerto, no hay nada que corregir.
+ *
  * @param {string[]} argv
  * @param {Record<string, string | undefined>} [env]
- * @returns {{ port: string, dist: string | undefined, passthrough: string[], help: boolean }}
+ * @returns {{ port: string, dist: string | undefined, passthrough: string[], help: boolean, ignoredEnvPort: string | null }}
  */
 export function parseDevArgs(argv, env = process.env) {
   const args = {
-    port: env.PORT ? String(env.PORT) : String(DEFAULT_DEV_PORT),
+    port: String(DEFAULT_DEV_PORT),
     dist: undefined,
     passthrough: [],
     help: false,
+    ignoredEnvPort: null,
   };
+
+  // Un `PORT` vacío es «no dijo nada»; uno con basura o fuera de rango se anota
+  // para avisar en vez de arrancar en silencio en otro puerto.
+  const envPort = String(env.PORT ?? '').trim();
+  if (envPort !== '') {
+    const usable = normalizePort(envPort, '');
+    if (usable !== '') args.port = usable;
+    else args.ignoredEnvPort = envPort;
+  }
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--help' || arg === '-h') args.help = true;
-    else if (arg === '--port' || arg === '-p') args.port = String(argv[++i] ?? args.port);
-    else if (arg.startsWith('--port=')) args.port = arg.slice('--port='.length);
-    else if (arg === '--dist') args.dist = argv[++i] ?? args.dist;
+    else if (arg === '--port' || arg === '-p') {
+      args.port = normalizePort(argv[++i], args.port);
+      args.ignoredEnvPort = null;
+    } else if (arg.startsWith('--port=')) {
+      args.port = normalizePort(arg.slice('--port='.length), args.port);
+      args.ignoredEnvPort = null;
+    } else if (arg === '--dist') args.dist = argv[++i] ?? args.dist;
     else if (arg.startsWith('--dist=')) args.dist = arg.slice('--dist='.length);
     else args.passthrough.push(arg);
   }
@@ -95,10 +135,16 @@ export function parseDevArgs(argv, env = process.env) {
  * El valor se devuelve **relativo** cuando lo es: es lo que Next necesita.
  *
  * @param {{ argv?: string[], env?: Record<string, string | undefined>, root?: string }} [options]
- * @returns {{ port: string, distDir: string, tsconfigPath: string | null, passthrough: string[], help: boolean, error: string | null }}
+ * @returns {{ port: string, distDir: string, tsconfigPath: string | null, passthrough: string[], help: boolean, error: string | null, portNote: string | null }}
  */
 export function planDevRun({ argv = process.argv.slice(2), env = process.env, root = ROOT } = {}) {
   const args = parseDevArgs(argv, env);
+
+  const portNote = args.ignoredEnvPort
+    ? `PORT=${args.ignoredEnvPort} no es un puerto usable (tiene que ser un entero de 1 a 65535; ` +
+      `0 pide uno efímero, y así el servidor queda en una dirección que nadie puede abrir). ` +
+      `Arranco en el ${args.port} documentado; si querés otro, pasá --port.`
+    : null;
 
   let distDir;
   if (args.dist) distDir = args.dist;
@@ -112,6 +158,7 @@ export function planDevRun({ argv = process.argv.slice(2), env = process.env, ro
     passthrough: args.passthrough,
     help: args.help,
     error: null,
+    portNote,
   };
 
   if (isRejectedDistDir(distDir)) {
@@ -155,6 +202,7 @@ function main() {
     console.error(`✖ ${plan.error}`);
     process.exit(1);
   }
+  if (plan.portNote) console.warn(`⚠ ${plan.portNote}`);
 
   // Paso previo: la guardia de secretos. Un secreto en el árbol no debería
   // circular ni por el servidor de desarrollo, y como el wrapper es el único
