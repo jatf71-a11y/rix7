@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/supabase/auth-guard';
 import { readDeployedRelease } from '@/lib/utils/deployedRelease';
 import manifest from '../../package.json';
 import AdminAccess from './AdminAccess';
+import AdminMfaGate from './AdminMfaGate';
 import AdminShell from './AdminShell';
 
 /**
@@ -36,7 +37,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
    * pantalla de acceso, sin ninguna sección del panel. En local sin Supabase
    * sigue el bypass de desarrollo del guard.
    */
-  const guard = await requireAdmin();
+  // `allowPendingMfa`: con el segundo factor pendiente la sesión **sí** es de
+  // admin —el rol ya se comprobó—, pero todavía no pasó el desafío. Si acá se
+  // exigiera `aal2`, el panel entero respondería 403 y no habría dónde escribir
+  // el código. Las rutas de administración siguen exigiéndolo una por una.
+  const guard = await requireAdmin({ allowPendingMfa: true });
   // La pantalla de acceso se carga en diferido (`AdminAccess`): trae el cliente
   // de Supabase y solo la ve quien no tiene sesión.
   if (!guard.ok) return <AdminAccess status={guard.response.status} />;
@@ -46,5 +51,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // no dependa de una petición extra a `/api/health`.
   const release = readDeployedRelease(process.env, manifest.version);
 
-  return <AdminShell release={release}>{children}</AdminShell>;
+  return (
+    <AdminShell release={release}>
+      {/* La puerta del segundo factor se resuelve en el cliente y la valida el
+          servidor en cada ruta: acá se pide el código, no se confía en la
+          pantalla. */}
+      <AdminMfaGate>{children}</AdminMfaGate>
+    </AdminShell>
+  );
 }

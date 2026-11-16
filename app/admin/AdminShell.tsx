@@ -14,6 +14,8 @@ import {
   ArrowLeft,
   ChevronRight,
   Wallet,
+  Mail,
+  ShieldCheck,
 } from 'lucide-react';
 
 import type { DeployedRelease } from '@/lib/utils/deployedRelease';
@@ -58,6 +60,16 @@ const sidebarItems = [
     label: 'Enlaces compartidos',
     href: '/admin/landings',
     icon: Link2,
+  },
+  {
+    label: 'Correos',
+    href: '/admin/correos',
+    icon: Mail,
+  },
+  {
+    label: 'Mi cuenta',
+    href: '/admin/cuenta',
+    icon: ShieldCheck,
   },
 ];
 

@@ -21,9 +21,7 @@
 
 import { recordAdminEvent } from '@/lib/data/adminEvents';
 import { getPartnerById } from '@/lib/data/partners-store';
-import { buildMfaResetEmail } from '@/lib/email/mfaResetEmail';
-import { sendEmail } from '@/lib/email/sendEmail';
-import { SITE_URL } from '@/lib/site';
+import { clearMfaFactors, findUserByEmail, notifyMfaReset } from '@/lib/data/mfaFactors';
 import { createServiceRoleClient, isServiceRoleConfigured } from '@/lib/supabase/admin';
 
 /** Quién ejecuta la acción. Sale de la sesión del admin, no del cuerpo del pedido. */
@@ -47,23 +45,6 @@ export interface PartnerMfaResetResult {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const PARTNER_MFA_RESET_ACTION = 'partner_mfa.reset';
-
-/** Busca una cuenta por correo en la API de administración, página por página. */
-async function findUserByEmail(
-  admin: ReturnType<typeof createServiceRoleClient>,
-  email: string
-) {
-  for (let page = 1; page <= 10; page += 1) {
-    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
-    if (error) throw new Error(error.message);
-
-    const users = data?.users ?? [];
-    const match = users.find((user) => (user.email ?? '').toLowerCase() === email);
-    if (match) return match;
-    if (users.length < 1000) return null;
-  }
-  return null;
-}
 
 /** Borra todos los factores de la cuenta con ese correo, si es de ese socio. */
 export async function resetPartnerMfa({
@@ -105,38 +86,9 @@ export async function resetPartnerMfa({
       };
     }
 
-    // El listado de cuentas no trae los factores; el detalle sí. Se pide para no
-    // responder «no tenía verificación» cuando en realidad sí la tiene.
-    const { data: detail, error: detailError } = await admin.auth.admin.getUserById(user.id);
-    if (detailError) {
-      return { ok: false, code: 'provider', error: `No se pudo leer la cuenta: ${detailError.message}` };
-    }
-
-    const factors = detail?.user?.factors ?? [];
-    if (factors.length === 0) {
+    const removed = await clearMfaFactors(admin, user.id);
+    if (removed === 0) {
       return { ok: true, removed: 0, email: clean };
-    }
-
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !key) {
-      return { ok: false, code: 'not_configured', error: 'Falta la configuración de Supabase.' };
-    }
-
-    // La API de administración de GoTrue expone el borrado por factor; el SDK
-    // todavía no lo envuelve, así que va por REST con la misma clave de servicio.
-    for (const factor of factors) {
-      const response = await fetch(
-        `${url}/auth/v1/admin/users/${encodeURIComponent(user.id)}/factors/${encodeURIComponent(factor.id)}`,
-        { method: 'DELETE', headers: { apikey: key, Authorization: `Bearer ${key}` } }
-      );
-      if (!response.ok) {
-        return {
-          ok: false,
-          code: 'provider',
-          error: `No se pudo quitar el factor (HTTP ${response.status}). Intentá de nuevo.`,
-        };
-      }
     }
 
     // El registro va antes del correo: si el envío falla, la acción ya quedó
@@ -147,24 +99,20 @@ export async function resetPartnerMfa({
       actorEmail: actor?.email ?? null,
       partnerId,
       targetEmail: clean,
-      detail: { factors: factors.length },
+      detail: { factors: removed },
     });
 
     const partner = await getPartnerById(partnerId).catch(() => undefined);
-    const sent = await sendEmail({
-      to: clean,
-      ...buildMfaResetEmail({
-        companyName: partner?.name ?? partnerId,
-        panelUrl: `${SITE_URL}/socio/cuenta`,
-        siteUrl: SITE_URL,
-      }),
+    const notified = await notifyMfaReset(clean, {
+      companyName: partner?.name ?? partnerId,
+      panelPath: '/socio/cuenta',
     });
 
     return {
       ok: true,
-      removed: factors.length,
+      removed,
       email: clean,
-      notified: { sent: sent.sent, skipped: sent.skipped, ...(sent.error ? { error: sent.error } : {}) },
+      notified,
       audit: { ok: audit.ok, ...(audit.error ? { error: audit.error } : {}) },
     };
   } catch (error) {

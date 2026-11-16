@@ -38,7 +38,16 @@ function errorMessage(raw: string | undefined, fallback: string): string {
   return raw;
 }
 
-export default function MfaPanel() {
+export default function MfaPanel({
+  endpoint = '/api/partner/mfa',
+}: {
+  /**
+   * De dónde se lee el estado. El panel del socio y el del equipo exponen rutas
+   * distintas (`/api/partner/mfa` y `/api/admin/mfa`) pero el flujo —enrolar,
+   * confirmar, desactivar— es el mismo, así que el componente es uno solo.
+   */
+  endpoint?: string;
+} = {}) {
   const [status, setStatus] = useState<MfaStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState<EnrolledFactor | null>(null);
@@ -50,7 +59,7 @@ export default function MfaPanel() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch('/api/partner/mfa', { cache: 'no-store' })
+    fetch(endpoint, { cache: 'no-store' })
       .then(async (response) => (response.ok ? (await response.json())?.data : null))
       .then((data) => {
         if (!cancelled) setStatus((data as MfaStatus) ?? null);
@@ -65,7 +74,7 @@ export default function MfaPanel() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [endpoint]);
 
   async function startEnrollment() {
     if (busy) return;
