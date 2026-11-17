@@ -50,13 +50,13 @@ const RULES: Array<{ kind: Classification | 'unknown'; test: RegExp }> = [
   // en `.png` y se clasificaría mal. Es el error que este guard debe atrapar:
   // el mismo archivo pide el tile con fetch y con <img> según la librería.
   // El host de Supabase llega por variable de entorno, no literal en el código.
-  { kind: 'connect', test: /tiles:\s*\[|tiles:\s*\{|fetch\(|axios|new WebSocket|wss:\/\/|supabase/i },
+  { kind: 'connect', test: /tiles:\s*\[|tiles:\s*\{|fetch\(|axios|new WebSocket|wss:\/\/|supabase|siteverify/i },
   // Leaflet las pide como <img> (su línea trae `tileLayer(`).
   { kind: 'image', test: /tileLayer\(|iconUrl|iconRetinaUrl|shadowUrl|poster|image|logo|avatar|thumbnail|background-image|\.png|\.jpe?g|\.svg|\.webp|\.ico/i },
   { kind: 'media', test: /<video|video_url|videoUrl|\.mp4|\.webm|\.mov|\.m3u8/i },
   { kind: 'font', test: /\.woff2?|\.ttf|\.otf/i },
   { kind: 'worker', test: /\bnew Worker\b|importScripts/ },
-  { kind: 'script', test: /<script/i },
+  { kind: 'script', test: /<script|turnstile\/v0\/api\.js/i },
   { kind: 'unknown', test: /.*/ },
 ];
 
