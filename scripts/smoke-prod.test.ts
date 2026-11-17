@@ -679,7 +679,7 @@ describe('createSmokeStore', () => {
     expect(row).toEqual({ id: 'sign-9', email: 'quien@correo.cl' });
 
     const query = decodeURIComponent(calls[0].url);
-    expect(query).toContain('email=eq.quien@correo.cl');
+    expect(query).toContain('email=ilike.quien@correo.cl');
     expect(query).toContain(`name=eq.${SMOKE_NAME}`);
     expect(query).toContain('created_at=gte.2026-11-03T17:00:00.000Z');
 
